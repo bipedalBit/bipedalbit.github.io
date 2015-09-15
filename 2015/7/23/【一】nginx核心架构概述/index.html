@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>【一】nginx核心架构概述 | Hacking to the gate!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 毕业前，毕设完成后，我闲极无聊接触了一下socket编程，用C++的Qt框架写了玩具一样的TCP和UDP通信客户端。跟直系学长电话聊天时被建议深挖一下socket，尝试走走后端或者架构师路线。问该怎么深挖，答研究源码，要学习socket相关知识，研究服务器源码是最合适不过的了。至于选择哪个服务器，经过考量调查，发现比起比较沉重庞大的apache，nginx更加">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【一】nginx核心架构概述">
+<meta property="og:url" content="http://blog.bipedalbit.net/2015/7/23/【一】nginx核心架构概述/index.html">
+<meta property="og:site_name" content="Hacking to the gate!">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 毕业前，毕设完成后，我闲极无聊接触了一下socket编程，用C++的Qt框架写了玩具一样的TCP和UDP通信客户端。跟直系学长电话聊天时被建议深挖一下socket，尝试走走后端或者架构师路线。问该怎么深挖，答研究源码，要学习socket相关知识，研究服务器源码是最合适不过的了。至于选择哪个服务器，经过考量调查，发现比起比较沉重庞大的apache，nginx更加">
+<meta property="og:image" content="http://img.blog.csdn.net/20150723104541689?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:updated_time" content="2015-09-15T13:59:10.647Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【一】nginx核心架构概述">
+<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 毕业前，毕设完成后，我闲极无聊接触了一下socket编程，用C++的Qt框架写了玩具一样的TCP和UDP通信客户端。跟直系学长电话聊天时被建议深挖一下socket，尝试走走后端或者架构师路线。问该怎么深挖，答研究源码，要学习socket相关知识，研究服务器源码是最合适不过的了。至于选择哪个服务器，经过考量调查，发现比起比较沉重庞大的apache，nginx更加">
+  
+    <link rel="alternative" href="/atom.xml" title="Hacking to the gate!" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <link href="//fonts.useso.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
+  
+</head>
+<body>
+<div id="container">
+  <div id="wrap">
+    <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hacking to the gate!</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">为了证明并非止步不前，为了安慰被神牛震慑的心。</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="http://www.baidu.com/baidu" method="get" accept-charset="utf-8" class="search-form">
+          <input type="search" name="word" maxlength="20" class="search-form-input" placeholder="Search">
+          <input type="submit" value="" class="search-form-submit">
+          <input name=tn type=hidden value="bds">
+          <input name=cl type=hidden value="3">
+          <input name=ct type=hidden value="2097152">
+          <input type="hidden" name="si" value="blog.bipedalbit.net">
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+    <div class="outer">
+      <section id="main"><article id="post-【一】nginx核心架构概述" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/7/23/【一】nginx核心架构概述/" class="article-date">
+  <time datetime="2015-07-23T03:01:28.000Z" itemprop="datePublished">2015-07-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/nginx/">nginx</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      【一】nginx核心架构概述
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>&nbsp;&nbsp;&nbsp; 毕业前，毕设完成后，我闲极无聊接触了一下socket编程，用C++的Qt框架写了玩具一样的TCP和UDP通信客户端。跟直系学长电话聊天时被建议深挖一下socket，尝试走走后端或者架构师路线。问该怎么深挖，答研究源码，要学习socket相关知识，研究服务器源码是最合适不过的了。至于选择哪个服务器，经过考量调查，发现比起比较沉重庞大的apache，nginx更加小巧，也非常优秀。于是在开始正式吃源码之前，我先开始了一番自我科普工作。<br><a id="more"></a></p>
+<h3 id="1、进程模型">1<span style="font-family:宋体;">、进程模型</span></h3><p>&nbsp;&nbsp;&nbsp; 首先，默认的，与其他服务器一样，<span style="font-family:Times New Roman;">Unix</span><span style="font-family:宋体;">下的</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">也以</span><span style="font-family:Times New Roman;">daemon</span><span style="font-family:宋体;">（守护进程）的形式持续在后台运行。虽然</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">也可以以调试为目的关掉后台模式，使用前台模式，甚至可以通过配置取消</span><span style="font-family:Times New Roman;">master</span><span style="font-family:宋体;">进程（后面会详细解释），使</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">以单进程的形式工作。但是这些与</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">引以为傲的架构关系不大，这里按下不表。尽管</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">也支持多线程方式，我们还是着重来了解下其默认的多进程方式。</span></p>
+<p>&nbsp;&nbsp;&nbsp; nginx<span style="font-family:宋体;">在启动后会创建一个</span><span style="font-family:Times New Roman;">master</span><span style="font-family:宋体;">进程（主进程）和若干个</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程（从进程）。</span><span style="font-family:Times New Roman;">master</span><span style="font-family:宋体;">进程主要负责管理</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程，具体来说就是接收来自管理员的信号并转发给对应</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程；监控</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程的工作状态，在</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程异常终止时重新创建并启动</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程。而</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程负责处理基本的网络事件。</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程之间优先级对等、相互独立，公平竞争来自客户端的请求，每个请求只由一个</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程处理。</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">进程模型示意图如图</span><span style="font-family:Times New Roman;">1</span><span style="font-family:宋体;">所示。</span></p>
+<p></p><p align="center"><br>    &nbsp;<img src="http://img.blog.csdn.net/20150723104541689?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""><br>    图<span style="font-family:Times New Roman;">1&nbsp;nginx</span><span style="font-family:宋体;">进程模型示意图</span><br></p><br>&nbsp;&nbsp;&nbsp; worker<span style="font-family:宋体;">进程的数量可以进行设置，一般设置与</span><span style="font-family:Times New Roman;">CPU</span><span style="font-family:宋体;">核数一致，这一原则与</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">的事件处理模型有关。后面会继续介绍</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">的事件处理模型。</span><p></p>
+<h3 id="2、信号与请求">2<span style="font-family:宋体;">、信号与请求</span></h3><p>&nbsp;&nbsp;&nbsp; nginx<span style="font-family:宋体;">与外界互动无非通过两种接口界面：来自管理员的信号和来自客户端的请求。下面我们举例说明</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">是如何处理信号与请求的。</span></p>
+<p>&nbsp;&nbsp;&nbsp; 管理员要控制<span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">需要与</span><span style="font-family:Times New Roman;">master</span><span style="font-family:宋体;">进程通信，向</span><span style="font-family:Times New Roman;">master</span><span style="font-family:宋体;">进程发送指令信号即可。比如，</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">在</span><span style="font-family:Times New Roman;">0.8</span><span style="font-family:宋体;">版本之前使用</span><span style="font-family:Times New Roman;">kill&nbsp;-HUP pid</span><span style="font-family:宋体;">命令来重启</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">。使用这个命令重启</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">将实现从容地重启过程，期间服务不中断。</span><span style="font-family:Times New Roman;">master</span><span style="font-family:宋体;">进程在接到</span><span style="font-family:Times New Roman;">HUP</span><span style="font-family:宋体;">指令后首先会重新加载配置文件，然后启动新的</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程，向旧的</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程发送停止信号。这时新的</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程开始接收网络请求，旧的</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程停止接收新的请求，等到处理完当前请求后，旧的</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程就退出销毁了。在</span><span style="font-family:Times New Roman;">0.8</span><span style="font-family:宋体;">版本以后，</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">引入了一系列命令行参数以方便管理服务器，比如</span><span style="font-family:Times New Roman;">./nginx&nbsp;-s&nbsp;reload</span><span style="font-family:宋体;">和</span><span style="font-family:Times New Roman;">./nginx&nbsp;-s&nbsp;stop</span><span style="font-family:宋体;">，分别用来重启和停止</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">。执行操作命令时，我们实际上启动了一个新的</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">进程，这个进程在解析命令中的参数后，自行向</span><span style="font-family:Times New Roman;">master</span><span style="font-family:宋体;">进程发送相应的信号，达成与之前手动发送信号相同的效果。</span></p>
+<h3 id="3、请求与事件">3<span style="font-family:宋体;">、请求与事件</span></h3><p>&nbsp;&nbsp;&nbsp; 服务器最常处理的就是<span style="font-family:Times New Roman;">80</span><span style="font-family:宋体;">端口</span><span style="font-family:Times New Roman;">http</span><span style="font-family:宋体;">协议的请求了，</span> 以此为例说明一下<span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">处理请求的过程。首先，每一个</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程都是从</span><span style="font-family:Times New Roman;">master</span><span style="font-family:宋体;">进程</span><span style="font-family:Times New Roman;">fork</span><span style="font-family:宋体;">（分叉）而成的，</span><span style="font-family:Times New Roman;">master</span><span style="font-family:宋体;">进程中先建立好需要监听的</span><span style="font-family:Times New Roman;">socket</span><span style="font-family:宋体;">（套接字，即</span><span style="font-family:Times New Roman;">IP</span><span style="font-family:宋体;">地址</span><span style="font-family:Times New Roman;">+</span><span style="font-family:宋体;">端口号）和相应的</span><span style="font-family:Times New Roman;">listenfd</span><span style="font-family:宋体;">（监听文件描述符或句柄）。我们知道</span><span style="font-family:Times New Roman;">socket</span><span style="font-family:宋体;">通信中每个进程都要分配一个端口号，</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程的</span><span style="font-family:Times New Roman;">socket</span><span style="font-family:宋体;">分配工作就由</span><span style="font-family:Times New Roman;">master</span><span style="font-family:宋体;">进程来完成。所有</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程的</span><span style="font-family:Times New Roman;">listenfd</span><span style="font-family:宋体;">在新的连接到来时变得可读，为保证只有一个</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程处理连接，各</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程在注册</span><span style="font-family:Times New Roman;">listenfd</span><span style="font-family:宋体;">读事件前先要抢</span><span style="font-family:Times New Roman;">accept_mutex</span><span style="font-family:宋体;">（接受连接互斥锁），一个</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程抢注连接成功后，开始读取请求、解析请求、处理请求并反馈数据给客户端。</span></p>
+<h3 id="4、进程模型分析">4<span style="font-family:宋体;">、进程模型分析</span></h3><p>&nbsp;&nbsp;&nbsp; nginx<span style="font-family:宋体;">使用但不仅仅使用多进程请求处理模型（</span><span style="font-family:Times New Roman;">PPC</span><span style="font-family:宋体;">），每个</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程一次只处理一个请求，使得请求间资源独立不需要上锁，进程间互不影响能并行处理请求。一个请求处理失败导致一个</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程异常退出，不会使服务中断，而是由</span><span style="font-family:Times New Roman;">master</span><span style="font-family:宋体;">进程立刻重新启动一个新的</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程，降低了服务器面临的整体风险，使服务更加稳定。但是相比多线程模型（</span><span style="font-family:Times New Roman;">TPC</span><span style="font-family:宋体;">），系统开销略大，效率略低，这需要借助别的手段来改进。</span></p>
+<h3 id="5、nginx的高并发机制——异步非阻塞事件机制">5<span style="font-family:宋体;">、nginx的高并发机制</span><span style="font-family:Times New Roman;">——</span><span style="font-family:宋体;">异步非阻塞事件机制</span></h3><p>&nbsp;&nbsp;&nbsp; IIS<span style="font-family:宋体;">的事件处理机制是多线程，每个请求独占一个工作线程。由于多线程比较占用内存，线程间的上下文切换（反复的对寄存器组进行保护现场和恢复现场的操作）带来的</span><span style="font-family:Times New Roman;">CPU</span><span style="font-family:宋体;">开销也很大，多线程机制的服务器在面临数千并发量时，会给系统造成很大的压力，高并发性能并不算理想，当然如果硬件足够出色，能够提供足够的系统资源，系统压力也就不再是问题了。</span></p>
+<p>&nbsp;&nbsp;&nbsp; 我们深入到系统层面讨论一下多进程与多线程，阻塞式机制与非阻塞式机制的区别。</p>
+<p>&nbsp;&nbsp;&nbsp; 熟悉操作系统的同学应该了解，多线程的出现是为了在资源充足的情况下更充分的调度使用<span style="font-family:Times New Roman;">CPU</span><span style="font-family:宋体;">，尤其对提高多核</span><span style="font-family:Times New Roman;">CPU</span><span style="font-family:宋体;">的利用率十分有益。但是线程是系统任务的最小单位，而进程却是系统分配资源的最小单位，这就意味着多线程将面临一个很大的问题：当线程数增多，资源需求变大，这些线程的母进程可能无法立即一口气申请到足够所有线程使用的资源，而当系统手里没有足够的资源满足一个进程时，它会选择让整个进程都等着。这时即使系统资源足够一部分线程正常工作，母进程也无法申请到这些资源，导致所有线程一起等待。直白的说，使用多线程，进程内的线程间可以灵活的进行调度（虽然增加了线程死锁的风险和线程切换的开销），但是却无法保证母进程在逐渐庞大沉重时还能够在系统中得到合理的调度。由此可见，多线程确实可以提高</span><span style="font-family:Times New Roman;">CPU</span><span style="font-family:宋体;">利用率，但是并不是解决服务器高并发请求问题的理想解决方案，且不说在高并发状态下</span><span style="font-family:Times New Roman;">CPU</span><span style="font-family:宋体;">的高利用率也无法维持。以上是</span><span style="font-family:Times New Roman;">IIS</span><span style="font-family:宋体;">的多线程阻塞式事件机制。</span></p>
+<p>&nbsp;&nbsp;&nbsp; nginx<span style="font-family:宋体;">的多进程机制保证了每个请求独立申请系统资源，一旦满足条件，每一个请求都可以立即被处理，即非阻塞处理。但是创建进程需要的资源开销会比线程多一些，为了节约进程数，</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">使用了一些进程调度算法，使</span><span style="font-family:Times New Roman;">I/O</span><span style="font-family:宋体;">事件处理不仅仅靠多进程机制，而是非阻塞的多进程机制。下面我们就来具体的引入</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">的异步非阻塞事件处理机制。</span></p>
+<h3 id="6、epoll">6<span style="font-family:宋体;">、epoll</span></h3><p>&nbsp;&nbsp;&nbsp; Linux<span style="font-family:宋体;">下，言高并发的高性能网络必</span><span style="font-family:Times New Roman;">epoll</span><span style="font-family:宋体;">，</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">也正是使用了</span><span style="font-family:Times New Roman;">epoll</span><span style="font-family:宋体;">模型作为网络事件的处理机制。我们先看看</span><span style="font-family:Times New Roman;">epoll</span><span style="font-family:宋体;">是怎么来的。</span></p>
+<p>&nbsp;&nbsp;&nbsp; 最早的调度方案是异步忙轮询方式，即持续的轮询<span style="font-family:Times New Roman;">I/O</span><span style="font-family:宋体;">事件也就是遍历</span><span style="font-family:Times New Roman;">socket</span><span style="font-family:宋体;">集合的访问状态，显然服务器空闲时这一方案造成了无谓的</span><span style="font-family:Times New Roman;">CPU</span><span style="font-family:宋体;">开销。</span></p>
+<p>&nbsp;&nbsp;&nbsp; 后来，<span style="font-family:Times New Roman;">select</span><span style="font-family:宋体;">和</span><span style="font-family:Times New Roman;">poll</span><span style="font-family:宋体;">作为调度进程和提高</span><span style="font-family:Times New Roman;">CPU</span><span style="font-family:宋体;">利用率的代理先后出现，字面上看，一个是</span><span style="font-family:Times New Roman;">“</span><span style="font-family:宋体;">选择</span><span style="font-family:Times New Roman;">”</span><span style="font-family:宋体;">，一个是</span><span style="font-family:Times New Roman;">“</span><span style="font-family:宋体;">投票</span><span style="font-family:Times New Roman;">”</span><span style="font-family:宋体;">，它们的本质相同，都是轮询</span><span style="font-family:Times New Roman;">socket</span><span style="font-family:宋体;">集合并处理请求，与之前不同的地方在于，它们能够监视</span><span style="font-family:Times New Roman;">I/O</span><span style="font-family:宋体;">事件，空闲时轮询线程将被阻塞，而一个或多个</span><span style="font-family:Times New Roman;">I/O</span><span style="font-family:宋体;">事件到来时则被唤醒，摆脱了</span><span style="font-family:Times New Roman;">“</span><span style="font-family:宋体;">忙轮询</span><span style="font-family:Times New Roman;">”</span><span style="font-family:宋体;">的</span><span style="font-family:Times New Roman;">“</span><span style="font-family:宋体;">忙</span><span style="font-family:Times New Roman;">”</span><span style="font-family:宋体;">，成为异步轮询方式。</span><span style="font-family:Times New Roman;">select/poll</span><span style="font-family:宋体;">模型轮询的是整个</span><span style="font-family:Times New Roman;">FD</span><span style="font-family:宋体;">（文件描述符）集合即</span><span style="font-family:Times New Roman;">socket</span><span style="font-family:宋体;">集合，网络事件处理效率随着并发请求数线性降低，所以使用一个宏来限制最大并发连接数。同时，</span><span style="font-family:Times New Roman;">select/poll</span><span style="font-family:宋体;">模型的内核空间与用户空间通信方式为内存复制，带来较高的开销。以上缺点催生了新模型的产生。</span></p>
+<p>&nbsp;&nbsp;&nbsp; epoll<span style="font-family:宋体;">可以认为是</span><span style="font-family:Times New Roman;">event&nbsp;poll</span><span style="font-family:宋体;">的简写，</span>是<span style="font-family:Times New Roman;">Linux</span><span style="font-family:宋体;">内核为处理大批量文件描述符而作了改进的</span><span style="font-family:Times New Roman;">poll</span><span style="font-family:宋体;">，是</span><span style="font-family:Times New Roman;">Linux</span><span style="font-family:宋体;">下多路复用</span><span style="font-family:Times New Roman;">I</span>/O<span style="font-family:宋体;">接口</span><span style="font-family:Times New Roman;">select/poll</span><span style="font-family:宋体;">的增强版本，它能显著提高程序在大量并发连接中只有少量活跃的情况下的系统</span><span style="font-family:Times New Roman;">CPU</span><span style="font-family:宋体;">利用率。</span>首先，<span style="font-family:Times New Roman;">epoll</span><span style="font-family:宋体;">没有最大并发连接数的限制，上限是可以打开的最大文件数，这与硬件内存大小有关，</span><span style="font-family:Times New Roman;">1GB</span><span style="font-family:宋体;">的机器上大约是</span><span style="font-family:Times New Roman;">10w</span><span style="font-family:宋体;">左右；然后是</span><span style="font-family:Times New Roman;">epoll</span><span style="font-family:宋体;">最显著的优点，它只对</span><span style="font-family:Times New Roman;">“</span><span style="font-family:宋体;">活跃</span><span style="font-family:Times New Roman;">”</span><span style="font-family:宋体;">的</span><span style="font-family:Times New Roman;">socket</span><span style="font-family:宋体;">进行操作，因为只有那些被内核</span><span style="font-family:Times New Roman;">I/O</span><span style="font-family:宋体;">读写事件异步唤醒的</span><span style="font-family:Times New Roman;">socket</span><span style="font-family:宋体;">才被放入</span><span style="font-family:Times New Roman;">ready</span><span style="font-family:宋体;">队列，准备进入</span><span style="font-family:Times New Roman;">worker</span><span style="font-family:宋体;">进程被处理，这在实际生产环境中节省了大量轮询开销，极大的提高了事件处理效率；最后，</span><span style="font-family:Times New Roman;">epoll</span><span style="font-family:宋体;">使用共享内存（</span><span style="font-family:Times New Roman;">MMAP</span><span style="font-family:宋体;">）的方式实现内核空间与用户空间的通信，省掉了内存复制的开销。额外的，</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">中使用</span><span style="font-family:Times New Roman;">epoll</span><span style="font-family:宋体;">的</span><span style="font-family:Times New Roman;">ET</span><span style="font-family:宋体;">（边缘触发）工作模式即快速工作模式。</span><span style="font-family:Times New Roman;">ET</span><span style="font-family:宋体;">模式下，只支持非阻塞</span><span style="font-family:Times New Roman;">socket</span><span style="font-family:宋体;">，</span><span style="font-family:Times New Roman;">FD</span><span style="font-family:宋体;">就绪即由内核通过</span><span style="font-family:Times New Roman;">epoll</span><span style="font-family:宋体;">发送通知，经过某些操作使</span><span style="font-family:Times New Roman;">FD</span><span style="font-family:宋体;">不再是就绪状态时也会发送通知，但如果一直没有</span><span style="font-family:Times New Roman;">I/O</span><span style="font-family:宋体;">操作导致</span><span style="font-family:Times New Roman;">FD</span><span style="font-family:宋体;">变为未就绪状态将不再发送通知。总的来说，</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">在</span><span style="font-family:Times New Roman;">Linux</span><span style="font-family:宋体;">下是基于事件，利用</span><span style="font-family:Times New Roman;">epoll</span><span style="font-family:宋体;">处理网络事件的。</span></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://blog.bipedalbit.net/2015/7/23/【一】nginx核心架构概述/" data-id="cielfyyae0000gr97ol3wslld" class="article-share-link" data-share="baidu" data-title="【一】nginx核心架构概述">分享到</a>
+      
+
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/epoll/">epoll</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nginx/">nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/select-poll/">select/poll</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/7/23/【二】nginx源码文件结构浏览/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          【二】nginx源码文件结构浏览 
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+</section>
+      
+      <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Sublime-Text/">Sublime Text</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/node-js/">node.js</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/C/" style="font-size: 20px;">C</a> <a href="/tags/C/" style="font-size: 10px;">C++</a> <a href="/tags/epoll/" style="font-size: 10px;">epoll</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/makefile/" style="font-size: 10px;">makefile</a> <a href="/tags/nginx/" style="font-size: 20px;">nginx</a> <a href="/tags/ngx-int-t/" style="font-size: 10px;">ngx_int_t</a> <a href="/tags/node-js/" style="font-size: 15px;">node.js</a> <a href="/tags/rbtree/" style="font-size: 10px;">rbtree</a> <a href="/tags/select-poll/" style="font-size: 10px;">select/poll</a> <a href="/tags/socket-io/" style="font-size: 10px;">socket.io</a> <a href="/tags/static/" style="font-size: 10px;">static</a> <a href="/tags/sublime/" style="font-size: 10px;">sublime</a> <a href="/tags/内存分布/" style="font-size: 10px;">内存分布</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">八月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">近期文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/9/12/socket-io邀请制带登录聊天室实例【DRRR-chat-room】/">socket.io邀请制带登录聊天室实例【DRRR-chat-room】</a>
+          </li>
+        
+          <li>
+            <a href="/2015/9/6/node.js的'Cannot enqueue Handshake after invoking quit'错误/">node.js的&#39;Cannot enqueue Handshake after invoking quit&#39;错误</a>
+          </li>
+        
+          <li>
+            <a href="/2015/8/16/Linux下Sublime的C-C++多文件程序Makefile-清理-执行配置/">Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置</a>
+          </li>
+        
+          <li>
+            <a href="/2015/8/11/C语言的static关键字/">C语言的static关键字</a>
+          </li>
+        
+          <li>
+            <a href="/2015/8/6/【三】nginx的数据结构-1-——ngx-int-t与ngx-rbtree-t/">【三】nginx的数据结构(1)——ngx_int_t与ngx_rbtree_t</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">友情链接</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="http://xiguabaobao.com" target="_blank">主题作者</a>
+          </li>
+        
+          <li>
+            <a href="http://reqianduan.com" target="_blank">热前端</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+      
+    </div>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 Bipedal Bit<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      .
+      Theme by <a href="https://github.com/xiangming/landscape-plus" target="_blank">Landscape-plus</a>
+    </div>
+  </div>
+</footer>
+  </div>
+  <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+  <!-- totop start -->
+<div id="totop">
+<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+</div>
+
+<!-- totop end -->
+
+
+<!-- 百度分享 start -->
+
+<div id="article-share-box" class="article-share-box">
+  <div id="bdshare" class="bdsharebuttonbox article-share-links">
+    <a class="article-share-weibo" data-cmd="tsina" title="分享到新浪微博"></a>
+    <a class="article-share-weixin" data-cmd="weixin" title="分享到微信"></a>
+    <a class="article-share-qq" data-cmd="sqq" title="分享到QQ"></a>
+    <a class="article-share-renren" data-cmd="renren" title="分享到人人网"></a>
+    <a class="article-share-more" data-cmd="more" title="更多"></a>
+  </div>
+</div>
+<script>
+  function SetShareData(cmd, config) {
+    if (shareDataTitle && shareDataUrl) {
+      config.bdText = shareDataTitle;
+      config.bdUrl = shareDataUrl;
+    }
+    return config;
+  }
+  window._bd_share_config={
+    "common":{onBeforeClick: SetShareData},
+    "share":{"bdCustomStyle":"/css/bdshare.css"}
+  };
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+<!-- 百度分享 end -->
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,686 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>【三】nginx的数据结构(1)——ngx_int_t与ngx_rbtree_t | Hacking to the gate!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 就来挑两个特别的数据结构ngx_int_t、ngx_rbtree_t作为研读nginx源码的开始吧。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【三】nginx的数据结构(1)——ngx_int_t与ngx_rbtree_t">
+<meta property="og:url" content="http://blog.bipedalbit.net/2015/8/6/【三】nginx的数据结构-1-——ngx-int-t与ngx-rbtree-t/index.html">
+<meta property="og:site_name" content="Hacking to the gate!">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 就来挑两个特别的数据结构ngx_int_t、ngx_rbtree_t作为研读nginx源码的开始吧。">
+<meta property="og:image" content="http://img.blog.csdn.net/20150806074055339">
+<meta property="og:image" content="http://img.blog.csdn.net/20150806074132691">
+<meta property="og:image" content="http://img.blog.csdn.net/20150806074207378">
+<meta property="og:image" content="http://img.blog.csdn.net/20150806074443292">
+<meta property="og:image" content="http://img.blog.csdn.net/20150806074520668">
+<meta property="og:updated_time" content="2015-09-15T14:55:55.407Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【三】nginx的数据结构(1)——ngx_int_t与ngx_rbtree_t">
+<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 就来挑两个特别的数据结构ngx_int_t、ngx_rbtree_t作为研读nginx源码的开始吧。">
+  
+    <link rel="alternative" href="/atom.xml" title="Hacking to the gate!" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <link href="//fonts.useso.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
+  
+</head>
+<body>
+<div id="container">
+  <div id="wrap">
+    <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hacking to the gate!</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">为了证明并非止步不前，为了安慰被神牛震慑的心。</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="http://www.baidu.com/baidu" method="get" accept-charset="utf-8" class="search-form">
+          <input type="search" name="word" maxlength="20" class="search-form-input" placeholder="Search">
+          <input type="submit" value="" class="search-form-submit">
+          <input name=tn type=hidden value="bds">
+          <input name=cl type=hidden value="3">
+          <input name=ct type=hidden value="2097152">
+          <input type="hidden" name="si" value="blog.bipedalbit.net">
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+    <div class="outer">
+      <section id="main"><article id="post-【三】nginx的数据结构-1-——ngx-int-t与ngx-rbtree-t" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/8/6/【三】nginx的数据结构-1-——ngx-int-t与ngx-rbtree-t/" class="article-date">
+  <time datetime="2015-08-05T23:18:00.000Z" itemprop="datePublished">2015-08-06</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/nginx/">nginx</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      【三】nginx的数据结构(1)——ngx_int_t与ngx_rbtree_t
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>&nbsp;&nbsp;&nbsp; 就来挑两个特别的数据结构ngx_int_t、ngx_rbtree_t作为研读nginx源码的开始吧。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; 面对<span style="font-family:Times New Roman;">./src/core</span><span style="font-family:宋体;">子目录中</span><span style="font-family:Times New Roman;">71</span><span style="font-family:宋体;">个源文件，有点无从下手。浏览包含主函数的</span><span style="font-family:Times New Roman;">nginx.c</span><span style="font-family:宋体;">文件，发现</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">使用了很多自行封装的数据结构，不弄清楚这是些什么样的数据结构就很难理解主函数中操作的意义。于是我们挑看起来基础的数据结构开始研究。组织</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">所有数据结构的是</span><span style="font-family:Times New Roman;">ngx_core.h</span><span style="font-family:宋体;">文件。它首先包含了</span><span style="font-family:Times New Roman;">ngx_config.h</span><span style="font-family:宋体;">，我们在</span><span style="font-family:Times New Roman;">ngx_config.h</span><span style="font-family:宋体;">中发现了三个类型定义。</span></p>
+<h1 id="1-_ngx_int_t、ngx_uint_t、ngx_flag_t">1. ngx_int_t<span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">ngx_uint_t</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">ngx_flag_t</span></h1><p>&nbsp;&nbsp;&nbsp; nginx.c<span style="font-family:宋体;">中看到的第一个陌生数据类型是</span><span style="font-family:Times New Roman;">ngx_int_t</span><span style="font-family:宋体;">，在</span><span style="font-family:Times New Roman;">nginx_config.h</span><span style="font-family:宋体;">中找到了它的定义。</span></p>
+<pre><code><span class="keyword">typedef</span> <span class="keyword">intptr_t</span>        <span class="keyword">ngx_int_t</span>;
+<span class="keyword">typedef</span> <span class="keyword">uintptr_t</span>       <span class="keyword">ngx_uint_t</span>;
+<span class="keyword">typedef</span> <span class="keyword">intptr_t</span>        <span class="keyword">ngx_flag_t</span>;
+</code></pre><p>&nbsp;&nbsp;&nbsp; 顺藤摸瓜找到了三个数据类型的定义。本科<span style="font-family:Times New Roman;">c</span><span style="font-family:宋体;">入门教学中并没有对</span><span style="font-family:Times New Roman;">intptr_t/uintptr_t</span><span style="font-family:宋体;">的介绍，我在</span><span style="font-family:Times New Roman;">c</span><span style="font-family:宋体;">的</span><span style="font-family:Times New Roman;">stdint.h</span><span style="font-family:宋体;">头文件中发现了它们的定义。</span></p>
+<pre><code><span class="comment">/* Types for `void *' pointers.  */</span>
+<span class="preprocessor">#<span class="keyword">if</span> __WORDSIZE == <span class="number">64</span></span>
+<span class="preprocessor"># <span class="keyword">ifndef</span> __intptr_t_defined</span>
+<span class="keyword">typedef</span> <span class="keyword">long</span> <span class="keyword">int</span>               <span class="keyword">intptr_t</span>;
+<span class="preprocessor">#  <span class="keyword">define</span> __intptr_t_defined</span>
+<span class="preprocessor"># <span class="keyword">endif</span></span>
+<span class="keyword">typedef</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">int</span>    <span class="keyword">uintptr_t</span>;
+<span class="preprocessor">#<span class="keyword">else</span></span>
+<span class="preprocessor"># <span class="keyword">ifndef</span> __intptr_t_defined</span>
+<span class="keyword">typedef</span> <span class="keyword">int</span>                    <span class="keyword">intptr_t</span>;
+<span class="preprocessor">#  <span class="keyword">define</span> __intptr_t_defined</span>
+<span class="preprocessor"># <span class="keyword">endif</span></span>
+<span class="keyword">typedef</span> <span class="keyword">unsigned</span> <span class="keyword">int</span>        <span class="keyword">uintptr_t</span>;
+<span class="preprocessor">#<span class="keyword">endif</span></span>
+</code></pre><p>&nbsp;&nbsp;&nbsp; 首先注释说这两种类型是<span style="font-family:Times New Roman;">“void&nbsp;*”</span><span style="font-family:宋体;">的指针类型，尽管字面上看，</span><span style="font-family:Times New Roman;">intptr_t</span><span style="font-family:宋体;">和</span><span style="font-family:Times New Roman;">uintptr_t</span><span style="font-family:宋体;">确实是整型指针类型和无符号整型指针类型，但是让人摸不着头脑，为什么要使用整型作为整型的指针类型呢？先放一放，看后面的宏，机器是</span><span style="font-family:Times New Roman;">64</span><span style="font-family:宋体;">位字长则</span><span style="font-family:Times New Roman;">intptr_t</span><span style="font-family:宋体;">为</span><span style="font-family:Times New Roman;">long&nbsp;int</span><span style="font-family:宋体;">，</span><span style="font-family:Times New Roman;">uintptr_t</span><span style="font-family:宋体;">为</span><span style="font-family:Times New Roman;">unsigned&nbsp;long&nbsp;int</span><span style="font-family:宋体;">，正好我机器上是</span><span style="font-family:Times New Roman;">64</span><span style="font-family:宋体;">位编译器，</span><span style="font-family:Times New Roman;">sizeof()</span><span style="font-family:宋体;">了一下，是</span><span style="font-family:Times New Roman;">8</span><span style="font-family:宋体;">个字节</span><span style="font-family:Times New Roman;">64</span><span style="font-family:宋体;">位，小于</span><span style="font-family:Times New Roman;">64</span><span style="font-family:宋体;">位字长的</span><span style="font-family:Times New Roman;">intptr_t</span><span style="font-family:宋体;">为</span><span style="font-family:Times New Roman;">int</span><span style="font-family:宋体;">，</span><span style="font-family:Times New Roman;">uintptr_t</span><span style="font-family:宋体;">为</span><span style="font-family:Times New Roman;">unsigned&nbsp;int</span><span style="font-family:宋体;">，查表得知</span><span style="font-family:Times New Roman;">32</span><span style="font-family:宋体;">位编译器下</span><span style="font-family:Times New Roman;">int</span><span style="font-family:宋体;">和</span><span style="font-family:Times New Roman;">unsigned</span><span style="font-family:宋体;">为</span><span style="font-family:Times New Roman;">4</span><span style="font-family:宋体;">个字节，</span><span style="font-family:Times New Roman;">16</span><span style="font-family:宋体;">位编译器下为</span><span style="font-family:Times New Roman;">2</span><span style="font-family:宋体;">个字节。那么</span><span style="font-family:Times New Roman;">intptr_t/uintptr_t</span><span style="font-family:宋体;">应该是会随着平台字长变化而发生对应变化的整型类型。经过了解，发现《深入分析</span><span style="font-family:Times New Roman;">Linux</span><span style="font-family:宋体;">内核源码》中对此的解释是，系统内核在操作内存时，将内存当做一个大数组，而指针就是数组索引</span><span style="font-family:Times New Roman;">/</span><span style="font-family:宋体;">下标，内核程序员使用这种特殊的整型来接受内存地址值、操作内存相比使用指针更加直观，不容易犯错。看起来，</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">中，只是单纯的想要使用一些平台相关的</span><span style="font-family:Times New Roman;">int</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">unsigned&nbsp;int</span><span style="font-family:宋体;">类型变量而已。</span></p>
+<h1 id="2-_ngx_rbtree_t">2. ngx_rbtree_t</h1><h2 id="2-1_什么是红黑树">2.1 <span style="font-family:宋体;">什么是红黑树</span></h2><p>&nbsp;&nbsp;&nbsp; 作为一个曾经常年在<span style="font-family:Times New Roman;">ACM</span><span style="font-family:宋体;">比赛里划水的退役队员，对红黑树这样的有名数据结构还是比较敏感的。红黑树是一种特殊约束形式下的平衡二叉查找树实现。学过数据结构课的同学应该知道，课本上的最早的自平衡二叉树</span><span style="font-family:Times New Roman;">AVL</span><span style="font-family:宋体;">树严格的要求子树的高度差不超过</span><span style="font-family:Times New Roman;">2</span><span style="font-family:宋体;">，以获得根结点到所有叶结点距离基本相同（平衡）的特性。</span></p>
+<p>&nbsp;&nbsp;&nbsp; 红黑树不追求严格的平衡，而是通过<span style="font-family:Times New Roman;">5</span><span style="font-family:宋体;">个约束实现基本平衡：</span><br>&nbsp;&nbsp;&nbsp; ①结点是红色或黑色；<br>&nbsp;&nbsp;&nbsp; ②根是黑色；<br>&nbsp;&nbsp;&nbsp; ③叶结点是黑色；<br>&nbsp;&nbsp;&nbsp; ④红色结点的子结点都是黑色；<br>&nbsp;&nbsp;&nbsp; ⑤任一结点到其叶结点的简单路径中黑色结点数相同。</p>
+<p>&nbsp;&nbsp;&nbsp; AVL树根到叶结点最长距离与最短距离的比不超过2。红黑树的约束也保证了这一特性（最长路径是红黑相间，最短路径是全黑，这种情况下最长路径刚好是最短路径的2倍长）。</p>
+<p>&nbsp;&nbsp;&nbsp; 既然是平衡二叉查找树的一种实现，那么红黑树自然是内部有序的，同时跟AVL树一样支持O(log2n)时间复杂度的查找、插入和删除。</p>
+<p>&nbsp;&nbsp;&nbsp; 相比AVL树，红黑可以保证在每次插入或删除操作之后的重平衡过程中，全树拓扑结构的更新仅涉及常数个结点。尽管最坏情况下需对O(log2n)个结点重染色，但就分摊意义（平均效率）而言，仅为O(1)个。但是因为没有严格约束树的平衡特性，红黑树的左右子树高度差比AVL树要大。</p>
+<h2 id="2-2_ngx_rbtree-h">2.2 ngx_rbtree.h</h2><p>&nbsp;&nbsp;&nbsp; 机会难得，我们就把nginx的源码作为素材来深入了解一下红黑树的实现。首先是结点的结构：</p>
+<pre><code><span class="keyword">typedef</span> <span class="keyword">ngx_uint_t</span>  <span class="keyword">ngx_rbtree_key_t</span>;
+<span class="keyword">typedef</span> <span class="keyword">ngx_int_t</span>   <span class="keyword">ngx_rbtree_key_int_t</span>;
+
+
+<span class="keyword">typedef</span> <span class="keyword">struct</span> ngx_rbtree_node_s  <span class="keyword">ngx_rbtree_node_t</span>;
+
+<span class="keyword">struct</span> ngx_rbtree_node_s {
+    <span class="keyword">ngx_rbtree_key_t</span>       key;<span class="comment">//平台相关的无符号整型关键字</span>
+    <span class="keyword">ngx_rbtree_node_t</span>     *left;<span class="comment">//左子结点指针</span>
+    <span class="keyword">ngx_rbtree_node_t</span>     *right;<span class="comment">//&lt;span style=&amp;quot;font-family:宋体;&amp;quot;&gt;右&lt;/span&gt;子结点指针</span>
+    <span class="keyword">ngx_rbtree_node_t</span>     *parent;<span class="comment">//父结点指针</span>
+    u_char                 color;<span class="comment">//结点颜色</span>
+    u_char                 data;<span class="comment">//结点数据</span>
+};
+</code></pre><p>&nbsp;&nbsp;&nbsp; 然后是红黑树的结构定义：</p>
+<pre><code><span class="keyword">typedef</span> <span class="keyword">struct</span> ngx_rbtree_s  <span class="keyword">ngx_rbtree_t</span>;    <span class="comment">//“_s”是结构体“_t”是类型</span>
+<span class="comment">//下面是一个函数指针变量类型的定义，是红黑树插入函数的指针</span>
+<span class="comment">//参数有树根结点、插入结点和哨兵结点的指针</span>
+<span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*ngx_rbtree_insert_pt)</span> <span class="params">(ngx_rbtree_node_t *root,
+    ngx_rbtree_node_t *node, ngx_rbtree_node_t *sentinel)</span></span>;
+
+<span class="keyword">struct</span> ngx_rbtree_s {
+    <span class="keyword">ngx_rbtree_node_t</span>     *root;    <span class="comment">//根节点指针</span>
+    <span class="keyword">ngx_rbtree_node_t</span>     *sentinel;    <span class="comment">//哨兵结点指针</span>
+    ngx_rbtree_insert_pt   insert;    <span class="comment">//插入函数指针</span>
+};
+</code></pre><p>&nbsp;&nbsp;&nbsp; 将函数指针变量作为结构体成员变量以达成可以把结构体当做类来使用（既有成员变量又有成员方法）的效果，这种手法在<span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">的源码中相当普遍。关于函数，</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">还有一种更神奇的手段</span><span style="font-family:Times New Roman;">——</span><span style="font-family:宋体;">宏：</span></p>
+<pre><code><span class="comment">#define ngx_rbtree_init(tree, s, i)                                         \</span>
+    ngx_rbtree_sentinel_init(s);                                               <span class="string">\</span>
+    <span class="function"><span class="params">(tree)</span>-&gt;</span>root = s;                                                                  <span class="string">\</span>
+    <span class="function"><span class="params">(tree)</span>-&gt;</span>sentinel = s;                                                            <span class="string">\</span>
+    <span class="function"><span class="params">(tree)</span>-&gt;</span>insert = i<span class="pi">//这里insert函数指针的赋值实现了多态</span>
+</code></pre><p>&nbsp;&nbsp;&nbsp; 借助宏来达成内联函数的效果（函数实现如果比较简单，就干脆把实现过程整个搬到类中），令人费解的是，<span style="font-family:Times New Roman;">C</span><span style="font-family:宋体;">不是没有内联关键字，甚至同一个头文件中就有一个内联函数的定义。研究内联函数之前，下面还有几个宏要看一看：</span></p>
+<pre><code><span class="hexcolor">#def</span>ine <span class="function"><span class="title">ngx_rbt_red</span><span class="params">(node)</span></span>               ((node)-&gt;<span class="attribute">color</span> = <span class="number">1</span>)
+<span class="hexcolor">#def</span>ine <span class="function"><span class="title">ngx_rbt_black</span><span class="params">(node)</span></span>             ((node)-&gt;<span class="attribute">color</span> = <span class="number">0</span>)
+<span class="hexcolor">#def</span>ine <span class="function"><span class="title">ngx_rbt_is_red</span><span class="params">(node)</span></span>            ((node)-&gt;<span class="attribute">color</span>)
+<span class="hexcolor">#def</span>ine <span class="function"><span class="title">ngx_rbt_is_black</span><span class="params">(node)</span></span>          (!<span class="function"><span class="title">ngx_rbt_is_red</span><span class="params">(node)</span></span>)
+<span class="hexcolor">#def</span>ine <span class="function"><span class="title">ngx_rbt_copy_color</span><span class="params">(n1, n2)</span></span>      (n1-&gt;<span class="attribute">color</span> = n2-&gt;<span class="attribute">color</span>)
+
+<span class="comment">/* a sentinel must be black */</span>
+<span class="hexcolor">#def</span>ine <span class="function"><span class="title">ngx_rbtree_sentinel_init</span><span class="params">(node)</span></span>  <span class="function"><span class="title">ngx_rbt_black</span><span class="params">(node)</span></span>
+</code></pre><p>&nbsp;&nbsp;&nbsp; nginx<span style="font-family:宋体;">源码中的变量都很容易看懂以至于我们不怎么需要查资料或找注释。</span><span style="font-family:Times New Roman;">color</span><span style="font-family:宋体;">置</span><span style="font-family:Times New Roman;">1</span><span style="font-family:宋体;">染红置</span><span style="font-family:Times New Roman;">0</span><span style="font-family:宋体;">染黑，</span><span style="font-family:Times New Roman;">color</span><span style="font-family:宋体;">为</span><span style="font-family:Times New Roman;">1</span><span style="font-family:宋体;">则结点为红色，不为红色的则为黑色，复制结点颜色即复制</span><span style="font-family:Times New Roman;">color</span><span style="font-family:宋体;">值，哨兵结点一定要染成黑色。</span></p>
+<pre><code><span class="keyword">static</span> ngx_inline ngx_rbtree_node_t *
+ngx_rbtree_min(ngx_rbtree_node_t *node, ngx_rbtree_node_t *sentinel)
+{
+    <span class="keyword">while</span> (node-&gt;left != sentinel) {
+        node = node-&gt;left;
+    }
+    <span class="keyword">return</span> node;
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; ngx_inline是一个宏，实际值就是关键字inline。这个内联函数非常好懂，目的看起来是寻找以任意结点为根结点的子树中结点值最小的结点。实现方法是找到红黑树子树最边缘的左子结点。那么我们有理由猜测，哨兵结点是空结点或边缘标识。</p>
+<h2 id="2-3_红黑树的结点插入"><span style="font-family:宋体;">2.3 红黑树的结点插入</span></h2><p>&nbsp;&nbsp;&nbsp; 接下来我们来深入<span style="font-family:Times New Roman;">ngx_rbtree.c</span><span style="font-family:宋体;">看看</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">如何实现几个关键的红黑树方法。</span></p>
+<pre><code><span class="literal">void</span>
+ngx_rbtree_insert(ngx_rbtree_t *tree, ngx_rbtree_node_t *node)
+{
+    <span class="comment">//根结点指针的指针，或者根结点指针数组，会有多个根结点吗，令人费解</span>
+    <span class="comment">//临时结点指针</span>
+    <span class="comment">//哨兵结点指针，推测哨兵在每次查询时可能都不一样，也许指待插位置</span>
+    <span class="comment">//变量不分行，我写注释都很不方便</span>
+    ngx_rbtree_node_t  **root, *temp, *sentinel;
+
+    <span class="comment">/* a binary tree insert */</span>
+
+    root = (ngx_rbtree_node_t **) <span class="subst">&amp;</span>tree<span class="subst">-&gt;</span>root;<span class="comment">//树根指针的指针赋给了root</span>
+    sentinel = tree<span class="subst">-&gt;</span>sentinel;<span class="comment">//哨兵指针赋给了哨兵指针</span>
+
+    <span class="keyword">if</span> (*root == sentinel) {<span class="comment">//特判，如果根是哨兵，即树是空的</span>
+        node<span class="subst">-&gt;</span><span class="keyword">parent</span> = <span class="built_in">NULL</span>;<span class="comment">//新插入的结点变成了根</span>
+        node<span class="subst">-&gt;</span>left = sentinel;<span class="comment">//新结点的左子结点是哨兵</span>
+        node<span class="subst">-&gt;</span>right = sentinel;<span class="comment">//新结点的右子结点也是哨兵</span>
+        ngx_rbt_black(node);<span class="comment">//新根染黑</span>
+        *root = node;<span class="comment">//确认新结点为新根</span>
+
+        <span class="keyword">return</span>;<span class="comment">//插入结束</span>
+    }
+
+    <span class="comment">//树初始化时给了insert指针一个函数地址</span>
+    <span class="comment">//查看前面的宏ngx_rbtree_init(tree, s, i)</span>
+    <span class="comment">//发现只是把指定结点染黑，同时赋为根和哨兵，给insert指针指定一个函数</span>
+    <span class="comment">//ngx_rbtree.c中有两个参数表符合的可选函数：插入值、插入计时器值</span>
+    <span class="comment">//稍后来看两种插入分别如何实现又有什么区别</span>
+    tree<span class="subst">-&gt;</span>insert(*root, node, sentinel);
+
+    <span class="comment">/* re-balance tree */</span>
+    <span class="comment">//如果新结点不是根且其父结点是红的，循环</span>
+    <span class="keyword">while</span> (node != *root <span class="subst">&amp;&amp;</span> ngx_rbt_is_red(node<span class="subst">-&gt;</span><span class="keyword">parent</span>)) {
+        <span class="comment">//如果父结点是左子结点，获得父结点的右兄弟</span>
+        <span class="keyword">if</span> (node<span class="subst">-&gt;</span><span class="keyword">parent</span> == node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left) {
+            temp = node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right;
+            <span class="comment">//如果父结点的右兄弟是红的</span>
+            <span class="keyword">if</span> (ngx_rbt_is_red(temp)) {
+                ngx_rbt_black(node<span class="subst">-&gt;</span><span class="keyword">parent</span>);<span class="comment">//父结点染黑</span>
+                ngx_rbt_black(temp);<span class="comment">//父结点的右兄弟染黑</span>
+                ngx_rbt_red(node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>);<span class="comment">//父结点的父结点染红</span>
+                node = node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>;<span class="comment">//父结点的父结点成为当前结点</span>
+
+            } <span class="keyword">else</span> {<span class="comment">//如果父结点的右兄弟是黑的</span>
+                <span class="keyword">if</span> (node == node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right) {<span class="comment">//如果新结点是右子结点</span>
+                    node = node<span class="subst">-&gt;</span><span class="keyword">parent</span>;<span class="comment">//父结点成为新node</span>
+                    ngx_rbtree_left_rotate(root, sentinel, node);<span class="comment">//node左旋</span>
+
+                }
+
+                ngx_rbt_black(node<span class="subst">-&gt;</span><span class="keyword">parent</span>);<span class="comment">//node的父结点染黑</span>
+                <span class="comment">//node的父结点的父结点染红</span>
+                ngx_rbt_red(node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>);
+                ngx_rbtree_right_rotate(root, sentinel, node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>);<span class="comment">//node的父结点的父结点右旋</span>
+            }
+
+        } <span class="keyword">else</span> {<span class="comment">//如果父结点是右子结点，获得父结点的左兄弟</span>
+            temp = node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left;
+            <span class="comment">//如果父结点的左兄弟是红的</span>
+            <span class="keyword">if</span> (ngx_rbt_is_red(temp)) {
+                ngx_rbt_black(node<span class="subst">-&gt;</span><span class="keyword">parent</span>);<span class="comment">//父结点染黑</span>
+                ngx_rbt_black(temp);<span class="comment">//父结点的左兄弟染黑</span>
+                ngx_rbt_red(node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>);<span class="comment">//父结点的父结点染红</span>
+                node = node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>;
+
+            } <span class="keyword">else</span> {<span class="comment">//如果父结点的左兄弟是黑的</span>
+                <span class="keyword">if</span> (node == node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left) {<span class="comment">//如果新结点是左子结点</span>
+                    node = node<span class="subst">-&gt;</span><span class="keyword">parent</span>;<span class="comment">//父结点成为当前结点</span>
+                    ngx_rbtree_right_rotate(root, sentinel, node);
+                    <span class="comment">//当前结点右旋</span>
+                }
+
+                ngx_rbt_black(node<span class="subst">-&gt;</span><span class="keyword">parent</span>);<span class="comment">//当前结点染黑</span>
+                <span class="comment">//当前结点父结点的父结点染红</span>
+                ngx_rbt_red(node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>);
+                ngx_rbtree_left_rotate(root, sentinel, node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>);<span class="comment">//当前结点的父结点的父结点左旋</span>
+            }
+        }
+    }
+
+    ngx_rbt_black(*root);<span class="comment">//根结点染黑</span>
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; 然后是对应ngx_rbtree_insert_pt指针的基础的结点插入函数：</p>
+<pre><code><span class="literal">void</span>
+ngx_rbtree_insert_value(ngx_rbtree_node_t *temp, ngx_rbtree_node_t *node,
+    ngx_rbtree_node_t *sentinel)
+{
+    ngx_rbtree_node_t  **p;<span class="comment">//虽然无关紧要，但两层指针令人费解</span>
+
+    f<span class="subst">or</span> ( ;; ) {<span class="comment">//无条件循环或者说死循环，等同于while(1)但节省了一个字符</span>
+
+        p = (node<span class="subst">-&gt;</span>key &lt; temp<span class="subst">-&gt;</span>key) ? <span class="subst">&amp;</span>temp<span class="subst">-&gt;</span>left : <span class="subst">&amp;</span>temp<span class="subst">-&gt;</span>right;
+
+        <span class="keyword">if</span> (*p == sentinel) {<span class="comment">//在二叉树中查找新结点合适的叶结点位置</span>
+            break;
+        }
+
+        temp = *p;
+    }
+    <span class="comment">//令新结点占据合适的哨兵位置成为新的叶结点，染红，产生新哨兵</span>
+    *p = node;
+    node<span class="subst">-&gt;</span><span class="keyword">parent</span> = temp;
+    node<span class="subst">-&gt;</span>left = sentinel;
+    node<span class="subst">-&gt;</span>right = sentinel;
+    ngx_rbt_red(node);
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; ngx_rbtree_insert_timer_value<span style="font-family:宋体;">函数跟</span><span style="font-family:Times New Roman;">ngx_rbtree_insert_value</span><span style="font-family:宋体;">函数唯一区别就是判断大小时，采用了两个值相减，避免溢出。</span></p>
+<p>&nbsp;&nbsp;&nbsp; 以上是插入结点涉及的函数，老实说我不太喜欢这么长的函数实现，换我自己写肯定分块了。分支操作太多，看代码逻辑已经乱了，我们需要画几个图。首先，如果树为空：</p>
+<p><img src="http://img.blog.csdn.net/20150806074055339" alt=""><br></p>
+<p>&nbsp;&nbsp;&nbsp; 如果树中只有一个根结点：</p>
+<p><img src="http://img.blog.csdn.net/20150806074132691" alt=""></p>
+<p>&nbsp;&nbsp;&nbsp; 如果<span style="font-family:Times New Roman;">C&gt;A</span><span style="font-family:宋体;">：</span></p>
+<p><img src="http://img.blog.csdn.net/20150806074207378" alt=""></p>
+<p>&nbsp;&nbsp;&nbsp; 如果<span style="font-family:Times New Roman;">C<b<a< span=""><span style="font-family:宋体;">，</span><span style="font-family:Times New Roman;">C</span><span style="font-family:宋体;">染红，</span><span style="font-family:Times New Roman;">B</span><span style="font-family:宋体;">染黑</span><span style="font-family:Times New Roman;">A</span><span style="font-family:宋体;">染红，</span><span style="font-family:Times New Roman;">A</span><span style="font-family:宋体;">右旋。右旋函数如下：</span></b<a<></span></p>
+<pre><code>static ngx_inline <span class="literal">void</span>
+ngx_rbtree_right_rotate(ngx_rbtree_node_t **root, ngx_rbtree_node_t *sentinel,
+    ngx_rbtree_node_t *node)
+{
+    ngx_rbtree_node_t  *temp;
+
+    temp = node<span class="subst">-&gt;</span>left;
+    node<span class="subst">-&gt;</span>left = temp<span class="subst">-&gt;</span>right;<span class="comment">//左子结点指向原左子结点的右结点</span>
+
+    <span class="keyword">if</span> (temp<span class="subst">-&gt;</span>right != sentinel) {<span class="comment">//如果左子结点的右结点不为哨兵</span>
+        temp<span class="subst">-&gt;</span>right<span class="subst">-&gt;</span><span class="keyword">parent</span> = node;<span class="comment">//左子结点的右子结点挂在右旋结点上</span>
+    }
+
+    temp<span class="subst">-&gt;</span><span class="keyword">parent</span> = node<span class="subst">-&gt;</span><span class="keyword">parent</span>;<span class="comment">//左子结点挂在右旋结点的父结点上</span>
+
+    <span class="keyword">if</span> (node == *root) {<span class="comment">//如果右旋结点为根节点</span>
+        *root = temp;<span class="comment">//根节点赋为左子结点</span>
+
+    } <span class="keyword">else</span> <span class="keyword">if</span> (node == node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right) {<span class="comment">//如果右旋结点为右子结点</span>
+        node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right = temp;<span class="comment">//左子结点挂父结点右边</span>
+
+    } <span class="keyword">else</span> {<span class="comment">//否则左子结点挂父结点左边</span>
+        node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left = temp;
+    }
+
+    temp<span class="subst">-&gt;</span>right = node;<span class="comment">//右旋结点挂左子结点右边</span>
+    node<span class="subst">-&gt;</span><span class="keyword">parent</span> = temp;
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; 显然<span style="font-family:Times New Roman;">B</span><span style="font-family:宋体;">将成为新的根，左</span><span style="font-family:Times New Roman;">C</span><span style="font-family:宋体;">右</span><span style="font-family:Times New Roman;">A</span><span style="font-family:宋体;">：</span></p>
+<p><img src="http://img.blog.csdn.net/20150806074443292" alt=""></p>
+<p>&nbsp;&nbsp;&nbsp; 如果<span style="font-family:Times New Roman;">B<c<a< span=""><span style="font-family:宋体;">，会先做一次左旋再做一次右旋，其实除开染色过程，我觉得这跟</span><span style="font-family:Times New Roman;">AVL</span><span style="font-family:宋体;">树的插入过程没有什么区别：</span></c<a<></span></p>
+<p><img src="http://img.blog.csdn.net/20150806074520668" alt=""></p>
+<p>&nbsp;&nbsp;&nbsp; 其他的插入情景要么与以上几个对称，要么发生在树的其他子树中，实际过程完全一样。LL<span style="font-family:宋体;">型右旋，</span><span style="font-family:Times New Roman;">RR</span><span style="font-family:宋体;">型左旋，</span><span style="font-family:Times New Roman;">LR</span><span style="font-family:宋体;">型先右旋后左旋，</span><span style="font-family:Times New Roman;">RL</span><span style="font-family:宋体;">型先左旋后右旋。</span>与<span style="font-family:Times New Roman;">AVL</span><span style="font-family:宋体;">树不同的是，插入结点时红黑树左旋或右旋的判定条件明确为附近一两个结点的颜色，其他过程没有任何区别。</span></p>
+<h2 id="2-4_红黑树的结点删除">2.4 红黑树的结点删除</h2><p>&nbsp;&nbsp;&nbsp; 据说红黑树和<span style="font-family:Times New Roman;">AVL</span><span style="font-family:宋体;">树的区别主要体现在删除节点时，我们就来看一看。</span>我刚说什么来着，删除结点的函数体更长了，足足<span style="font-family:Times New Roman;">165</span><span style="font-family:宋体;">行，我决定分段研究，</span>先看第一部分：</p>
+<pre><code><span class="keyword">if</span> (node<span class="subst">-&gt;</span>left == sentinel) {<span class="comment">//如果左子结点是哨兵或左右子结点都是哨兵</span>
+    temp = node<span class="subst">-&gt;</span>right;<span class="comment">//获得右子结点，后面让它接替node位置</span>
+    subst = node;<span class="comment">//node赋给subst</span>
+
+} <span class="keyword">else</span> <span class="keyword">if</span> (node<span class="subst">-&gt;</span>right == sentinel) {<span class="comment">//如果右子结点是哨兵</span>
+    temp = node<span class="subst">-&gt;</span>left;<span class="comment">//获得左子结点，后面让它接替node位置</span>
+    subst = node;<span class="comment">//node赋给subst</span>
+
+} <span class="keyword">else</span> {<span class="comment">//如果左右子结点都不是哨兵</span>
+    subst = ngx_rbtree_min(node<span class="subst">-&gt;</span>right, sentinel);<span class="comment">//获得右子树中最小的结点</span>
+
+    <span class="keyword">if</span> (subst<span class="subst">-&gt;</span>left != sentinel) {<span class="comment">//如果右子树的最小结点的左子结点不是哨兵</span>
+        temp = subst<span class="subst">-&gt;</span>left;<span class="comment">//获得右子树的最小结点的左子结点</span>
+    } <span class="keyword">else</span> {<span class="comment">//否则获得右子树最小结点的右子结点</span>
+        temp = subst<span class="subst">-&gt;</span>right;
+    }<span class="comment">//看起来subst将被从原位置删掉然后接替node的位置</span>
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; 下面我们来看看<span style="font-family:Times New Roman;">temp</span><span style="font-family:宋体;">和</span><span style="font-family:Times New Roman;">subst</span><span style="font-family:宋体;">要干什么用：</span></p>
+<pre><code><span class="keyword">if</span> (subst == *root) {<span class="comment">//如果subst是根</span>
+    *root = temp;<span class="comment">//temp接替根</span>
+    ngx_rbt_black(temp);<span class="comment">//染黑temp</span>
+
+    <span class="comment">/* DEBUG stuff */</span>
+    node<span class="subst">-&gt;</span>left = <span class="built_in">NULL</span>;<span class="comment">//清空了待删结点</span>
+    node<span class="subst">-&gt;</span>right = <span class="built_in">NULL</span>;
+    node<span class="subst">-&gt;</span><span class="keyword">parent</span> = <span class="built_in">NULL</span>;
+    node<span class="subst">-&gt;</span>key = <span class="number">0</span>;
+
+    <span class="keyword">return</span>;
+}
+
+red = ngx_rbt_is_red(subst);<span class="comment">//获得subst是否是红色</span>
+
+<span class="keyword">if</span> (subst == subst<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left) {<span class="comment">//如果subst是左子结点</span>
+    subst<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left = temp;<span class="comment">//把接替结点挂到subst位置</span>
+
+} <span class="keyword">else</span> {<span class="comment">//如果subst是右子结点</span>
+    subst<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right = temp;<span class="comment">//把接替结点挂到subst位置</span>
+}
+&lt;/pre&gt;
+
+<span class="subst">&amp;</span>nbsp;<span class="subst">&amp;</span>nbsp;<span class="subst">&amp;</span>nbsp; 下一段：
+
+&lt;pre name=<span class="string">"code"</span> class=<span class="string">"cpp"</span>&gt;<span class="keyword">if</span> (subst == node) {<span class="comment">//如果subst是待删结点</span>
+    temp<span class="subst">-&gt;</span><span class="keyword">parent</span> = subst<span class="subst">-&gt;</span><span class="keyword">parent</span>;<span class="comment">//接替结点直接接替，删除完成</span>
+
+} <span class="keyword">else</span> {<span class="comment">//如果subst不是待删结点</span>
+     <span class="keyword">if</span> (subst<span class="subst">-&gt;</span><span class="keyword">parent</span> == node) {<span class="comment">//如果subst的父结点就是待删结点</span>
+        temp<span class="subst">-&gt;</span><span class="keyword">parent</span> = subst;<span class="comment">//接替结点挂在subst上</span>
+     } <span class="keyword">else</span> {<span class="comment">//如果待删结点比subst的父结点更高</span>
+        temp<span class="subst">-&gt;</span><span class="keyword">parent</span> = subst<span class="subst">-&gt;</span><span class="keyword">parent</span>;<span class="comment">//把接替结点挂在subst的父结点上</span>
+    }
+    <span class="comment">//subst接替待删结点node的位置，复制待删结点跟周围结点的关系</span>
+    subst<span class="subst">-&gt;</span>left = node<span class="subst">-&gt;</span>left;
+    subst<span class="subst">-&gt;</span>right = node<span class="subst">-&gt;</span>right;
+    subst<span class="subst">-&gt;</span><span class="keyword">parent</span> = node<span class="subst">-&gt;</span><span class="keyword">parent</span>;
+    ngx_rbt_copy_col<span class="subst">or</span>(subst, node);<span class="comment">//复制颜色</span>
+
+    <span class="keyword">if</span> (node == *root) {<span class="comment">//如果待删结点是根</span>
+        *root = subst;<span class="comment">//subst接替根</span>
+    } <span class="keyword">else</span> {<span class="comment">//如果待删结点不是根，subst接替它</span>
+        <span class="keyword">if</span> (node == node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left) {
+            node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left = subst;
+        } <span class="keyword">else</span> {
+            node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right = subst;
+        }
+    }
+
+    <span class="keyword">if</span> (subst<span class="subst">-&gt;</span>left != sentinel) {<span class="comment">//如果subst左子结点不是哨兵</span>
+        subst<span class="subst">-&gt;</span>left<span class="subst">-&gt;</span><span class="keyword">parent</span> = subst;<span class="comment">//subst的左子结点放弃node，挂上来</span>
+    }
+
+    <span class="keyword">if</span> (subst<span class="subst">-&gt;</span>right != sentinel) {<span class="comment">//如果subst右子结点不是哨兵</span>
+        subst<span class="subst">-&gt;</span>right<span class="subst">-&gt;</span><span class="keyword">parent</span> = subst;<span class="comment">//subst右子结点放弃node，挂上来</span>
+    }
+}
+<span class="comment">//清空待删结点node</span>
+<span class="comment">/* DEBUG stuff */</span>
+node<span class="subst">-&gt;</span>left = <span class="built_in">NULL</span>;
+node<span class="subst">-&gt;</span>right = <span class="built_in">NULL</span>;
+node<span class="subst">-&gt;</span><span class="keyword">parent</span> = <span class="built_in">NULL</span>;
+node<span class="subst">-&gt;</span>key = <span class="number">0</span>;
+<span class="comment">//如果subst是红色，红黑树约束依然被遵守，删除工作就可以结束了</span>
+<span class="keyword">if</span> (red) {
+    <span class="keyword">return</span>;
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; 看起来结点的删除过程已经顺利完成了，但是如果<span style="font-family:Times New Roman;">subst</span><span style="font-family:宋体;">是黑色，我们需要修复红黑树的约束。下面这一段代码的主角是接替</span><span style="font-family:Times New Roman;">subst</span><span style="font-family:宋体;">位置的</span><span style="font-family:Times New Roman;">temp</span><span style="font-family:宋体;">结点：</span></p>
+<pre><code><span class="comment">//当subst的接替结点不是根且为黑色，循环</span>
+<span class="keyword">while</span> (temp != *root <span class="subst">&amp;&amp;</span> ngx_rbt_is_black(temp)) {
+        <span class="keyword">if</span> (temp == temp<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left) {<span class="comment">//如果temp是左子结点</span>
+            w = temp<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right;<span class="comment">//获得其右兄弟</span>
+
+            <span class="keyword">if</span> (ngx_rbt_is_red(w)) {<span class="comment">//如果temp的右兄弟是红色</span>
+                ngx_rbt_black(w);<span class="comment">//染黑temp的右兄弟</span>
+                ngx_rbt_red(temp<span class="subst">-&gt;</span><span class="keyword">parent</span>);<span class="comment">//染红temp的父结点</span>
+                <span class="comment">//temp的父结点左旋</span>
+                ngx_rbtree_left_rotate(root, sentinel, temp<span class="subst">-&gt;</span><span class="keyword">parent</span>);
+                w = temp<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right;<span class="comment">//获得temp的新右兄弟</span>
+            }
+            <span class="comment">//如果temp右兄弟的左右子结点都是黑的</span>
+            <span class="keyword">if</span> (ngx_rbt_is_black(w<span class="subst">-&gt;</span>left) <span class="subst">&amp;&amp;</span> ngx_rbt_is_black(w<span class="subst">-&gt;</span>right)) {
+                ngx_rbt_red(w);<span class="comment">//染红temp的右兄弟</span>
+                temp = temp<span class="subst">-&gt;</span><span class="keyword">parent</span>;<span class="comment">//获得temp的父结点为新temp</span>
+
+            } <span class="keyword">else</span> {<span class="comment">//如果temp右兄弟的子结点不全为黑</span>
+                <span class="keyword">if</span> (ngx_rbt_is_black(w<span class="subst">-&gt;</span>right)) {<span class="comment">//如果其右子结点是黑色</span>
+                    ngx_rbt_black(w<span class="subst">-&gt;</span>left);<span class="comment">//染黑左子结点</span>
+                    ngx_rbt_red(w);<span class="comment">//染红temp的右兄弟</span>
+                    ngx_rbtree_right_rotate(root, sentinel, w);<span class="comment">//右兄弟右旋</span>
+                    w = temp<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right;<span class="comment">//获得temp的新右兄弟</span>
+                }
+                <span class="comment">//temp右兄弟复制temp父结点颜色</span>
+                ngx_rbt_copy_col<span class="subst">or</span>(w, temp<span class="subst">-&gt;</span><span class="keyword">parent</span>);
+                ngx_rbt_black(temp<span class="subst">-&gt;</span><span class="keyword">parent</span>);<span class="comment">//染黑temp父结点</span>
+                ngx_rbt_black(w<span class="subst">-&gt;</span>right);<span class="comment">//染黑temp右兄弟的右子结点</span>
+                <span class="comment">//temp父结点左旋</span>
+                ngx_rbtree_left_rotate(root, sentinel, temp<span class="subst">-&gt;</span><span class="keyword">parent</span>);
+                temp = *root;<span class="comment">//获得根</span>
+            }
+
+        } <span class="keyword">else</span> {<span class="comment">//如果temp是右子结点，做对称的事</span>
+            w = temp<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left;
+
+            <span class="keyword">if</span> (ngx_rbt_is_red(w)) {
+                ngx_rbt_black(w);
+                ngx_rbt_red(temp<span class="subst">-&gt;</span><span class="keyword">parent</span>);
+                ngx_rbtree_right_rotate(root, sentinel, temp<span class="subst">-&gt;</span><span class="keyword">parent</span>);
+                w = temp<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left;
+            }
+
+            <span class="keyword">if</span> (ngx_rbt_is_black(w<span class="subst">-&gt;</span>left) <span class="subst">&amp;&amp;</span> ngx_rbt_is_black(w<span class="subst">-&gt;</span>right)) {
+                ngx_rbt_red(w);
+                temp = temp<span class="subst">-&gt;</span><span class="keyword">parent</span>;
+
+            } <span class="keyword">else</span> {
+                <span class="keyword">if</span> (ngx_rbt_is_black(w<span class="subst">-&gt;</span>left)) {
+                    ngx_rbt_black(w<span class="subst">-&gt;</span>right);
+                    ngx_rbt_red(w);
+                    ngx_rbtree_left_rotate(root, sentinel, w);
+                    w = temp<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left;
+                }
+
+                ngx_rbt_copy_col<span class="subst">or</span>(w, temp<span class="subst">-&gt;</span><span class="keyword">parent</span>);
+                ngx_rbt_black(temp<span class="subst">-&gt;</span><span class="keyword">parent</span>);
+                ngx_rbt_black(w<span class="subst">-&gt;</span>left);
+                ngx_rbtree_right_rotate(root, sentinel, temp<span class="subst">-&gt;</span><span class="keyword">parent</span>);
+                temp = *root;
+            }
+        }
+    }
+
+ngx_rbt_black(temp);<span class="comment">//染黑当前temp</span>
+</code></pre><p>&nbsp;&nbsp;&nbsp; 跟插入结点时一样乱，我们梳理一下。</p>
+<p>&nbsp;&nbsp;&nbsp; 首先忽略红黑树的约束进行删除：<br>&nbsp;&nbsp;&nbsp; ①如果删除的是一个叶结点，即没有后继或后继全为哨兵的结点，直接删除即可；<br>&nbsp;&nbsp;&nbsp; ②如果只有一个后继，让其替换待删除结点即可；<br>&nbsp;&nbsp;&nbsp; ③如果有两个后继，需要从树的边缘选择一个结点，有两种等价的选择，待删结点左子树的最大结点和右子树的最小结点，<span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">选择的是后者，以这个结点的键与值（</span><span style="font-family:Times New Roman;">key</span><span style="font-family:宋体;">与</span><span style="font-family:Times New Roman;">value/data</span><span style="font-family:宋体;">）替换待删结点的键与值，然后删除这个替身。</span></p>
+<p>&nbsp;&nbsp;&nbsp; 不论是①、②情景中的待删结点还是③情景中替身，在源码中都是subst。下面要围绕着它来进行讨论。</p>
+<p>&nbsp;&nbsp;&nbsp; 以上是不考虑红黑树平衡性的纯拓扑结构变动。下面要考虑是否调整树的拓扑结构使树重新平衡，是否调整结点的颜色使树重新符合红黑树的约束条件。我们知道红黑树有一条关键约束是任意结点到其子树中叶结点的简单路径中黑色结点数相同。那么如果<span style="font-family:Times New Roman;">subst</span><span style="font-family:宋体;">是一个红色结点，我们不需要对红黑树做任何调整，它仍是一棵红黑树；如果</span><span style="font-family:Times New Roman;">subst</span><span style="font-family:宋体;">是黑色的，所有经过</span><span style="font-family:Times New Roman;">subst</span><span style="font-family:宋体;">的简单路径上都会少一个黑色结点数，所以需要进行调整。</span></p>
+<p>&nbsp;&nbsp;&nbsp; 下面来根据不同情景分情况讨论，因为二叉树的情景左右颠倒时调整方式也可以左右颠倒，我们只讨论<span style="font-family:Times New Roman;">subst</span><span style="font-family:宋体;">是左子结点的情况。设刚接替</span><span style="font-family:Times New Roman;">subst</span><span style="font-family:宋体;">的</span><span style="font-family:Times New Roman;">temp</span><span style="font-family:宋体;">为</span><span style="font-family:Times New Roman;">X</span><span style="font-family:宋体;">，</span><span style="font-family:Times New Roman;">X</span><span style="font-family:宋体;">的新右兄弟为</span><span style="font-family:Times New Roman;">W</span><span style="font-family:宋体;">。从经过简化的源码来看，关于结点颜色的变化很令人费解，我们不妨先来看一看：</span><br>&nbsp;&nbsp;&nbsp; ①W为红色：将W染黑，将X与W的父结点X-&gt;parent染红，X-&gt;parent左旋，W重设为X的新右兄弟，然后转入情景①、②或③；<br>&nbsp;&nbsp;&nbsp; ②W为黑色，W两个后继都是黑色：将W染红，X重设为X-&gt;parent；<br>&nbsp;&nbsp;&nbsp; ③W为黑色，W右子结点为黑色：将W左子结点染黑，将W染红，W右旋，W重设为X的新右兄弟，然后将X-&gt;parent的颜色赋给W，将X-&gt;parent染黑，X-&gt;parent左旋，根赋给temp；<br>&nbsp;&nbsp;&nbsp; ④W为黑色，W右子结点为红色：将W左子结点染黑，将W染红，W右旋，W重设为X的新右兄弟，然后将X-&gt;parent的颜色赋给W，将X-&gt;parent染黑，将W右子结点染黑，X-&gt;parent左旋，根赋给temp。</p>
+<p>&nbsp;&nbsp;&nbsp; 最后还要把temp染黑。我们可以看到情景①中进行了一次左旋，情景②只进行了染色，情景③、④都进行了一次右旋和一次左旋。情景①处理结束时一定还要转入别的情景，情景②、③、④的出现则标志着本次调整的结束。那么，红黑树删除结点后的调整过程中，依情景①循环出现的次数，调整过程中旋转的最多见的次数将是1次、2次、3次，再往上次数越多越罕见（依情景①循环出现的次数），最多旋转次数将可能到达树高即log2n次。生产环境中，删除结点后平均每次调整中旋转的次数就像分析源码之前提到的，将是常数规模的。</p>
+<p>&nbsp;&nbsp;&nbsp; 接下来我打算以逐步翻新版本的方式重写红黑树，更精细、直观地了解红黑树这一数据结构。而在重写之前，我们需要了解，nginx的红黑中所有的叶结点，都是哨兵（sentinel），这在调整红黑树时达成了对红黑树的一种优化。通过增加一层全黑的子结点，红黑树中实际有值的子树里，就允许在子结点出现红色结点了。虽然我没有证明，但这常数规模地增加了删除结点时的旋转次数，也促进了插入新结点时进行调整的概率（增加了在红色结点下插入新结点的概率），同样增加了旋转的次数。而旋转将压缩红黑树子树的高度，提高查询效率。</p>
+<p>&nbsp;&nbsp;&nbsp; 在由朴素到精致地重写红黑树的过程中，我将由少到多地考虑使用nginx对红黑树的优化，或者加入我自己的优化。</p>
+<p>&nbsp;&nbsp;&nbsp; <span style="color:#FF0000;">从杭州回来后翻了CLRS（算法导论），发现：<br>&nbsp;&nbsp;&nbsp; 首先，nginx的红黑树中，sentinel结点并非独创的优化手段，CLRS的红黑树也是带哨兵的，可以说，一般的，我们令红黑树带哨兵。目的是更直截了当的满足红黑树的叶结点全黑约束，同时更方便标识树的边缘。</span></p>
+<p>&nbsp;&nbsp;&nbsp; <span style="color:#FF0000;">其次，所有的叶结点都是由同一个哨兵结点代表，节省了空间开销，省去了叶结点逐一染色的麻烦。</span></p>
+<p>&nbsp;&nbsp;&nbsp; <span style="color:#FF0000;">另外，之前我感到迷惑的static inline组合用法，在oschina.net获得了解释：<br>&nbsp;&nbsp;&nbsp; 1.inline函数是不能像传统的函数那样放在.c中然后在.h中给出接口在其余文件中调用的,因为inline函数其实是跟宏定义类似，被调用时尝试在调用处直接展开整个函数体，不存在所谓的函数入口。<br>&nbsp;&nbsp;&nbsp; 2.因为第一点，会出现一个问题，如果inline函数在两个不同的文件中出现。也就是说一个头文件被两个不同的源文件包含，则会出现重名，链接失败。static inline 的用法就能很好的解决这个问题。使用static修饰符，函数仅在文件内部可见，不会污染命名空间。可以理解为一个inline函数在不同的源文件里面生成了不同的实例，而且名字是完全相同的 。</span></p>
+<p>&nbsp;&nbsp;&nbsp; <span style="color:#FF0000;">总结一下。功能上，我们需要微型函数被大量调用时尝试内联展开以节省压栈弹栈的开销；实践中，为了防止不同文件中函数同名时的链接错误，我们需要加上static关键字的限制。（尽管inline关键字的效果有所不同，c99标准和gcc下static inline组合是兼容的，效果相同）</span></p>
+<p>&nbsp;&nbsp;&nbsp; <span style="color:#FF0000;">之前看到nginx源码中函数参数有双重指针一直很费解，今天研究了一下才发现原因。ngx_rbtree_t中，root经常使用双重结点指针，也就是根结点地址的地址。如果树的修改过程中，根结点地址被别的结点地址替换掉，需要重新设置根的地址<em>root。假设ngx_rbtree_t中的根地址参数是</em>root单层指针，进入函数体时将是一个值传递，出函数体时无论函数体中如何更改根的地址，都是无效的，只有对根结点内容的修改能保留下来。所以要么使用双重指针作为根地址的参数，要么提供树结构体的地址，变相提供双重指针作为参数，当然可以提供树的结构体对象本身作为参数，但是值传递是要复制整个值对象的，显然当结构体比较大时这样做将明显增加开销。nginx选择双重指针而非结构体指针来避免树结构体内的变量遍历寻址，进一步提高效率。</span></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://blog.bipedalbit.net/2015/8/6/【三】nginx的数据结构-1-——ngx-int-t与ngx-rbtree-t/" data-id="cielg0plg0018gr97l0lvvtqx" class="article-share-link" data-share="baidu" data-title="【三】nginx的数据结构(1)——ngx_int_t与ngx_rbtree_t">分享到</a>
+      
+
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/">C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nginx/">nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ngx-int-t/">ngx_int_t</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rbtree/">rbtree</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/8/11/C语言的static关键字/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          C语言的static关键字
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/7/23/【二】nginx源码文件结构浏览/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">【二】nginx源码文件结构浏览 </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+      
+      <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Sublime-Text/">Sublime Text</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/node-js/">node.js</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/C/" style="font-size: 20px;">C</a> <a href="/tags/C/" style="font-size: 10px;">C++</a> <a href="/tags/epoll/" style="font-size: 10px;">epoll</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/makefile/" style="font-size: 10px;">makefile</a> <a href="/tags/nginx/" style="font-size: 20px;">nginx</a> <a href="/tags/ngx-int-t/" style="font-size: 10px;">ngx_int_t</a> <a href="/tags/node-js/" style="font-size: 15px;">node.js</a> <a href="/tags/rbtree/" style="font-size: 10px;">rbtree</a> <a href="/tags/select-poll/" style="font-size: 10px;">select/poll</a> <a href="/tags/socket-io/" style="font-size: 10px;">socket.io</a> <a href="/tags/static/" style="font-size: 10px;">static</a> <a href="/tags/sublime/" style="font-size: 10px;">sublime</a> <a href="/tags/内存分布/" style="font-size: 10px;">内存分布</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">八月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">近期文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/9/12/socket-io邀请制带登录聊天室实例【DRRR-chat-room】/">socket.io邀请制带登录聊天室实例【DRRR-chat-room】</a>
+          </li>
+        
+          <li>
+            <a href="/2015/9/6/node.js的'Cannot enqueue Handshake after invoking quit'错误/">node.js的&#39;Cannot enqueue Handshake after invoking quit&#39;错误</a>
+          </li>
+        
+          <li>
+            <a href="/2015/8/16/Linux下Sublime的C-C++多文件程序Makefile-清理-执行配置/">Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置</a>
+          </li>
+        
+          <li>
+            <a href="/2015/8/11/C语言的static关键字/">C语言的static关键字</a>
+          </li>
+        
+          <li>
+            <a href="/2015/8/6/【三】nginx的数据结构-1-——ngx-int-t与ngx-rbtree-t/">【三】nginx的数据结构(1)——ngx_int_t与ngx_rbtree_t</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">友情链接</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="http://xiguabaobao.com" target="_blank">主题作者</a>
+          </li>
+        
+          <li>
+            <a href="http://reqianduan.com" target="_blank">热前端</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+      
+    </div>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 Bipedal Bit<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      .
+      Theme by <a href="https://github.com/xiangming/landscape-plus" target="_blank">Landscape-plus</a>
+    </div>
+  </div>
+</footer>
+  </div>
+  <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+  <!-- totop start -->
+<div id="totop">
+<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+</div>
+
+<!-- totop end -->
+
+
+<!-- 百度分享 start -->
+
+<div id="article-share-box" class="article-share-box">
+  <div id="bdshare" class="bdsharebuttonbox article-share-links">
+    <a class="article-share-weibo" data-cmd="tsina" title="分享到新浪微博"></a>
+    <a class="article-share-weixin" data-cmd="weixin" title="分享到微信"></a>
+    <a class="article-share-qq" data-cmd="sqq" title="分享到QQ"></a>
+    <a class="article-share-renren" data-cmd="renren" title="分享到人人网"></a>
+    <a class="article-share-more" data-cmd="more" title="更多"></a>
+  </div>
+</div>
+<script>
+  function SetShareData(cmd, config) {
+    if (shareDataTitle && shareDataUrl) {
+      config.bdText = shareDataTitle;
+      config.bdUrl = shareDataUrl;
+    }
+    return config;
+  }
+  window._bd_share_config={
+    "common":{onBeforeClick: SetShareData},
+    "share":{"bdCustomStyle":"/css/bdshare.css"}
+  };
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+<!-- 百度分享 end -->
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+</div>
+</body>
+</html>
