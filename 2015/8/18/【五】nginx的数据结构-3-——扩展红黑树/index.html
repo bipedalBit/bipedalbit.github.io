@@ -4,20 +4,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>【四】nginx的数据结构(2)——自己动手重写红黑树 | Hacking to the gate!</title>
+  <title>【五】nginx的数据结构(3)——扩展红黑树 | Hacking to the gate!</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 不管看了多少遍有多滚瓜烂熟，数据结构或者算法的代码如果不亲自码一遍，我总是不敢说自己懂了。这次就来自己动手重写红黑树。">
+  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 基础版的红黑树写完之后总觉得有些辅助功能不补充一下就难以体现红黑树在统计方面的优越性，于是我又写了红黑树扩展版。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【四】nginx的数据结构(2)——自己动手重写红黑树">
-<meta property="og:url" content="http://blog.bipedalbit.net/2015/8/16/【四】nginx的数据结构-2-——自己动手重写红黑树/index.html">
+<meta property="og:title" content="【五】nginx的数据结构(3)——扩展红黑树">
+<meta property="og:url" content="http://blog.bipedalbit.net/2015/8/18/【五】nginx的数据结构-3-——扩展红黑树/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
-<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 不管看了多少遍有多滚瓜烂熟，数据结构或者算法的代码如果不亲自码一遍，我总是不敢说自己懂了。这次就来自己动手重写红黑树。">
-<meta property="og:image" content="http://img.blog.csdn.net/20150816200143108">
-<meta property="og:image" content="http://img.blog.csdn.net/20150816200200052">
-<meta property="og:updated_time" content="2015-09-16T04:17:40.679Z">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 基础版的红黑树写完之后总觉得有些辅助功能不补充一下就难以体现红黑树在统计方面的优越性，于是我又写了红黑树扩展版。">
+<meta property="og:updated_time" content="2015-09-16T15:39:04.376Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="【四】nginx的数据结构(2)——自己动手重写红黑树">
-<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 不管看了多少遍有多滚瓜烂熟，数据结构或者算法的代码如果不亲自码一遍，我总是不敢说自己懂了。这次就来自己动手重写红黑树。">
+<meta name="twitter:title" content="【五】nginx的数据结构(3)——扩展红黑树">
+<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 基础版的红黑树写完之后总觉得有些辅助功能不补充一下就难以体现红黑树在统计方面的优越性，于是我又写了红黑树扩展版。">
   
     <link rel="alternative" href="/atom.xml" title="Hacking to the gate!" type="application/atom+xml">
   
@@ -74,10 +72,10 @@
   </div>
 </header>
     <div class="outer">
-      <section id="main"><article id="post-【四】nginx的数据结构-2-——自己动手重写红黑树" class="article article-type-post" itemscope itemprop="blogPost">
+      <section id="main"><article id="post-【五】nginx的数据结构-3-——扩展红黑树" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/8/16/【四】nginx的数据结构-2-——自己动手重写红黑树/" class="article-date">
-  <time datetime="2015-08-16T14:06:30.000Z" itemprop="datePublished">2015-08-16</time>
+    <a href="/2015/8/18/【五】nginx的数据结构-3-——扩展红黑树/" class="article-date">
+  <time datetime="2015-08-17T18:04:43.000Z" itemprop="datePublished">2015-08-18</time>
 </a>
     
   <div class="article-category">
@@ -92,7 +90,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      【四】nginx的数据结构(2)——自己动手重写红黑树
+      【五】nginx的数据结构(3)——扩展红黑树
     </h1>
   
 
@@ -100,10 +98,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&nbsp;&nbsp;&nbsp; 不管看了多少遍有多滚瓜烂熟，数据结构或者算法的代码如果不亲自码一遍，我总是不敢说自己懂了。这次就来自己动手重写红黑树。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; 费话不多说，上重写代码，这次姑且用英语写的注释当复习英语了。<br>&nbsp;&nbsp;&nbsp; rbtree.h：</p>
+        <p>&nbsp;&nbsp;&nbsp; 基础版的红黑树写完之后总觉得有些辅助功能不补充一下就难以体现红黑树在统计方面的优越性，于是我又写了红黑树扩展版。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; 发扬我一贯的支线任务狂魔的作风，一晚上就完成了之前设想的红黑树扩展版本。<br>&nbsp;&nbsp;&nbsp; rbtree.h：</p>
 <pre><code><span class="comment">/*
  * Copyright (C) Bipedal Bit
- * Verson 1.0.0.1
+ * Verson 1.0.0.2
  */</span>
 
 <span class="preprocessor">#<span class="keyword">ifndef</span> _RBTREE_H_INCLUDED_</span>
@@ -130,12 +128,16 @@
     <span class="keyword">unsigned</span> <span class="keyword">char</span>    color;
     <span class="comment">/* pointer of the value of the node corresponding to the key */</span>
     <span class="keyword">rbtree_data_t</span>    value;
+    <span class="comment">/* count of nodes in the subtree whose root is the current node */</span>
+    <span class="keyword">int</span> node_cnt;
 };
 
 <span class="comment">/* the tree object stucture of the red-black tree */</span>
 <span class="keyword">typedef</span> <span class="keyword">struct</span> rbtree_s <span class="keyword">rbtree_t</span>;
-<span class="comment">/* foundational insert function pointer*/</span>
+<span class="comment">/* foundational insert function pointer */</span>
 <span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*rbtree_insert_p)</span> <span class="params">(rbtree_t* root, rbtree_node_t* node)</span></span>;
+<span class="comment">/* foundational visit function pointer */</span>
+<span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*rbtree_visit_p)</span> <span class="params">(rbtree_node_t* node)</span></span>;
 
 <span class="keyword">struct</span> rbtree_s
 {
@@ -161,19 +163,28 @@ rbtree_sentinel_init(s);            \
  <span class="comment">/* copy n2's color to n1 */</span>
 <span class="preprocessor">#<span class="keyword">define</span> rbtree_copy_color(n1, n2)    (n1-&gt;color = n2-&gt;color)</span>
 <span class="comment">/* sentinel must be black cuz it's leaf node */</span>
-<span class="preprocessor">#<span class="keyword">define</span> rbtree_sentinel_init(node)    rbtree_black(node)</span>
+<span class="preprocessor">#<span class="keyword">define</span> rbtree_sentinel_init(node)    \
+rbtree_black(node);            \
+(node)-&gt;node_cnt = <span class="number">0</span></span>
 
 <span class="comment">/* statements of public methods */</span>
 <span class="function"><span class="keyword">void</span> <span class="title">rbtree_insert_value</span><span class="params">(rbtree_t* tree, rbtree_node_t* node)</span></span>;
 <span class="function"><span class="keyword">void</span> <span class="title">rbtree_insert</span><span class="params">(rbtree_t* tree, rbtree_node_t* node)</span></span>;
 <span class="function"><span class="keyword">void</span> <span class="title">rbtree_delete</span><span class="params">(rbtree_t* tree, rbtree_node_t* node)</span></span>;
+<span class="comment">/* get node by key */</span>
 <span class="keyword">rbtree_node_t</span>* rbtree_find(<span class="keyword">rbtree_t</span>* tree, <span class="keyword">rbtree_key_t</span> key);
+<span class="comment">/* get node by order number */</span>
+<span class="keyword">rbtree_node_t</span>* rbtree_index(<span class="keyword">rbtree_t</span>* tree, <span class="keyword">int</span> index);
+<span class="function"><span class="keyword">int</span> <span class="title">rbtree_height</span><span class="params">(rbtree_t* tree, rbtree_node_t* node)</span></span>;
+<span class="function"><span class="keyword">int</span> <span class="title">rbtree_count</span><span class="params">(rbtree_t* tree)</span></span>;
+<span class="function"><span class="keyword">void</span> <span class="title">rbtree_visit</span><span class="params">(rbtree_node_t* node)</span></span>;
+<span class="function"><span class="keyword">void</span> <span class="title">rbtree_traversal</span><span class="params">(rbtree_t* tree, rbtree_node_t* node, rbtree_visit_p)</span></span>;
 
 <span class="preprocessor">#<span class="keyword">endif</span>    <span class="comment">/* _RBTREE_H_INCLUDED_ */</span></span>
-</code></pre><p>&nbsp;&nbsp;&nbsp; 看过nginx源码的有心人会发现，我的头文件相对于ngx_rbree.h改动不大，非常像。<br>&nbsp;&nbsp;&nbsp; 关键的rbtree.c：</p>
+</code></pre><p>&nbsp;&nbsp;&nbsp; 可以看到，我增加了按序号查找结点、求树高、求结点数、可重写访问节点方法的遍历，这么几个功能。<br>&nbsp;&nbsp;&nbsp; 为了提高按序号查找结点的效率，我增加了一个结点项node_cnt，代表当前结点为根的子树上的结点总数。这样按序号查找结点的过程将是一个二分查找，时间效率与按key查找相同，都是O(log2n)。<br>&nbsp;&nbsp;&nbsp; 遍历方法使用递归的中序遍历，默认的结点访问方法是个空方法，用户可以自行重写。<br>&nbsp;&nbsp;&nbsp; rbtree.c：</p>
 <pre><code><span class="comment">/*
  * Copyright (C) Bipedal Bit
- * Verson 1.0.0.1
+ * Verson 1.0.0.2
  */</span>
 
 <span class="variable">#include</span> &lt;stddef<span class="built_in">.</span>h&gt;
@@ -223,6 +234,10 @@ static <span class="keyword">inline</span> <span class="literal">void</span> rbt
     <span class="comment">/* node as the var x in CLRS while tmp as the var y */</span>
     rbtree_node_t* tmp = node<span class="subst">-&gt;</span>right;
 
+    <span class="comment">/* fix node_cnt */</span>
+    node<span class="subst">-&gt;</span>node_cnt = node<span class="subst">-&gt;</span>left<span class="subst">-&gt;</span>node_cnt + tmp<span class="subst">-&gt;</span>left<span class="subst">-&gt;</span>node_cnt + <span class="number">1</span>;
+    tmp<span class="subst">-&gt;</span>node_cnt = node<span class="subst">-&gt;</span>node_cnt + tmp<span class="subst">-&gt;</span>right<span class="subst">-&gt;</span>node_cnt + <span class="number">1</span>;
+
     <span class="comment">/* replace y with left[y] */</span>
     <span class="comment">/* downward: right[x] &lt;- left[y] */</span>
     node<span class="subst">-&gt;</span>right = tmp<span class="subst">-&gt;</span>left;
@@ -241,6 +256,10 @@ static <span class="keyword">inline</span> <span class="literal">void</span> rbt
 static <span class="keyword">inline</span> <span class="literal">void</span> rbtree_right_rotate(rbtree_t* tree, rbtree_node_t* node)
 {
     rbtree_node_t* tmp = node<span class="subst">-&gt;</span>left;
+
+    <span class="comment">/* fix node_cnt */</span>
+    node<span class="subst">-&gt;</span>node_cnt = node<span class="subst">-&gt;</span>right<span class="subst">-&gt;</span>node_cnt + tmp<span class="subst">-&gt;</span>right<span class="subst">-&gt;</span>node_cnt + <span class="number">1</span>;
+    tmp<span class="subst">-&gt;</span>node_cnt = node<span class="subst">-&gt;</span>node_cnt + tmp<span class="subst">-&gt;</span>left<span class="subst">-&gt;</span>node_cnt + <span class="number">1</span>;
 
     <span class="comment">/* replace y with right[y] */</span>
     node<span class="subst">-&gt;</span>left = tmp<span class="subst">-&gt;</span>right;
@@ -406,6 +425,10 @@ static <span class="literal">void</span> rbtree_delete_fixup(rbtree_t* tree, rbt
     <span class="keyword">while</span>(*tmp != tree<span class="subst">-&gt;</span>sentinel)
     {
         <span class="keyword">parent</span> = *tmp;
+
+        <span class="comment">/* update node_cnt */</span>
+        (<span class="keyword">parent</span><span class="subst">-&gt;</span>node_cnt)++;
+
         tmp = (node<span class="subst">-&gt;</span>key &lt; <span class="keyword">parent</span><span class="subst">-&gt;</span>key) ? <span class="subst">&amp;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left : <span class="subst">&amp;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right;
     }
 
@@ -416,6 +439,11 @@ static <span class="literal">void</span> rbtree_delete_fixup(rbtree_t* tree, rbt
     node<span class="subst">-&gt;</span>left = tree<span class="subst">-&gt;</span>sentinel;
     node<span class="subst">-&gt;</span>right = tree<span class="subst">-&gt;</span>sentinel;
     rbtree_red(node);
+}
+
+<span class="literal">void</span> rbtree_visit(rbtree_node_t* node)
+{
+    <span class="comment">/* visiting the current node */</span>
 }
 
 <span class="literal">void</span> rbtree_insert(rbtree_t* tree, rbtree_node_t* node)
@@ -512,6 +540,14 @@ static <span class="literal">void</span> rbtree_delete_fixup(rbtree_t* tree, rbt
     node<span class="subst">-&gt;</span>right = <span class="built_in">NULL</span>;
     node<span class="subst">-&gt;</span>value = <span class="built_in">NULL</span>;
 
+    <span class="comment">/* update node_cnt */</span>
+    rbtree_node_t* tmp = cover<span class="subst">-&gt;</span><span class="keyword">parent</span>;
+    <span class="keyword">while</span>(tmp != sentinel)
+    {
+        (tmp<span class="subst">-&gt;</span>node_cnt)--;
+        tmp = tmp<span class="subst">-&gt;</span><span class="keyword">parent</span>;
+    }
+
     <span class="keyword">if</span> (loss_red)
     {
         <span class="keyword">return</span>;
@@ -527,7 +563,8 @@ static <span class="literal">void</span> rbtree_delete_fixup(rbtree_t* tree, rbt
 rbtree_node_t* rbtree_find(rbtree_t* tree, rbtree_key_t key)
 {
     rbtree_node_t* tmp = tree<span class="subst">-&gt;</span>root;
-    int step_cnt = <span class="number">0</span>;
+    <span class="comment">/* next line is just fot test */</span>
+    <span class="comment">// int step_cnt = 0;</span>
 
     <span class="comment">/* search the binary tree */</span>
     <span class="keyword">while</span>(tmp != tree<span class="subst">-&gt;</span>sentinel)
@@ -546,102 +583,70 @@ rbtree_node_t* rbtree_find(rbtree_t* tree, rbtree_key_t key)
 
     <span class="keyword">return</span> <span class="built_in">NULL</span>;
 }
-</code></pre><p>&nbsp;&nbsp;&nbsp;  虽然明白nginx源码中100+行的长函数体也是一种避免太多函数调用增加时间空间开销的优化，我还是把所有函数都分类分割成100行以下。增加可读性是一方面，可能也是有点强迫症吧。之后会扩展几个统计方法，像max、min和mid，还会扩展一个遍历方法。<br>&nbsp;&nbsp;&nbsp; 下面是调用测试，test.c：</p>
-<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">"rbtree.h"</span></span>
 
-<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> <span class="keyword">const</span> *argv[])</span>
-</span>{
-    <span class="keyword">rbtree_t</span> t = {};
-    <span class="keyword">rbtree_node_t</span> s = {};
-    rbtree_init(&amp;t, &amp;s, rbtree_insert_value);
-
-    <span class="keyword">const</span> <span class="keyword">int</span> cnt = <span class="number">10</span>;
-    <span class="keyword">const</span> <span class="keyword">int</span> max_len = <span class="number">15</span>;
-
-<span class="preprocessor">#<span class="keyword">define</span> TEST_VALUES {<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"cherry"</span>, <span class="string">"grape"</span>, <span class="string">"lemon"</span>, <span class="string">"mango"</span>, <span class="string">"pear"</span>, <span class="string">"pineapple"</span>, <span class="string">"strawberry"</span>, <span class="string">"watermelon"</span>}</span>
-
-    <span class="comment">/* for gcc */</span>
-    <span class="keyword">char</span>* v[] = TEST_VALUES;
-    <span class="comment">/* for g++ */</span>
-    <span class="comment">// char v[][max_len] = TEST_VALUES;</span>
-
-    <span class="keyword">rbtree_node_t</span> n[cnt];
-    <span class="keyword">int</span> i;
-    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; cnt; i++)
+<span class="comment">/* find the node in the tree corresponding to the given order number */</span>
+rbtree_node_t* rbtree_index(rbtree_t* tree, int index)
+{
+    <span class="keyword">if</span> (index &lt; <span class="number">0</span> <span class="subst">||</span> index &gt;= rbtree_count(tree))
     {
-        n[i].key = i+<span class="number">1</span>;
-        n[i].value = v[i];
-        rbtree_insert(&amp;t, &amp;n[i]);
+        <span class="keyword">return</span> <span class="built_in">NULL</span>;
     }
 
-    <span class="keyword">rbtree_node_t</span>* p[cnt];
+    rbtree_node_t* tmp = tree<span class="subst">-&gt;</span>root;
+    int left_cnt = <span class="number">0</span>;
+    int sub_left_cnt;
 
-    <span class="keyword">for</span> (i = <span class="number">1</span>; i &lt;= cnt; i++)
+    <span class="keyword">while</span>(tmp<span class="subst">-&gt;</span>node_cnt &gt; <span class="number">0</span>)
     {
-        <span class="built_in">printf</span>(<span class="string">"key: %d\n"</span>, i);
-        p[i] = rbtree_find(&amp;t, i);
-        <span class="built_in">printf</span>(<span class="string">"value: %s\n"</span>, (p[i] != <span class="literal">NULL</span>) ? p[i]-&gt;value : <span class="string">"?"</span>);
+        sub_left_cnt = tmp<span class="subst">-&gt;</span>left<span class="subst">-&gt;</span>node_cnt;
+        <span class="keyword">if</span> (left_cnt + sub_left_cnt == index)
+        {
+            <span class="keyword">return</span> tmp;
+        }
+
+        <span class="keyword">if</span> (left_cnt + sub_left_cnt &lt; index)
+        {
+            left_cnt += sub_left_cnt + <span class="number">1</span>;
+            tmp = tmp<span class="subst">-&gt;</span>right;
+        }
+        <span class="keyword">else</span>
+        {
+            tmp = tmp<span class="subst">-&gt;</span>left;
+        }
     }
-
-    rbtree_delete(&amp;t, &amp;n[<span class="number">5</span>]);
-
-    <span class="built_in">printf</span>(<span class="string">"\nafter delete 6-&gt;mango:\n\n"</span>);
-
-    <span class="keyword">for</span> (i = <span class="number">1</span>; i &lt;= cnt; i++)
-    {
-        <span class="built_in">printf</span>(<span class="string">"key: %d\n"</span>, i);
-        p[i] = rbtree_find(&amp;t, i);
-        <span class="built_in">printf</span>(<span class="string">"value: %s\n"</span>, (p[i] != <span class="literal">NULL</span>) ? p[i]-&gt;value : <span class="string">"?"</span>);
-    }
-
-    <span class="keyword">return</span> <span class="number">0</span>;
 }
-</code></pre><p>&nbsp;&nbsp;&nbsp; 解开rbtree_find方法里的测试行注释，顺利执行：</p>
-<pre><code><span class="attribute">key</span>: <span class="number">1</span>
-step <span class="attribute">count</span>: <span class="number">3</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: apple
-<span class="attribute">key</span>: <span class="number">2</span>
-step <span class="attribute">count</span>: <span class="number">2</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: banana
-<span class="attribute">key</span>: <span class="number">3</span>
-step <span class="attribute">count</span>: <span class="number">3</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: cherry
-<span class="attribute">key</span>: <span class="number">4</span>
-step <span class="attribute">count</span>: <span class="number">1</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: grape
-<span class="attribute">key</span>: <span class="number">5</span>
-step <span class="attribute">count</span>: <span class="number">3</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: lemon
-<span class="attribute">key</span>: <span class="number">6</span>
-step <span class="attribute">count</span>: <span class="number">2</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: mango
-<span class="attribute">key</span>: <span class="number">7</span>
-step <span class="attribute">count</span>: <span class="number">4</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: pear
-<span class="attribute">key</span>: <span class="number">8</span>
-step <span class="attribute">count</span>: <span class="number">3</span>, <span class="attribute">color</span>: red, <span class="attribute">value</span>: pineapple
-<span class="attribute">key</span>: <span class="number">9</span>
-step <span class="attribute">count</span>: <span class="number">4</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: strawberry
-<span class="attribute">key</span>: <span class="number">10</span>
-step <span class="attribute">count</span>: <span class="number">5</span>, <span class="attribute">color</span>: red, <span class="attribute">value</span>: watermelon
 
-after delete <span class="number">6</span>-&gt;<span class="attribute">mango</span>:
+<span class="comment">/* get the height of the subtree */</span>
+int rbtree_height(rbtree_t* tree, rbtree_node_t* node)
+{
+    <span class="keyword">if</span> (node == tree<span class="subst">-&gt;</span>sentinel)
+    {
+        <span class="keyword">return</span> <span class="number">0</span>;
+    }
 
-<span class="attribute">key</span>: <span class="number">1</span>
-step <span class="attribute">count</span>: <span class="number">3</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: apple
-<span class="attribute">key</span>: <span class="number">2</span>
-step <span class="attribute">count</span>: <span class="number">2</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: banana
-<span class="attribute">key</span>: <span class="number">3</span>
-step <span class="attribute">count</span>: <span class="number">3</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: cherry
-<span class="attribute">key</span>: <span class="number">4</span>
-step <span class="attribute">count</span>: <span class="number">1</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: grape
-<span class="attribute">key</span>: <span class="number">5</span>
-step <span class="attribute">count</span>: <span class="number">3</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: lemon
-<span class="attribute">key</span>: <span class="number">6</span>
-<span class="attribute">value</span>: ?
-<span class="attribute">key</span>: <span class="number">7</span>
-step <span class="attribute">count</span>: <span class="number">2</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: pear
-<span class="attribute">key</span>: <span class="number">8</span>
-step <span class="attribute">count</span>: <span class="number">4</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: pineapple
-<span class="attribute">key</span>: <span class="number">9</span>
-step <span class="attribute">count</span>: <span class="number">3</span>, <span class="attribute">color</span>: red, <span class="attribute">value</span>: strawberry
-<span class="attribute">key</span>: <span class="number">10</span>
-step <span class="attribute">count</span>: <span class="number">4</span>, <span class="attribute">color</span>: black, <span class="attribute">value</span>: watermelon
-</code></pre><p>&nbsp;&nbsp;&nbsp; 下面分别是删除6-&gt;mango前的红黑树和删除后的红黑树示意图：<br><img src="http://img.blog.csdn.net/20150816200143108" alt="" height="422" width="400"><br><img src="http://img.blog.csdn.net/20150816200200052" alt="" height="331" width="400"><br>&nbsp;&nbsp;&nbsp; 下面我们来做个大量数据的压力测试，注意把rbtree_find方法里的测试行注释掉，不然后果恐怕会比较吓人：</p>
+    int left_height = rbtree_height(tree, node<span class="subst">-&gt;</span>left);
+    int right_height = rbtree_height(tree, node<span class="subst">-&gt;</span>right);
+    int sub_height = (left_height &gt; right_height) ? left_height : right_height;
+    <span class="keyword">return</span> sub_height+<span class="number">1</span>;
+}
+
+<span class="comment">/* get the count of nodes in the tree */</span>
+int rbtree_count(rbtree_t* tree)
+{
+    <span class="keyword">return</span> tree<span class="subst">-&gt;</span>root<span class="subst">-&gt;</span>node_cnt;
+}
+
+<span class="comment">/* visit every node of the subtree whose root is given in order */</span>
+<span class="literal">void</span> rbtree_traversal(rbtree_t* tree, rbtree_node_t* node, rbtree_visit_p visit)
+{
+    <span class="keyword">if</span> (node != tree<span class="subst">-&gt;</span>sentinel)
+    {
+        rbtree_traversal(tree, node<span class="subst">-&gt;</span>left, visit);
+        visit(node);
+        rbtree_traversal(tree, node<span class="subst">-&gt;</span>right, visit);
+    }
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; 还是做个压力测试。<br>&nbsp;&nbsp;&nbsp; test.c：</p>
 <pre><code><span class="preprocessor">#include <span class="title">&lt;stdio.h&gt;</span></span>
 <span class="preprocessor">#include <span class="title">&lt;stdlib.h&gt;</span></span>
 <span class="preprocessor">#include <span class="title">&lt;time.h&gt;</span></span>
@@ -677,8 +682,13 @@ step <span class="attribute">count</span>: <span class="number">4</span>, <span 
     {
         n[i]<span class="variable">.key</span> = i+<span class="number">1</span>;
         n[i]<span class="variable">.value</span> = v[i%<span class="number">10</span>];
+        n[i]<span class="variable">.node_cnt</span> = <span class="number">1</span>;
         rbtree_insert(&amp;t, &amp;n[i]);
     }
+
+    srand( (<span class="keyword">unsigned</span> <span class="keyword">int</span>)time(<span class="number">0</span>) );
+    <span class="keyword">int</span> no = rand()%cnt;
+    printf(<span class="string">"n[%d]-&gt;key = %d\n"</span>, no, rbtree_index(&amp;t, no)-&gt;key);
 
     <span class="keyword">long</span> time2 = clock();
     room = <span class="number">48.0</span>*cnt/(<span class="number">1</span>&lt;&lt;<span class="number">20</span>);
@@ -686,7 +696,6 @@ step <span class="attribute">count</span>: <span class="number">4</span>, <span 
     printf(<span class="string">"Inserting %d nodes costs %.2fMB and spends %f seconds.\n"</span>, cnt, room, duration);
 
     <span class="keyword">const</span> <span class="keyword">int</span> search_cnt = <span class="number">1</span>&lt;&lt;<span class="number">10</span>;
-    srand( (<span class="keyword">unsigned</span> <span class="keyword">int</span>)time(<span class="number">0</span>) );
     <span class="keyword">for</span>( i = <span class="number">0</span> ; i &lt; search_cnt ; i++ )
     {
         rbtree_find(&amp;t, (rand()%cnt)+<span class="number">1</span>);
@@ -695,6 +704,16 @@ step <span class="attribute">count</span>: <span class="number">4</span>, <span 
     <span class="keyword">long</span> time3 = clock();
     duration = (<span class="keyword">double</span>)(time3 - time2) / CLOCKS_PER_SEC;
     printf(<span class="string">"Searching %d nodes among %d spends %f seconds.\n"</span>, search_cnt, cnt, duration);
+
+    <span class="keyword">const</span> <span class="keyword">int</span> index_cnt = <span class="number">1</span>&lt;&lt;<span class="number">10</span>;
+    <span class="keyword">for</span>( i = <span class="number">0</span> ; i &lt; index_cnt ; i++ )
+    {
+        rbtree_index(&amp;t, (rand()%cnt));
+    }
+
+    <span class="keyword">long</span> time4 = clock();
+    duration = (<span class="keyword">double</span>)(time4 - time3) / CLOCKS_PER_SEC;
+    printf(<span class="string">"Indexing %d nodes among %d spends %f seconds.\n"</span>, index_cnt, cnt, duration);
 
     <span class="keyword">const</span> <span class="keyword">int</span> delete_cnt = <span class="number">1</span>&lt;&lt;<span class="number">10</span>;
     <span class="keyword">int</span> nums[delete_cnt];
@@ -716,8 +735,8 @@ step <span class="attribute">count</span>: <span class="number">4</span>, <span 
         }
     }
 
-    <span class="keyword">long</span> time4 = clock();
-    duration = (<span class="keyword">double</span>)(time4 - time3) / CLOCKS_PER_SEC;
+    <span class="keyword">long</span> time5 = clock();
+    duration = (<span class="keyword">double</span>)(time5 - time4) / CLOCKS_PER_SEC;
     printf(<span class="string">"Hash %d times spends %f seconds.\n"</span>, delete_cnt, duration);
 
     <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; delete_cnt; i++)
@@ -725,30 +744,52 @@ step <span class="attribute">count</span>: <span class="number">4</span>, <span 
         rbtree_delete(&amp;t, &amp;n[nums[i]]);
     }
 
-    <span class="keyword">long</span> time5 = clock();
-    duration = (<span class="keyword">double</span>)(time5 - time4) / CLOCKS_PER_SEC;
+    <span class="keyword">long</span> time6 = clock();
+    duration = (<span class="keyword">double</span>)(time6 - time5) / CLOCKS_PER_SEC;
     printf(<span class="string">"Deleting %d nodes among %d spends %f seconds.\n"</span>, delete_cnt, cnt, duration);
     free(mark);
+
+    <span class="keyword">int</span> h = rbtree_height(&amp;t, t<span class="variable">.root</span>);
+    <span class="keyword">long</span> time7 = clock();
+    duration = (<span class="keyword">double</span>)(time7 - time6) / CLOCKS_PER_SEC;
+    printf(<span class="string">"The height of the tree is %d. Getting it spends %f seconds.\n"</span>, h, duration);
+
+    rbtree_traversal(&amp;t, t<span class="variable">.root</span>, rbtree_visit);
+    <span class="keyword">long</span> time8 = clock();
+    duration = (<span class="keyword">double</span>)(time8 - time7) / CLOCKS_PER_SEC;
+    printf(<span class="string">"Traversal the tree spends %f seconds.\n"</span>, duration);
+
+    printf(<span class="string">"Count of nodes in the tree is %d.\n"</span>, rbtree_count(&amp;t));
+
     free(n);
 
     <span class="keyword">return</span> <span class="number">0</span>;
 }
-</code></pre><p>&nbsp;&nbsp;&nbsp; 来看看结果：</p>
+</code></pre><p>&nbsp;&nbsp;&nbsp; 上一个版本的压力测试结果：</p>
 <pre><code>Inserting <span class="number">1048576</span> nodes costs <span class="number">48.00</span>MB and spends <span class="number">0.425416</span> seconds.
 Searching <span class="number">1024</span> nodes among <span class="number">1048576</span> spends <span class="number">0.001140</span> seconds.
 Hash <span class="number">1024</span> times spends <span class="number">0.000334</span> seconds.
 Deleting <span class="number">1024</span> nodes among <span class="number">1048576</span> spends <span class="number">0.000783</span> seconds.
-</code></pre><p>&nbsp;&nbsp;&nbsp; 删除比查找还快，耗时只有哈希查找的两倍多点，上百万的插入也耗时不足半秒，嗯我还挺满意的。<br>&nbsp;&nbsp;&nbsp; 写统计和遍历方法去了。</p>
+</code></pre><p>&nbsp;&nbsp;&nbsp; 扩展版本的压力测试结果：</p>
+<pre><code>Inserting <span class="number">1048576</span> nodes costs <span class="number">48.00</span>MB and spends <span class="number">0.467859</span> seconds.
+Searching <span class="number">1024</span> nodes among <span class="number">1048576</span> spends <span class="number">0.001188</span> seconds.
+Indexing <span class="number">1024</span> nodes among <span class="number">1048576</span> spends <span class="number">0.001484</span> seconds.
+Hash <span class="number">1024</span> times spends <span class="number">0.000355</span> seconds.
+Deleting <span class="number">1024</span> nodes among <span class="number">1048576</span> spends <span class="number">0.001417</span> seconds.
+The height of the tree is <span class="number">28.</span> Getting it spends <span class="number">0.021669</span> seconds.
+Traversal the tree spends <span class="number">0.023913</span> seconds.
+Count of nodes in the tree is <span class="number">1047552.</span>
+</code></pre><p>&nbsp;&nbsp;&nbsp; 比较一下可以发现：<br>&nbsp;&nbsp;&nbsp; 1.插入结点略慢了一点，因为插入时多维护了一个node_cnt项。<br>&nbsp;&nbsp;&nbsp; 2.按key查找结点速度没有变化。<br>&nbsp;&nbsp;&nbsp; 3.哈希查找速度没有变化。<br>&nbsp;&nbsp;&nbsp; 4.删除结点花的时间几乎是原来的两倍，因为每次删除后都要一路向上更新node_cnt，几乎相当于包含了一次按key查询。<br>&nbsp;&nbsp;&nbsp; 5.按序号查询比按key查询略慢，因为每次进入右子树需要多做一次加法。<br>&nbsp;&nbsp;&nbsp; 6.遍历花的时间与求树高相同，因为它们的实质都是遍历树，时间效率O(n)数量级，具体点为2n次结点访问，分别为结点入栈和出栈时。<br>&nbsp;&nbsp;&nbsp; 别问我max、min、mid在哪，能按序号查询了这些还是问题吗？</p>
 
       
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/8/16/【四】nginx的数据结构-2-——自己动手重写红黑树/" data-id="ciemyesz2000sdn9754fpjx13" class="article-share-link" data-share="baidu" data-title="【四】nginx的数据结构(2)——自己动手重写红黑树">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/8/18/【五】nginx的数据结构-3-——扩展红黑树/" data-id="ciemyesyx000ndn9718j3qsaz" class="article-share-link" data-share="baidu" data-title="【五】nginx的数据结构(3)——扩展红黑树">分享到</a>
       
 
       
-        <a href="http://blog.bipedalbit.net/2015/8/16/【四】nginx的数据结构-2-——自己动手重写红黑树/#ds-thread" class="article-comment-link">评论</a>
+        <a href="http://blog.bipedalbit.net/2015/8/18/【五】nginx的数据结构-3-——扩展红黑树/#ds-thread" class="article-comment-link">评论</a>
       
 
       
@@ -760,19 +801,19 @@ Deleting <span class="number">1024</span> nodes among <span class="number">10485
     
 <nav id="article-nav">
   
-    <a href="/2015/8/16/Linux下Sublime的C-C++多文件程序Makefile-清理-执行配置/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2015/9/6/node.js的'Cannot enqueue Handshake after invoking quit'错误/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">下一篇</strong>
       <div class="article-nav-title">
         
-          Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置
+          node.js的&#39;Cannot enqueue Handshake after invoking quit&#39;错误
         
       </div>
     </a>
   
   
-    <a href="/2015/8/11/C语言的static关键字/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2015/8/16/Linux下Sublime的C-C++多文件程序Makefile-清理-执行配置/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">上一篇</strong>
-      <div class="article-nav-title">C语言的static关键字</div>
+      <div class="article-nav-title">Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置</div>
     </a>
   
 </nav>
@@ -783,7 +824,7 @@ Deleting <span class="number">1024</span> nodes among <span class="number">10485
 
   <section id="comments">
     <!-- 多说评论框 start -->
-      <div class="ds-thread" data-thread-key="2015/8/16/【四】nginx的数据结构-2-——自己动手重写红黑树/" data-title="【四】nginx的数据结构(2)——自己动手重写红黑树" data-url="http://blog.bipedalbit.net/2015/8/16/【四】nginx的数据结构-2-——自己动手重写红黑树/"></div>
+      <div class="ds-thread" data-thread-key="2015/8/18/【五】nginx的数据结构-3-——扩展红黑树/" data-title="【五】nginx的数据结构(3)——扩展红黑树" data-url="http://blog.bipedalbit.net/2015/8/18/【五】nginx的数据结构-3-——扩展红黑树/"></div>
     <!-- 多说评论框 end -->
     <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
     <script type="text/javascript">
