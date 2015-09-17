@@ -2343,4 +2343,28 @@ ngx_rbt_black(temp);<span class="comment">//染黑当前temp</span>
     
   </entry>
   
+  <entry>
+    <title><![CDATA[Qt出现错误undefined reference to 'vtable for XXXXX.XXX']]></title>
+    <link href="http://blog.bipedalbit.net/2015/6/9/Qt%E5%87%BA%E7%8E%B0%E9%94%99%E8%AF%AFundefined-reference-to-vtable-for-XXXXX-XXX/"/>
+    <id>http://blog.bipedalbit.net/2015/6/9/Qt出现错误undefined-reference-to-vtable-for-XXXXX-XXX/</id>
+    <published>2015-06-09T05:19:10.000Z</published>
+    <updated>2015-09-17T06:27:38.998Z</updated>
+    <content type="html"><![CDATA[<p>&nbsp;&nbsp;&nbsp; 如果新建一个类，继承了某个类，在这个类的头文件中式没有 Q_OBJECT宏声明的，如果想使用signal-slot信号，就需要添加Q_OBJECT宏，但是添加了这个宏后，就可能会出现这种错误，“undefined reference to vtable for XXXXX”的编译错误。</p>
+<p>&nbsp;&nbsp;&nbsp; 这是因为在Makefile里面没有这个类并没有Q_OBJECT信息，所以在执行Makefile时候也就没有moc xxx.h这条命令，最终导致连接失败。</p>
+<p>&nbsp;&nbsp;&nbsp; 知道了这个原因后，解决方法就很简单了，重新运行qmake，生成Makefile，然后再编译就OK了。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>&nbsp;&nbsp;&nbsp; 如果新建一个类，继承了某个类，在这个类的头文件中式没有 Q_OBJECT宏声明的，如果想使用signal-slot信号，就需要添加Q_OBJECT宏，但是添加了这个宏后，就可能会出现这种错误，“undefined reference t]]>
+    </summary>
+    
+      <category term="Q_OBJECT" scheme="http://blog.bipedalbit.net/tags/Q-OBJECT/"/>
+    
+      <category term="Qt" scheme="http://blog.bipedalbit.net/tags/Qt/"/>
+    
+      <category term="signal-slot" scheme="http://blog.bipedalbit.net/tags/signal-slot/"/>
+    
+      <category term="Qt" scheme="http://blog.bipedalbit.net/categories/Qt/"/>
+    
+  </entry>
+  
 </feed>
