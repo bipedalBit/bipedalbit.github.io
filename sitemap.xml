@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.bipedalbit.net/2015/9/30/nginx%E4%B9%8B%E5%9B%9E%E5%A4%B4%E8%A1%A5%E8%AF%BE/</loc>
+    <lastmod>2015-09-30T10:17:33.786Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://blog.bipedalbit.net/2015/5/3/win-Linux%E4%B8%8B%E5%8E%BB%E6%8E%89codeigniter%E6%A1%86%E6%9E%B6%E7%BD%91%E7%AB%99URL%E4%B8%AD%E7%9A%84index-php/</loc>
     <lastmod>2015-09-17T14:19:53.686Z</lastmod>
   </url>
