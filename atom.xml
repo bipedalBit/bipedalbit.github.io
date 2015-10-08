@@ -4,7 +4,7 @@
   <subtitle><![CDATA[为了证明并非止步不前，为了安慰被神牛震慑的心。]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://blog.bipedalbit.net/"/>
-  <updated>2015-10-08T13:39:19.424Z</updated>
+  <updated>2015-10-08T14:18:53.572Z</updated>
   <id>http://blog.bipedalbit.net/</id>
   
   <author>
@@ -13,6 +13,543 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[C++二进制-十进制转换器]]></title>
+    <link href="http://blog.bipedalbit.net/2015/10/8/C-%E4%BA%8C%E8%BF%9B%E5%88%B6-%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2%E5%99%A8/"/>
+    <id>http://blog.bipedalbit.net/2015/10/8/C-二进制-十进制转换器/</id>
+    <published>2015-10-08T14:05:52.000Z</published>
+    <updated>2015-10-08T14:18:53.572Z</updated>
+    <content type="html"><![CDATA[<p>&nbsp;&nbsp;&nbsp; 布置了二进制-十进制转换器的小作业，本来还要求顺手扩展一下大数的四则运算，我嫌麻烦没做扩展，就只是写来玩玩。也算熟悉一下底层的二进制-十进制转换机制，顺便复习下C++源码规范。注释写了很多，就不多做解释了，只贴代码。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; converter.h:</p>
+<pre><code><span class="comment">/*
+ * Copyright (C) Bipedal Bit
+ * Verson 1.0.0.1
+ */</span>
+
+<span class="preprocessor">#<span class="keyword">ifndef</span> _CONVERTER_H_</span>
+<span class="preprocessor">#<span class="keyword">define</span> _CONVERTER_H_</span>
+
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span>
+
+<span class="comment">/*
+ * This is a class to offer operations converting radix of number in string.
+ */</span>
+<span class="keyword">class</span> Converter
+{
+<span class="keyword">private</span>:
+    <span class="comment">/* to store the binary form of picked up number string */</span>
+    <span class="built_in">std</span>::<span class="built_in">string</span> binVal;
+    <span class="comment">/* to store the decimal form of picked up number string */</span>
+    <span class="built_in">std</span>::<span class="built_in">string</span> decVal;
+    <span class="comment">/* to sign the number by marking wether it is negtive */</span>
+    <span class="keyword">bool</span> negtive;
+    <span class="comment">/* to mark wether the number has a dot */</span>
+    <span class="keyword">bool</span> hasDot;
+    <span class="comment">/* to store the index of dot in binary number string */</span>
+    <span class="keyword">int</span> binDotIndex;
+    <span class="comment">/* to store the index of dot in decimal number string */</span>
+    <span class="keyword">int</span> decDotIndex;
+    <span class="comment">/* max reserved digits sum when float converted from decimal to binary */</span>
+    <span class="keyword">int</span> binFloatPrecision;
+    <span class="comment">/*
+     * Convert the binary number to decimal form then fill this-&gt;decVal.
+     */</span>
+    <span class="function"><span class="keyword">void</span> <span class="title">bin2Dec</span><span class="params">()</span></span>;
+    <span class="comment">/*
+     * Convert the decimal number to binary form then fill this-&gt;binVal.
+     */</span>
+    <span class="function"><span class="keyword">void</span> <span class="title">dec2Bin</span><span class="params">()</span></span>;
+<span class="keyword">public</span>:
+    <span class="comment">/*
+     * Constructor of the class to pick up number in string and fill both this-&gt;binVal and this-&gt;decVal.
+     */</span>
+    Converter(<span class="built_in">std</span>::<span class="built_in">string</span> str, <span class="keyword">int</span> radix, <span class="keyword">int</span> binFloatPrecision = <span class="number">20</span>);
+    <span class="comment">/*
+     * Get the the number string with specified radix.
+     */</span>
+    <span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">getNum</span><span class="params">(<span class="keyword">int</span> radix)</span></span>;
+};
+
+<span class="preprocessor">#<span class="keyword">endif</span></span>
+</code></pre><p>&nbsp;&nbsp;&nbsp; converter.cpp:</p>
+<pre><code><span class="comment">/*
+ * Copyright (C) Bipedal Bit
+ * Verson 1.0.0.1
+ */</span>
+
+ <span class="preprocessor">#<span class="keyword">include</span> <span class="string">"converter.h"</span></span>
+ <span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
+ <span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;stdexcept&gt;</span></span>
+
+<span class="comment">/*
+ * name: Converter
+ * args:
+ *    string str: the original string containing target number
+ *    int radix: the radix of the number to pick up form str
+ *    int binFloatPrecision: max reserved digits sum when float converted from decimal to binary
+ *        whose default value is 20
+ * Constructor of the class to pick up number in string and fill both this-&gt;binVal and this-&gt;decVal.
+ */</span>
+ Converter::Converter(<span class="built_in">std</span>::<span class="built_in">string</span> str, <span class="keyword">int</span> radix, <span class="keyword">int</span> binFloatPrecision)
+{
+    <span class="comment">/* check radix */</span>
+    <span class="keyword">if</span> (radix != <span class="number">2</span> &amp;&amp; radix != <span class="number">10</span>)
+    {
+        <span class="built_in">std</span>::<span class="built_in">cerr</span> &lt;&lt; <span class="string">"Invalid argument: Do not support radixes beyond binary and decimal yet.\n"</span>;
+        <span class="keyword">return</span>;
+    }
+    <span class="comment">/* check binFloatPrecision */</span>
+    <span class="keyword">if</span> (binFloatPrecision &lt; <span class="number">1</span>)
+    {
+        <span class="built_in">std</span>::<span class="built_in">cerr</span> &lt;&lt; <span class="string">"Invalid argument: binFloatPrecision should be greater than 0.\n"</span>;
+        <span class="keyword">return</span>;
+    }
+    <span class="comment">/* fill this-&gt;binFloatPrecision */</span>
+    <span class="keyword">this</span>-&gt;binFloatPrecision = binFloatPrecision;
+    <span class="comment">/* assistant variables for traversing the original string */</span>
+    <span class="keyword">int</span> len = str.size();
+    <span class="keyword">int</span> i = <span class="number">0</span>;
+    <span class="comment">/* mark wether there's a dot in the number */</span>
+    <span class="keyword">bool</span> hasDot = <span class="literal">false</span>;
+    <span class="comment">/* store number string temporarily */</span>
+    <span class="built_in">std</span>::<span class="built_in">string</span> tmp = <span class="string">""</span>;
+    <span class="keyword">if</span> (len &gt; <span class="number">0</span>)
+    {
+        <span class="comment">/* handle binary radix */</span>
+        <span class="keyword">if</span> (radix == <span class="number">2</span>)
+        {
+            <span class="comment">/* remove useless characters */</span>
+            <span class="keyword">while</span>(str[i] != <span class="string">'-'</span> &amp;&amp; str[i] != <span class="string">'0'</span> &amp;&amp; str[i] != <span class="string">'1'</span>)
+            {
+                i++;
+            }
+            <span class="comment">/* pick up '-' */</span>
+            <span class="keyword">if</span>(str[i] == <span class="string">'-'</span>)
+            {
+                <span class="keyword">this</span>-&gt;negtive = <span class="literal">true</span>;
+                i++;
+            }
+            <span class="keyword">else</span>
+            {
+                <span class="keyword">this</span>-&gt;negtive = <span class="literal">false</span>;
+            }
+            <span class="comment">/* remove spare '0's */</span>
+            <span class="keyword">while</span>(str[i] == <span class="string">'0'</span>)
+            {
+                i++;
+            }
+            <span class="comment">/* get numbers */</span>
+            <span class="keyword">for</span>(; i &lt; len ; i++)
+            {
+                <span class="comment">/* get first dot only */</span>
+                <span class="keyword">if</span> (!hasDot &amp;&amp; str[i] == <span class="string">'.'</span>)
+                {
+                    hasDot = <span class="literal">true</span>;
+                    tmp += <span class="string">'.'</span>;
+                    <span class="keyword">continue</span>;
+                }
+                <span class="comment">/* get '0's and '1's only */</span>
+                <span class="keyword">if</span> (str[i] != <span class="string">'0'</span> &amp;&amp; str[i] != <span class="string">'1'</span>)
+                {
+                    <span class="keyword">break</span>;
+                }
+                tmp += str[i];
+            }
+        }
+        <span class="comment">/* handle decimal radix */</span>
+        <span class="keyword">else</span>
+        {
+            <span class="comment">/* remove useless characters */</span>
+            <span class="keyword">while</span>(str[i] != <span class="string">'-'</span> &amp;&amp; !(str[i] &gt;= <span class="string">'0'</span> &amp;&amp; str[i] &lt;= <span class="string">'9'</span>))
+            {
+                i++;
+            }
+            <span class="comment">/* pick up '-' */</span>
+            <span class="keyword">if</span>(str[i] == <span class="string">'-'</span>)
+            {
+                <span class="keyword">this</span>-&gt;negtive = <span class="literal">true</span>;
+                i++;
+            }
+            <span class="keyword">else</span>
+            {
+                <span class="keyword">this</span>-&gt;negtive = <span class="literal">false</span>;
+            }
+            <span class="comment">/* remove spare '0's */</span>
+            <span class="keyword">while</span>(str[i] == <span class="string">'0'</span>)
+            {
+                i++;
+            }
+            <span class="comment">/* get numbers */</span>
+            <span class="keyword">for</span>(; i &lt; len ; i++)
+            {
+                <span class="comment">/* get first dot only */</span>
+                <span class="keyword">if</span> (!hasDot &amp;&amp; str[i] == <span class="string">'.'</span>)
+                {
+                    hasDot = <span class="literal">true</span>;
+                    tmp += <span class="string">'.'</span>;
+                    <span class="keyword">continue</span>;
+                }
+                <span class="comment">/* get all arabic numerals */</span>
+                <span class="keyword">if</span>(!(str[i] &gt;= <span class="string">'0'</span> &amp;&amp; str[i] &lt;= <span class="string">'9'</span>))
+                {
+                    <span class="keyword">break</span>;
+                }
+                tmp += str[i];
+            }
+        }
+    }
+    <span class="comment">/* if no number picked up set 0 */</span>
+    <span class="keyword">if</span>(tmp == <span class="string">""</span>)
+    {
+        tmp = <span class="string">"0"</span>;
+    }
+    <span class="comment">/* add '0' if necessary */</span>
+    <span class="keyword">if</span> (tmp[<span class="number">0</span>] == <span class="string">'.'</span>)
+    {
+        tmp = <span class="string">'0'</span> + tmp;
+    }
+    <span class="comment">/* mark wether the number has a dot */</span>
+    <span class="keyword">this</span>-&gt;hasDot = hasDot;
+    <span class="comment">/* fill corresponding number form */</span>
+    <span class="keyword">if</span> (radix == <span class="number">2</span>)
+    {
+        <span class="keyword">this</span>-&gt;binVal = tmp;
+        <span class="keyword">if</span> (hasDot)
+        {
+            <span class="comment">/* store dot's index in the number string of binary form */</span>
+            <span class="keyword">this</span>-&gt;binDotIndex = tmp.find(<span class="string">'.'</span>);
+        }
+        bin2Dec();
+    }
+    <span class="keyword">else</span>
+    {
+        <span class="keyword">this</span>-&gt;decVal = tmp;
+        <span class="keyword">if</span> (hasDot)
+        {
+            <span class="comment">/* store dot's index in the number string of decimal form */</span>
+            <span class="keyword">this</span>-&gt;decDotIndex = tmp.find(<span class="string">'.'</span>);
+        }
+        dec2Bin();
+    }
+    <span class="comment">/* have a test */</span>
+<span class="comment">/*
+    std::cout &lt;&lt; "radix: 2" &lt;&lt; std::endl;
+    if(this-&gt;negtive)
+    {
+        std::cout &lt;&lt; '-';
+    }
+    std::cout &lt;&lt; this-&gt;binVal &lt;&lt; std::endl;
+    std::cout &lt;&lt; "radix: 10" &lt;&lt; std::endl;
+    if(this-&gt;negtive)
+    {
+        std::cout &lt;&lt; '-';
+    }
+    std::cout &lt;&lt; this-&gt;decVal &lt;&lt; std::endl;
+*/</span>
+}
+
+<span class="comment">/*
+ * name: getNum
+ * arguments:
+ *    int radix: spedify a radix to find which form number is to got
+ * return: the number string with specified form
+ * access: public
+ * Get the the number string with specified radix.
+ */</span>
+ <span class="built_in">std</span>::<span class="built_in">string</span> Converter::getNum(<span class="keyword">int</span> radix)
+ {
+     <span class="comment">/* check radix */</span>
+    <span class="keyword">if</span> (radix != <span class="number">2</span> &amp;&amp; radix != <span class="number">10</span>)
+    {
+        <span class="built_in">std</span>::<span class="built_in">cerr</span> &lt;&lt; <span class="string">"Invalid argument: Do not support radixes beyond binary and decimal yet.\n"</span>;
+        <span class="keyword">return</span> <span class="literal">NULL</span>;
+    }
+     <span class="built_in">std</span>::<span class="built_in">string</span> tmp = <span class="string">""</span>;
+     <span class="comment">/* add the '-' character if necessary */</span>
+     <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;negtive)
+     {
+         tmp += <span class="string">'-'</span>;
+     }
+     <span class="comment">/* add the binary form number */</span>
+     <span class="keyword">if</span> (radix == <span class="number">2</span>)
+     {
+         tmp += <span class="keyword">this</span>-&gt;binVal;
+     }
+     <span class="comment">/* add the decimal form number */</span>
+     <span class="keyword">else</span>
+     {
+         tmp += <span class="keyword">this</span>-&gt;decVal;
+     }
+     <span class="keyword">return</span> tmp;
+ }
+
+<span class="comment">/*
+ * name: bin2Dec
+ * access: private
+ * Convert the binary number to decimal form then fill this-&gt;decVal.
+ */</span>
+ <span class="keyword">void</span> Converter::bin2Dec()
+ {
+     <span class="comment">/* store number string temporarily */</span>
+     <span class="built_in">std</span>::<span class="built_in">string</span> tmp = <span class="string">""</span>;
+     <span class="comment">/* ============== int part ============== */</span>
+     <span class="comment">/* to get the int range of the binary number string */</span>
+     <span class="keyword">int</span> intLen;
+     <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;hasDot)
+     {
+         intLen = <span class="keyword">this</span>-&gt;binDotIndex;
+     }
+     <span class="keyword">else</span>
+     {
+         intLen = <span class="keyword">this</span>-&gt;binVal.size();
+     }
+     <span class="comment">/* may need carry while traversing digits */</span>
+     <span class="keyword">char</span> carry = <span class="number">0</span>;
+     <span class="comment">/* to store tmp's length */</span>
+     <span class="keyword">int</span> decLen;
+     <span class="comment">/* convert radix digit by digit while traversing the int part of the binary number string */</span>
+     <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; intLen ; i++)
+     {
+         <span class="comment">/* add new binary digit into carry */</span>
+         carry += <span class="keyword">this</span>-&gt;binVal[i]-<span class="string">'0'</span>;
+         <span class="comment">/* update tmp's length */</span>
+         decLen = tmp.size();
+         <span class="comment">/* traverse tmp to multiply each digit by 2 and add carries */</span>
+         <span class="keyword">for</span>(<span class="keyword">int</span> j = decLen-<span class="number">1</span> ; j &gt;= <span class="number">0</span> ; j--)
+         {
+             tmp[j] = tmp[j]*<span class="number">2</span>+carry;
+             <span class="keyword">if</span> (tmp[j] &gt; <span class="number">9</span>)
+             {
+                 <span class="comment">/* update carry */</span>
+                 carry = tmp[j]/<span class="number">10</span>;
+                 <span class="comment">/* limit digit within 10 */</span>
+                 tmp[j] %= <span class="number">10</span>;
+             }
+             <span class="keyword">else</span>
+             {
+                carry = <span class="number">0</span>;
+             }
+         }
+         <span class="comment">/* expand digits if necessary */</span>
+         <span class="keyword">while</span>(carry)
+         {
+             tmp = <span class="keyword">char</span>(carry%<span class="number">10</span>)+tmp;
+             carry /= <span class="number">10</span>;
+         }
+     }
+     <span class="comment">/* ============= part end ============== */</span>
+     <span class="comment">/* add '0' if need */</span>
+     <span class="keyword">if</span> (tmp == <span class="string">""</span>)
+     {
+         tmp += (<span class="keyword">char</span>)<span class="number">0</span>;
+     }
+     <span class="comment">/* ============= float part ============== */</span>
+     <span class="comment">/* if there is a float part */</span>
+     <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;hasDot)
+     {
+         <span class="comment">/* add the dot to the number string */</span>
+         tmp += <span class="string">'.'</span>;
+         <span class="comment">/* get the length except the float part */</span>
+         <span class="keyword">int</span> decIntLen = tmp.size();
+         <span class="comment">/* get the length of the whole binary number string */</span>
+         <span class="keyword">int</span> binLen = <span class="keyword">this</span>-&gt;binVal.size();
+         <span class="comment">/* convert radix digit by digit while traversing the float part of the binary number string */</span>
+         <span class="keyword">for</span>(<span class="keyword">int</span> i = binLen-<span class="number">1</span> ; i &gt; intLen ; i--)
+         {
+             <span class="comment">/* carry to first float digit if occur a '1' */</span>
+             carry = (<span class="keyword">this</span>-&gt;binVal[i] == <span class="string">'1'</span> ? <span class="number">5</span> : <span class="number">0</span>);
+             <span class="comment">/* update tmp's length */</span>
+             decLen = tmp.size();
+             <span class="comment">/* traverse tmp to divide each digit by 2 and add carries */</span>
+             <span class="keyword">for</span>(<span class="keyword">int</span> j = decIntLen ; j &lt; decLen ; j++)
+             {
+                 <span class="keyword">if</span> (tmp[j] &amp; <span class="number">1</span>)
+                 {
+                     tmp[j] = tmp[j]/<span class="number">2</span> + carry;
+                     carry = <span class="number">5</span>;
+                 }
+                 <span class="keyword">else</span>
+                 {
+                     tmp[j] = tmp[j]/<span class="number">2</span> + carry;
+                     carry = <span class="number">0</span>;
+                 }
+             }
+             <span class="comment">/* expand digit if necessary */</span>
+             <span class="keyword">if</span> (carry)
+             {
+                 tmp += carry;
+             }
+         }
+     }
+     <span class="comment">/* ============== part end =============== */</span>
+     <span class="comment">/* adjust string and fill this-&gt;decVal and this-&gt;decDotIndex */</span>
+     <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; tmp.size() ; i++)
+     {
+         <span class="keyword">if</span> (tmp[i] == <span class="string">'.'</span>)
+         {
+             <span class="keyword">continue</span>;
+         }
+         tmp[i] += <span class="string">'0'</span>;
+     }
+     <span class="keyword">this</span>-&gt;decVal = tmp;
+     <span class="keyword">this</span>-&gt;decDotIndex = tmp.find(<span class="string">'.'</span>);
+ }
+
+<span class="comment">/*
+ * name: dec2Bin
+ * access: private
+ * Convert the decimal number to binary form then fill this-&gt;binVal.
+ */</span>
+ <span class="keyword">void</span> Converter::dec2Bin()
+ {
+     <span class="comment">/* store number string temporarily */</span>
+     <span class="built_in">std</span>::<span class="built_in">string</span> tmp = <span class="string">""</span>;
+     <span class="comment">/* ============== int part ============== */</span>
+     <span class="comment">/* to get the int range of the decimal number string */</span>
+     <span class="keyword">int</span> intLen;
+     <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;hasDot)
+     {
+         intLen = <span class="keyword">this</span>-&gt;decDotIndex;
+     }
+     <span class="keyword">else</span>
+     {
+         intLen = <span class="keyword">this</span>-&gt;decVal.size();
+     }
+     <span class="comment">/* may need carry while traversing digits */</span>
+     <span class="keyword">char</span> carry = <span class="number">0</span>;
+     <span class="comment">/* to store tmp's length */</span>
+     <span class="keyword">int</span> binLen;
+     <span class="comment">/* convert radix digit by digit while traversing the int part of the decimal number string */</span>
+     <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; intLen ; i++)
+     {
+         <span class="comment">/* add new decimal digit into carry */</span>
+         carry += <span class="keyword">this</span>-&gt;decVal[i]-<span class="string">'0'</span>;
+         <span class="comment">/* update tmp's length */</span>
+         binLen = tmp.size();
+         <span class="comment">/* traverse tmp to multiply each digit by 10 and add carries */</span>
+         <span class="keyword">for</span>(<span class="keyword">int</span> j = binLen-<span class="number">1</span> ; j &gt;= <span class="number">0</span> ; j--)
+         {
+             <span class="comment">/*
+              * Type of tmp[] is char[] and MAX_CHAR = 127 &gt; 99.
+              * So the assignment statement below will work safely.
+              */</span>
+             tmp[j] = tmp[j]*<span class="number">10</span>+carry;
+             <span class="keyword">if</span> (tmp[j] &gt; <span class="number">1</span>)
+             {
+                 <span class="comment">/* update carry */</span>
+                 carry = tmp[j]/<span class="number">2</span>;
+                 <span class="comment">/* limit digit within 2 */</span>
+                 tmp[j] &amp;= <span class="number">1</span>;
+             }
+             <span class="keyword">else</span>
+             {
+                carry = <span class="number">0</span>;
+             }
+         }
+         <span class="comment">/* expand digits if necessary */</span>
+         <span class="keyword">while</span>(carry)
+         {
+             tmp = <span class="keyword">char</span>(carry%<span class="number">2</span>)+tmp;
+             carry /= <span class="number">2</span>;
+         }
+     }
+     <span class="comment">/* ============= part end ============== */</span>
+     <span class="comment">/* add '0' if need */</span>
+     <span class="keyword">if</span> (tmp == <span class="string">""</span>)
+     {
+         tmp += (<span class="keyword">char</span>)<span class="number">0</span>;
+     }
+     <span class="comment">/* ============= float part ============== */</span>
+     <span class="comment">/* if there is a float part */</span>
+    <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;hasDot)
+     {
+         <span class="comment">/* add the dot to the number string */</span>
+         tmp += <span class="string">'.'</span>;
+         <span class="comment">/* may need carry while traversing digits */</span>
+         carry = <span class="number">0</span>;
+         <span class="comment">/* get the length of the whole decimal number string */</span>
+         <span class="keyword">int</span> decLen = <span class="keyword">this</span>-&gt;decVal.size();
+         <span class="comment">/* get the length of the float part of the decimal number string */</span>
+         <span class="keyword">int</span> floatLen = decLen-intLen-<span class="number">1</span>;
+         <span class="comment">/* get a copy of the float part of the decimal number string */</span>
+         <span class="built_in">std</span>::<span class="built_in">string</span> tmp2 = <span class="keyword">this</span>-&gt;decVal.substr(intLen+<span class="number">1</span>, floatLen);
+         <span class="comment">/* adjust tmp2 to prepare for algorithm below */</span>
+         <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; floatLen ; i++)
+         {
+             tmp2[i] -= <span class="string">'0'</span>;
+         }
+         <span class="comment">/*
+          * asume:   B = b1*2^-1 + b2*2^-2 + b3*2^-3 + ...
+          *            2*B = b1 + b2*2^-1 + b3*2^-2 + ...     // take b1 as first digit
+          * 2*(2*B-b1) = b2 + b3*2^-1 + ...         // take b2 as second digit
+          *         ...
+          * so the binary float will got digit by digit in order
+          */</span>
+         <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; <span class="keyword">this</span>-&gt;binFloatPrecision ; i++)
+         {
+             <span class="comment">/* traverse tmp2 to multiply each digit by 2 and add carries */</span>
+             <span class="keyword">for</span>(<span class="keyword">int</span> j = floatLen-<span class="number">1</span> ; j &gt;= <span class="number">0</span> ; j--)
+             {
+                 tmp2[j] = tmp2[j]*<span class="number">2</span>+carry;
+                 <span class="keyword">if</span> (tmp2[j] &gt; <span class="number">9</span>)
+                 {
+                     <span class="comment">/* update carry */</span>
+                     carry = tmp2[j]/<span class="number">10</span>;
+                     <span class="comment">/* limit digit within 10 */</span>
+                     tmp2[j] %= <span class="number">10</span>;
+                 }
+                 <span class="keyword">else</span>
+                 {
+                     carry = <span class="number">0</span>;
+                 }
+             }
+             <span class="comment">/* get the last carry as new digit of binary float */</span>
+             tmp += carry;
+             <span class="comment">/* reset carry */</span>
+             carry = <span class="number">0</span>;
+         }
+     }
+     <span class="comment">/* ============== part end =============== */</span>
+     <span class="comment">/* adjust string and fill this-&gt;binVal and this-&gt;binDotIndex */</span>
+     <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; tmp.size() ; i++)
+     {
+         <span class="keyword">if</span> (tmp[i] == <span class="string">'.'</span>)
+         {
+             <span class="keyword">continue</span>;
+         }
+         tmp[i] += <span class="string">'0'</span>;
+     }
+     <span class="keyword">this</span>-&gt;binVal = tmp;
+     <span class="keyword">this</span>-&gt;binDotIndex = tmp.find(<span class="string">'.'</span>);
+ }
+</code></pre><p>&nbsp;&nbsp;&nbsp; test.cpp:</p>
+<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">"converter.h"</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span>
+
+<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
+
+<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
+</span>{
+    <span class="comment">//Converter c("0.625", 10);</span>
+    <span class="function">Converter <span class="title">c</span><span class="params">(<span class="string">"ujsgdfksagrua0.10100000000000000000"</span>, <span class="number">2</span>)</span></span>;
+    <span class="built_in">cout</span> &lt;&lt; c.getNum(<span class="number">10</span>) &lt;&lt; endl;
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; 都过500行了，会不会写得有点啰嗦？</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>&nbsp;&nbsp;&nbsp; 布置了二进制-十进制转换器的小作业，本来还要求顺手扩展一下大数的四则运算，我嫌麻烦没做扩展，就只是写来玩玩。也算熟悉一下底层的二进制-十进制转换机制，顺便复习下C++源码规范。注释写了很多，就不多做解释了，只贴代码。<br>]]>
+    
+    </summary>
+    
+      <category term="C++" scheme="http://blog.bipedalbit.net/tags/C/"/>
+    
+      <category term="进制转换" scheme="http://blog.bipedalbit.net/tags/%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2/"/>
+    
+      <category term="C++" scheme="http://blog.bipedalbit.net/categories/C/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[C++ cin、cout的优化及测评]]></title>
@@ -2589,32 +3126,6 @@ ngx_rbt_black(temp);<span class="comment">//染黑当前temp</span>
       <category term="ngx_int_t" scheme="http://blog.bipedalbit.net/tags/ngx-int-t/"/>
     
       <category term="rbtree" scheme="http://blog.bipedalbit.net/tags/rbtree/"/>
-    
-      <category term="nginx" scheme="http://blog.bipedalbit.net/categories/nginx/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[【二】nginx源码文件结构浏览 ]]></title>
-    <link href="http://blog.bipedalbit.net/2015/7/23/%E3%80%90%E4%BA%8C%E3%80%91nginx%E6%BA%90%E7%A0%81%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E6%B5%8F%E8%A7%88/"/>
-    <id>http://blog.bipedalbit.net/2015/7/23/【二】nginx源码文件结构浏览/</id>
-    <published>2015-07-23T07:01:33.000Z</published>
-    <updated>2015-09-15T14:10:12.419Z</updated>
-    <content type="html"><![CDATA[<p>&nbsp;&nbsp;&nbsp; 要读大项目的源码，最好还是先把项目文件组织结构弄清楚，这样后面找源码会比较方便，对整体项目的架构也能有一个具体一些的概念。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; 我下载的<span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">源码版本不可考，按日期来看是</span><span style="font-family:Times New Roman;">2015</span><span style="font-family:宋体;">年</span><span style="font-family:Times New Roman;">7</span><span style="font-family:宋体;">月的最新版本。解压包获得源码文件夹，进入根目录发现有几个子目录：</span><span style="font-family:Times New Roman;">auto</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">conf</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">contrib</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">docs</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">misc</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">src</span><span style="font-family:宋体;">。从字面上猜测，是自动机或脚本（</span><span style="font-family:Times New Roman;">auto&nbsp;script</span><span style="font-family:宋体;">）、配置文件（</span><span style="font-family:Times New Roman;">configuration</span><span style="font-family:宋体;">）、支持文件（</span><span style="font-family:Times New Roman;">contributions</span><span style="font-family:宋体;">）、文档（</span><span style="font-family:Times New Roman;">document</span><span style="font-family:宋体;">）、杂项（</span><span style="font-family:Times New Roman;">miscellaneous</span><span style="font-family:宋体;">）、源码（</span><span style="font-family:Times New Roman;">source&nbsp;code</span><span style="font-family:宋体;">）。</span></p>
-<h3 id="1、浏览源码文件夹根目录">1<span style="font-family:宋体;">、浏览源码文件夹根目录</span></h3><p>&nbsp;&nbsp;&nbsp; 按照惯例，我选择先看看文档，但是<span style="font-family:Times New Roman;">doc</span><span style="font-family:宋体;">子目录里并没有详细的离线文档，只有</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">官网的链接和一些看不懂的小文件。</span></p>
-<p>&nbsp;&nbsp;&nbsp; 杂项<span style="font-family:Times New Roman;">misc</span><span style="font-family:宋体;">里也只有看不太懂的一个</span><span style="font-family:Times New Roman;">GNUmakefile</span><span style="font-family:宋体;">和一个</span><span style="font-family:Times New Roman;">README</span><span style="font-family:宋体;">文件。</span></p>
-<p>&nbsp;&nbsp;&nbsp; contrib<span style="font-family:宋体;">子目录里有一个</span><span style="font-family:Times New Roman;">geo2nginx.pl</span><span style="font-family:宋体;">（</span><span style="font-family:Times New Roman;">geo</span><span style="font-family:宋体;">模块的</span><span style="font-family:Times New Roman;">CSV</span><span style="font-family:宋体;">数据库格式转换</span><span style="font-family:Times New Roman;">perl</span><span style="font-family:宋体;">脚本），一套编码转换文件（包括两个编码映射表和一个编码转换</span><span style="font-family:Times New Roman;">perl</span><span style="font-family:宋体;">脚本），和</span><span style="font-family:Times New Roman;">vim</span><span style="font-family:宋体;">的</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">专用语法高亮配置文件。</span></p>
-<p>&nbsp;&nbsp;&nbsp; conf<span style="font-family:宋体;">子目录里有几个编码映射表、变量映射表和一个服务器配置文件。</span></p>
-<p>&nbsp;&nbsp;&nbsp; auto<span style="font-family:宋体;">子目录里有包括服务器安装脚本在内的许多脚本，现在看脚本还比较吃力，所以只简单浏览一下。我们发现</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">支持很多主流的操作系统平台：苹果的开源系统</span><span style="font-family:Times New Roman;">darwin</span><span style="font-family:宋体;">、重要的</span><span style="font-family:Times New Roman;">Unix</span><span style="font-family:宋体;">分支</span><span style="font-family:Times New Roman;">freebsd</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">linux</span><span style="font-family:宋体;">、大多数版本已经开源的又一个</span><span style="font-family:Times New Roman;">Unix</span><span style="font-family:宋体;">分支</span><span style="font-family:Times New Roman;">solaris</span><span style="font-family:宋体;">、用户占有率最高的</span><span style="font-family:Times New Roman;">win32</span><span style="font-family:宋体;">。</span></p>
-<p>&nbsp;&nbsp;&nbsp; src<span style="font-family:宋体;">子目录果然都是需要研究的</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">的</span><span style="font-family:Times New Roman;">C</span><span style="font-family:宋体;">源码，下面我们会深入浏览。</span></p>
-<h3 id="2、浏览src子目录">2<span style="font-family:宋体;">、浏览</span><span style="font-family:Times New Roman;">src</span><span style="font-family:宋体;">子目录</span></h3><p>&nbsp;&nbsp;&nbsp; 还是来看一下<span style="font-family:Times New Roman;">src</span><span style="font-family:宋体;">子目录下有哪些子目录：</span><span style="font-family:Times New Roman;">core</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">event</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">http</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">mail</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">misc</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">mysql</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">os</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">stream</span><span style="font-family:宋体;">。还是来按照字面意思猜测一下：核心（主函数、数据结构、主要方法）、事件（事件处理机制）、超文本传输协议（</span><span style="font-family:Times New Roman;">http</span><span style="font-family:宋体;">相关）、邮件（邮件相关）、杂项（</span><span style="font-family:Times New Roman;">google&nbsp;perftools</span><span style="font-family:宋体;">相关源码）、</span><span style="font-family:Times New Roman;">mysql</span><span style="font-family:宋体;">数据库、操作系统（</span><span style="font-family:Times New Roman;">Unix</span><span style="font-family:宋体;">和</span><span style="font-family:Times New Roman;">Win32</span><span style="font-family:宋体;">两类系统的系统调用程序源码）、流（意义不明）。看起来</span><span style="font-family:Times New Roman;">./src/core</span><span style="font-family:宋体;">子目录对研究源码来说是一个不错的开始。</span></p>
-<p align="center"><br>    <span style="font-family:宋体;"><img src="http://img.blog.csdn.net/20150723165913000?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></span><br>    图<span style="font-family:Times New Roman;">2&nbsp;nginx</span><span style="font-family:宋体;">源码文件结构图</span><br></p>]]></content>
-    <summary type="html">
-    <![CDATA[<p>&nbsp;&nbsp;&nbsp; 要读大项目的源码，最好还是先把项目文件组织结构弄清楚，这样后面找源码会比较方便，对整体项目的架构也能有一个具体一些的概念。<br>]]>
-    
-    </summary>
-    
-      <category term="nginx" scheme="http://blog.bipedalbit.net/tags/nginx/"/>
     
       <category term="nginx" scheme="http://blog.bipedalbit.net/categories/nginx/"/>
     
