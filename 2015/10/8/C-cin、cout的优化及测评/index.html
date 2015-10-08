@@ -1,0 +1,589 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>C++ cin、cout的优化及测评 | Hacking to the gate!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++ cin、cout的优化及测评">
+<meta property="og:url" content="http://blog.bipedalbit.net/2015/10/8/C-cin、cout的优化及测评/index.html">
+<meta property="og:site_name" content="Hacking to the gate!">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降">
+<meta property="og:updated_time" content="2015-10-08T13:39:19.424Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="C++ cin、cout的优化及测评">
+<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降">
+  
+    <link rel="alternative" href="/atom.xml" title="Hacking to the gate!" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" type="image/x-png" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <link href="//fonts.useso.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
+  
+</head>
+<body>
+<div id="container">
+  <div id="wrap">
+    <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hacking to the gate!</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">为了证明并非止步不前，为了安慰被神牛震慑的心。</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="http://www.baidu.com/baidu" method="get" accept-charset="utf-8" class="search-form">
+          <input type="search" name="word" maxlength="20" class="search-form-input" placeholder="Search">
+          <input type="submit" value="" class="search-form-submit">
+          <input name=tn type=hidden value="bds">
+          <input name=cl type=hidden value="3">
+          <input name=ct type=hidden value="2097152">
+          <input type="hidden" name="si" value="blog.bipedalbit.net">
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+    <div class="outer">
+      <section id="main"><article id="post-C-cin、cout的优化及测评" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/10/8/C-cin、cout的优化及测评/" class="article-date">
+  <time datetime="2015-10-08T11:56:46.000Z" itemprop="datePublished">2015-10-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/C/">C++</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      C++ cin、cout的优化及测评
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>&nbsp;&nbsp;&nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降低了执行效率。那么可能挽回这种效率损失吗？答案是可以。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; C++中提供了解除指针同步的方法：<code>ios::sync_with_stdio(false)</code>。如字面意思，这个方法用来设置输入输出流是否与C的stdio同步。那么解除同步之后能有多大效果呢？毕竟C++确实因为封装程度比C高多多少少损失了一些执行效率。我动手进行了一系列测评，下面是源码。</p>
+<p>&nbsp;&nbsp;&nbsp; 这里我统一对输入输出做了重定向，不论是输入数据来源还是输入数据目标都是“data”文件。所有的输入/输出测试都是读或写10^7次字符串与整型数的组合数据，每种输入/输出测试都进行10次并取平均耗时作为评估值。</p>
+<p>&nbsp;&nbsp;&nbsp; 首先是C的输入输出。</p>
+<p>&nbsp;&nbsp;&nbsp; scanf.cpp:</p>
+<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
+
+<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
+</span>{
+    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
+    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
+    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
+    freopen(<span class="string">"data"</span>, <span class="string">"r"</span>, <span class="built_in">stdin</span>);
+    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
+    {
+        <span class="keyword">long</span> t_start = clock();
+        <span class="keyword">char</span> s[<span class="number">20</span>];
+        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
+        {
+            <span class="built_in">scanf</span>(<span class="string">"%s"</span>, s);
+        }
+        <span class="keyword">long</span> t_end = clock();
+        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
+    }
+    <span class="built_in">printf</span>(<span class="string">"average cost: %lfs\n"</span>, t_sum/testCnt);
+    fclose(<span class="built_in">stdin</span>);
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; printf.cpp:</p>
+<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
+
+<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
+</span>{
+    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
+    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
+    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
+    freopen(<span class="string">"data"</span>, <span class="string">"w"</span>, <span class="built_in">stdout</span>);
+    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
+    {
+        <span class="keyword">long</span> t_start = clock();
+        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
+        {
+            <span class="built_in">printf</span>(<span class="string">"string%d\n"</span>, i);
+        }
+        <span class="keyword">long</span> t_end = clock();
+        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
+    }
+    <span class="built_in">printf</span>(<span class="string">"average cost: %lfs\n"</span>, t_sum/testCnt);
+    fclose(<span class="built_in">stdout</span>);
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; 然后是不解锁同步的cin、cout方法。</p>
+<p>&nbsp;&nbsp;&nbsp; cin.cpp:</p>
+<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span></span>
+
+<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
+
+<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
+</span>{
+    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
+    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
+    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
+    <span class="function">ifstream <span class="title">fin</span><span class="params">(<span class="string">"data"</span>)</span></span>;
+    streambuf *_cin =  <span class="built_in">cin</span>.rdbuf(fin.rdbuf());
+    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
+    {
+        <span class="keyword">long</span> t_start = clock();
+        <span class="built_in">string</span> s;
+        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
+        {
+            <span class="built_in">cin</span> &gt;&gt; s;
+        }
+        <span class="keyword">long</span> t_end = clock();
+        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
+    }
+    <span class="built_in">cout</span> &lt;&lt; <span class="string">"average cost: "</span> &lt;&lt; t_sum/testCnt &lt;&lt; <span class="string">"s\n"</span>;
+    <span class="built_in">cin</span>.rdbuf(_cin);
+    fin.close();
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; cout.cpp:</p>
+<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span></span>
+
+<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
+
+<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
+</span>{
+    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
+    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
+    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
+    <span class="function">ofstream <span class="title">fout</span><span class="params">(<span class="string">"data"</span>)</span></span>;
+    streambuf *_cout =  <span class="built_in">cout</span>.rdbuf(fout.rdbuf());
+    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
+    {
+        <span class="keyword">long</span> t_start = clock();
+        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
+        {
+            <span class="built_in">cout</span> &lt;&lt; <span class="string">"string"</span> &lt;&lt; i &lt;&lt; <span class="string">'\n'</span>;
+        }
+        <span class="keyword">long</span> t_end = clock();
+        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
+    }
+    <span class="built_in">cout</span> &lt;&lt; <span class="string">"average cost: "</span> &lt;&lt; t_sum/testCnt &lt;&lt; <span class="string">"s\n"</span>;
+    <span class="built_in">cout</span>.rdbuf(_cout);
+    fout.close();
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; 接下来是解锁同步的cin、cout方法。</p>
+<p>&nbsp;&nbsp;&nbsp; optimized_cin.cpp:</p>
+<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span></span>
+
+<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
+
+<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
+</span>{
+    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
+    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
+    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
+    ios::sync_with_stdio(<span class="literal">false</span>);
+    <span class="function">ifstream <span class="title">fin</span><span class="params">(<span class="string">"data"</span>)</span></span>;
+    streambuf *_cin =  <span class="built_in">cin</span>.rdbuf(fin.rdbuf());
+    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
+    {
+        <span class="keyword">long</span> t_start = clock();
+        <span class="built_in">string</span> s;
+        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
+        {
+            <span class="built_in">cin</span> &gt;&gt; s;
+        }
+        <span class="keyword">long</span> t_end = clock();
+        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
+    }
+    <span class="built_in">cout</span> &lt;&lt; <span class="string">"average cost: "</span> &lt;&lt; t_sum/testCnt &lt;&lt; <span class="string">"s\n"</span>;
+    <span class="built_in">cin</span>.rdbuf(_cin);
+    fin.close();
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; optimized_cout.cpp:</p>
+<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span></span>
+
+<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
+
+<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
+</span>{
+    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
+    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
+    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
+    ios::sync_with_stdio(<span class="literal">false</span>);
+    <span class="function">ofstream <span class="title">fout</span><span class="params">(<span class="string">"data"</span>)</span></span>;
+    streambuf *_cout =  <span class="built_in">cout</span>.rdbuf(fout.rdbuf());
+    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
+    {
+        <span class="keyword">long</span> t_start = clock();
+        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
+        {
+            <span class="built_in">cout</span> &lt;&lt; <span class="string">"string"</span> &lt;&lt; i &lt;&lt; <span class="string">'\n'</span>;
+        }
+        <span class="keyword">long</span> t_end = clock();
+        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
+    }
+    <span class="built_in">cout</span> &lt;&lt; <span class="string">"average cost: "</span> &lt;&lt; t_sum/testCnt &lt;&lt; <span class="string">"s\n"</span>;
+    <span class="built_in">cout</span>.rdbuf(_cout);
+    fout.close();
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; 同时测试C++直接读写文件的方法。</p>
+<p>&nbsp;&nbsp;&nbsp; fin.cpp:</p>
+<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span></span>
+
+<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
+
+<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
+</span>{
+    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
+    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
+    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
+    <span class="function">ifstream <span class="title">fin</span><span class="params">(<span class="string">"data"</span>)</span></span>;
+    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
+    {
+        <span class="keyword">long</span> t_start = clock();
+        <span class="built_in">string</span> s;
+        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
+        {
+            fin &gt;&gt; s;
+        }
+        <span class="keyword">long</span> t_end = clock();
+        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
+    }
+    <span class="built_in">cout</span> &lt;&lt; <span class="string">"average cost: "</span> &lt;&lt; t_sum/testCnt &lt;&lt; <span class="string">"s\n"</span>;
+    fin.close();
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; fout.cpp:</p>
+<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span></span>
+
+<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
+
+<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
+</span>{
+    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
+    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
+    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
+    <span class="function">ofstream <span class="title">fout</span><span class="params">(<span class="string">"data"</span>)</span></span>;
+    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
+    {
+        <span class="keyword">long</span> t_start = clock();
+        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
+        {
+            fout &lt;&lt; <span class="string">"string"</span> &lt;&lt; i &lt;&lt; <span class="string">'\n'</span>;
+        }
+        <span class="keyword">long</span> t_end = clock();
+        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
+    }
+    <span class="built_in">cout</span> &lt;&lt; <span class="string">"average cost: "</span> &lt;&lt; t_sum/testCnt &lt;&lt; <span class="string">"s\n"</span>;
+    fout.close();
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; 下面是测试结果：</p>
+<table><tr><th></th><th>scanf与printf</th><th>cin与cout</th><th>优化的cin与cout</th>    <th>fin与fout</th></tr><tr><td>输入</td><td>1.125694s</td><td>2.46949s</td><td>0.950055s</td><td>0.834976s</td></tr><tr><td>输出</td><td>1.304706s</td><td>1.46059s</td><td>1.41783s</td><td>1.41298s</td></tr></table>
+
+<p>&nbsp;&nbsp;&nbsp; 可以看到，事实上，解开同步之前，cin耗时是scanf的两倍还多，cout则比printf略慢。解开枷锁的cin执行效率与直接读文件接近，甚至比C的scanf还要快。至于输出，解开同步的cout执行效率略有提高，同样接近直接写文件，但是确实还是比C的printf略慢一点。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://blog.bipedalbit.net/2015/10/8/C-cin、cout的优化及测评/" data-id="cifi8t414002ldd974li8ou53" class="article-share-link" data-share="baidu" data-title="C++ cin、cout的优化及测评">分享到</a>
+      
+
+      
+        <a href="http://blog.bipedalbit.net/2015/10/8/C-cin、cout的优化及测评/#ds-thread" class="article-comment-link">评论</a>
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cin/">cin</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cout/">cout</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/printf/">printf</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scanf/">scanf</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2015/9/30/nginx之回头补课/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">nginx之回头补课</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+  <section id="comments">
+    <!-- 多说评论框 start -->
+      <div class="ds-thread" data-thread-key="2015/10/8/C-cin、cout的优化及测评/" data-title="C++ cin、cout的优化及测评" data-url="http://blog.bipedalbit.net/2015/10/8/C-cin、cout的优化及测评/"></div>
+    <!-- 多说评论框 end -->
+    <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+    <script type="text/javascript">
+    var duoshuoQuery = {short_name:"bipedalbit"};
+      (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+      })();
+      </script>
+    <!-- 多说公共JS代码 end -->
+  </section>
+</section>
+      
+      <aside id="sidebar">
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">about</h3>
+	<div class="widget">
+		<ul>
+			<li><strong>本&nbsp;体：</strong>张亦鹏</li><hr>
+			<li><strong>现&nbsp;状：</strong>帝都CS硕士在读</li><hr>
+			<li><strong>邮&nbsp;箱：</strong>hmemoryl@163.com</li><hr>
+			<li><strong>企&nbsp;鹅：</strong>236771817</li><hr>
+			<li><strong>框&nbsp;架：</strong>hexo</li><hr>
+			<li><strong>主&nbsp;题：</strong>landscape-plus</li><hr>
+			<li><strong>简&nbsp;介：</strong><br>&nbsp;&nbsp;&nbsp; C++ ACMer出身，C++出身自然也通Qt，好奇心经常如脱缰的野狗在荒原上撒欢，于是习得ASP.NET、JSP、PHP、Python、Node.js等一众流行技术，前端也姑且能一战。可惜一般都是填完坑就扔，水平大都停留在入门级别。依然死不悔改持续开坑中，逛着B站补着番，不时脑洞一开。以上，求同好。_(:3J ∠)_</li>
+		</ul>
+	</div>
+ </div>
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Qt/">Qt</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Sublime-Text/">Sublime Text</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/codeigniter/">codeigniter</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/node-js/">node.js</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/C/" style="font-size: 17.5px;">C</a> <a href="/tags/C/" style="font-size: 12.5px;">C++</a> <a href="/tags/IIS7/" style="font-size: 10px;">IIS7</a> <a href="/tags/Q-OBJECT/" style="font-size: 10px;">Q_OBJECT</a> <a href="/tags/Qt/" style="font-size: 10px;">Qt</a> <a href="/tags/Web请求处理机制/" style="font-size: 10px;">Web请求处理机制</a> <a href="/tags/apache/" style="font-size: 10px;">apache</a> <a href="/tags/cin/" style="font-size: 10px;">cin</a> <a href="/tags/codeigniter/" style="font-size: 10px;">codeigniter</a> <a href="/tags/cout/" style="font-size: 10px;">cout</a> <a href="/tags/epoll/" style="font-size: 10px;">epoll</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/makefile/" style="font-size: 10px;">makefile</a> <a href="/tags/nginx/" style="font-size: 20px;">nginx</a> <a href="/tags/ngx-int-t/" style="font-size: 10px;">ngx_int_t</a> <a href="/tags/node-js/" style="font-size: 12.5px;">node.js</a> <a href="/tags/php/" style="font-size: 10px;">php</a> <a href="/tags/printf/" style="font-size: 10px;">printf</a> <a href="/tags/rbtree/" style="font-size: 15px;">rbtree</a> <a href="/tags/scanf/" style="font-size: 10px;">scanf</a> <a href="/tags/select-poll/" style="font-size: 10px;">select/poll</a> <a href="/tags/signal-slot/" style="font-size: 10px;">signal-slot</a> <a href="/tags/socket-io/" style="font-size: 10px;">socket.io</a> <a href="/tags/static/" style="font-size: 10px;">static</a> <a href="/tags/sublime/" style="font-size: 10px;">sublime</a> <a href="/tags/事件驱动模型/" style="font-size: 10px;">事件驱动模型</a> <a href="/tags/内存分布/" style="font-size: 10px;">内存分布</a> <a href="/tags/同步-异步/" style="font-size: 10px;">同步/异步</a> <a href="/tags/阻塞-非阻塞/" style="font-size: 10px;">阻塞/非阻塞</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">八月 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">六月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">近期文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/10/8/C-cin、cout的优化及测评/">C++ cin、cout的优化及测评</a>
+          </li>
+        
+          <li>
+            <a href="/2015/9/30/nginx之回头补课/">nginx之回头补课</a>
+          </li>
+        
+          <li>
+            <a href="/2015/9/12/socket-io邀请制带登录聊天室实例【DRRR-chat-room】/">socket.io邀请制带登录聊天室实例【DRRR-chat-room】</a>
+          </li>
+        
+          <li>
+            <a href="/2015/9/6/node.js的'Cannot enqueue Handshake after invoking quit'错误/">node.js的&#39;Cannot enqueue Handshake after invoking quit&#39;错误</a>
+          </li>
+        
+          <li>
+            <a href="/2015/8/18/【五】nginx的数据结构-3-——扩展红黑树/">【五】nginx的数据结构(3)——扩展红黑树</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">友情链接</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="https://github.com/bipedalBit" target="_blank">Bipedal Bit的Git</a>
+          </li>
+        
+          <li>
+            <a href="http://saelab.bipedalbit.net" target="_blank">Bipedal Bit的SAE实验室</a>
+          </li>
+        
+          <li>
+            <a href="http://blog.csdn.net/bipedal_bit" target="_blank">Bipedal Bit的CSDN博客</a>
+          </li>
+        
+          <li>
+            <a href="http://blog.sina.com.cn/u/2374285604" target="_blank">Bipedal Bit的新浪博客</a>
+          </li>
+        
+          <li>
+            <a href="http://xiguabaobao.com" target="_blank">主题作者</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&ptype=1&speed=0&skin=5&isTitle=1&noborder=1&isWeibo=1&isFans=1&uid=2374285604&verifier=91f284c4&dpc=1"></iframe>
+  
+</aside>
+      
+    </div>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 Bipedal Bit<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      .
+      Theme by <a href="https://github.com/xiangming/landscape-plus" target="_blank">Landscape-plus</a>
+    </div>
+  </div>
+</footer>
+  </div>
+  <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+  <!-- totop start -->
+<div id="totop">
+<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+</div>
+
+<!-- totop end -->
+
+<!-- 多说公共js代码 start -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"bipedalbit"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+     || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+  </script>
+<!-- 多说公共js代码 end -->
+
+
+<!-- 百度分享 start -->
+
+<div id="article-share-box" class="article-share-box">
+  <div id="bdshare" class="bdsharebuttonbox article-share-links">
+    <a class="article-share-weibo" data-cmd="tsina" title="分享到新浪微博"></a>
+    <a class="article-share-weixin" data-cmd="weixin" title="分享到微信"></a>
+    <a class="article-share-qq" data-cmd="sqq" title="分享到QQ"></a>
+    <a class="article-share-renren" data-cmd="renren" title="分享到人人网"></a>
+    <a class="article-share-more" data-cmd="more" title="更多"></a>
+  </div>
+</div>
+<script>
+  function SetShareData(cmd, config) {
+    if (shareDataTitle && shareDataUrl) {
+      config.bdText = shareDataTitle;
+      config.bdUrl = shareDataUrl;
+    }
+    return config;
+  }
+  window._bd_share_config={
+    "common":{onBeforeClick: SetShareData},
+    "share":{"bdCustomStyle":"/css/bdshare.css"}
+  };
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+<!-- 百度分享 end -->
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+</div>
+</body>
+</html>

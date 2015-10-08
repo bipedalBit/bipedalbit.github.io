@@ -4,12 +4,12 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Category: Qt | Hacking to the gate!</title>
+  <title>Tag: printf | Hacking to the gate!</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Bipedal Bit&apos;s blog">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Hacking to the gate!">
-<meta property="og:url" content="http://blog.bipedalbit.net/categories/Qt/index.html">
+<meta property="og:url" content="http://blog.bipedalbit.net/tags/printf/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
 <meta property="og:description" content="Bipedal Bit&apos;s blog">
 <meta name="twitter:card" content="summary">
@@ -73,14 +73,14 @@
     <div class="outer">
       <section id="main">
   
-    <article id="post-Qt出现错误undefined-reference-to-vtable-for-XXXXX-XXX" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-C-cin、cout的优化及测评" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/6/9/Qt出现错误undefined-reference-to-vtable-for-XXXXX-XXX/" class="article-date">
-  <time datetime="2015-06-09T05:19:10.000Z" itemprop="datePublished">2015-06-09</time>
+    <a href="/2015/10/8/C-cin、cout的优化及测评/" class="article-date">
+  <time datetime="2015-10-08T11:56:46.000Z" itemprop="datePublished">2015-10-08</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Qt/">Qt</a>
+    <a class="article-category-link" href="/categories/C/">C++</a>
   </div>
 
   </div>
@@ -91,7 +91,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/6/9/Qt出现错误undefined-reference-to-vtable-for-XXXXX-XXX/">Qt出现错误undefined reference to &#39;vtable for XXXXX.XXX&#39;</a>
+      <a class="article-title" href="/2015/10/8/C-cin、cout的优化及测评/">C++ cin、cout的优化及测评</a>
     </h1>
   
 
@@ -99,23 +99,25 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&nbsp;&nbsp;&nbsp; 如果新建一个类，继承了某个类，在这个类的头文件中式没有 Q_OBJECT宏声明的，如果想使用signal-slot信号，就需要添加Q_OBJECT宏，但是添加了这个宏后，就可能会出现这种错误，“undefined reference to vtable for XXXXX”的编译错误。</p>
-<p>&nbsp;&nbsp;&nbsp; 这是因为在Makefile里面没有这个类并没有Q_OBJECT信息，所以在执行Makefile时候也就没有moc xxx.h这条命令，最终导致连接失败。</p>
-<p>&nbsp;&nbsp;&nbsp; 知道了这个原因后，解决方法就很简单了，重新运行qmake，生成Makefile，然后再编译就OK了。</p>
-
+        <p>&nbsp;&nbsp;&nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降低了执行效率。那么可能挽回这种效率损失吗？答案是可以。<br>
+        
+          <p class="article-more-link">
+            <a href="/2015/10/8/C-cin、cout的优化及测评/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/6/9/Qt出现错误undefined-reference-to-vtable-for-XXXXX-XXX/" data-id="cifi8t40t0020dd973a6qfjls" class="article-share-link" data-share="baidu" data-title="Qt出现错误undefined reference to &#39;vtable for XXXXX.XXX&#39;">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/8/C-cin、cout的优化及测评/" data-id="cifi8t414002ldd974li8ou53" class="article-share-link" data-share="baidu" data-title="C++ cin、cout的优化及测评">分享到</a>
       
 
       
-        <a href="http://blog.bipedalbit.net/2015/6/9/Qt出现错误undefined-reference-to-vtable-for-XXXXX-XXX/#ds-thread" class="article-comment-link">评论</a>
+        <a href="http://blog.bipedalbit.net/2015/10/8/C-cin、cout的优化及测评/#ds-thread" class="article-comment-link">评论</a>
       
 
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Q-OBJECT/">Q_OBJECT</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Qt/">Qt</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/signal-slot/">signal-slot</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cin/">cin</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cout/">cout</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/printf/">printf</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scanf/">scanf</a></li></ul>
 
     </footer>
   </div>
