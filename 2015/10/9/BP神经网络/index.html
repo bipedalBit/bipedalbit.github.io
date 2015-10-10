@@ -35,7 +35,7 @@
 <meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/BP隐含层经验公式.png">
 <meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/BP输出层权值修正.png">
 <meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/误差函数.png">
-<meta property="og:updated_time" content="2015-10-10T10:07:54.693Z">
+<meta property="og:updated_time" content="2015-10-10T12:30:19.432Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="BP神经网络">
 <meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 组里要求新人手写个BP神经网络练练手先，具体要求是用一个平面把空间点集二分类，建模时我发现这个问题比起分类来更接近一个多元函数拟合，当然分类也不是不行，机器学习的要求更低，更容易有更好的结果。这都是后话，这篇文我决定先来总结一下BP神经网络的概念，也算是前几天的学习笔记了。">
@@ -142,7 +142,7 @@
 <h1 id="3-_BP神经网络">3. BP神经网络</h1><h2 id="3-1-_认识BP神经网络">3.1. 认识BP神经网络</h2><p>&nbsp;&nbsp;&nbsp; BP神经网络更清晰的称呼应该是使用BP算法学习的前馈神经网络。BP神经网络中的BP为Back Propagation（反向传播）的简写，最早它是由Rumelhart、McCelland等科学家于1986年提出来的，Rumelhart还在《Nature》上发表了一篇非常著名的文章《Learning representations by back-propagating errors》。随着时代的迁移，BP神经网络理论不断的得到改进、更新，现在无疑已成为了应用最为广泛的神经网络模型之一。BP网络具有很强的非线性映射能力，一个3层BP神经网络能够实现对任意非线性函数进行逼近（根据Kolrnogorov定理：任意[0,1]上的连续函数能被一个3层的神经网络实现，其中输入单元数为n，隐含层单元数为2n+1）。</p>
 <h2 id="3-2-_隐含层的选取">3.2. 隐含层的选取</h2><p>&nbsp;&nbsp;&nbsp; 在BP神经网络中，输入层和输出层的节点个数都是确定的，而隐含层节点个数不确定。实际上，隐含层节点个数的多少对神经网络的性能是有影响的，有一个经验公式可以确定隐含层神经元数目：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/BP隐含层经验公式.png" alt="" title="BP隐含层经验公式"><br>&nbsp;&nbsp;&nbsp; 其中，h为隐含层神经元数，m为输入结点数，n为输出层神经元数，a为1~10之间的调节常数。</p>
 <h2 id="3-3-_正向预测">3.3. 正向预测</h2><p>&nbsp;&nbsp;&nbsp; 就是使输入数据样本通过一个两层前馈网络，输出即<code>F2 ( F1( XW1 ) W2</code>。之前介绍前馈网络时有解释，这里就不再累述了。</p>
-<h2 id="3-4-_反向误差传播">3.4. 反向误差传播</h2><p>&nbsp;&nbsp;&nbsp; BP算法是基于Widrow-Hoff学习规则的，可以看做delta学习规则的一种特殊情况。Widrow-Hoff学习规则是通过沿着相对误差平方和的最速下降方向（梯度方向），连续调整网络的权重和偏置。根据梯度下降法，权重矢量的修正正比于当前位置上E(w,b)的梯度的模，即E(w,b)在当前位置的偏导数。我们知道函数<code>z = f(x,y)</code>中，z对x或y的偏导数即z随x或y变化的程度或快慢，这正切合BP神经网络中每层输入参数权重的意义，也印证了梯度下降法的正确性。对于第j个输出神经元有：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/BP输出层权值修正.png" alt="" title="输出层权值修正"><br>&nbsp;&nbsp;&nbsp; 其中误差函数E：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/误差函数.png" alt="" title="误差函数"><br>&nbsp;&nbsp;&nbsp; 式子里的求和是对学习样本的每一对输出值与期望值的平方差求和。其中，yj和dj是学习样本的第j个输出单元的输出值与对应的期望值。<br>&nbsp;&nbsp;&nbsp; 求偏导数的过程就不详细说了（可以参考一篇比较清晰的<a href="http://wenku.baidu.com/link?url=ca-ZcPAeR-rwdlYPmfzDOPOBcxDhrFhpNbNNVig-Kk2u13Dq3xxAc9VbuvFeuZTf_z1qVQn0fgxWexNAnzTEuHtUdSGf4_25tCy9F0NKWmy" target="_blank" rel="external">BP神经网络原理讲解</a>），来看一下最后的权重修正值即E对W的偏导数和：<code>△Wij = -α*Σ[(dj - yj)*yj*(1 - yj)*xi]</code>。其中α是学习速率常数，一般取0.01~0.8的较小实数。</p>
+<h2 id="3-4-_反向误差传播">3.4. 反向误差传播</h2><p>&nbsp;&nbsp;&nbsp; BP算法是基于Widrow-Hoff学习规则的，可以看做delta学习规则的一种特殊情况。Widrow-Hoff学习规则是通过沿着相对误差平方和的最速下降方向（梯度方向），连续调整网络的权重和偏置。根据梯度下降法，权重矢量的修正正比于当前位置上E(w,b)的梯度的模，即E(w,b)在当前位置的偏导数。我们知道函数<code>z = f(x,y)</code>中，z对x或y的偏导数即z随x或y变化的程度或快慢，这正切合BP神经网络中每层输入参数权重的意义，也印证了梯度下降法的正确性。对于第j个输出神经元有：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/BP输出层权值修正.png" alt="" title="输出层权值修正"><br>&nbsp;&nbsp;&nbsp; 其中误差函数E：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/误差函数.png" alt="" title="误差函数"><br>&nbsp;&nbsp;&nbsp; 式子里的求和是对学习样本的每一对输出值与期望值的平方差求和。其中，yj和dj是学习样本的第j个输出单元的输出值与对应的期望值。<br>&nbsp;&nbsp;&nbsp; 求偏导数的过程就不详细说了（可以参考一篇比较清晰的<a href="http://wenku.baidu.com/link?url=ca-ZcPAeR-rwdlYPmfzDOPOBcxDhrFhpNbNNVig-Kk2u13Dq3xxAc9VbuvFeuZTf_z1qVQn0fgxWexNAnzTEuHtUdSGf4_25tCy9F0NKWmy" target="_blank" rel="external">BP神经网络原理讲解</a>），来看一下最后的权重修正值矢量即E对W的偏导数乘上一个系数：<code>△Wij = -α*(dj - yj)*yj*(1 - yj)*xi</code>。其中系数α是学习速率常数，一般取0.01~0.8的较小实数。这个修正值反向传播到前一层就变成了：<code>△Wki = -αΣ(Wij*△Wij)*yi*(1-yi)*xk</code>。</p>
 <h2 id="3-5-_注意点">3.5. 注意点</h2><ul>
 <li>学习速率大的时候收敛速度快精度小，收敛曲线颠簸；学习速率小收敛速度慢精度大，收敛曲线平滑。</li>
 <li>BP神经网络通常用于分类器和函数拟合，如果作为分类器，激活函数一般选用Sigmoid函数；如果做函数拟合，<strong>输出层</strong>的激活函数应该用线性函数即<code>f(x) = x</code>。</li>
@@ -164,7 +164,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/9/BP神经网络/" data-id="cifkx1m7i002l9n97rbyh9tqa" class="article-share-link" data-share="baidu" data-title="BP神经网络">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/9/BP神经网络/" data-id="cifkx6mh6002lby97xo22mo4x" class="article-share-link" data-share="baidu" data-title="BP神经网络">分享到</a>
       
 
       
