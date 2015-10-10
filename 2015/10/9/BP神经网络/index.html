@@ -1,0 +1,407 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>BP神经网络 | Hacking to the gate!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 组里要求新人手写个BP神经网络练练手先，具体要求是用一个平面把空间点集二分类，建模时我发现这个问题比起分类来更接近一个多元函数拟合，当然分类也不是不行，机器学习的要求更低，更容易有更好的结果。这都是后话，这篇文我决定先来总结一下BP神经网络的概念，也算是前几天的学习笔记了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BP神经网络">
+<meta property="og:url" content="http://blog.bipedalbit.net/2015/10/9/BP神经网络/index.html">
+<meta property="og:site_name" content="Hacking to the gate!">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 组里要求新人手写个BP神经网络练练手先，具体要求是用一个平面把空间点集二分类，建模时我发现这个问题比起分类来更接近一个多元函数拟合，当然分类也不是不行，机器学习的要求更低，更容易有更好的结果。这都是后话，这篇文我决定先来总结一下BP神经网络的概念，也算是前几天的学习笔记了。">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/人工神经元模型.jpg">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/神经元输入积累1.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/神经元输出3.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/神经元输入积累2.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/权重向量.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/神经元输出1.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/神经元输出2.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/线性函数.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/斜面函数.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/阈值函数.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/Sigmoid-S形函数.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/S形函数导数.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/双极S形函数.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/双极S形函数导数.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/S形函数与双极S形函数图像.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/前馈神经网络.jpg">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/反馈神经网络.jpg">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/自组织网络.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/Hebb学习律.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/Delta学习规则.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/BP隐含层经验公式.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/BP输出层权值修正.png">
+<meta property="og:image" content="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/误差函数.jpg">
+<meta property="og:updated_time" content="2015-10-10T04:40:11.118Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="BP神经网络">
+<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 组里要求新人手写个BP神经网络练练手先，具体要求是用一个平面把空间点集二分类，建模时我发现这个问题比起分类来更接近一个多元函数拟合，当然分类也不是不行，机器学习的要求更低，更容易有更好的结果。这都是后话，这篇文我决定先来总结一下BP神经网络的概念，也算是前几天的学习笔记了。">
+  
+    <link rel="alternative" href="/atom.xml" title="Hacking to the gate!" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" type="image/x-png" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <link href="//fonts.useso.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
+  
+</head>
+<body>
+<div id="container">
+  <div id="wrap">
+    <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hacking to the gate!</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">为了证明并非止步不前，为了安慰被神牛震慑的心。</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="http://www.baidu.com/baidu" method="get" accept-charset="utf-8" class="search-form">
+          <input type="search" name="word" maxlength="20" class="search-form-input" placeholder="Search">
+          <input type="submit" value="" class="search-form-submit">
+          <input name=tn type=hidden value="bds">
+          <input name=cl type=hidden value="3">
+          <input name=ct type=hidden value="2097152">
+          <input type="hidden" name="si" value="blog.bipedalbit.net">
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+    <div class="outer">
+      <section id="main"><article id="post-BP神经网络" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/10/9/BP神经网络/" class="article-date">
+  <time datetime="2015-10-09T04:45:11.000Z" itemprop="datePublished">2015-10-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/机器学习/">机器学习</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      BP神经网络
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>&nbsp;&nbsp;&nbsp; 组里要求新人手写个BP神经网络练练手先，具体要求是用一个平面把空间点集二分类，建模时我发现这个问题比起分类来更接近一个多元函数拟合，当然分类也不是不行，机器学习的要求更低，更容易有更好的结果。这都是后话，这篇文我决定先来总结一下BP神经网络的概念，也算是前几天的学习笔记了。<br><a id="more"></a></p>
+<h1 id="1-_机器学习">1. 机器学习</h1><p>&nbsp;&nbsp;&nbsp; 百度百科说机器学习(Machine Learning, ML)是一门多领域交叉学科，涉及概率论、统计学、逼近论、凸分析、算法复杂度理论等多门学科。简而言之，机器学习专门研究计算机怎样<strong>模拟或实现人类的学习行为</strong>，以获取新的知识或技能，重新组织已有的知识结构使之不断改善自身的性能。机器学习是人工智能的核心，是使计算机具有智能的<strong>根本途径</strong>，其应用遍及人工智能的各个领域，它主要使用<strong>归纳、综合而不是演绎</strong>。<br>&nbsp;&nbsp;&nbsp; 机器学习的方向很多，其历史和兴衰说来话长，这里引入机器学习的概念只是为了做个铺垫，就不展开了。</p>
+<h1 id="2-_人工神经网络">2. 人工神经网络</h1><p>&nbsp;&nbsp;&nbsp; 人工神经网络（Artificial Neural Network，ANN ）是人工智能的一支，是机器学习的一个方向，试图通过数学模型和适当的数据结构还原智能的温床——神经系统。我们知道人类大脑信息的传递、对外界刺激产生反应都是由一种特化的细胞——神经元来负责，人脑就是由上百亿个神经元构成。这些神经元之间并不孤立而且联系很密切，每个神经元平均与几千个神经元相连接，因此构成了一个神经网络。<br>&nbsp;&nbsp;&nbsp; 刺激在神经网络中的传播是遵循一定的规则的，一个神经元并非每次接到其他神经传递过来的刺激都产生反应。它首先会将与其相邻的神经元传来的刺激进行积累，到一定的时候产生自己的刺激将其传递给一些与它相邻的神经元。遵循同样规则工作着的百亿个的神经元完成了人脑对外界的反应。而人脑对外界刺激的学习过程则是通过这些神经元之间联系的建立及其强度的调整来完成的。<br>&nbsp;&nbsp;&nbsp; 当然，事实上，上述生物模型是对真正神经网络工作机制的一种简化，这种简化的生物模型可以推广至机器学习中，并以数学模型为理论基础，用不同的编程方式来实现。这种对神经网络的模拟，称为人工神经网络。</p>
+<h2 id="2-1-_人工神经元（Artificial_Neuron，AN）模型">2.1. 人工神经元（Artificial Neuron，AN）模型</h2><p>&nbsp;&nbsp;&nbsp; AN是ANN的基本元素之一，其原理如下图。<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/人工神经元模型.jpg" alt="图1 人工神经元模型" title="人工神经元模型"><br>&nbsp;&nbsp;&nbsp; 图中x1~xn是从其他神经元传来的输入信号，wij表示表示从神经元j到神经元i的连接权值，θ表示一个偏置( bias )。则神经元i的输出与输入的关系表示为：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/神经元输入积累1.png" alt="" title="输入积累"><br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/神经元输出3.png" alt="" title="激活输出"><br>&nbsp;&nbsp;&nbsp; 图中 yi表示神经元i的输出，函数f称为激活函数 ( Activation Function )，net称为净激活(net activation)。若将偏置看成是神经元i的一个输入x0的权重wi0，x0固定为1，则输入积累可以简化为：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/神经元输入积累2.png" alt="" title="合并偏置的输入积累"><br>&nbsp;&nbsp;&nbsp; 若令X为输入向量，W为权重向量，则有：</p>
+<p></p><p align="center"><span style="font-size:16px">X = [ x0 , x1 , x2 , ……. , xn ]</span></p><br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/权重向量.png" alt="" title="权重向量"><br>&nbsp;&nbsp;&nbsp; 将神经元的输出表示为向量相乘的形式则有：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/神经元输出1.png" alt="" title="净激活"><br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/神经元输出2.png" alt="" title="神经元输出"><br>&nbsp;&nbsp;&nbsp; 若神经元的净激活net为正，称该神经元处于激活状态或兴奋状态，若净激活net为负，则称神经元处于抑制状态。<br>&nbsp;&nbsp;&nbsp; 图1中的这种“阈值加权和”的神经元模型称为M-P模型 ( McCulloch-Pitts Model )，也称为神经网络的一个处理单元( PE, Processing Element )。<p></p>
+<h2 id="2-2-_常用激活函数">2.2. 常用激活函数</h2><p>&nbsp;&nbsp;&nbsp; 前面的神经元模型讲解中也提到了激活函数，事实上，激活函数是人工神经网络中的一个重要环节。下面介绍一些常用的激活函数。</p>
+<h3 id="2-2-1-_线性函数（Liner_Function）">2.2.1. 线性函数（Liner Function）</h3><p><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/线性函数.png" alt="" title="线性函数"></p>
+<h3 id="2-2-2-_斜面函数（Ramp_Function）">2.2.2. 斜面函数（Ramp Function）</h3><p><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/斜面函数.png" alt="" title="斜面函数"></p>
+<h3 id="2-2-3-_阈值函数（Threshold_Function）">2.2.3. 阈值函数（Threshold Function）</h3><p><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/阈值函数.png" alt="" title="阈值函数"></p>
+<h3 id="2-2-4-_S形函数（Sigmoid_Function）">2.2.4. S形函数（Sigmoid Function）</h3><p><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/Sigmoid-S形函数.png" alt="" title="S形函数"><br>&nbsp;&nbsp;&nbsp; 导函数：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/S形函数导数.png" alt="" title="S形函数导函数"></p>
+<h3 id="2-2-5-_双极S形函数">2.2.5. 双极S形函数</h3><p><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/双极S形函数.png" alt="" title="双极S形函数"><br>&nbsp;&nbsp;&nbsp; 导函数：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/双极S形函数导数.png" alt="" title="双极S形函数导函数"><br>&nbsp;&nbsp;&nbsp; S形函数与双极S形函数图像：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/S形函数与双极S形函数图像.png" alt="图2 S形函数与双极S形函数图像" title="S形函数与双极S形函数图像"><br>&nbsp;&nbsp;&nbsp; 双极S形函数与S形函数主要区别在于函数的值域，双极S形函数值域是(-1,1)，而S形函数值域是(0,1)。<br>&nbsp;&nbsp;&nbsp; 由于S形函数与双极S形函数都是可导的，因此适合用在BP神经网络中。（BP算法要求激活函数可导）</p>
+<h2 id="2-3-_神经网络模型">2.3. 神经网络模型</h2><p>&nbsp;&nbsp;&nbsp; 根据神经元互联方式的不同，神经网络可以分为3种常见类型。</p>
+<h3 id="2-3-1-_前馈神经网络（Feedforward_Neural_Networks）">2.3.1. 前馈神经网络（Feedforward Neural Networks）</h3><p>&nbsp;&nbsp;&nbsp; 前馈网络也称前向网络。这种网络只在训练过程会有反馈信号，而在分类过程中数据只能向前传送，直到到达输出层，层间没有向后的反馈信号，因此被称为前馈网络。感知机( perceptron)与BP神经网络属于前馈网络。<br>&nbsp;&nbsp;&nbsp; 下图是一个3层的前馈神经网络，其中第一层是输入单元，第二层称为隐含层，第三层称为输出层（输入单元不是神经元，因此图中有2层神经元）。<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/前馈神经网络.jpg" alt="图3 前馈神经网络" title="前馈神经网络"><br>&nbsp;&nbsp;&nbsp; N层的前馈神经网络每层的输入参数都要按权重积累，得到净激活后由激活函数激活输出。<br>&nbsp;&nbsp;&nbsp; 比如，一个三层的前馈神经网络的输出为<code>F3( F2 ( F1( XW1 ) W2 ) W3 )</code>。当F1、F2、F3都选用线性激活函数，输出将是线性函数。<br>&nbsp;&nbsp;&nbsp; <strong>所以，如果要做高次函数的拟合，应该选用适当的非线性激活函数。</strong></p>
+<h3 id="2-3-2-_反馈神经网络（Feedback_Neural_Networks）">2.3.2. 反馈神经网络（Feedback Neural Networks）</h3><p>&nbsp;&nbsp;&nbsp; 反馈型神经网络是一种从输出到输入具有反馈连接的神经网络，其结构比前馈网络要复杂得多。典型的反馈型神经网络有Elman网络和Hopfield网络。<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/反馈神经网络.jpg" alt="图4 反馈神经网络" title="反馈神经网络"></p>
+<h3 id="2-3-3-_竞争学习网络（Competitive_Learning_Network）">2.3.3. 竞争学习网络（Competitive Learning Network）</h3><p>&nbsp;&nbsp;&nbsp; 竞争学习网络是一种无监督学习网络。它通过自动寻找样本中的内在规律和本质属性，自组织、自适应地改变网络参数与结构。典型的竞争学习网络有SOM。<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/自组织网络.png" alt="图5 竞争学习网络" title="竞争学习网络"></p>
+<h3 id="2-3-4-_神经网络的状态">2.3.4. 神经网络的状态</h3><p>&nbsp;&nbsp;&nbsp; 神经网络的状态分学习（训练）状态和工作状态两种。<br>&nbsp;&nbsp;&nbsp; 学习状态又分为两种方式：监督学习（Supervised Learning）和非监督（Unsupervised Learning）学习。<br>&nbsp;&nbsp;&nbsp; 监督学习算法将一组训练数据集送入网络，根据网络的实际输出与期望输出间的差别来调整连接权。达到预设训练次数或者样本整体误差不超过预设范围（收敛）时学习结束。BP算法就是一种出色的监督学习算法。<br>&nbsp;&nbsp;&nbsp; 非监督学习算法抽取样本集合中蕴含的统计特性，并以神经元之间的联接权的形式存于网络中。Hebb学习律是一种经典的非监督学习算法。</p>
+<h3 id="2-3-5-_非监督学习算法：Hebb学习律">2.3.5. 非监督学习算法：Hebb学习律</h3><p>&nbsp;&nbsp;&nbsp; Hebb算法核心思想是，当两个神经元同时处于激发状态时两者间的连接权会被加强，否则被减弱。<br>&nbsp;&nbsp;&nbsp; Hebb学习律可以表示为：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/Hebb学习律.png" alt="" title="Hebb学习律"><br>&nbsp;&nbsp;&nbsp; 其中wij表示神经元j到神经元i的连接权，yi与yj为两个神经元的输出，a是表示学习速率常数。若yi与yj同时被激活，即yi与yj同号，那 么wij将增大；若yi被激活，而yj处于抑制状态，即yi为正yj为负，那么wij将变小。</p>
+<h3 id="2-3-6-_监督学习算法：Delta学习规则">2.3.6. 监督学习算法：Delta学习规则</h3><p>&nbsp;&nbsp;&nbsp; Delta学习规则的数学表达：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/Delta学习规则.png" alt="" title="Delta学习规则"><br>&nbsp;&nbsp;&nbsp; 其中wij表示神经元j到神经元i的连接权，di是神经元i的期望输出，yi是神经元i的实际输出，xj表示神经元j状态，若神经元j处于激活态则xj为 1，若处于抑制状态则xj为0或－1（依激活函数而定）。a是表示学习速率常数。假设xi为1，若di比yi大，那么Wij将增大，若di比yi小， 那么wij将变小。<br>&nbsp;&nbsp;&nbsp; Delta规则简单讲来就是：若神经元实际输出比期望输出大，则减小所有输入为正的连接的权重，增大所有输入为负的连接的权重。反之，若神经元实际输出比期望输出小，则增大所有输入为正的连接的权重，减小所有输入为负的连接的权重。这个增大或减小的幅度就根据上面的式子来计算。</p>
+<h1 id="3-_BP神经网络">3. BP神经网络</h1><h2 id="3-1-_认识BP神经网络">3.1. 认识BP神经网络</h2><p>&nbsp;&nbsp;&nbsp; BP神经网络更清晰的称呼应该是使用BP算法学习的前馈神经网络。BP神经网络中的BP为Back Propagation（反向传播）的简写，最早它是由Rumelhart、McCelland等科学家于1986年提出来的，Rumelhart还在《Nature》上发表了一篇非常著名的文章《Learning representations by back-propagating errors》。随着时代的迁移，BP神经网络理论不断的得到改进、更新，现在无疑已成为了应用最为广泛的神经网络模型之一。BP网络具有很强的非线性映射能力，一个3层BP神经网络能够实现对任意非线性函数进行逼近（根据Kolrnogorov定理：任意[0,1]上的连续函数能被一个3层的神经网络实现，其中输入单元数为n，隐含层单元数为2n+1）。</p>
+<h2 id="3-2-_隐含层的选取">3.2. 隐含层的选取</h2><p>&nbsp;&nbsp;&nbsp; 在BP神经网络中，输入层和输出层的节点个数都是确定的，而隐含层节点个数不确定。实际上，隐含层节点个数的多少对神经网络的性能是有影响的，有一个经验公式可以确定隐含层神经元数目：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/BP隐含层经验公式.png" alt="" title="BP隐含层经验公式"><br>&nbsp;&nbsp;&nbsp; 其中，h为隐含层神经元数，m为输入结点数，n为输出层神经元数，a为1~10之间的调节常数。</p>
+<h2 id="3-3-_正向预测">3.3. 正向预测</h2><p>&nbsp;&nbsp;&nbsp; 就是使输入数据样本通过一个两层前馈网络，输出即<code>F2 ( F1( XW1 ) W2</code>。之前介绍前馈网络时有解释，这里就不再累述了。</p>
+<h2 id="3-4-_反向误差传播">3.4. 反向误差传播</h2><p>&nbsp;&nbsp;&nbsp; BP算法是基于Widrow-Hoff学习规则的，可以看做delta学习规则的一种特殊情况。Widrow-Hoff学习规则是通过沿着相对误差平方和的最速下降方向（梯度方向），连续调整网络的权重和偏置。根据梯度下降法，权重矢量的修正正比于当前位置上E(w,b)的梯度的模，即E(w,b)在当前位置的偏导数。我们知道函数<code>z = f(x,y)</code>中，z对x或y的偏导数即z随x或y变化的程度或快慢，这正切合BP神经网络中每层输入参数权重的意义，也印证了梯度下降法的正确性。对于第j个输出神经元有：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/BP输出层权值修正.png" alt="" title="输出层权值修正"><br>&nbsp;&nbsp;&nbsp; 其中误差函数E（合并偏置）：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/人工神经网络/误差函数.jpg" alt="" title="误差函数"><br>&nbsp;&nbsp;&nbsp; 式子里两层求和是对每个学习样本的每一对输出值与期望值的平方差求和。其中，Outpus 是网络输出单元的集合，tkd和okd是第d个学习样本的第k个输出单元的输出值与对应的期望值。<br>&nbsp;&nbsp;&nbsp; 求偏导数的过程就不详细说了（可以参考一篇比较清晰的<a href="http://wenku.baidu.com/link?url=ca-ZcPAeR-rwdlYPmfzDOPOBcxDhrFhpNbNNVig-Kk2u13Dq3xxAc9VbuvFeuZTf_z1qVQn0fgxWexNAnzTEuHtUdSGf4_25tCy9F0NKWmy" target="_blank" rel="external">BP神经网络原理讲解</a>），来看一下最后的权重修正值即E对W的偏导数和：<code>△Wij = -α*Σ[(dj - yj)*yj*(1 - yj)*xi]</code>。其中α是学习速率常数，一般取0.01~0.8的较小实数。</p>
+<h2 id="3-5-_注意点">3.5. 注意点</h2><ul>
+<li>学习速率大的时候收敛速度快精度小，收敛曲线颠簸；学习速率小收敛速度慢精度大，收敛曲线平滑。</li>
+<li>BP神经网络通常用于分类器和函数拟合，如果作为分类器，激活函数一般选用Sigmoid函数；如果做函数拟合，<strong>输出层</strong>的激活函数应该用线性函数即<code>f(x) = x</code>。</li>
+<li>BP神经网络训练过程中可以采用<strong>增量学习</strong>或<strong>批量学习</strong>，即分批临时生成新的训练数据样本并输入当前网络，分阶段逐步学习；或者预生成所有训练数据样本，学习到出结果为止。</li>
+</ul>
+<h2 id="3-6-_缺陷">3.6. 缺陷</h2><ul>
+<li>BP神经网络训练时容易陷入局部极小值”假收敛“而得不到全局最优值，如果出现”假收敛“，只能重新随机初始化权重。</li>
+<li>BP神经网络需要的训练次数多，收敛比较慢。</li>
+<li>隐含层神经元数的选取缺乏理论指导。</li>
+<li>训练时学习新样本有遗忘旧样本的趋势。</li>
+</ul>
+<h2 id="3-7-_改进">3.7. 改进</h2><ul>
+<li>增加动量项，即调整权重时增加动量项，令<code>Wij = Wij - α*Σ[(dj - yj)*yj*(1 - yj)*xi] + β△Wij</code>，其中动量因子β一般取0.95左右，可以使收敛曲线更平滑。</li>
+<li>自适应地调节学习速率。</li>
+<li>输入数据的归一化，即映射到激活函数的值域之内，如Sigmoid的[0,1]。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://blog.bipedalbit.net/2015/10/9/BP神经网络/" data-id="cifjd0b10002lpa97wkpdoelg" class="article-share-link" data-share="baidu" data-title="BP神经网络">分享到</a>
+      
+
+      
+        <a href="http://blog.bipedalbit.net/2015/10/9/BP神经网络/#ds-thread" class="article-comment-link">评论</a>
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BP神经网络/">BP神经网络</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/人工神经网络/">人工神经网络</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2015/10/8/C-二进制-十进制转换器/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">C++二进制-十进制转换器</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+  <section id="comments">
+    <!-- 多说评论框 start -->
+      <div class="ds-thread" data-thread-key="2015/10/9/BP神经网络/" data-title="BP神经网络" data-url="http://blog.bipedalbit.net/2015/10/9/BP神经网络/"></div>
+    <!-- 多说评论框 end -->
+    <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+    <script type="text/javascript">
+    var duoshuoQuery = {short_name:"bipedalbit"};
+      (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+      })();
+      </script>
+    <!-- 多说公共JS代码 end -->
+  </section>
+</section>
+      
+      <aside id="sidebar">
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">about</h3>
+	<div class="widget">
+		<ul>
+			<li><strong>本&nbsp;体：</strong>张亦鹏</li><hr>
+			<li><strong>现&nbsp;状：</strong>帝都CS硕士在读</li><hr>
+			<li><strong>邮&nbsp;箱：</strong>hmemoryl@163.com</li><hr>
+			<li><strong>企&nbsp;鹅：</strong>236771817</li><hr>
+			<li><strong>框&nbsp;架：</strong>hexo</li><hr>
+			<li><strong>主&nbsp;题：</strong>landscape-plus</li><hr>
+			<li><strong>简&nbsp;介：</strong><br>&nbsp;&nbsp;&nbsp; C++ ACMer出身，C++出身自然也通Qt，好奇心经常如脱缰的野狗在荒原上撒欢，于是习得ASP.NET、JSP、PHP、Python、Node.js等一众流行技术，前端也姑且能一战。可惜一般都是填完坑就扔，水平大都停留在入门级别。依然死不悔改持续开坑中，逛着B站补着番，不时脑洞一开。以上，求同好。_(:3J ∠)_</li>
+		</ul>
+	</div>
+ </div>
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Qt/">Qt</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Sublime-Text/">Sublime Text</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/codeigniter/">codeigniter</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/node-js/">node.js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/BP神经网络/" style="font-size: 10px;">BP神经网络</a> <a href="/tags/C/" style="font-size: 17.5px;">C</a> <a href="/tags/C/" style="font-size: 15px;">C++</a> <a href="/tags/IIS7/" style="font-size: 10px;">IIS7</a> <a href="/tags/Q-OBJECT/" style="font-size: 10px;">Q_OBJECT</a> <a href="/tags/Qt/" style="font-size: 10px;">Qt</a> <a href="/tags/Web请求处理机制/" style="font-size: 10px;">Web请求处理机制</a> <a href="/tags/apache/" style="font-size: 10px;">apache</a> <a href="/tags/cin/" style="font-size: 10px;">cin</a> <a href="/tags/codeigniter/" style="font-size: 10px;">codeigniter</a> <a href="/tags/cout/" style="font-size: 10px;">cout</a> <a href="/tags/epoll/" style="font-size: 10px;">epoll</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/makefile/" style="font-size: 10px;">makefile</a> <a href="/tags/nginx/" style="font-size: 20px;">nginx</a> <a href="/tags/ngx-int-t/" style="font-size: 10px;">ngx_int_t</a> <a href="/tags/node-js/" style="font-size: 12.5px;">node.js</a> <a href="/tags/php/" style="font-size: 10px;">php</a> <a href="/tags/printf/" style="font-size: 10px;">printf</a> <a href="/tags/rbtree/" style="font-size: 15px;">rbtree</a> <a href="/tags/scanf/" style="font-size: 10px;">scanf</a> <a href="/tags/select-poll/" style="font-size: 10px;">select/poll</a> <a href="/tags/signal-slot/" style="font-size: 10px;">signal-slot</a> <a href="/tags/socket-io/" style="font-size: 10px;">socket.io</a> <a href="/tags/static/" style="font-size: 10px;">static</a> <a href="/tags/sublime/" style="font-size: 10px;">sublime</a> <a href="/tags/事件驱动模型/" style="font-size: 10px;">事件驱动模型</a> <a href="/tags/人工神经网络/" style="font-size: 10px;">人工神经网络</a> <a href="/tags/内存分布/" style="font-size: 10px;">内存分布</a> <a href="/tags/同步-异步/" style="font-size: 10px;">同步/异步</a> <a href="/tags/机器学习/" style="font-size: 10px;">机器学习</a> <a href="/tags/进制转换/" style="font-size: 10px;">进制转换</a> <a href="/tags/阻塞-非阻塞/" style="font-size: 10px;">阻塞/非阻塞</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">八月 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">六月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">近期文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/10/9/BP神经网络/">BP神经网络</a>
+          </li>
+        
+          <li>
+            <a href="/2015/10/8/C-二进制-十进制转换器/">C++二进制-十进制转换器</a>
+          </li>
+        
+          <li>
+            <a href="/2015/10/8/C-cin、cout的优化及测评/">C++ cin、cout的优化及测评</a>
+          </li>
+        
+          <li>
+            <a href="/2015/9/30/nginx之回头补课/">nginx之回头补课</a>
+          </li>
+        
+          <li>
+            <a href="/2015/9/12/socket-io邀请制带登录聊天室实例【DRRR-chat-room】/">socket.io邀请制带登录聊天室实例【DRRR-chat-room】</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">友情链接</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="https://github.com/bipedalBit" target="_blank">Bipedal Bit的Git</a>
+          </li>
+        
+          <li>
+            <a href="http://saelab.bipedalbit.net" target="_blank">Bipedal Bit的SAE实验室</a>
+          </li>
+        
+          <li>
+            <a href="http://blog.csdn.net/bipedal_bit" target="_blank">Bipedal Bit的CSDN博客</a>
+          </li>
+        
+          <li>
+            <a href="http://blog.sina.com.cn/u/2374285604" target="_blank">Bipedal Bit的新浪博客</a>
+          </li>
+        
+          <li>
+            <a href="http://xiguabaobao.com" target="_blank">主题作者</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&ptype=1&speed=0&skin=5&isTitle=1&noborder=1&isWeibo=1&isFans=1&uid=2374285604&verifier=91f284c4&dpc=1"></iframe>
+  
+</aside>
+      
+    </div>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 Bipedal Bit<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      .
+      Theme by <a href="https://github.com/xiangming/landscape-plus" target="_blank">Landscape-plus</a>
+    </div>
+  </div>
+</footer>
+  </div>
+  <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+  <!-- totop start -->
+<div id="totop">
+<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+</div>
+
+<!-- totop end -->
+
+<!-- 多说公共js代码 start -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"bipedalbit"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+     || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+  </script>
+<!-- 多说公共js代码 end -->
+
+
+<!-- 百度分享 start -->
+
+<div id="article-share-box" class="article-share-box">
+  <div id="bdshare" class="bdsharebuttonbox article-share-links">
+    <a class="article-share-weibo" data-cmd="tsina" title="分享到新浪微博"></a>
+    <a class="article-share-weixin" data-cmd="weixin" title="分享到微信"></a>
+    <a class="article-share-qq" data-cmd="sqq" title="分享到QQ"></a>
+    <a class="article-share-renren" data-cmd="renren" title="分享到人人网"></a>
+    <a class="article-share-more" data-cmd="more" title="更多"></a>
+  </div>
+</div>
+<script>
+  function SetShareData(cmd, config) {
+    if (shareDataTitle && shareDataUrl) {
+      config.bdText = shareDataTitle;
+      config.bdUrl = shareDataUrl;
+    }
+    return config;
+  }
+  window._bd_share_config={
+    "common":{onBeforeClick: SetShareData},
+    "share":{"bdCustomStyle":"/css/bdshare.css"}
+  };
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+<!-- 百度分享 end -->
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+</div>
+</body>
+</html>
