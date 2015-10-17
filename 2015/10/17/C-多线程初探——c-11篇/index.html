@@ -4,18 +4,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>win/Linux下去掉codeigniter框架网站URL中的index.php | Hacking to the gate!</title>
+  <title>C++多线程初探——c++11篇 | Hacking to the gate!</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 使用PHP的codeigniter框架后在试验阶段遇到的第一个问题就是，无法隐藏地址栏中的index.php，这让我浑身难受。多方调查之后有了一套解决方案。">
+  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 今天被说C++出身的猿不会多线程跟不会C++有什么分别，于是放下刚到手的Go和R的书，痛定思痛准备来给自己补补课。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="win/Linux下去掉codeigniter框架网站URL中的index.php">
-<meta property="og:url" content="http://blog.bipedalbit.net/2015/5/3/win-Linux下去掉codeigniter框架网站URL中的index-php/index.html">
+<meta property="og:title" content="C++多线程初探——c++11篇">
+<meta property="og:url" content="http://blog.bipedalbit.net/2015/10/17/C-多线程初探——c-11篇/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
-<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 使用PHP的codeigniter框架后在试验阶段遇到的第一个问题就是，无法隐藏地址栏中的index.php，这让我浑身难受。多方调查之后有了一套解决方案。">
-<meta property="og:updated_time" content="2015-09-17T14:19:53.686Z">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 今天被说C++出身的猿不会多线程跟不会C++有什么分别，于是放下刚到手的Go和R的书，痛定思痛准备来给自己补补课。">
+<meta property="og:updated_time" content="2015-10-17T16:20:19.879Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="win/Linux下去掉codeigniter框架网站URL中的index.php">
-<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 使用PHP的codeigniter框架后在试验阶段遇到的第一个问题就是，无法隐藏地址栏中的index.php，这让我浑身难受。多方调查之后有了一套解决方案。">
+<meta name="twitter:title" content="C++多线程初探——c++11篇">
+<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 今天被说C++出身的猿不会多线程跟不会C++有什么分别，于是放下刚到手的Go和R的书，痛定思痛准备来给自己补补课。">
   
     <link rel="alternative" href="/atom.xml" title="Hacking to the gate!" type="application/atom+xml">
   
@@ -72,14 +72,14 @@
   </div>
 </header>
     <div class="outer">
-      <section id="main"><article id="post-win-Linux下去掉codeigniter框架网站URL中的index-php" class="article article-type-post" itemscope itemprop="blogPost">
+      <section id="main"><article id="post-C-多线程初探——c-11篇" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/5/3/win-Linux下去掉codeigniter框架网站URL中的index-php/" class="article-date">
-  <time datetime="2015-05-03T04:31:20.000Z" itemprop="datePublished">2015-05-03</time>
+    <a href="/2015/10/17/C-多线程初探——c-11篇/" class="article-date">
+  <time datetime="2015-10-17T06:58:22.000Z" itemprop="datePublished">2015-10-17</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/codeigniter/">codeigniter</a>
+    <a class="article-category-link" href="/categories/C/">C++</a>
   </div>
 
   </div>
@@ -90,7 +90,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      win/Linux下去掉codeigniter框架网站URL中的index.php
+      C++多线程初探——c++11篇
     </h1>
   
 
@@ -98,80 +98,70 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&nbsp;&nbsp;&nbsp; 使用PHP的codeigniter框架后在试验阶段遇到的第一个问题就是，无法隐藏地址栏中的index.php，这让我浑身难受。多方调查之后有了一套解决方案。<br><a id="more"></a></p>
-<h1 id="Linux:">Linux:</h1><h2 id="一-Apache">一.Apache</h2><h3 id="1-启用rewrite模块">1.启用rewrite模块</h3><p>&nbsp;&nbsp;&nbsp; 手动启用是在Apache配置文件里把“LoadModule rewrite_module modules/mod_rewrite.so”解注释。<br>&nbsp;&nbsp;&nbsp; 一些LAMP套件也提供更方便的模块管理。</p>
-<h3 id="2-rewrite规则设置">2.rewrite规则设置</h3><p>&nbsp;&nbsp;&nbsp; 在 CI 的根目录下，即在 index.php ，system的同级目录下，建立.htaccess，直接建立该文件名不会成功，可以从application或system文件夹里复制一个过来，再修改内容。<br>&nbsp;&nbsp;&nbsp; 内容如下（ CI 手册上也有介绍）：</p>
-<pre><code><span class="keyword"><span class="common">RewriteEngine</span></span> <span class="literal">On</span>
-<span class="keyword"><span class="common">RewriteCond</span></span> <span class="cbracket">%{REQUEST_FILENAME}</span> !-f
-<span class="keyword"><span class="common">RewriteCond</span></span> <span class="cbracket">%{REQUEST_FILENAME}</span> !-d
-<span class="keyword"><span class="common">RewriteRule</span></span> ^(.*)$ index.php/<span class="number">$1</span><span class="sqbracket"> [L]</span>
-</code></pre><p>&nbsp;&nbsp;&nbsp; <strong>如果.htaccess文件不是在www的根目录下，例如是： <a href="http://localhost/123/" target="_blank" rel="external">http://localhost/123/</a> index.php ，第三行需要改写为</strong><br>&nbsp;&nbsp;&nbsp; <code>RewriteRule ^(.*)$ /123/ index.php /$1 [L]</code></p>
-<h3 id="3-配置codeigniter">3.配置codeigniter</h3><p>&nbsp;&nbsp;&nbsp; 找到CI文件夹/application/config/config.php。<br>&nbsp;&nbsp;&nbsp; <code>$config[&#39;index_page&#39;] =&quot; index.php &quot;;</code>改写成<code>$config[&#39;index_page&#39;] = &quot;&quot;;</code></p>
-<h3 id="4-重启Apache">4.重启Apache</h3><p>&nbsp;&nbsp;&nbsp; 这个各显神通，不累述，如Ubuntu的<code>$ sudo /etc/init.d/apache2 restart</code></p>
-<h2 id="二-nginx">二.nginx</h2><h3 id="1-rewrite规则设置">1.rewrite规则设置</h3><p>&nbsp;&nbsp;&nbsp; 修改nginx配置文件，在nginx.conf的SERVER段中添加如下代码：</p>
-<pre><code>location /{
-   if (-f <span class="variable">$request</span>_filename) {
-       expires max;
-       break;
-   }
-   if (!-e <span class="variable">$request</span>_filename) {
-       rewrite ^/(.*)$ /index.php/<span class="variable">$1</span> last;
-   }
+        <p>&nbsp;&nbsp;&nbsp; 今天被说C++出身的猿不会多线程跟不会C++有什么分别，于是放下刚到手的Go和R的书，痛定思痛准备来给自己补补课。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; C++新标准c++11出现之前（虽然“新”标准已经发布好几年了），大家用C++写多线程通常有两种方式：Unix/Linux下通常使用POSIX标准的pthread.h库，pthread并不是语言本身提供的内置库，gcc编译带pthread的程序时需要加上<code>-lpthread</code>标识参数；Windows下，win系列系统提供了一些线程API，但是由于gcc/g++等编译器的跨平台性，其实也可以在win下使用pthread。<br>&nbsp;&nbsp;&nbsp; 然而2011年夏天，c++11标准发布了，新C++有了许多方便的新特性，其中就包括内置的，对多线程的支持。gcc 4.6及以前的版本编译c++11标准的多线程程序时还要加<code>-pthread</code>标识参数（注意与区别pthread库的<code>-lpthread</code>参数的区别）。后来也默认的支持新C++的内置多线程了，实测gcc 4.8.4除了<code>-std=c++11</code>不加别的参数，能够顺利编译运行c++11的多线程程序。<br>&nbsp;&nbsp;&nbsp; 铺垫了这么多，下面就先来试试c++11的多线程吧。<br>&nbsp;&nbsp;&nbsp; helloWorld.cpp：</p>
+<pre><code><span class="comment">/* c++11线程类的所在，下面的std::thread和std::this_thread都在其中 */</span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
+<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
+
+<span class="function"><span class="keyword">void</span> <span class="title">thread_task</span><span class="params">()</span>
+</span>{
+    <span class="built_in">cout</span> &lt;&lt; <span class="string">"Hello world! My thread ID is "</span> &lt;&lt; this_thread::get_id() &lt;&lt; endl;
 }
-</code></pre><h3 id="2-3同上">2.3同上</h3><h3 id="4-重启nginx">4.重启nginx</h3><p>&nbsp;&nbsp;&nbsp; <code>/usr/local/nginx/sbin/nginx -s reload</code></p>
-<h1 id="Windows：">Windows：</h1><h2 id="一-IIS7">一.IIS7</h2><h3 id="1-配置web-config">1.配置web.config</h3><pre><code><span class="pi">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
-<span class="tag">&lt;<span class="title">configuration</span>&gt;</span>
-    <span class="tag">&lt;<span class="title">system.webServer</span>&gt;</span>
-        <span class="tag">&lt;<span class="title">rewrite</span>&gt;</span>
-            <span class="tag">&lt;<span class="title">rules</span>&gt;</span>
-                <span class="tag">&lt;<span class="title">rule</span> <span class="attribute">name</span>=<span class="value">"OrgPage"</span> <span class="attribute">stopProcessing</span>=<span class="value">"true"</span>&gt;</span>
-                    <span class="tag">&lt;<span class="title">match</span> <span class="attribute">url</span>=<span class="value">"^(.*)$"</span> /&gt;</span>
-                    <span class="tag">&lt;<span class="title">conditions</span> <span class="attribute">logicalGrouping</span>=<span class="value">"MatchAll"</span>&gt;</span>
-                    <span class="tag">&lt;<span class="title">add</span> <span class="attribute">input</span>=<span class="value">"{HTTP_HOST}"</span> <span class="attribute">pattern</span>=<span class="value">"^(.*)$"</span> /&gt;</span>
-                    <span class="tag">&lt;<span class="title">add</span> <span class="attribute">input</span>=<span class="value">"{REQUEST_FILENAME}"</span> <span class="attribute">matchType</span>=<span class="value">"IsFile"</span> <span class="attribute">negate</span>=<span class="value">"true"</span> /&gt;</span>
-                    <span class="tag">&lt;<span class="title">add</span> <span class="attribute">input</span>=<span class="value">"{REQUEST_FILENAME}"</span> <span class="attribute">matchType</span>=<span class="value">"IsDirectory"</span> <span class="attribute">negate</span>=<span class="value">"true"</span> /&gt;</span>
-                    <span class="tag">&lt;/<span class="title">conditions</span>&gt;</span>
-                    <span class="tag">&lt;<span class="title">action</span> <span class="attribute">type</span>=<span class="value">"Rewrite"</span> <span class="attribute">url</span>=<span class="value">"index.php/{R:1}"</span> /&gt;</span>
-                <span class="tag">&lt;/<span class="title">rule</span>&gt;</span>
-            <span class="tag">&lt;/<span class="title">rules</span>&gt;</span>
-        <span class="tag">&lt;/<span class="title">rewrite</span>&gt;</span>
-    <span class="tag">&lt;/<span class="title">system.webServer</span>&gt;</span>
-<span class="tag">&lt;/<span class="title">configuration</span>&gt;</span>
-</code></pre><h3 id="2-配置codeigniter">2.配置codeigniter</h3><p>&nbsp;&nbsp;&nbsp; 找到CI文件夹/application/config/config.php。<br>&nbsp;&nbsp;&nbsp; <code>$config[&#39;index_page&#39;] =&quot; index.php &quot;;</code>改写成<code>$config[&#39;index_page&#39;] = &quot;&quot;;</code></p>
-<h2 id="二-Apache">二.Apache</h2><h3 id="1-启用rewrite模块-1">1.启用rewrite模块</h3><p>&nbsp;&nbsp;&nbsp; 手动启用是在Apache配置文件里把“LoadModule rewrite_module modules/mod_rewrite.so”解注释。<br>&nbsp;&nbsp;&nbsp; 一些WAMP套件也提供更方便的模块管理。</p>
-<h3 id="2-rewrite规则设置-1">2.rewrite规则设置</h3><p>&nbsp;&nbsp;&nbsp; 找到Apache的虚拟主机配置文件，如Apache-20\conf\extra\httpd-vhosts.conf。<br>&nbsp;&nbsp;&nbsp; 修改要配置的虚拟主机的Directory标签，如：</p>
-<pre><code><span class="tag">&lt;Directory G:/PHP/123&gt;</span>
-    <span class="comment">#隐藏index.php相关</span>
-    <span class="keyword"><span class="common">RewriteEngine</span></span> <span class="literal">On</span>
-    <span class="keyword"><span class="common">RewriteCond</span></span> <span class="cbracket">%{REQUEST_FILENAME}</span> !-f
-    <span class="keyword"><span class="common">RewriteCond</span></span> <span class="cbracket">%{REQUEST_FILENAME}</span> !-d
-    <span class="keyword"><span class="common">RewriteRule</span></span> ^(.*)$ index.php/<span class="number">$1</span><span class="sqbracket"> [L]</span>
-    <span class="keyword"><span class="common">Options</span></span> FollowSymLinks
-    <span class="comment">#访问权限设置</span>
-    <span class="comment">#不允许别人修改页面</span>
-    <span class="keyword">AllowOverride</span> None
-    <span class="comment">#依次考察允许和拒绝ip访问的设置情况</span>
-    <span class="keyword"><span class="common">order</span></span> allow,deny
-    <span class="comment">#允许来自所有ip的访问</span>
-    <span class="keyword"><span class="common">Allow</span></span> from <span class="literal">all</span>
-    <span class="comment">#deny from 202.18 即拒绝来自202.18打头的ip的访问</span>
-<span class="tag">&lt;/Directory&gt;</span>
-</code></pre><h3 id="3-配置codeigniter-1">3.配置codeigniter</h3><p>&nbsp;&nbsp;&nbsp; 找到CI文件夹/application/config/config.php。<br>&nbsp;&nbsp;&nbsp; <code>$config[&#39;index_page&#39;] =&quot; index.php &quot;;</code>改写成<code>$config[&#39;index_page&#39;] = &quot;&quot;;</code></p>
-<h3 id="4-重启Apache-1">4.重启Apache</h3><p>&nbsp;&nbsp;&nbsp; win下Apache有图形界面，很方便。</p>
+
+<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> <span class="keyword">const</span> *argv[])</span>
+</span>{
+    <span class="comment">// 主线程测试</span>
+    <span class="comment">/* get_id函数是thread类和this_thread类的成员，获取线程ID */</span>
+    <span class="built_in">cout</span> &lt;&lt; <span class="string">"I'm the main thread. My thread ID is "</span> &lt;&lt; this_thread::get_id() &lt;&lt; endl;
+    <span class="comment">// 子线程测试</span>
+    <span class="comment">/* 构造子线程时指派线程任务函数指针 */</span>
+    <span class="function">thread <span class="title">t1</span><span class="params">(thread_task)</span></span>;
+    <span class="function">thread <span class="title">t2</span><span class="params">(thread_task)</span></span>;
+    <span class="function">thread <span class="title">t3</span><span class="params">(thread_task)</span></span>;
+    <span class="comment">/* 主线程创建子线程 */</span>
+    t1.join();
+    t2.join();
+    t3.join();
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; 最简单的多线程测试看起来运行的很顺利。下面我们稍微详细一点研究下std::thread的<a href="http://www.cplusplus.com/reference/thread/thread/" target="_blank" rel="external">官方文档</a>。</p>
+<ul>
+<li>thread::id：thread下面有个子类型thread::id，表示线程ID。是thread::get_id和this_thread::get_id的返回值。thread::id的构造函数返回一个non-joinable（不代表任何一个线程，即不与任何一个未终止的线程对应的ID相等）的线程ID。一个活跃的线程的ID会在线程终止后变成non-joinable线程ID。</li>
+<li>thread类的构造有4种形式：<ul>
+<li>thread::thread()：默认构造函数，即不带参数的构造函数。构造一个非活跃（不可执行）的线程对象。</li>
+<li>thread::thread (Fn&amp;&amp; fn, Args&amp;&amp;… args)：初始化构造函数，即带足够多参数，足以初始化一个线程的构造函数。初始化构造函数的参数列表包括一个函数指针和这个函数的参数列表。利用迟邦定技术，构造过程与对函数副本的请求同步完成。</li>
+<li>复制构造函数，即从一个线程对象复制而得到一个新的线程对象。实际上，线程对象不允许被复制。</li>
+<li>thread::thread (thread&amp;&amp; x)：移动构造函数，即重新给指定线程分配一个对象（句柄），并释放原来的线程对象（句柄）。注意这并不影响原线程的执行，因为只是释放了对象（句柄），而没有分离原进程、释放资源。参数只有原线程对象。</li>
+</ul>
+</li>
+<li>thread::~thread()：如果一个活跃线程被释放，首先会调用terminal()方法停止线程的执行。</li>
+<li>thread::operator=(thread&amp;&amp; rhs)：作用相当于移动构造函数，原线程句柄被释放，返回一个更换句柄的线程对象。</li>
+<li>thread::get_id()：如果方法的目标线程对象是活跃的，生成一个唯一的ID并返回；如果调用方法的线程对象非活跃，先调用线程的默认构造函数生成一个non-joinable线程对象，然后生成一个唯一的ID并返回。</li>
+<li>thread::joinable()：joinable方法的唯一参数为一个线程ID，它的bool型返回值代表这个线程ID是否对应一个活跃的线程。this_thread下并没有这个方法，因为当前线程如果不为活跃线程，它将不能完成任何线程任务，即不能调用任何方法。</li>
+<li>thread::join()：这个方法将阻塞调用方法的线程（主线程），直到目标线程中的操作全部完成。这个方法返回之后，目标线程对象的状态就变为非活跃并可以被安全的释放了。换句话说，这个方法定义了一组线程同步关系。</li>
+<li>thread::detach()：应该有读者注意到了，detach是join的反义词，该方法的作用是从调用线程（主线程）中分离目标线程，让目标线程可以独立并行执行。调用detach方法后两个线程（调用线程和目标线程）都不会被阻塞或者被同步，而是会并行执行直到各自完成所有操作，谁完成执行谁就释放自己的资源，互不影响。（不是我啰嗦，文档原文就是这么说的）这个方法返回之后，目标线程对象的状态就变为非活跃并可以被安全的释放了。换句话说，这个方法定义了一组线程异步关系。</li>
+<li>thread::swap(thread&amp; x)：文档原文说是交换两个线程对象的<strong>状态</strong>，我表示不明白状态是指什么。实验表明应该是交换了线程与对象（句柄）的映射关系。thread类还重载了一个面向过程风格的swap方法版本：<code>void swap (thread&amp; x, thread&amp; y)</code>。</li>
+<li>thread::hardware_concurrency()：这是个静态成员函数，返回一个无符号整型，返回一个大概的（不一定准确，因为系统可以支持或限制每个进程创建的线程数）基于硬件的最大并行线程数。如果这个试图返回的值没有被系统很好的定义，返回0。<br>&nbsp;&nbsp;&nbsp; thread头文件中还有一个与thread并列的<a href="http://www.cplusplus.com/reference/thread/this_thread/" target="_blank" rel="external">this_thread类</a>，this_thread类非常简单，除了get_id方法只有另外三个方法：</li>
+<li>this_thread::yield()：顾名思义，使当前线程退让，从执行状态变为就绪状态，使同优先级的线程有机会被重新调度进入执行状态。如果当前进程没什么毛病那么使它退让并没有太大意义，甚至可能不会造成事实上的线程执行顺序变化。yield方法应该在当前线程忙等别的线程而又没有被阻塞时执行。</li>
+<li>this_thread::sleep_until(const chrono::time_point<clock,duration>&amp; abs_time)：阻塞当前线程直到特定时间点，使当前线程至少等待到特定时间点后继续执行，参数是一种特定格式的时间点数据。</clock,duration></li>
+<li>this_thread::sleep_for(const chrono::duration<rep,period>&amp; rel_time)：阻塞当前线程一段时间，使当前线程至少等待特定时长后继续执行，参数是一种特定格式的时间段数据。<br>&nbsp;&nbsp;&nbsp; 其实c++11标准下，除了thread，还有其他四个用来支持多线程的辅助头文件：<a href="http://www.cplusplus.com/reference/atomic/" target="_blank" rel="external">atomic</a>、<a href="http://www.cplusplus.com/reference/mutex/" target="_blank" rel="external">mutex</a>、<a href="http://www.cplusplus.com/reference/condition_variable/" target="_blank" rel="external">condition_variable</a>、<a href="http://www.cplusplus.com/reference/future/" target="_blank" rel="external">future</a>。前三个很好理解，分别提供封装好的原子数据类型、互斥锁设备和条件值，future头文件里提供的是一些对分享的数据资源进行竞争的必须设备（我很迷茫头文件为什么不干脆叫share而是叫future这个让人摸不着头脑的名字）。如果读者熟悉操作系统或者进程调度，一定不会对前面这些东西感到陌生。<br>&nbsp;&nbsp;&nbsp; 我们不难管中窥豹猜测多线程的实质，操作系统实现了完善的进程调度，而同样的事情我们要自己对线程再做一遍。线程的调度（包括同步异步、资源调配等等）也就是多线程编程具体要做的事。（还一片茫然的读者请去看任意一本操作系统课本前两三章的样子补补课）<br>&nbsp;&nbsp;&nbsp; 这篇文主要是科普，入门，建立概念，复杂的多线程实现练习之后再慢慢做，当然也会发文的。下一篇文我准备再科普一下POSIX标准的多线程编程，即pthread库的多线程编程。是的，我不打算研究win下的多线程API了，直言不讳的说，我对Windows有偏见。</rep,period></li>
+</ul>
 
       
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/5/3/win-Linux下去掉codeigniter框架网站URL中的index-php/" data-id="cifuqgnhl0029nt975tzrsosx" class="article-share-link" data-share="baidu" data-title="win/Linux下去掉codeigniter框架网站URL中的index.php">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/17/C-多线程初探——c-11篇/" data-id="cifuqgni9003bnt979zulp8nx" class="article-share-link" data-share="baidu" data-title="C++多线程初探——c++11篇">分享到</a>
       
 
       
-        <a href="http://blog.bipedalbit.net/2015/5/3/win-Linux下去掉codeigniter框架网站URL中的index-php/#ds-thread" class="article-comment-link">评论</a>
+        <a href="http://blog.bipedalbit.net/2015/10/17/C-多线程初探——c-11篇/#ds-thread" class="article-comment-link">评论</a>
       
 
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IIS7/">IIS7</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apache/">apache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/codeigniter/">codeigniter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nginx/">nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/php/">php</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/c-11/">c++11</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/多线程/">多线程</a></li></ul>
 
     </footer>
   </div>
@@ -179,15 +169,11 @@
     
 <nav id="article-nav">
   
-    <a href="/2015/6/9/Qt出现错误undefined-reference-to-vtable-for-XXXXX-XXX/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">下一篇</strong>
-      <div class="article-nav-title">
-        
-          Qt出现错误undefined reference to &#39;vtable for XXXXX.XXX&#39;
-        
-      </div>
-    </a>
   
+    <a href="/2015/10/13/python的SimpleHTTPServer/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">python的SimpleHTTPServer</div>
+    </a>
   
 </nav>
 
@@ -197,7 +183,7 @@
 
   <section id="comments">
     <!-- 多说评论框 start -->
-      <div class="ds-thread" data-thread-key="2015/5/3/win-Linux下去掉codeigniter框架网站URL中的index-php/" data-title="win/Linux下去掉codeigniter框架网站URL中的index.php" data-url="http://blog.bipedalbit.net/2015/5/3/win-Linux下去掉codeigniter框架网站URL中的index-php/"></div>
+      <div class="ds-thread" data-thread-key="2015/10/17/C-多线程初探——c-11篇/" data-title="C++多线程初探——c++11篇" data-url="http://blog.bipedalbit.net/2015/10/17/C-多线程初探——c-11篇/"></div>
     <!-- 多说评论框 end -->
     <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
     <script type="text/javascript">
