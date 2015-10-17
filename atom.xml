@@ -4,7 +4,7 @@
   <subtitle><![CDATA[为了证明并非止步不前，为了安慰被神牛震慑的心。]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://blog.bipedalbit.net/"/>
-  <updated>2015-10-17T16:20:19.879Z</updated>
+  <updated>2015-10-17T16:25:37.351Z</updated>
   <id>http://blog.bipedalbit.net/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://blog.bipedalbit.net/2015/10/17/C-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%88%9D%E6%8E%A2%E2%80%94%E2%80%94c-11%E7%AF%87/"/>
     <id>http://blog.bipedalbit.net/2015/10/17/C-多线程初探——c-11篇/</id>
     <published>2015-10-17T06:58:22.000Z</published>
-    <updated>2015-10-17T16:20:19.879Z</updated>
+    <updated>2015-10-17T16:25:37.351Z</updated>
     <content type="html"><![CDATA[<p>&nbsp;&nbsp;&nbsp; 今天被说C++出身的猿不会多线程跟不会C++有什么分别，于是放下刚到手的Go和R的书，痛定思痛准备来给自己补补课。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; C++新标准c++11出现之前（虽然“新”标准已经发布好几年了），大家用C++写多线程通常有两种方式：Unix/Linux下通常使用POSIX标准的pthread.h库，pthread并不是语言本身提供的内置库，gcc编译带pthread的程序时需要加上<code>-lpthread</code>标识参数；Windows下，win系列系统提供了一些线程API，但是由于gcc/g++等编译器的跨平台性，其实也可以在win下使用pthread。<br>&nbsp;&nbsp;&nbsp; 然而2011年夏天，c++11标准发布了，新C++有了许多方便的新特性，其中就包括内置的，对多线程的支持。gcc 4.6及以前的版本编译c++11标准的多线程程序时还要加<code>-pthread</code>标识参数（注意与区别pthread库的<code>-lpthread</code>参数的区别）。后来也默认的支持新C++的内置多线程了，实测gcc 4.8.4除了<code>-std=c++11</code>不加别的参数，能够顺利编译运行c++11的多线程程序。<br>&nbsp;&nbsp;&nbsp; 铺垫了这么多，下面就先来试试c++11的多线程吧。<br>&nbsp;&nbsp;&nbsp; helloWorld.cpp：</p>
 <pre><code><span class="comment">/* c++11线程类的所在，下面的std::thread和std::this_thread都在其中 */</span>
 <span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span>
@@ -65,11 +65,15 @@
 <li>thread::join()：这个方法将阻塞调用方法的线程（主线程），直到目标线程中的操作全部完成。这个方法返回之后，目标线程对象的状态就变为非活跃并可以被安全的释放了。换句话说，这个方法定义了一组线程同步关系。</li>
 <li>thread::detach()：应该有读者注意到了，detach是join的反义词，该方法的作用是从调用线程（主线程）中分离目标线程，让目标线程可以独立并行执行。调用detach方法后两个线程（调用线程和目标线程）都不会被阻塞或者被同步，而是会并行执行直到各自完成所有操作，谁完成执行谁就释放自己的资源，互不影响。（不是我啰嗦，文档原文就是这么说的）这个方法返回之后，目标线程对象的状态就变为非活跃并可以被安全的释放了。换句话说，这个方法定义了一组线程异步关系。</li>
 <li>thread::swap(thread&amp; x)：文档原文说是交换两个线程对象的<strong>状态</strong>，我表示不明白状态是指什么。实验表明应该是交换了线程与对象（句柄）的映射关系。thread类还重载了一个面向过程风格的swap方法版本：<code>void swap (thread&amp; x, thread&amp; y)</code>。</li>
-<li>thread::hardware_concurrency()：这是个静态成员函数，返回一个无符号整型，返回一个大概的（不一定准确，因为系统可以支持或限制每个进程创建的线程数）基于硬件的最大并行线程数。如果这个试图返回的值没有被系统很好的定义，返回0。<br>&nbsp;&nbsp;&nbsp; thread头文件中还有一个与thread并列的<a href="http://www.cplusplus.com/reference/thread/this_thread/" target="_blank" rel="external">this_thread类</a>，this_thread类非常简单，除了get_id方法只有另外三个方法：</li>
+<li>thread::hardware_concurrency()：这是个静态成员函数，返回一个无符号整型，返回一个大概的（不一定准确，因为系统可以支持或限制每个进程创建的线程数）基于硬件的最大并行线程数。如果这个试图返回的值没有被系统很好的定义，返回0。</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; thread头文件中还有一个与thread并列的<a href="http://www.cplusplus.com/reference/thread/this_thread/" target="_blank" rel="external">this_thread类</a>，this_thread类非常简单，除了get_id方法只有另外三个方法：</p>
+<ul>
 <li>this_thread::yield()：顾名思义，使当前线程退让，从执行状态变为就绪状态，使同优先级的线程有机会被重新调度进入执行状态。如果当前进程没什么毛病那么使它退让并没有太大意义，甚至可能不会造成事实上的线程执行顺序变化。yield方法应该在当前线程忙等别的线程而又没有被阻塞时执行。</li>
 <li>this_thread::sleep_until(const chrono::time_point<clock,duration>&amp; abs_time)：阻塞当前线程直到特定时间点，使当前线程至少等待到特定时间点后继续执行，参数是一种特定格式的时间点数据。</clock,duration></li>
-<li>this_thread::sleep_for(const chrono::duration<rep,period>&amp; rel_time)：阻塞当前线程一段时间，使当前线程至少等待特定时长后继续执行，参数是一种特定格式的时间段数据。<br>&nbsp;&nbsp;&nbsp; 其实c++11标准下，除了thread，还有其他四个用来支持多线程的辅助头文件：<a href="http://www.cplusplus.com/reference/atomic/" target="_blank" rel="external">atomic</a>、<a href="http://www.cplusplus.com/reference/mutex/" target="_blank" rel="external">mutex</a>、<a href="http://www.cplusplus.com/reference/condition_variable/" target="_blank" rel="external">condition_variable</a>、<a href="http://www.cplusplus.com/reference/future/" target="_blank" rel="external">future</a>。前三个很好理解，分别提供封装好的原子数据类型、互斥锁设备和条件值，future头文件里提供的是一些对分享的数据资源进行竞争的必须设备（我很迷茫头文件为什么不干脆叫share而是叫future这个让人摸不着头脑的名字）。如果读者熟悉操作系统或者进程调度，一定不会对前面这些东西感到陌生。<br>&nbsp;&nbsp;&nbsp; 我们不难管中窥豹猜测多线程的实质，操作系统实现了完善的进程调度，而同样的事情我们要自己对线程再做一遍。线程的调度（包括同步异步、资源调配等等）也就是多线程编程具体要做的事。（还一片茫然的读者请去看任意一本操作系统课本前两三章的样子补补课）<br>&nbsp;&nbsp;&nbsp; 这篇文主要是科普，入门，建立概念，复杂的多线程实现练习之后再慢慢做，当然也会发文的。下一篇文我准备再科普一下POSIX标准的多线程编程，即pthread库的多线程编程。是的，我不打算研究win下的多线程API了，直言不讳的说，我对Windows有偏见。</rep,period></li>
+<li>this_thread::sleep_for(const chrono::duration<rep,period>&amp; rel_time)：阻塞当前线程一段时间，使当前线程至少等待特定时长后继续执行，参数是一种特定格式的时间段数据。</rep,period></li>
 </ul>
+<p>&nbsp;&nbsp;&nbsp; 其实c++11标准下，除了thread，还有其他四个用来支持多线程的辅助头文件：<a href="http://www.cplusplus.com/reference/atomic/" target="_blank" rel="external">atomic</a>、<a href="http://www.cplusplus.com/reference/mutex/" target="_blank" rel="external">mutex</a>、<a href="http://www.cplusplus.com/reference/condition_variable/" target="_blank" rel="external">condition_variable</a>、<a href="http://www.cplusplus.com/reference/future/" target="_blank" rel="external">future</a>。前三个很好理解，分别提供封装好的原子数据类型、互斥锁设备和条件值，future头文件里提供的是一些对分享的数据资源进行竞争的必须设备（我很迷茫头文件为什么不干脆叫share而是叫future这个让人摸不着头脑的名字）。如果读者熟悉操作系统或者进程调度，一定不会对前面这些东西感到陌生。<br>&nbsp;&nbsp;&nbsp; 我们不难管中窥豹猜测多线程的实质，操作系统实现了完善的进程调度，而同样的事情我们要自己对线程再做一遍。线程的调度（包括同步异步、资源调配等等）也就是多线程编程具体要做的事。（还一片茫然的读者请去看任意一本操作系统课本前两三章的样子补补课）<br>&nbsp;&nbsp;&nbsp; 这篇文主要是科普，入门，建立概念，复杂的多线程实现练习之后再慢慢做，当然也会发文的。下一篇文我准备再科普一下POSIX标准的多线程编程，即pthread库的多线程编程。是的，我不打算研究win下的多线程API了，直言不讳的说，我对Windows有偏见。</p>
 ]]></content>
     <summary type="html">
     <![CDATA[<p>&nbsp;&nbsp;&nbsp; 今天被说C++出身的猿不会多线程跟不会C++有什么分别，于是放下刚到手的Go和R的书，痛定思痛准备来给自己补补课。<br>]]>
