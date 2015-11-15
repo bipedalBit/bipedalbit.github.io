@@ -6,16 +6,16 @@
   
   <title>人机博弈初探 | Hacking to the gate!</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 组里布置任务编个中国象棋人机博弈程序练练手，写这篇文时游戏初版已经完成了。开工前导师给了些相关资料，我自己又稍微做了些调查，这篇文就先来对人机博弈，尤其是棋牌游戏的人机博弈思路做一些概念上的科普铺垫。做好了概念铺垫，下一篇再挑重点简单讲解下我的中国象棋游戏实现情况。">
+  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 组里布置任务，要编个中国象棋人机博弈程序练练手，写这篇文时游戏初版已经完成了。开工前导师给了些相关资料，我自己又稍微做了些调查，这篇文就先来对人机博弈，尤其是棋牌游戏的人机博弈思路做一些概念上的科普铺垫。做好了概念铺垫，下一篇再挑重点简单讲解下我的中国象棋游戏实现情况。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="人机博弈初探">
 <meta property="og:url" content="http://blog.bipedalbit.net/2015/11/14/人机博弈初探/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
-<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 组里布置任务编个中国象棋人机博弈程序练练手，写这篇文时游戏初版已经完成了。开工前导师给了些相关资料，我自己又稍微做了些调查，这篇文就先来对人机博弈，尤其是棋牌游戏的人机博弈思路做一些概念上的科普铺垫。做好了概念铺垫，下一篇再挑重点简单讲解下我的中国象棋游戏实现情况。">
-<meta property="og:updated_time" content="2015-11-14T17:04:45.239Z">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 组里布置任务，要编个中国象棋人机博弈程序练练手，写这篇文时游戏初版已经完成了。开工前导师给了些相关资料，我自己又稍微做了些调查，这篇文就先来对人机博弈，尤其是棋牌游戏的人机博弈思路做一些概念上的科普铺垫。做好了概念铺垫，下一篇再挑重点简单讲解下我的中国象棋游戏实现情况。">
+<meta property="og:updated_time" content="2015-11-15T06:46:12.460Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="人机博弈初探">
-<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 组里布置任务编个中国象棋人机博弈程序练练手，写这篇文时游戏初版已经完成了。开工前导师给了些相关资料，我自己又稍微做了些调查，这篇文就先来对人机博弈，尤其是棋牌游戏的人机博弈思路做一些概念上的科普铺垫。做好了概念铺垫，下一篇再挑重点简单讲解下我的中国象棋游戏实现情况。">
+<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 组里布置任务，要编个中国象棋人机博弈程序练练手，写这篇文时游戏初版已经完成了。开工前导师给了些相关资料，我自己又稍微做了些调查，这篇文就先来对人机博弈，尤其是棋牌游戏的人机博弈思路做一些概念上的科普铺垫。做好了概念铺垫，下一篇再挑重点简单讲解下我的中国象棋游戏实现情况。">
   
     <link rel="alternative" href="/atom.xml" title="Hacking to the gate!" type="application/atom+xml">
   
@@ -98,7 +98,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&nbsp;&nbsp;&nbsp; 组里布置任务编个中国象棋人机博弈程序练练手，写这篇文时游戏初版已经完成了。开工前导师给了些相关资料，我自己又稍微做了些调查，这篇文就先来对人机博弈，尤其是棋牌游戏的人机博弈思路做一些概念上的科普铺垫。做好了概念铺垫，下一篇再挑重点简单讲解下我的中国象棋游戏实现情况。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; 其实人工智能课的大作业也是要写个概念总结，我干脆把那篇改改贴上来。</p>
+        <p>&nbsp;&nbsp;&nbsp; 组里布置任务，要编个中国象棋人机博弈程序练练手，写这篇文时游戏初版已经完成了。开工前导师给了些相关资料，我自己又稍微做了些调查，这篇文就先来对人机博弈，尤其是棋牌游戏的人机博弈思路做一些概念上的科普铺垫。做好了概念铺垫，下一篇再挑重点简单讲解下我的中国象棋游戏实现情况。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; 其实人工智能课的大作业也是要写个概念总结，我干脆把那篇改改贴上来。</p>
 <h1 id="1_博弈树搜索算法">1 博弈树搜索算法</h1><p>&nbsp;&nbsp;&nbsp; 人机博弈的过程实质上是对博弈树——一种状态树的搜索，是一种博弈论中的重复博弈过程。博弈树与状态树的不同之处在于，对每一层搜索来说，目标状态会有区别，如果第奇数层搜索的目标是寻找对电脑来说最好的搜索状态，那么第偶数层的搜索中，目标状态则应该是人类行动可能导致的新状态。这种搜索算法不能单纯等同于图论中对状态树的深度或广度优先搜索算法，但是与传统的状态树搜索算法有莫大的渊源。</p>
 <h2 id="1-1_极大极小值算法（Minmax_Algorithm）">1.1 极大极小值算法（Minmax Algorithm）</h2><p>&nbsp;&nbsp;&nbsp; 极大极小值算法是一系列改进的博弈树搜索算法的最原始的基础。它的基本思想是，在每层搜索前评估状态结点，在博弈树首层搜索一个评估值最大的状态结点作为电脑选择的最优行动方式，那么下一层就搜索评估值最小的状态结点来模拟人类对手的行动。重复这一博弈过程的博弈树搜索算法就称为极大极小值算法。<br>&nbsp;&nbsp;&nbsp; 在棋类游戏中，人机博弈搜索算法通常是基于深度优先搜索的。因为如果使用广度优先算法来遍历博弈树，内存中的状态结点将迅速变多，马上耗尽所有可用的内存空间。而深度优先搜索的过程中，向搜索树根结点回溯时会释放原本占用的栈空间。这使得搜索算法的内存开销只与搜索深度线性相关。</p>
 <h2 id="1-2_负极大值算法（Negamax_Algorithm）">1.2 负极大值算法（Negamax Algorithm）</h2><p>&nbsp;&nbsp;&nbsp; 负极大值算法是对极大极小值算法的简单改进。当准备模拟人类行动，不去找评估值最小的状态结点，而是依旧寻找评估值最大的状态结点，只是在向搜索树上一层反馈搜索结果（最大评估值）时，进行一次正负翻转。这样一来可以通过引入带符号的状态评估值，简化最大最小值算法的形式。实际上，这种优化算法与最大最小值算法相比并没有效率上的不同。</p>
@@ -131,7 +131,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/11/14/人机博弈初探/" data-id="cigzcg3r3002lu797tx99ochy" class="article-share-link" data-share="baidu" data-title="人机博弈初探">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/11/14/人机博弈初探/" data-id="cih05styp002lib977fixy11w" class="article-share-link" data-share="baidu" data-title="人机博弈初探">分享到</a>
       
 
       
