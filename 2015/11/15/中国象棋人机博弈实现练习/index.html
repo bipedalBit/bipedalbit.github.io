@@ -1,0 +1,733 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>中国象棋人机博弈实现练习 | Hacking to the gate!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集">
+<meta property="og:type" content="article">
+<meta property="og:title" content="中国象棋人机博弈实现练习">
+<meta property="og:url" content="http://blog.bipedalbit.net/2015/11/15/中国象棋人机博弈实现练习/index.html">
+<meta property="og:site_name" content="Hacking to the gate!">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集">
+<meta property="og:updated_time" content="2015-11-19T06:02:25.972Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="中国象棋人机博弈实现练习">
+<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集">
+  
+    <link rel="alternative" href="/atom.xml" title="Hacking to the gate!" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" type="image/x-png" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <link href="//fonts.useso.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
+  
+</head>
+<body>
+<div id="container">
+  <div id="wrap">
+    <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hacking to the gate!</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">为了证明并非止步不前，为了安慰被神牛震慑的心。</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="http://www.baidu.com/baidu" method="get" accept-charset="utf-8" class="search-form">
+          <input type="search" name="word" maxlength="20" class="search-form-input" placeholder="Search">
+          <input type="submit" value="" class="search-form-submit">
+          <input name=tn type=hidden value="bds">
+          <input name=cl type=hidden value="3">
+          <input name=ct type=hidden value="2097152">
+          <input type="hidden" name="si" value="blog.bipedalbit.net">
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+    <div class="outer">
+      <section id="main"><article id="post-中国象棋人机博弈实现练习" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/11/15/中国象棋人机博弈实现练习/" class="article-date">
+  <time datetime="2015-11-15T13:54:03.000Z" itemprop="datePublished">2015-11-15</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/人机博弈/">人机博弈</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      中国象棋人机博弈实现练习
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>&nbsp;&nbsp;&nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集大成者。但是等把MTD(f)实现完，发现里面一层就是个AlphaBeta，于是AlphaBeta的搜索核心作为副产品也存在于实现成果中了。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; 我并不打算在这里贴包括Qt5的GUI实现代码在内的所有大概3500行代码（当然其中至少700行可能是注释），主要讲解一下我的实现思路，偶尔贴一些关键代码。完整项目源码我在GitHub建了仓库，这篇文最后会贴地址，读者也可以自己去我Git找找看，毕竟我一共也没建过几个仓库。下面开始正题。</p>
+<h1 id="1_需求分析">1 需求分析</h1><ul>
+<li>GUI：为了方便人工测试，灵活直观的展现测试结果<del>也方便随时嘚瑟</del>，中国象棋人机博弈程序的实现应该有GUI（图形用户界面）。</li>
+<li>通用部件：应该根据实际需要设计比较高效的、节省空间的、通用的局面表示部件与走法表示部件。</li>
+<li>走法生成器：为了给并行计算和分布式计算做准备，应该设计通用的走法生成器接口。至少实现一个可靠的串行计算的走法生成器。</li>
+<li>搜索核心：为了方便扩展与迭代开发，应该设计通用的搜索核心接口。若干不同版本的走法核心也应该被实现。</li>
+<li>局面评估核心：考虑到短期内难以获得经过结构化解析的对局数据或棋谱，只实现一个参数可在代码中调整的静态局面评估核心，通用局面评估核心接口不予实现，暂时搁置等待重构。</li>
+</ul>
+<h1 id="2_概要设计">2 概要设计</h1><h2 id="2-1_GUI">2.1 GUI</h2><p>&nbsp;&nbsp;&nbsp; 图形界面中棋盘、棋子的图形是必要组成部分。<br>&nbsp;&nbsp;&nbsp; 此外考虑到人机博弈回合间电脑变动棋子位置太突兀，玩家有时甚至难以察觉棋子位置的变化，应当添加当前选定棋子的标记（对电脑方的棋子来说则是上一步刚被操作过的棋子的标记）。<br>&nbsp;&nbsp;&nbsp; 应当可以选择玩家先手开局或后手开局。<br>&nbsp;&nbsp;&nbsp; 应当有开局按钮。<br>&nbsp;&nbsp;&nbsp; 最好也有悔棋或状态回退按钮。<br>&nbsp;&nbsp;&nbsp; 应当可以在每轮电脑回合前更改电脑使用的搜索核心种类。<br>&nbsp;&nbsp;&nbsp; 应当可以在每轮电脑回合前更改电脑搜索的深度（模拟对局回合数）。<br>&nbsp;&nbsp;&nbsp; 应该显示每轮电脑搜索中评估的局面数量和搜索用时，方便在测试时对算法效率和优化效果进行评估。</p>
+<h2 id="2-2_通用部件">2.2 通用部件</h2><p>&nbsp;&nbsp;&nbsp; 最基本的通用部件应该是<em>棋盘位置的表示部件</em>，这个部件首先应当提供位置坐标的设置与查询方法。该部件还可能需要提供一些获取棋盘特定位置属性的方法，以辅助走法生成和局面评估。该部件的变量成员或容器应当进行适当的状态压缩以节省空间。<br>&nbsp;&nbsp;&nbsp; <em>走法表示部件</em>将提供特定走法的属性查询方法，如移动的棋子序号，走法中是否有棋子被吃，移动棋子的起点坐标和终点坐标。走法表示部件将使用棋盘位置表示部件做一些具体的实现。<br>&nbsp;&nbsp;&nbsp; 恰当的<em>局面状态表示部件</em>也是必要的。这个部件将直接为走法生成器和评估核心提供所有棋子的位置、状态查询方法，所有棋子相对位置的属性查询方法，以及所有棋盘特定位置的属性查询方法，棋子位置变更时的局面更新方法，棋子位置变更时的变更回退方法等。毫无疑问局面表示部件将使用棋盘位置表示部件和走法表示部件来实现所需的方法。</p>
+<h2 id="2-3_走法生成器">2.3 走法生成器</h2><p>&nbsp;&nbsp;&nbsp; 不管计算形式是串行还是并行的，走法生成器应该按照中国象棋规则提供特定局面下合法的所有走法，并装载在一个走法容器中以备查询。合法的走法除需要符合基本的中国象棋行棋规则之外，还应该根据已走局面剔除循环走法。</p>
+<h2 id="2-4_搜索核心">2.4 搜索核心</h2><p>&nbsp;&nbsp;&nbsp; 搜索核心应该作为游戏程序的主线索，调用走法生成器和局面评估核心对接下来的人机博弈状态做一系列的预演，然后给出相对最好的走法。搜索过程中还应该收集一些程序运行信息，比如评估结点数，搜索时间。搜索每一个新层次时势必要管理搜索树占用的内存空间，应该给出一个可行的空间管理方案。</p>
+<h2 id="2-5_局面评估核心">2.5 局面评估核心</h2><p>&nbsp;&nbsp;&nbsp; 如前所述，暂且只要求实现一个基于少量中国象棋实际经验和主观猜测的评估函数。这个评估函数可能会需要一个类似于走法生成器但有所不同的“棋子影响力覆盖范围生成器”作为工具函数。</p>
+<h1 id="3_详细设计">3 详细设计</h1><h2 id="3-1_GUI">3.1 GUI</h2><p>&nbsp;&nbsp;&nbsp; Qt5设计GUI有多方便相信用过的读者都有体会，无非就是拖拖控件写写槽函数加点资源调调样式。<br>&nbsp;&nbsp;&nbsp; 本来我想在轮到电脑的回合时间显示一个正在加载时的常见gif图片，但发现这涉及到Qt5的并行计算方式。经过简单的尝试（利用QtConcurrent类）后发现无法在不同线程中顺畅管理相同的控件状态，这可能是资源同步互斥管理的问题（这里相信一些读者会联想到一个关于多线程的笑话：一个程序员遇到了一个问题，想通过多线程来解决它，现在他有两个问题了），于是干脆放弃显示图片的想法了，你将在我的Qt源码中发现我尝试的痕迹。<br>&nbsp;&nbsp;&nbsp; 另一点稍微值得一提的事是，我在准备好一切，要开始写点击棋子的槽函数的时候发现，QLabel控件居然没有Clicked默认事件，看来我是Web应用写多了有点惯性思维了。于是我只好自定义了一个ClickableLabel类，这个类是对QLabel类的封装，重载了基类QWidget的mouseReleaseEvent方法，在方法里发射了一个clicked消息。最后把所有需要点击互动的QLabel提升成了ClickableLabel，并添加了ClickableLabel的clicked消息的槽函数。<br>&nbsp;&nbsp;&nbsp; clickablelable.h：</p>
+<pre><code><span class="preprocessor">#<span class="keyword">ifndef</span> CLICKABLELABEL_H</span>
+<span class="preprocessor">#<span class="keyword">define</span> CLICKABLELABEL_H</span>
+
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;QLabel&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;QWidget&gt;</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;QPoint&gt;</span></span>
+
+<span class="keyword">class</span> ClickableLabel : <span class="keyword">public</span> QLabel
+{
+    Q_OBJECT
+<span class="keyword">public</span>:
+    <span class="function"><span class="keyword">explicit</span> <span class="title">ClickableLabel</span><span class="params">(QWidget* parent = <span class="number">0</span>)</span></span>;
+    ~ClickableLabel();
+signals:
+    <span class="function"><span class="keyword">void</span> <span class="title">clicked</span><span class="params">(ClickableLabel* clickableLabel)</span></span>;
+    <span class="function"><span class="keyword">void</span> <span class="title">clicked</span><span class="params">(QPoint pos, ClickableLabel* clickableLabel)</span></span>;
+<span class="keyword">protected</span>:
+    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mouseReleaseEvent</span><span class="params">(QMouseEvent *event)</span></span>;
+};
+
+<span class="preprocessor">#<span class="keyword">endif</span> <span class="comment">// CLICKABLELABEL_H</span></span>
+</code></pre><p>&nbsp;&nbsp;&nbsp; clickablelable.cpp：</p>
+<pre><code><span class="id">#include</span> "<span class="tag">clickablelabel</span><span class="class">.h</span>"
+<span class="id">#include</span> "<span class="tag">QMouseEvent</span>"
+
+<span class="rule"><span class="attribute">ClickableLabel</span>:<span class="value">:<span class="function">ClickableLabel</span>(QWidget* parent)
+    : <span class="function">QLabel</span>(parent)
+{
+}
+
+ClickableLabel::~<span class="function">ClickableLabel</span>()
+{
+}
+
+void ClickableLabel::<span class="function">mouseReleaseEvent</span>(QMouseEvent* event)
+{
+    emit <span class="function">clicked</span>(this)</span></span>;
+    <span class="tag">emit</span> <span class="tag">clicked</span>(<span class="tag">event-</span>&gt;<span class="tag">pos</span>(), <span class="tag">this</span>);
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; 还挺简单的，不是吗？</p>
+<h2 id="3-2_通用部件">3.2 通用部件</h2><h3 id="3-2-1_棋盘位置表示部件">3.2.1 棋盘位置表示部件</h3><p>&nbsp;&nbsp;&nbsp; 我为棋盘位置表示部件实现了一个Position类，只有一个unsigned char型成员变量，８位，一个字节，高四位表示纵坐标即行序号，第四位表示横坐标即列序号，全１有两个方面的含义：对特定棋子来书，当前位置坐标全１表示该棋子已经被吃；对棋盘上特定位置来说，全１表示棋盘上这个位置没有棋子。<br>&nbsp;&nbsp;&nbsp; 因为这个类中的横纵坐标是状态压缩的，需要分别提供横纵坐标的提取／解析方法x()、y()，还有棋子死活／有无的判定及设置方法dead()、kill()。具体实现都是些简单的位运算，比如取第四位用按位与，取高四位用位移。比较局面状态难免要做一系列的棋盘位置比较，所以还实现了“==”和“!=”符号。<br>&nbsp;&nbsp;&nbsp; 后面在搜索核心的实现有时候会用到置换表，生成hash key需要获取底层的坐标存储数据，所以这个类还有个突兀的友元声明。</p>
+<h3 id="3-2-2_走法表示部件">3.2.2 走法表示部件</h3><p>&nbsp;&nbsp;&nbsp; 走法表示使用四个成员变量：移动的棋子序号、被吃的棋子序号、原棋盘位置、新棋盘位置，全部使用unsigned char型变量，共４个字节。实现这个类时我偷了个懒，干脆把成员变量访问限定符都定为public了，于是除了空构造函数和一个初始化所有成员变量的重载，只写了一个比较符号“==”。没什么特别的。</p>
+<h3 id="3-2-3_局面状态表示部件">3.2.3 局面状态表示部件</h3><p>&nbsp;&nbsp;&nbsp; 这个部件还比较有意思。实际上，写游戏初版时，因为走法生成器，搜索核心或评估核心内部实现过程不顺心，曾经一度重构通用部件，其中也伴随着通用部件新需求的不断提出。作为直接向三大模块提供服务的部件，局面状态表示部件的修改最为频繁。<br>&nbsp;&nbsp;&nbsp; 资料提出的中国象棋棋盘状态存储模型有：</p>
+<ul>
+<li>用32颗棋子的棋盘分布（32*10*9个比特）来保存局面状态；</li>
+<li>用14种棋子的棋盘分布（14*10*9个比特）来保存局面状态；</li>
+<li>用10*9个棋盘位置上32颗棋子的互斥存在标识（10*9*5个比特）来保存局面状态；</li>
+<li>用10*9个棋盘位置上14种棋子的互斥存在标识（10*9*4个比特）来保存局面状态；</li>
+<li>用32颗棋子的坐标值（32*8个比特）来保存局面状态。</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; 可以看出，上述模型占用空间的大小依次递减。如果比较占用空间大小，第五种模型显然最优。但是实现走法生成器和评估核心时，需要对棋子相对位置上的棋子有无、棋子归属进行大量查询。如果每次针对特定棋盘位置的棋子查询都通过遍历32颗棋子来完成，何况每颗棋子都需要对若干个相对位置做棋子查询，尤其是車、炮这种自由度很大的棋子，恐怕随着搜索树的展开，将累计很大的时间开销。<br>&nbsp;&nbsp;&nbsp; 那么如果换用第四种模型呢？特定棋子相对位置的状态可以直接查询到了，同类查询的时间开销降到了第五种模型的1/32。那么如果选用第四种模型，除了稍多一些的空间开销，有没有做出别的牺牲呢？当我们想要查询特定棋子的坐标，不再能够直接查到了，我们需要遍历整个棋盘来寻找一颗棋子，还需要标记这颗棋子是否同类棋子（同归属方、同兵种）中我们需要的那一颗。同类查询的时间开销变成了原来的90倍以上。这并不是一个典型的、合算的空间换时间型优化。<br>&nbsp;&nbsp;&nbsp; 我们重新思考一下局面表示部件在搜索过程中的实际使用情况，不难发现，如果把当前局面作为一个引用参数引入搜索核心类，那么整个搜索过程中，不论采用怎样的局面表示模型，不论对当前局面状态做了多少次更新和回退，空间开销的差别其实微乎其微。真正对空间开销起明显作用的是走法表示部件的数据结构。想到这里不禁觉得一阵无力感袭来，局面状态表示部件的状态压缩是不太有意义的。<br>&nbsp;&nbsp;&nbsp; 那么我们现在可以专注于提高局面状态表示部件中各种方法的时间效率而无视空间开销了。于是我用了一个双向索引，即同时在部件中使用第一种模型和第五种模型。这样不管按棋子序号查询坐标还是按特定坐标查询棋盘位置状态，都可以以常数级的时间开销完成查询过程。当然还实现了许多为三大模块提供服务的方法，还需要记录局面评分和主动权归属。<br>&nbsp;&nbsp;&nbsp; State.h：</p>
+<pre><code><span class="preprocessor">#<span class="keyword">ifndef</span> _STATE_H_</span>
+<span class="preprocessor">#<span class="keyword">define</span> _STATE_H_</span>
+
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">"Position.h"</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">"Move.h"</span></span>
+
+<span class="comment">/* 棋子序号 */</span>
+<span class="comment">/* 红帅 */</span>
+<span class="preprocessor">#<span class="keyword">define</span> R_KING <span class="number">0</span></span>
+<span class="comment">/* 红仕序号起点（序号个数2） */</span>
+<span class="preprocessor">#<span class="keyword">define</span> R_MANDARIN <span class="number">1</span></span>
+<span class="comment">/* 红相序号起点（序号个数2） */</span>
+<span class="preprocessor">#<span class="keyword">define</span> R_ELEPHANT <span class="number">3</span></span>
+<span class="comment">/* 红马序号起点（序号个数2） */</span>
+<span class="preprocessor">#<span class="keyword">define</span> R_KNIGHT <span class="number">5</span></span>
+<span class="comment">/* 红車序号起点（序号个数2） */</span>
+<span class="preprocessor">#<span class="keyword">define</span> R_ROOK <span class="number">7</span></span>
+<span class="comment">/* 红炮序号起点（序号个数2） */</span>
+<span class="preprocessor">#<span class="keyword">define</span> R_CANNON <span class="number">9</span></span>
+<span class="comment">/* 红兵序号起点（序号个数5） */</span>
+<span class="preprocessor">#<span class="keyword">define</span> R_PAWN <span class="number">11</span></span>
+<span class="comment">/* 红子序号起点 */</span>
+<span class="preprocessor">#<span class="keyword">define</span> R_BEGIN R_KING</span>
+<span class="comment">/* 红子序号终点 */</span>
+<span class="preprocessor">#<span class="keyword">define</span> R_END R_PAWN+<span class="number">4</span></span>
+<span class="comment">/* 黑将 */</span>
+<span class="preprocessor">#<span class="keyword">define</span> B_KING <span class="number">16</span></span>
+<span class="comment">/* 黑士序号起点（序号个数2） */</span>
+<span class="preprocessor">#<span class="keyword">define</span> B_MANDARIN <span class="number">17</span></span>
+<span class="comment">/* 黑象序号起点（序号个数2） */</span>
+<span class="preprocessor">#<span class="keyword">define</span> B_ELEPHANT <span class="number">19</span></span>
+<span class="comment">/* 黑马序号起点（序号个数2） */</span>
+<span class="preprocessor">#<span class="keyword">define</span> B_KNIGHT <span class="number">21</span></span>
+<span class="comment">/* 黑車序号起点（序号个数2） */</span>
+<span class="preprocessor">#<span class="keyword">define</span> B_ROOK <span class="number">23</span></span>
+<span class="comment">/* 黑炮序号起点（序号个数2） */</span>
+<span class="preprocessor">#<span class="keyword">define</span> B_CANNON <span class="number">25</span></span>
+<span class="comment">/* 黑卒序号起点（序号个数5） */</span>
+<span class="preprocessor">#<span class="keyword">define</span> B_PAWN <span class="number">27</span></span>
+<span class="comment">/* 黑子序号起点 */</span>
+<span class="preprocessor">#<span class="keyword">define</span> B_BEGIN B_KING</span>
+<span class="comment">/* 黑子序号终点 */</span>
+<span class="preprocessor">#<span class="keyword">define</span> B_END B_PAWN+<span class="number">4</span></span>
+<span class="comment">/* 坐标数组中表示棋子已被吃 */</span>
+<span class="preprocessor">#<span class="keyword">define</span> DEAD <span class="number">0xff</span></span>
+<span class="comment">/* 棋子数组中表示坐标无棋子占用 */</span>
+<span class="preprocessor">#<span class="keyword">define</span> NONE DEAD</span>
+
+<span class="comment">/* 局面状态类：32+90=122字节 */</span>
+<span class="comment">/* 这个类负责记录局面状态，包括局面的棋子索引的状态和坐标索引的状态。 */</span>
+<span class="comment">/* 坐标索引的状态提供坐标优先的快速状态查询； */</span>
+<span class="comment">/* 棋子索引的状态提供棋子优先的快速状态查询。 */</span>
+<span class="keyword">class</span> State
+{
+<span class="keyword">public</span>:
+    <span class="comment">/* 当前局面下红方是否持有行动权 */</span>
+    <span class="keyword">bool</span> RTurn;
+    <span class="comment">/* 根据中国象棋规则初始化局面状态 */</span>
+    State();
+    <span class="comment">/* 根据走法更新棋盘状态 */</span>
+    <span class="function"><span class="keyword">void</span> <span class="title">move</span><span class="params">(<span class="keyword">const</span> Move &amp;m)</span></span>;
+    <span class="comment">/* 还原按走法还原更新前的棋盘状态 */</span>
+    <span class="function"><span class="keyword">void</span> <span class="title">undo</span><span class="params">(<span class="keyword">const</span> Move &amp;m)</span></span>;
+    <span class="comment">/* 获取特定棋子行号，即棋子y坐标 */</span>
+    <span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> <span class="title">y</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> chessNo)</span> <span class="keyword">const</span></span>;
+    <span class="comment">/* 获取特定棋子列号，即棋子x坐标 */</span>
+    <span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> <span class="title">x</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> chessNo)</span> <span class="keyword">const</span></span>;
+    <span class="comment">/* 获取特定坐标上的棋子序号或空序号 */</span>
+    <span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> <span class="title">getNo</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> x, <span class="keyword">unsigned</span> <span class="keyword">char</span> y)</span> <span class="keyword">const</span></span>;
+    <span class="comment">/* 存活判定 */</span>
+    <span class="function"><span class="keyword">bool</span> <span class="title">isAlive</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> chessNo)</span> <span class="keyword">const</span></span>;
+    <span class="comment">/* 红子判定 */</span>
+    <span class="function"><span class="keyword">bool</span> <span class="title">isRed</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> chessNo)</span> <span class="keyword">const</span></span>;
+    <span class="comment">/* 黑子判定 */</span>
+    <span class="function"><span class="keyword">bool</span> <span class="title">isBlack</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> chessNo)</span> <span class="keyword">const</span></span>;
+    <span class="comment">/* 友方判定 */</span>
+    <span class="function"><span class="keyword">bool</span> <span class="title">isFriend</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> chessNo1, <span class="keyword">unsigned</span> <span class="keyword">char</span> chessNo2)</span> <span class="keyword">const</span></span>;
+    <span class="comment">/* 特定棋子相对位置处是否有子 */</span>
+    <span class="function"><span class="keyword">bool</span> <span class="title">relExist</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> chessNo, <span class="keyword">char</span> x, <span class="keyword">char</span> y)</span> <span class="keyword">const</span></span>;
+    <span class="comment">/* 特定棋子相对位置处是否有红子 */</span>
+    <span class="function"><span class="keyword">bool</span> <span class="title">relRedExist</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> chessNo, <span class="keyword">char</span> x, <span class="keyword">char</span> y)</span> <span class="keyword">const</span></span>;
+    <span class="comment">/* 特定棋子相对位置处是否有黑子 */</span>
+    <span class="function"><span class="keyword">bool</span> <span class="title">relBlackExist</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> chessNo, <span class="keyword">char</span> x, <span class="keyword">char</span> y)</span> <span class="keyword">const</span></span>;
+    <span class="comment">/* 判断当前棋局是否已经结束，即一方的将/帅已经被吃 */</span>
+    <span class="function"><span class="keyword">bool</span> <span class="title">isDone</span><span class="params">()</span> <span class="keyword">const</span></span>;
+    <span class="comment">/* 定义一个相等运算符，unordered_map要用 */</span>
+    <span class="keyword">bool</span> <span class="keyword">operator</span> == (<span class="keyword">const</span> State state) <span class="keyword">const</span>;
+    <span class="comment">/* 允许KeyHash类访问私有成员 */</span>
+    <span class="keyword">friend</span> <span class="keyword">class</span> KeyHash;
+<span class="keyword">private</span>:
+    <span class="comment">/* 使用双向索引，加快两个方向的查询速度 */</span>
+    <span class="comment">/* 棋子序号索引的坐标数组：32字节 */</span>
+    Position posList[<span class="number">32</span>];
+    <span class="comment">/* 棋盘坐标索引的棋子数组：90字节 */</span>
+    <span class="comment">/* 二维数组的每个单元为一个8位整型数，用来表示坐标占用情况 */</span>
+    <span class="comment">/* 即与坐标数组通用的棋子序号和一个额外的表示空的序号0xff */</span>
+    <span class="keyword">unsigned</span> <span class="keyword">char</span> board[<span class="number">10</span>][<span class="number">9</span>];
+};
+
+<span class="preprocessor">#<span class="keyword">endif</span></span>
+</code></pre><p>&nbsp;&nbsp;&nbsp; 具体方法实现都很简单，就不在这贴代码了。</p>
+<h2 id="3-3_走法生成器">3.3 走法生成器</h2><p>&nbsp;&nbsp;&nbsp; 这是我认为中国象棋游戏中实现起来最繁琐的一个模块了，这里无法回避中国象棋零散的行棋规则。<br>&nbsp;&nbsp;&nbsp; 将／帅除了直面对方将／帅时可以飞过去吃掉对方，平时只能在己方的“帅府”九宫格中向没有己方棋子且不超出棋盘的位置做下列４种移动：</p>
+<ul>
+<li><code>(x, y) -&gt; (x-1, y)</code></li>
+<li><code>(x, y) -&gt; (x+1, y)</code></li>
+<li><code>(x, y) -&gt; (x, y-1)</code></li>
+<li><code>(x, y) -&gt; (x, y+1)</code></li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; 士／仕只能在己方“帅府”九宫格中向没有己方棋子且不超出棋盘的位置做下列４种移动：</p>
+<ul>
+<li><code>(x, y) -&gt; (x-1, y-1)</code></li>
+<li><code>(x, y) -&gt; (x+1, y-1)</code></li>
+<li><code>(x, y) -&gt; (x-1, y+1)</code></li>
+<li><code>(x, y) -&gt; (x+1, y+1)</code></li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; 象／相只能在己方阵地的五行内，在不被“遮象眼”的情况下“走田字”，即向没有己方棋子且不超出棋盘的位置做下列４种尝试：</p>
+<ul>
+<li>(x-1, y-1)处无子则<code>(x, y) -&gt; (x-2, y-2)</code></li>
+<li>(x+1, y-1)处无子则<code>(x, y) -&gt; (x+2, y-2)</code></li>
+<li>(x-1, y+1)处无子则<code>(x, y) -&gt; (x-2, y+2)</code></li>
+<li>(x+1, y+1)处无子则<code>(x, y) -&gt; (x+2, y+2)</code></li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; 马只能在不被“別马腿”的情况下“走日字”，即向没有己方棋子且不超出棋盘的位置做下列８种尝试：</p>
+<ul>
+<li>(x-1, y)处无子则<code>(x, y) -&gt; (x-2, y-1), (x, y) -&gt; (x-2, y+1)</code></li>
+<li>(x+1, y)处无子则<code>(x, y) -&gt; (x+2, y-1), (x, y) -&gt; (x+2, y+1)</code></li>
+<li>(x, y-1)处无子则<code>(x, y) -&gt; (x-1, y-2), (x, y) -&gt; (x+1, y-2)</code></li>
+<li>(x, y+1)处无子则<code>(x, y) -&gt; (x-1, y+2), (x, y) -&gt; (x+1, y+2)</code></li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; 車可以在上、下、左、右四个方向上在不超出棋盘又无棋子阻挡“视线”的前提下尝试移动任意距离，当遇到第一颗阻挡“视线”的棋子，如果棋子归属方不同，还可以吃子，取代那颗棋子的位置。<br>&nbsp;&nbsp;&nbsp; 炮有两种移动模式，即非吃子或吃子。非吃子模式下，炮可以在上、下、左、右四个方向上在不超出棋盘又无棋子阻挡“视线”的前提下尝试移动任意距离；吃子模式下，炮首先要在上、下、左、右四个方向上找到一颗阻挡“视线”的棋子，然后跳过这颗棋子，继续向前寻找阻挡“视线”的第二颗棋子，如果找到阻挡视线的第一颗和第二颗棋子，且第二颗棋子归属方不同，可以吃掉第二颗棋子，取代它的位置。<br>&nbsp;&nbsp;&nbsp; 兵／卒有两种行棋情况，在离开己方阵地的五行之前，只能在前方没有己方棋子的情况下向对方阵地移动一格；在离开己方阵地即进入敌方阵地后，向没有己方棋子且不超出棋盘的位置向前一格、向左一格或向右一格移动。<br>&nbsp;&nbsp;&nbsp; 此外，还要引入局面记录参数，剔除造成重复局面的走法。<br>&nbsp;&nbsp;&nbsp; 文字描述都这么麻烦，程序就更麻烦了，串行的走法生成器我写了700+行，虽然我的缩进比较“宽松”，注释比较多，还是很长了。并行版本如果用多线程还得管理线程队列、线程池，创建线程、监视线程、管理共享资源、做同步互斥什么的，恐怕会更长。多进程也一样。</p>
+<h2 id="3-4_搜索核心">3.4 搜索核心</h2><h3 id="3-4-1_搜索核心通用接口">3.4.1 搜索核心通用接口</h3><p>&nbsp;&nbsp;&nbsp; 本着引入复杂类型变量时能用引用或指针就不复制变量的原则，搜索核心通用接口定义了许多成员变量。一个局面状态表示部件currentState用来复制当前状态，我复制了整个部件而非引入一个引用，是因为如果使用引用，构造类的时候不太方便，同样要增加开销。我想过使用指针，但是发现遍历State类成员时会一直报错，没能调顺，只得放弃。同样的理由，局面记录也进行了复制，但是我发现只进行浅复制就不会报错，也就没有深究。估值核心我使用了指针，因为估值核心的实例化发生在搜索核心的构造函数中。此外还有当前搜索深度变量、最大搜索深度变量、最佳走法、评估结点数即搜索树的叶结点树和搜索时间。<br>&nbsp;&nbsp;&nbsp; 搜索核心通用接口定义的方法不多，构造函数中只实例化了评估核心，析构函数负责销毁评估核心，此外只有一个搜索函数和一个获得最佳走法的只读方法。</p>
+<h3 id="3-4-2_MTD(f)">3.4.2 MTD(f)</h3><p>&nbsp;&nbsp;&nbsp; 搜索核心的一个实现是MTD(f)算法。MTD(f)的最外层是一个迭代深化的过程，具体说就是由浅到深的尝试搜索同时计时，一旦超过设定的搜索时间阈值就停止搜索。当搜索过程复杂（搜索树剪枝少）实际搜索深度可能无法很深，当搜索过程简单，实际搜索深度则只受玩家设定的最大搜索深度的影响。<br>&nbsp;&nbsp;&nbsp; 迭代深化的下一层是MTD(f)的思想核心，在一个无限大的窗口中，在一个有依据的猜测值附近反复进行类似PVS的空窗探测，并不断向真实的最大局面评估值调整猜测值和窗口，直到窗口上下限闭合。</p>
+<pre><code>int MTD_f::mtdf(int firstGuess)
+{
+    <span class="comment">/* MTD(f)窗口上下限 */</span>
+    int windowTop = <span class="keyword">WIN</span>;
+    int windowDown = -<span class="keyword">WIN</span>;
+    <span class="comment">/* 空窗探测评估值，调整MTD(f)窗口的依据 */</span>
+    int <span class="keyword">g</span> = firstGuess;
+    <span class="comment">/* alphaBeta算法的窗口上限 */</span>
+    int beta;
+    <span class="comment">/* 不断执行空窗探测直到窗口闭合，有hash置换表不怕重复搜索 */</span>
+    <span class="keyword">while</span>(windowDown &lt; windowTop)
+    {
+        <span class="comment">/* 刚调整过窗口下限，更需要通过向上偏移的空窗探测调整窗口上限 */</span>
+        <span class="keyword">if</span> (<span class="keyword">g</span> == windowDown)
+        {
+            <span class="comment">/* 在[g, g+1]区间上进行空窗探测 */</span>
+            <span class="comment">/* alpha = g */</span>
+            beta = <span class="keyword">g</span> + 1;
+        }
+        <span class="comment">/* 刚调整过窗口上限，更需要通过向下偏移的空窗探测调整窗口下限 */</span>
+        <span class="keyword">else</span>
+        {
+            <span class="comment">/* 在[g-1, g]区间上进行空窗探测 */</span>
+            <span class="comment">/* alpha = g - 1 */</span>
+            beta = <span class="keyword">g</span>;
+        }
+        <span class="comment">/* 利用Fail-Soft AlphaBeta算法做空窗探测 */</span>
+        <span class="comment">/* alpha = beta - 1 */</span>
+        <span class="keyword">g</span> = TTFAlphaBeta(beta - 1, beta, 0);
+        <span class="comment">/* 根据新评估值做窗口调整 */</span>
+        <span class="comment">/* 新评估值小于空窗口，可以认为猜高了，实际评估值应该更低 */</span>
+        <span class="keyword">if</span> (<span class="keyword">g</span> &lt; beta)
+        {
+            <span class="comment">/* 根据新评估值下调MTD(f)窗口上限 */</span>
+            windowTop = <span class="keyword">g</span>;
+        }
+        <span class="comment">/* 新评估值不小于空窗口，可以认为猜低了，实际评估值应该更高 */</span>
+        <span class="keyword">else</span>
+        {
+            <span class="comment">/* 根据新评估值上调MTD(f)窗口下限 */</span>
+            windowDown = <span class="keyword">g</span>;
+        }
+    }
+    <span class="keyword">return</span> <span class="keyword">g</span>;
+}
+</code></pre><p>&nbsp;&nbsp;&nbsp; 再下一层是一个hash置换表优化的Fail-Soft-AlphaBeta算法，事实上，这个AlphaBeta的窗口大小是０，所以在我看来，MTD(f)的最下层更像一个PVS。</p>
+<h3 id="3-4-3_AlphaBeta">3.4.3 AlphaBeta</h3><p>&nbsp;&nbsp;&nbsp; 搜索核心的另一个实现是AlphaBeta算法，实际上我只是把MTD(f)最下层的PVS拿出来，去掉置换表，把初始窗口定为无限大而已。这从算法实现方式的侧面印证了Maxmin系算法师出同门的事实。</p>
+<h2 id="3-5_局面评估核心">3.5 局面评估核心</h2><p>&nbsp;&nbsp;&nbsp; 现在使用的评估方法是统计局面上棋子的自由度、受威胁程度、棋子基本价值、棋盘位置加成、棋子受保护加成，并进行简单累加。使用了很多常数作为评估依据：</p>
+<pre><code><span class="preprocessor">#<span class="keyword">ifndef</span> _EVALUATOR_H_</span>
+<span class="preprocessor">#<span class="keyword">define</span> _EVALUATOR_H_</span>
+
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">"State.h"</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">"Move.h"</span></span>
+<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span>
+
+<span class="comment">/* 估值器，提供对每一个局面状态的下特定走法的评分 */</span>
+<span class="comment">/* 使用先验知识和一些局面评估因素为局面估值 */</span>
+<span class="keyword">class</span> Evaluator
+{
+<span class="keyword">public</span>:
+    <span class="comment">/* 评估结点计数 */</span>
+    <span class="keyword">unsigned</span> cnt;
+    <span class="comment">/* 估值器构造函数，初始化估值器 */</span>
+    Evaluator();
+    <span class="comment">/* 估值函数，对给定的局面状态评分 */</span>
+    <span class="function"><span class="keyword">int</span> <span class="title">evaluate</span><span class="params">(State &amp;state)</span></span>;
+<span class="keyword">private</span>:
+    <span class="comment">/* 炮的一些重要坐标的加成 */</span>
+    <span class="keyword">const</span> <span class="keyword">int</span> ADD_R_CANNON[<span class="number">10</span>][<span class="number">9</span>] =
+    {
+        {<span class="number">50</span>,    <span class="number">50</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">50</span>,    <span class="number">50</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">50</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>}
+    };
+    <span class="keyword">const</span> <span class="keyword">int</span> ADD_B_CANNON[<span class="number">10</span>][<span class="number">9</span>] =
+    {
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">50</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">50</span>,    <span class="number">50</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">50</span>,    <span class="number">50</span>}
+    };
+    <span class="comment">/* 马的一些重要坐标的加成 */</span>
+    <span class="keyword">const</span> <span class="keyword">int</span> ADD_R_KNIGHT[<span class="number">10</span>][<span class="number">9</span>] =
+    {
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">100</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">100</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">100</span>,    <span class="number">0</span>,    <span class="number">100</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    -<span class="number">100</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>}
+    };
+    <span class="keyword">const</span> <span class="keyword">int</span> ADD_B_KNIGHT[<span class="number">10</span>][<span class="number">9</span>] =
+    {
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    -<span class="number">100</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">10</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">100</span>,    <span class="number">0</span>,    <span class="number">100</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">100</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">100</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>}
+    };
+    <span class="comment">/* 兵的一些重要坐标的加成 */</span>
+    <span class="keyword">const</span> <span class="keyword">int</span> ADD_R_PAWN[<span class="number">10</span>][<span class="number">9</span>] =
+    {
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">90</span>,    <span class="number">90</span>,    <span class="number">110</span>,    <span class="number">120</span>,    <span class="number">120</span>,    <span class="number">120</span>,    <span class="number">110</span>,    <span class="number">90</span>,    <span class="number">90</span>},
+        {<span class="number">90</span>,    <span class="number">90</span>,    <span class="number">110</span>,    <span class="number">120</span>,    <span class="number">120</span>,    <span class="number">120</span>,    <span class="number">110</span>,    <span class="number">90</span>,    <span class="number">90</span>},
+        {<span class="number">70</span>,    <span class="number">90</span>,    <span class="number">110</span>,    <span class="number">120</span>,    <span class="number">120</span>,    <span class="number">120</span>,    <span class="number">110</span>,    <span class="number">90</span>,    <span class="number">70</span>},
+        {<span class="number">70</span>,    <span class="number">70</span>,    <span class="number">70</span>,    <span class="number">70</span>,    <span class="number">70</span>,    <span class="number">70</span>,    <span class="number">70</span>,    <span class="number">70</span>,    <span class="number">70</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>}
+    };
+    <span class="keyword">const</span> <span class="keyword">int</span> ADD_B_PAWN[<span class="number">10</span>][<span class="number">9</span>] =
+    {
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>},
+        {<span class="number">70</span>,    <span class="number">70</span>,    <span class="number">70</span>,    <span class="number">70</span>,    <span class="number">70</span>,    <span class="number">70</span>,    <span class="number">70</span>,    <span class="number">70</span>,    <span class="number">70</span>},
+        {<span class="number">70</span>,    <span class="number">90</span>,    <span class="number">110</span>,    <span class="number">120</span>,    <span class="number">120</span>,    <span class="number">120</span>,    <span class="number">110</span>,    <span class="number">90</span>,    <span class="number">70</span>},
+        {<span class="number">90</span>,    <span class="number">90</span>,    <span class="number">110</span>,    <span class="number">120</span>,    <span class="number">120</span>,    <span class="number">120</span>,    <span class="number">110</span>,    <span class="number">90</span>,    <span class="number">90</span>},
+        {<span class="number">90</span>,    <span class="number">90</span>,    <span class="number">110</span>,    <span class="number">120</span>,    <span class="number">120</span>,    <span class="number">120</span>,    <span class="number">110</span>,    <span class="number">90</span>,    <span class="number">90</span>},
+        {<span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>,    <span class="number">0</span>}
+    };
+    <span class="comment">/* 先验的定义每种棋子的基本价值 */</span>
+    <span class="keyword">const</span> <span class="keyword">int</span> BASE_VAL[<span class="number">32</span>] =
+    {
+        <span class="number">10000</span>, <span class="number">250</span>, <span class="number">250</span>, <span class="number">250</span>, <span class="number">250</span>, <span class="number">350</span>, <span class="number">350</span>, <span class="number">500</span>, <span class="number">500</span>, <span class="number">350</span>, <span class="number">350</span>, <span class="number">100</span>, <span class="number">100</span>, <span class="number">100</span>, <span class="number">100</span>, <span class="number">100</span>,
+        <span class="number">10000</span>, <span class="number">250</span>, <span class="number">250</span>, <span class="number">250</span>, <span class="number">250</span>, <span class="number">350</span>, <span class="number">350</span>, <span class="number">500</span>, <span class="number">500</span>, <span class="number">350</span>, <span class="number">350</span>, <span class="number">100</span>, <span class="number">100</span>, <span class="number">100</span>, <span class="number">100</span>, <span class="number">100</span>
+    };
+    <span class="comment">/* 棋子灵活度单位价值，即每个可走位置对总自由度的贡献 */</span>
+    <span class="keyword">const</span> <span class="keyword">int</span> FREE_UNIT[<span class="number">32</span>] =
+    {
+        <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">12</span>, <span class="number">12</span>, <span class="number">6</span>, <span class="number">6</span>, <span class="number">6</span>, <span class="number">6</span>, <span class="number">15</span>, <span class="number">15</span>, <span class="number">15</span>, <span class="number">15</span>, <span class="number">15</span>,
+        <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">12</span>, <span class="number">12</span>, <span class="number">6</span>, <span class="number">6</span>, <span class="number">6</span>, <span class="number">6</span>, <span class="number">15</span>, <span class="number">15</span>, <span class="number">15</span>, <span class="number">15</span>, <span class="number">15</span>
+    };
+    <span class="comment">/* 棋子被威胁造成的负分 */</span>
+    <span class="keyword">bool</span> threatenScore[<span class="number">32</span>];
+    <span class="comment">/* 棋子被保护造成的加分 */</span>
+    <span class="keyword">bool</span> protectScore[<span class="number">32</span>];
+    <span class="comment">/* 棋子评分 */</span>
+    <span class="keyword">int</span> chessScore[<span class="number">32</span>];
+    <span class="comment">/* 根据特定的局面状态和当前行动权归属生成所有可能的势力覆盖方式并填充走法容器 */</span>
+    <span class="function"><span class="keyword">void</span> <span class="title">generate</span><span class="params">(<span class="keyword">const</span> State &amp;state)</span></span>;
+    <span class="comment">/* 棋子势力覆盖方式容器 */</span>
+    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Move&gt; coverList;
+};
+
+<span class="preprocessor">#<span class="keyword">endif</span></span>
+</code></pre><h1 id="4_手工测试">4 手工测试</h1><p>&nbsp;&nbsp;&nbsp; 搜索深度为１时，分别使用AlphaBeta算法和MTD(f)算法作为搜索核心，评估结点数和搜索时间并没有明显的不同。两种算法下电脑的走法都很蠢。<br>&nbsp;&nbsp;&nbsp; 搜索深度为２时，使用AlphaBeta算法，绝大多数情况下评估结点数稳定在400~700区间内，搜索时间最多达到10^-2秒数量级；使用MTD(f)算法，绝大多数情况下评估结点数稳定在600~1000区间内，搜索时间稳定在0.03秒左右。<br>&nbsp;&nbsp;&nbsp; 搜索深度为３时，使用AlphaBeta算法，绝大多数情况下评估结点数稳定在10000附近，搜索时间平均在10^-2秒数量级；使用MTD(f)算法，评估结点数平均在10^3数量级上,偶尔上万，搜索时间平均在10^-2秒数量级，偶尔还会非常小。<br>&nbsp;&nbsp;&nbsp; 搜索深度为４时，使用AlphaBeta算法，评估结点数在10^5数量级上，搜索时间平均在1秒数量级，电脑的走法看起似乎比搜索３层要蠢；使用MTD(f)算法，评估结点数很少再达到10^4数量级以上，搜索时间稳定在1秒数量级，走法也有点蠢。<br>&nbsp;&nbsp;&nbsp; 搜索深度为５时，使用AlphaBeta算法，评估结点数在10^6数量级上，搜索时间平均在８秒，电脑表现比较出色，开始出现游戏崩溃的现象；使用MTD(f)算法，可能是受迭代深化的限制作用影响，评估结点数和搜索时间与搜索深度为４时很接近，但是电脑的走法比４层时更出色，会出现游戏崩溃的现象。<br>&nbsp;&nbsp;&nbsp; 搜索深度为６时，使用AlphaBeta算法，评估结点数达到了10^7数量级，搜索时间也增加到10^2秒数量级，电脑走法却不如５层时优秀，有游戏崩溃现象；使用MTD(f)算法，可能是受迭代深化的限制作用影响，评估结点数和搜索时间与搜索深度为４时很接近，电脑的走法没有比５层明显更优秀，有游戏崩溃的现象。<br>&nbsp;&nbsp;&nbsp; 更深层的搜索时AlphaBeta算法的搜索时间将长到无法忍受，游戏崩溃的现象也将更早出现。<br>&nbsp;&nbsp;&nbsp; 观察表明，使用偶数作为搜索深度时，电脑的走法性能会相对浅一层的奇数层搜索结果有一定的衰减，迭代深化时的层数步进也许设置为２更好。</p>
+<h1 id="5_结论与收获">5 结论与收获</h1><p>&nbsp;&nbsp;&nbsp; 过去谈及棋牌游戏的人机博弈我都只能表示佩服，满怀憧憬的感叹一下，表示做起来可能很麻烦。真的动手做过一个粗糙的练习之后才发现，用的无非还是那些简单算法的扩展或变种，简单说起来也不过是有限搜索树而已。不过种种精细的剪枝与优化还是很磨练人的心性的，当然我还没磨练到位，毕竟初版的优化我都没做彻底就来写博文了。</p>
+<h1 id="6_不足与展望">6 不足与展望</h1><p>&nbsp;&nbsp;&nbsp; 不足：</p>
+<ul>
+<li>当前版本的两个搜索核心都是盲目搜索，即搜索中容易导致剪枝或棋局结束的结点没有优先搜索。</li>
+<li>局面评估核心应该重构，提供一个通用接口，为神经网络优化或其他技术优化的评估核心做准备。</li>
+<li>搜索树的展开过程中仍然存在动态申请内存空间的动作，当搜索深度到达４，偶尔会出现内存申请失败，游戏崩溃的情况，可以尽量静态的一次性的申请内存。</li>
+<li>没有足够优秀的查表优化。</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; 展望：</p>
+<ul>
+<li>通用部件的数据结构还可以进一步细化优化。</li>
+<li>走法生成器和评估核心的工具函数——棋子影响力覆盖范围生成器都有并行化的优化空间。</li>
+<li>局面评估核心还可以有更优秀的，基于机器学习的优化。</li>
+<li>还可以建立适当规模的开局库、残局库。</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; 最后，挂<a href="https://github.com/bipedalBit/BipedalBit-Chinese-Chess" target="_blank" rel="external">Git项目地址</a>。<br>&nbsp;&nbsp;&nbsp; 因为偶尔偷懒，项目代码规范化有些参差不齐，有好的建议欢迎讨论。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://blog.bipedalbit.net/2015/11/15/中国象棋人机博弈实现练习/" data-id="cih3dndzn002lk1976aiwwz7s" class="article-share-link" data-share="baidu" data-title="中国象棋人机博弈实现练习">分享到</a>
+      
+
+      
+        <a href="http://blog.bipedalbit.net/2015/11/15/中国象棋人机博弈实现练习/#ds-thread" class="article-comment-link">评论</a>
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AlphaBeta/">AlphaBeta</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MTD-f/">MTD(f)</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Qt/">Qt</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/人机博弈/">人机博弈</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2015/11/14/人机博弈初探/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">人机博弈初探</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+  <section id="comments">
+    <!-- 多说评论框 start -->
+      <div class="ds-thread" data-thread-key="2015/11/15/中国象棋人机博弈实现练习/" data-title="中国象棋人机博弈实现练习" data-url="http://blog.bipedalbit.net/2015/11/15/中国象棋人机博弈实现练习/"></div>
+    <!-- 多说评论框 end -->
+    <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+    <script type="text/javascript">
+    var duoshuoQuery = {short_name:"bipedalbit"};
+      (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+      })();
+      </script>
+    <!-- 多说公共JS代码 end -->
+  </section>
+</section>
+      
+      <aside id="sidebar">
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">about</h3>
+	<div class="widget">
+		<ul>
+			<li><strong>本&nbsp;体：</strong>张亦鹏</li><hr>
+			<li><strong>现&nbsp;状：</strong>帝都CS硕士在读</li><hr>
+			<li><strong>邮&nbsp;箱：</strong>hmemoryl@163.com</li><hr>
+			<li><strong>企&nbsp;鹅：</strong>236771817</li><hr>
+			<li><strong>框&nbsp;架：</strong>hexo</li><hr>
+			<li><strong>主&nbsp;题：</strong>landscape-plus</li><hr>
+			<li><strong>简&nbsp;介：</strong><br>&nbsp;&nbsp;&nbsp; C++ ACMer出身，C++出身自然也通Qt，好奇心经常如脱缰的野狗在荒原上撒欢，于是习得ASP.NET、JSP、PHP、Python、Node.js等一众流行技术，前端也姑且能一战。可惜一般都是填完坑就扔，水平大都停留在入门级别。依然死不悔改持续开坑中，逛着B站补着番，不时脑洞一开。以上，求同好。_(:3J ∠)_</li>
+		</ul>
+	</div>
+ </div>
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Qt/">Qt</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Sublime-Text/">Sublime Text</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/codeigniter/">codeigniter</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/node-js/">node.js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ubuntu/">ubuntu</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/人机博弈/">人机博弈</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">3</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/AlphaBeta/" style="font-size: 12px;">AlphaBeta</a> <a href="/tags/BP神经网络/" style="font-size: 14px;">BP神经网络</a> <a href="/tags/C/" style="font-size: 16px;">C</a> <a href="/tags/C/" style="font-size: 18px;">C++</a> <a href="/tags/IIS7/" style="font-size: 10px;">IIS7</a> <a href="/tags/MTD-f/" style="font-size: 12px;">MTD(f)</a> <a href="/tags/Maxmin/" style="font-size: 10px;">Maxmin</a> <a href="/tags/PVS/" style="font-size: 10px;">PVS</a> <a href="/tags/Q-OBJECT/" style="font-size: 10px;">Q_OBJECT</a> <a href="/tags/Qt/" style="font-size: 12px;">Qt</a> <a href="/tags/Web请求处理机制/" style="font-size: 10px;">Web请求处理机制</a> <a href="/tags/apache/" style="font-size: 10px;">apache</a> <a href="/tags/apt-file/" style="font-size: 10px;">apt-file</a> <a href="/tags/c-11/" style="font-size: 10px;">c++11</a> <a href="/tags/cin/" style="font-size: 10px;">cin</a> <a href="/tags/codeigniter/" style="font-size: 10px;">codeigniter</a> <a href="/tags/cout/" style="font-size: 10px;">cout</a> <a href="/tags/debian/" style="font-size: 10px;">debian</a> <a href="/tags/epoll/" style="font-size: 10px;">epoll</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/makefile/" style="font-size: 10px;">makefile</a> <a href="/tags/nginx/" style="font-size: 20px;">nginx</a> <a href="/tags/ngx-int-t/" style="font-size: 10px;">ngx_int_t</a> <a href="/tags/node-js/" style="font-size: 12px;">node.js</a> <a href="/tags/php/" style="font-size: 10px;">php</a> <a href="/tags/printf/" style="font-size: 10px;">printf</a> <a href="/tags/pybrain/" style="font-size: 10px;">pybrain</a> <a href="/tags/python/" style="font-size: 12px;">python</a> <a href="/tags/rbtree/" style="font-size: 14px;">rbtree</a> <a href="/tags/scanf/" style="font-size: 10px;">scanf</a> <a href="/tags/select-poll/" style="font-size: 10px;">select/poll</a> <a href="/tags/signal-slot/" style="font-size: 10px;">signal-slot</a> <a href="/tags/socket-io/" style="font-size: 10px;">socket.io</a> <a href="/tags/static/" style="font-size: 10px;">static</a> <a href="/tags/sublime/" style="font-size: 10px;">sublime</a> <a href="/tags/ubuntu/" style="font-size: 10px;">ubuntu</a> <a href="/tags/事件驱动模型/" style="font-size: 10px;">事件驱动模型</a> <a href="/tags/人工神经网络/" style="font-size: 10px;">人工神经网络</a> <a href="/tags/人机博弈/" style="font-size: 12px;">人机博弈</a> <a href="/tags/内存分布/" style="font-size: 10px;">内存分布</a> <a href="/tags/同步-异步/" style="font-size: 10px;">同步/异步</a> <a href="/tags/多线程/" style="font-size: 10px;">多线程</a> <a href="/tags/机器学习/" style="font-size: 14px;">机器学习</a> <a href="/tags/进制转换/" style="font-size: 10px;">进制转换</a> <a href="/tags/阻塞-非阻塞/" style="font-size: 10px;">阻塞/非阻塞</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">八月 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">六月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">近期文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/11/15/中国象棋人机博弈实现练习/">中国象棋人机博弈实现练习</a>
+          </li>
+        
+          <li>
+            <a href="/2015/11/14/人机博弈初探/">人机博弈初探</a>
+          </li>
+        
+          <li>
+            <a href="/2015/10/19/解决依赖问题的利器——apt-file/">解决依赖问题的利器——apt-file</a>
+          </li>
+        
+          <li>
+            <a href="/2015/10/17/C-多线程初探——c-11篇/">C++多线程初探——c++11篇</a>
+          </li>
+        
+          <li>
+            <a href="/2015/10/13/python的SimpleHTTPServer/">python的SimpleHTTPServer</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">友情链接</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="https://github.com/bipedalBit" target="_blank">Bipedal Bit的Git</a>
+          </li>
+        
+          <li>
+            <a href="http://saelab.bipedalbit.net" target="_blank">Bipedal Bit的SAE实验室</a>
+          </li>
+        
+          <li>
+            <a href="http://blog.csdn.net/bipedal_bit" target="_blank">Bipedal Bit的CSDN博客</a>
+          </li>
+        
+          <li>
+            <a href="http://blog.sina.com.cn/u/2374285604" target="_blank">Bipedal Bit的新浪博客</a>
+          </li>
+        
+          <li>
+            <a href="http://xiguabaobao.com" target="_blank">主题作者</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&ptype=1&speed=0&skin=5&isTitle=1&noborder=1&isWeibo=1&isFans=1&uid=2374285604&verifier=91f284c4&dpc=1"></iframe>
+  
+</aside>
+      
+    </div>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 Bipedal Bit<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      .
+      Theme by <a href="https://github.com/xiangming/landscape-plus" target="_blank">Landscape-plus</a>
+    </div>
+  </div>
+</footer>
+  </div>
+  <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+  <!-- totop start -->
+<div id="totop">
+<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+</div>
+
+<!-- totop end -->
+
+<!-- 多说公共js代码 start -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"bipedalbit"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+     || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+  </script>
+<!-- 多说公共js代码 end -->
+
+
+<!-- 百度分享 start -->
+
+<div id="article-share-box" class="article-share-box">
+  <div id="bdshare" class="bdsharebuttonbox article-share-links">
+    <a class="article-share-weibo" data-cmd="tsina" title="分享到新浪微博"></a>
+    <a class="article-share-weixin" data-cmd="weixin" title="分享到微信"></a>
+    <a class="article-share-qq" data-cmd="sqq" title="分享到QQ"></a>
+    <a class="article-share-renren" data-cmd="renren" title="分享到人人网"></a>
+    <a class="article-share-more" data-cmd="more" title="更多"></a>
+  </div>
+</div>
+<script>
+  function SetShareData(cmd, config) {
+    if (shareDataTitle && shareDataUrl) {
+      config.bdText = shareDataTitle;
+      config.bdUrl = shareDataUrl;
+    }
+    return config;
+  }
+  window._bd_share_config={
+    "common":{onBeforeClick: SetShareData},
+    "share":{"bdCustomStyle":"/css/bdshare.css"}
+  };
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+<!-- 百度分享 end -->
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+</div>
+</body>
+</html>
