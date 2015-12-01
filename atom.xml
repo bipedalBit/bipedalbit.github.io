@@ -4,7 +4,7 @@
   <subtitle><![CDATA[为了证明并非止步不前，为了安慰被神牛震慑的心。]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://blog.bipedalbit.net/"/>
-  <updated>2015-11-19T06:02:25.972Z</updated>
+  <updated>2015-12-01T16:53:15.335Z</updated>
   <id>http://blog.bipedalbit.net/</id>
   
   <author>
@@ -13,6 +13,106 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[C++的位优化]]></title>
+    <link href="http://blog.bipedalbit.net/2015/12/1/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/"/>
+    <id>http://blog.bipedalbit.net/2015/12/1/C-的位优化/</id>
+    <published>2015-12-01T02:53:29.000Z</published>
+    <updated>2015-12-01T16:53:15.335Z</updated>
+    <content type="html"><![CDATA[<p>&nbsp;&nbsp;&nbsp; 之前的中国象棋初版重在实现，老实说不论是时空效率还是健壮性都不太拿得出手，于是导师要求继续优化改进。考虑和调查过后，时间效率上可以借助之前设想的并行计算得到小幅优化，此外使用类似bool数组的手段也可以在走法生成器中小幅优化边界判断过程，最重要的时间效率优化手段是把博弈机改造成查表器，即以查表为主博弈为辅改变重心。以上都是时间效率优化，这篇文中暂且不展开，我的中国象棋初版在搜索深度大时（大于等于４层）开始出现程序崩溃的现象，暴露了空间效率问题。作为空间效率优化的铺垫，这次我来做个C++位优化的自科普。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; 关于空间效率优化，从前顶多考虑到基本变量类型选择的程度，然而C++提供了一些更精细的特性，供程序员进行位级别的内存微操——位域、bitset、vector&lt;bool&gt;。</p>
+<h1 id="1_位域">1 位域</h1><h2 id="1-1_字节对齐">1.1 字节对齐</h2><p>&nbsp;&nbsp;&nbsp; 介绍位域之前，还需要做一点铺垫。业界C/C++面试、笔试题中，经常考到结构体的字节对齐问题。比如，可能会问下面两个结构体分别占多大内存：</p>
+<pre><code><span class="keyword">struct</span> s1
+{
+    <span class="keyword">char</span> a;
+    <span class="keyword">double</span> f;
+    <span class="keyword">int</span> b;
+    <span class="keyword">long</span> <span class="keyword">long</span> g;
+    <span class="keyword">char</span> c[<span class="number">9</span>];
+    <span class="keyword">float</span> e;
+    <span class="keyword">short</span> d;
+};
+
+<span class="keyword">struct</span> s2
+{
+    <span class="keyword">char</span> a;
+    <span class="keyword">char</span> c[<span class="number">9</span>];
+    <span class="keyword">short</span> d;
+    <span class="keyword">float</span> e;
+    <span class="keyword">int</span> b;
+    <span class="keyword">double</span> f;
+    <span class="keyword">long</span> <span class="keyword">long</span> g;
+};
+</code></pre><p>&nbsp;&nbsp;&nbsp; <code>sizeof(s1)</code>和<code>sizeof(s2)</code>分别为56字节和40字节。先不管为什么装着同样变量的结构体占用的内存大小会不同，如果结构体中变量紧密排列，应该占多大内存？ａ：1字节，ｂ：4字节，ｃ：9字节，ｄ：2字节，ｅ：4字节，ｆ：8字节，ｇ：8字节，共36字节。显然这些变量实际上不是紧密排列的，存在一些对齐、填充字节的规则：</p>
+<ul>
+<li>有效对齐值默认为结构体最宽<em>基本类型</em>成员的大小，注意结构体的结构体成员必须到内部寻找基本类型成员变量计算有效对齐值；</li>
+<li>结构体变量的首地址能够被其有效对齐值所整除；</li>
+<li>结构体每个成员相对于结构体首地址的偏移量都是其本身大小的整数倍，如有需要编译器会在成员之间加上填充字节；</li>
+<li>结构体的总大小为结构体有效对齐值的整数倍，如有需要编译器会在最末一个成员之后加上填充字节；</li>
+<li>存在指定对齐值（<code>#pragma pack (value)</code>中的value）时，<code>有效对齐值 = min{默认对齐值, 指定对齐值}</code>。</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; 至于为什么要做字节对齐，这与CPU取数方式有关，尤其与CPU与内存间数据总线宽度（现在除了单片机通常为32位）有关。因为数据总线宽度是硬件相关，所以一次取数的位数是固定的，假设总线宽度32位，那么一次取数的数据大小就为4字节，那么CPU读取内存数据就将以内存首地址为基址，以4个字节为偏移量单位。如果结构体中有一个char型和一个int型变量，紧密排列存储在内存中，读char型变量时照样取了结构体的前4个字节，其中高8位的哪个字节是存储着char型变量，会经过一些位运算后被提取出来（比如按位右移24位，这仅仅是猜测），到此为止看不出什么不好的。可是当读int型变量时问题就来了，CPU无法一次读取到整个int变量了，原因前面提到了：<em>CPU读取内存数据就将以内存首地址为基址，以4个字节为偏移量单位</em>。经过两次取数才能获得被分割在两个字（32位内存单位）中完整的int型变量，这还不算完，还要分别从两个字中提取恰当的位并进行拼接，这很浪费时间。<br>&nbsp;&nbsp;&nbsp; 按特定规则进行字节对齐后，虽然浪费了一些填充字节的内存空间，情况还是好多了。以s1为例，有效对齐值是double型和long long型的8字节即两个字，这里称其为一个对齐空间，装填a（填充7个字节），装填f，装填b（填充4个字节），装填g，装填c（一个对齐空间内放不下，第二个空间中也放了1个字节，填充7个字节），装填e，装填d，结构体整体填充2字节，填满对齐空间的整数倍。<br>&nbsp;&nbsp;&nbsp; 同理也可求得s2的内存占用，至于两个结构体的内存占用不一样的原因，是它们的成员变量排列顺序不同，而结构体给成员变量分配内存的顺序与定义变量的顺序相同。<br>&nbsp;&nbsp;&nbsp; 当指定对齐值小于默认对齐值，可令结构体的成员变量排列更紧密，更省空间，但可能降低取数效率。特别的，当指定对齐值为1，结构体成员变量完全紧密排列。</p>
+<h2 id="1-2_位域与其利弊">1.2 位域与其利弊</h2><p>&nbsp;&nbsp;&nbsp; 不管是为数据结构的成员变量设计合适的排列顺序，还是指定合适的字节对齐值，都是在字节的层次上优化程序空间效率。而使用位域，可以在位的层次上优化程序空间效率。<br>&nbsp;&nbsp;&nbsp; 还是以1.1节中的s1为例，只在字节层面上优化，以不损失时间效率为前提，最佳策略如下：</p>
+<pre><code><span class="preprocessor">#<span class="keyword">pragma</span> pack(<span class="number">4</span>)</span>
+<span class="keyword">struct</span> s1
+{
+    <span class="keyword">double</span> f;
+    <span class="keyword">long</span> <span class="keyword">long</span> g;
+    <span class="keyword">int</span> b;
+    <span class="keyword">float</span> e;
+    <span class="keyword">short</span> d;
+    <span class="keyword">char</span> a;
+    <span class="keyword">char</span> c[<span class="number">9</span>];
+};
+<span class="preprocessor">#<span class="keyword">pragma</span> pack()</span>
+</code></pre><p>&nbsp;&nbsp;&nbsp; 实际上就是保证按32位字（4字节）对齐，变量按大小降序排列。此时的<code>sizeof(s1)</code>为36字节，空间开销等同变量成员紧密排列，时间效率没有受到影响。<br>&nbsp;&nbsp;&nbsp; 下面这种写法不知读者见过没有：</p>
+<pre><code><span class="preprocessor">#<span class="keyword">pragma</span> pack(<span class="number">4</span>)</span>
+<span class="keyword">struct</span> s1
+{
+    <span class="keyword">double</span> f;
+    <span class="keyword">long</span> <span class="keyword">long</span> g: <span class="number">21</span>;
+    <span class="keyword">int</span> b: <span class="number">7</span>;
+    <span class="keyword">float</span> e;
+    <span class="keyword">short</span> d;
+    <span class="keyword">char</span> a;
+    <span class="keyword">char</span> c[<span class="number">9</span>];
+};
+<span class="preprocessor">#<span class="keyword">pragma</span> pack()</span>
+</code></pre><p>&nbsp;&nbsp;&nbsp; 对这样定义的结构体s1，<code>sizeof(s1)</code>是28字节。变量b、g后面的‘:’和数字就是位域的描述方式。位域的作用是把一些用不到当前类型变量中所有位的变量做进一步压缩，比如这里的s1结构体中的g变量，原来占用64位，使用位域压缩后g变量只使用原内存空间的高21位，填充3位补满3个字节后，原long long变量的后5个字节就可以自由分配了；b变量，原来占用32位，使用位域压缩后b变量只使用原内存空间的高7位，填充1位填满1个字节后，原int变量的后3个字节的内存空间就可以自由分配了。b、g压缩过后刚好占据4个字节一个32位字，比原来少占８个字节。<br>&nbsp;&nbsp;&nbsp; 于是，借由位域压缩技术，C++得以进行位层次的空间效率优化了。然而位域的使用有着诸多限制和缺陷：</p>
+<ul>
+<li>位域不可以用于浮点型变量的压缩；</li>
+<li>位域压缩有符号数时，由于其存储变量的编码方式是源码而非平常变量的补码，变量符号将可能出现不可预料的状态；</li>
+<li>位域压缩将局部解除变量间原有的的字节对齐规范，即使位域压缩的变量与相邻变量紧密排列，这可能引起取数时间效率的损失。</li>
+</ul>
+<h1 id="2_bitset">2 bitset</h1><p>&nbsp;&nbsp;&nbsp; 这一节我要介绍的是比特集，正如字面意思，它是一种比特的集合的特殊数据结构。位域是C遗留下来的特性，存在很多不完备和妥协的地方,C++中推荐的替换方案之一就是bitset。它的具体使用方法我不想细讲，这里只做个概念介绍，想了解更多可以看<a href="http://www.cplusplus.com/reference/bitset/bitset/" target="_blank" rel="external">标准C++手册</a>，<del>其实是我困了懒得写</del>。<br>&nbsp;&nbsp;&nbsp; 比特集维护一个静态定义其长度的比特串，内存占用以系统字长（通常为<em>机器字长</em>，即CPU中寄存器的位数，即CPU进行数据计算的单位位宽，而非前面提到的数据总线宽度，但机器字长一定是数据总线宽度的整数倍）为单位长度，当然如果读者使用64位的机器却安装32位的系统则是把机器当做32位机使用，每个CPU寄存器只使用一半的位数。比特集可以通过包含‘０’、‘１’的字符串来构造，也可以通过无符号的整型变量来构造。为什么是无符号数？因为比特的集合本来就是逻辑的、离散的，符号在比特集中没有意义。当然如果想用某个逻辑位来作为符号位也随用户喜欢。相应的，比特集也可以转换成‘０’、‘１’字符串或者整型数。理所当然的，比特集类封装了一系列位运算符号和逻辑位操作方法，注意比特集的位操作符号两边都应该是比特集，位移操作符除外。<br>&nbsp;&nbsp;&nbsp; 也许有读者想了解bitset的内存占用情况，我进行了下面的一系列测试：</p>
+<pre><code><span class="built_in">cout</span> &lt;&lt; <span class="keyword">sizeof</span>(<span class="built_in">bitset</span>&lt;10&gt;) &lt;&lt; endl;    <span class="comment">//8</span>
+<span class="built_in">cout</span> &lt;&lt; <span class="keyword">sizeof</span>(<span class="built_in">bitset</span>&lt;20&gt;) &lt;&lt; endl;    <span class="comment">//8</span>
+<span class="built_in">cout</span> &lt;&lt; <span class="keyword">sizeof</span>(<span class="built_in">bitset</span>&lt;40&gt;) &lt;&lt; endl;    <span class="comment">//8</span>
+<span class="built_in">cout</span> &lt;&lt; <span class="keyword">sizeof</span>(<span class="built_in">bitset</span>&lt;80&gt;) &lt;&lt; endl;    <span class="comment">//16</span>
+<span class="built_in">cout</span> &lt;&lt; <span class="keyword">sizeof</span>(<span class="built_in">bitset</span>&lt;160&gt;) &lt;&lt; endl;    <span class="comment">//24</span>
+<span class="built_in">cout</span> &lt;&lt; <span class="keyword">sizeof</span>(<span class="built_in">bitset</span>&lt;320&gt;) &lt;&lt; endl;    <span class="comment">//40</span>
+<span class="built_in">cout</span> &lt;&lt; <span class="keyword">sizeof</span>(<span class="built_in">bitset</span>&lt;640&gt;) &lt;&lt; endl;    <span class="comment">//80</span>
+<span class="built_in">cout</span> &lt;&lt; <span class="keyword">sizeof</span>(<span class="built_in">bitset</span>&lt;1280&gt;) &lt;&lt; endl;    <span class="comment">//160</span>
+</code></pre><p>&nbsp;&nbsp;&nbsp; 测试结果我写在注释里了，可以看到，bitset的存储单位是8个字节，而我的这台笔记本电脑正是64位机器字长的，测试环境是64位的Ubuntu 14.04版本操作系统。<br>&nbsp;&nbsp;&nbsp; 同样的，比特bitset也有它的不足之处，比如它不能再与普通整型数直接进行位运算，且它一经构造，不可以改变长度。至于时间效率，可以充分相信它不比普通整型的同类操作慢。</p>
+<h1 id="3_vector&lt;bool&gt;">3 vector&lt;bool&gt;</h1><p>&nbsp;&nbsp;&nbsp; 当我第一次在手册中看见vector&lt;bool&gt;时我并没有留意，虽然也对bool型的vector容器为什么有一套独立的API感到了一丝困惑。后来在查找bitset相关资料时发现有人写了vector&lt;bool&gt;与bitset的比较文章，这才知道，vector&lt;bool&gt;是C++提供的bitset之外的另一种位层次数据结构微操方案，同等长度的两者的内存占用几乎一样。vector&lt;bool&gt;的具体用法读者依旧可以查看<a href="http://www.cplusplus.com/reference/vector/vector-bool/" target="_blank" rel="external">手册</a>，<del>是的我又偷懒了XDDD</del>。<br>&nbsp;&nbsp;&nbsp; 既然vector&lt;bool&gt;实现在vector库文件中，想必读者也能猜到它与bitset最大的不同，没错它是可变长的。相应的，作为牺牲，考虑数组与vector的区别，也不难猜到，vector&lt;bool&gt;比bitset慢。首先它的位操作也比bitset少得多，其次vector&lt;bool&gt;中的位不再能够用下标随机存取，而需要使用迭代器来访问。其实比起bitset的变长版本，我觉得说vector&lt;bool&gt;是bool型vector的空间优化版本更合适一些。</p>
+<p>&nbsp;&nbsp;&nbsp; 以上就完成了简单的位层面程序空间效率优化的相关概念引入，下面会继续跟进我的中国象棋的改进版本。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>&nbsp;&nbsp;&nbsp; 之前的中国象棋初版重在实现，老实说不论是时空效率还是健壮性都不太拿得出手，于是导师要求继续优化改进。考虑和调查过后，时间效率上可以借助之前设想的并行计算得到小幅优化，此外使用类似bool数组的手段也可以在走法生成器中小幅优化边界判断过程，最重要的时间效率优化手段是把博弈机改造成查表器，即以查表为主博弈为辅改变重心。以上都是时间效率优化，这篇文中暂且不展开，我的中国象棋初版在搜索深度大时（大于等于４层）开始出现程序崩溃的现象，暴露了空间效率问题。作为空间效率优化的铺垫，这次我来做个C++位优化的自科普。<br>]]>
+    
+    </summary>
+    
+      <category term="C++" scheme="http://blog.bipedalbit.net/tags/C/"/>
+    
+      <category term="bitset" scheme="http://blog.bipedalbit.net/tags/bitset/"/>
+    
+      <category term="vector&amp;lt;bool&amp;gt;" scheme="http://blog.bipedalbit.net/tags/vector-lt-bool-gt/"/>
+    
+      <category term="位域" scheme="http://blog.bipedalbit.net/tags/%E4%BD%8D%E5%9F%9F/"/>
+    
+      <category term="C++" scheme="http://blog.bipedalbit.net/categories/C/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[中国象棋人机博弈实现练习]]></title>
@@ -2220,275 +2320,6 @@ BP::~BP()
       <category term="C++" scheme="http://blog.bipedalbit.net/tags/C/"/>
     
       <category term="进制转换" scheme="http://blog.bipedalbit.net/tags/%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2/"/>
-    
-      <category term="C++" scheme="http://blog.bipedalbit.net/categories/C/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[C++ cin、cout的优化及测评]]></title>
-    <link href="http://blog.bipedalbit.net/2015/10/8/C-cin%E3%80%81cout%E7%9A%84%E4%BC%98%E5%8C%96%E5%8F%8A%E6%B5%8B%E8%AF%84/"/>
-    <id>http://blog.bipedalbit.net/2015/10/8/C-cin、cout的优化及测评/</id>
-    <published>2015-10-08T11:56:46.000Z</published>
-    <updated>2015-10-08T13:39:19.424Z</updated>
-    <content type="html"><![CDATA[<p>&nbsp;&nbsp;&nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降低了执行效率。那么可能挽回这种效率损失吗？答案是可以。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; C++中提供了解除指针同步的方法：<code>ios::sync_with_stdio(false)</code>。如字面意思，这个方法用来设置输入输出流是否与C的stdio同步。那么解除同步之后能有多大效果呢？毕竟C++确实因为封装程度比C高多多少少损失了一些执行效率。我动手进行了一系列测评，下面是源码。</p>
-<p>&nbsp;&nbsp;&nbsp; 这里我统一对输入输出做了重定向，不论是输入数据来源还是输入数据目标都是“data”文件。所有的输入/输出测试都是读或写10^7次字符串与整型数的组合数据，每种输入/输出测试都进行10次并取平均耗时作为评估值。</p>
-<p>&nbsp;&nbsp;&nbsp; 首先是C的输入输出。</p>
-<p>&nbsp;&nbsp;&nbsp; scanf.cpp:</p>
-<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
-
-<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
-</span>{
-    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
-    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
-    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
-    freopen(<span class="string">"data"</span>, <span class="string">"r"</span>, <span class="built_in">stdin</span>);
-    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
-    {
-        <span class="keyword">long</span> t_start = clock();
-        <span class="keyword">char</span> s[<span class="number">20</span>];
-        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
-        {
-            <span class="built_in">scanf</span>(<span class="string">"%s"</span>, s);
-        }
-        <span class="keyword">long</span> t_end = clock();
-        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    <span class="built_in">printf</span>(<span class="string">"average cost: %lfs\n"</span>, t_sum/testCnt);
-    fclose(<span class="built_in">stdin</span>);
-    <span class="keyword">return</span> <span class="number">0</span>;
-}
-</code></pre><p>&nbsp;&nbsp;&nbsp; printf.cpp:</p>
-<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
-
-<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
-</span>{
-    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
-    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
-    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
-    freopen(<span class="string">"data"</span>, <span class="string">"w"</span>, <span class="built_in">stdout</span>);
-    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
-    {
-        <span class="keyword">long</span> t_start = clock();
-        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
-        {
-            <span class="built_in">printf</span>(<span class="string">"string%d\n"</span>, i);
-        }
-        <span class="keyword">long</span> t_end = clock();
-        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    <span class="built_in">printf</span>(<span class="string">"average cost: %lfs\n"</span>, t_sum/testCnt);
-    fclose(<span class="built_in">stdout</span>);
-    <span class="keyword">return</span> <span class="number">0</span>;
-}
-</code></pre><p>&nbsp;&nbsp;&nbsp; 然后是不解锁同步的cin、cout方法。</p>
-<p>&nbsp;&nbsp;&nbsp; cin.cpp:</p>
-<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span></span>
-
-<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
-
-<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
-</span>{
-    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
-    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
-    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
-    <span class="function">ifstream <span class="title">fin</span><span class="params">(<span class="string">"data"</span>)</span></span>;
-    streambuf *_cin =  <span class="built_in">cin</span>.rdbuf(fin.rdbuf());
-    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
-    {
-        <span class="keyword">long</span> t_start = clock();
-        <span class="built_in">string</span> s;
-        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
-        {
-            <span class="built_in">cin</span> &gt;&gt; s;
-        }
-        <span class="keyword">long</span> t_end = clock();
-        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    <span class="built_in">cout</span> &lt;&lt; <span class="string">"average cost: "</span> &lt;&lt; t_sum/testCnt &lt;&lt; <span class="string">"s\n"</span>;
-    <span class="built_in">cin</span>.rdbuf(_cin);
-    fin.close();
-    <span class="keyword">return</span> <span class="number">0</span>;
-}
-</code></pre><p>&nbsp;&nbsp;&nbsp; cout.cpp:</p>
-<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span></span>
-
-<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
-
-<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
-</span>{
-    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
-    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
-    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
-    <span class="function">ofstream <span class="title">fout</span><span class="params">(<span class="string">"data"</span>)</span></span>;
-    streambuf *_cout =  <span class="built_in">cout</span>.rdbuf(fout.rdbuf());
-    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
-    {
-        <span class="keyword">long</span> t_start = clock();
-        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
-        {
-            <span class="built_in">cout</span> &lt;&lt; <span class="string">"string"</span> &lt;&lt; i &lt;&lt; <span class="string">'\n'</span>;
-        }
-        <span class="keyword">long</span> t_end = clock();
-        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    <span class="built_in">cout</span> &lt;&lt; <span class="string">"average cost: "</span> &lt;&lt; t_sum/testCnt &lt;&lt; <span class="string">"s\n"</span>;
-    <span class="built_in">cout</span>.rdbuf(_cout);
-    fout.close();
-    <span class="keyword">return</span> <span class="number">0</span>;
-}
-</code></pre><p>&nbsp;&nbsp;&nbsp; 接下来是解锁同步的cin、cout方法。</p>
-<p>&nbsp;&nbsp;&nbsp; optimized_cin.cpp:</p>
-<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span></span>
-
-<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
-
-<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
-</span>{
-    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
-    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
-    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
-    ios::sync_with_stdio(<span class="literal">false</span>);
-    <span class="function">ifstream <span class="title">fin</span><span class="params">(<span class="string">"data"</span>)</span></span>;
-    streambuf *_cin =  <span class="built_in">cin</span>.rdbuf(fin.rdbuf());
-    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
-    {
-        <span class="keyword">long</span> t_start = clock();
-        <span class="built_in">string</span> s;
-        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
-        {
-            <span class="built_in">cin</span> &gt;&gt; s;
-        }
-        <span class="keyword">long</span> t_end = clock();
-        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    <span class="built_in">cout</span> &lt;&lt; <span class="string">"average cost: "</span> &lt;&lt; t_sum/testCnt &lt;&lt; <span class="string">"s\n"</span>;
-    <span class="built_in">cin</span>.rdbuf(_cin);
-    fin.close();
-    <span class="keyword">return</span> <span class="number">0</span>;
-}
-</code></pre><p>&nbsp;&nbsp;&nbsp; optimized_cout.cpp:</p>
-<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span></span>
-
-<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
-
-<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
-</span>{
-    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
-    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
-    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
-    ios::sync_with_stdio(<span class="literal">false</span>);
-    <span class="function">ofstream <span class="title">fout</span><span class="params">(<span class="string">"data"</span>)</span></span>;
-    streambuf *_cout =  <span class="built_in">cout</span>.rdbuf(fout.rdbuf());
-    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
-    {
-        <span class="keyword">long</span> t_start = clock();
-        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
-        {
-            <span class="built_in">cout</span> &lt;&lt; <span class="string">"string"</span> &lt;&lt; i &lt;&lt; <span class="string">'\n'</span>;
-        }
-        <span class="keyword">long</span> t_end = clock();
-        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    <span class="built_in">cout</span> &lt;&lt; <span class="string">"average cost: "</span> &lt;&lt; t_sum/testCnt &lt;&lt; <span class="string">"s\n"</span>;
-    <span class="built_in">cout</span>.rdbuf(_cout);
-    fout.close();
-    <span class="keyword">return</span> <span class="number">0</span>;
-}
-</code></pre><p>&nbsp;&nbsp;&nbsp; 同时测试C++直接读写文件的方法。</p>
-<p>&nbsp;&nbsp;&nbsp; fin.cpp:</p>
-<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span></span>
-
-<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
-
-<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
-</span>{
-    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
-    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
-    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
-    <span class="function">ifstream <span class="title">fin</span><span class="params">(<span class="string">"data"</span>)</span></span>;
-    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
-    {
-        <span class="keyword">long</span> t_start = clock();
-        <span class="built_in">string</span> s;
-        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
-        {
-            fin &gt;&gt; s;
-        }
-        <span class="keyword">long</span> t_end = clock();
-        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    <span class="built_in">cout</span> &lt;&lt; <span class="string">"average cost: "</span> &lt;&lt; t_sum/testCnt &lt;&lt; <span class="string">"s\n"</span>;
-    fin.close();
-    <span class="keyword">return</span> <span class="number">0</span>;
-}
-</code></pre><p>&nbsp;&nbsp;&nbsp; fout.cpp:</p>
-<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span></span>
-
-<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
-
-<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
-</span>{
-    <span class="keyword">int</span> testCnt = <span class="number">10</span>;
-    <span class="keyword">int</span> caseCnt = <span class="number">10000000</span>;
-    <span class="keyword">double</span> t_sum = <span class="number">0</span>;
-    <span class="function">ofstream <span class="title">fout</span><span class="params">(<span class="string">"data"</span>)</span></span>;
-    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; testCnt ; j++)
-    {
-        <span class="keyword">long</span> t_start = clock();
-        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; caseCnt ; i++)
-        {
-            fout &lt;&lt; <span class="string">"string"</span> &lt;&lt; i &lt;&lt; <span class="string">'\n'</span>;
-        }
-        <span class="keyword">long</span> t_end = clock();
-        t_sum += (<span class="keyword">double</span>)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    <span class="built_in">cout</span> &lt;&lt; <span class="string">"average cost: "</span> &lt;&lt; t_sum/testCnt &lt;&lt; <span class="string">"s\n"</span>;
-    fout.close();
-    <span class="keyword">return</span> <span class="number">0</span>;
-}
-</code></pre><p>&nbsp;&nbsp;&nbsp; 下面是测试结果：</p>
-<table><tr><th></th><th>scanf与printf</th><th>cin与cout</th><th>优化的cin与cout</th>    <th>fin与fout</th></tr><tr><td>输入</td><td>1.125694s</td><td>2.46949s</td><td>0.950055s</td><td>0.834976s</td></tr><tr><td>输出</td><td>1.304706s</td><td>1.46059s</td><td>1.41783s</td><td>1.41298s</td></tr></table>
-
-<p>&nbsp;&nbsp;&nbsp; 可以看到，事实上，解开同步之前，cin耗时是scanf的两倍还多，cout则比printf略慢。解开枷锁的cin执行效率与直接读文件接近，甚至比C的scanf还要快。至于输出，解开同步的cout执行效率略有提高，同样接近直接写文件，但是确实还是比C的printf略慢一点。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>&nbsp;&nbsp;&nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降低了执行效率。那么可能挽回这种效率损失吗？答案是可以。<br>]]>
-    
-    </summary>
-    
-      <category term="C++" scheme="http://blog.bipedalbit.net/tags/C/"/>
-    
-      <category term="cin" scheme="http://blog.bipedalbit.net/tags/cin/"/>
-    
-      <category term="cout" scheme="http://blog.bipedalbit.net/tags/cout/"/>
-    
-      <category term="printf" scheme="http://blog.bipedalbit.net/tags/printf/"/>
-    
-      <category term="scanf" scheme="http://blog.bipedalbit.net/tags/scanf/"/>
     
       <category term="C++" scheme="http://blog.bipedalbit.net/categories/C/"/>
     
