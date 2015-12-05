@@ -2,6 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.bipedalbit.net/2015/12/5/%E7%94%B1%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%92%8C%E7%B1%BB%E8%84%91%E7%8E%B0%E7%8A%B6%E5%B1%95%E5%BC%80/</loc>
+    <lastmod>2015-12-05T16:56:45.393Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://blog.bipedalbit.net/2015/9/12/socket-io%E9%82%80%E8%AF%B7%E5%88%B6%E5%B8%A6%E7%99%BB%E5%BD%95%E8%81%8A%E5%A4%A9%E5%AE%A4%E5%AE%9E%E4%BE%8B%E3%80%90DRRR-chat-room%E3%80%91/</loc>
+    <lastmod>2015-12-05T16:48:39.221Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://blog.bipedalbit.net/2015/12/1/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</loc>
     <lastmod>2015-12-01T16:53:15.335Z</lastmod>
   </url>
@@ -79,11 +89,6 @@
   <url>
     <loc>http://blog.bipedalbit.net/2015/8/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/</loc>
     <lastmod>2015-09-16T04:17:40.679Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://blog.bipedalbit.net/2015/9/12/socket-io%E9%82%80%E8%AF%B7%E5%88%B6%E5%B8%A6%E7%99%BB%E5%BD%95%E8%81%8A%E5%A4%A9%E5%AE%A4%E5%AE%9E%E4%BE%8B%E3%80%90DRRR-chat-room%E3%80%91/</loc>
-    <lastmod>2015-09-16T02:50:33.887Z</lastmod>
   </url>
   
   <url>
