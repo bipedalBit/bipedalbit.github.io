@@ -4,7 +4,7 @@
   <subtitle><![CDATA[为了证明并非止步不前，为了安慰被神牛震慑的心。]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://blog.bipedalbit.net/"/>
-  <updated>2016-01-02T06:50:12.986Z</updated>
+  <updated>2016-01-06T03:46:19.092Z</updated>
   <id>http://blog.bipedalbit.net/</id>
   
   <author>
@@ -13,6 +13,29 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[微博爬虫之代理池]]></title>
+    <link href="http://blog.bipedalbit.net/2016/1/6/%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB%E4%B9%8B%E4%BB%A3%E7%90%86%E6%B1%A0/"/>
+    <id>http://blog.bipedalbit.net/2016/1/6/微博爬虫之代理池/</id>
+    <published>2016-01-05T17:02:08.000Z</published>
+    <updated>2016-01-06T03:46:19.092Z</updated>
+    <content type="html"><![CDATA[<p>&nbsp;&nbsp;&nbsp; 前一个版本的微博爬虫每发送一个HTTP请求就需要等待若干秒，模拟人类操作，避免引起服务器的注意，以至于每个请求平均耗时高达3秒。为了防止被服务器封禁，显然应该使用代理，伪装自己HTTP请求的来源。至于如何获取代理，如何使用这些代理，我进行了一些思考与探索，并完善上个版本的微博爬虫工具包，完成了新版的微博爬虫。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; 我的第一个思路是，找到提供大量免费代理的网站（自己找，本文不点明），爬取代理，然后用多线程的方式成组发送请求。虽然获取代理的过程很顺利，但是我很快发现了这个思路的一些问题。<br>&nbsp;&nbsp;&nbsp; 首先，成组多线程并发请求的话，<strong>下一页链接</strong>没法使用同一个序列，即可能需要先获取页数然后做页码区间划分，再把每个区间分配给不同的代理。可是如果某个代理中途失效了怎么办？就算不考虑这种情况，理论上，每组请求之间还是需要加平均3秒的延迟，实际上，受IO上限的影响，16线程的成组请求，等到全部响应完大概需要10+秒，这样一来组间延迟省掉也无所谓，可是即使在只使用优质代理的情况下每次请求的均摊时间开销也要1.+秒，虽然效率比不使用代理有所提高，但是我仍然不满意。<br>&nbsp;&nbsp;&nbsp; 随后我放弃了对多线程并发的执念，提出并完善了一个新思路——单线程爬虫＋带时间戳的代理池＋代理竞争。<br>&nbsp;&nbsp;&nbsp; 先解释单线程爬虫，有了代理池其实已经基本不用担心代理失效的问题，但是为了实现方便，我还是暂且选择了单线程爬虫。下一个版本也许会在整个爬虫外面套一层并发，也许会考虑使用协程（coroutine）技术。<br>&nbsp;&nbsp;&nbsp; 接下来是带时间戳的代理池和代理竞争。我们知道，每一个代理在发出一个请求后需要等待一个平均3秒的随机时间后才可以再次发送请求。那么，如果我们使用过一个代理之后就暂时给它上锁（实际上是打上一个时间戳），到时间后（当前时间的时间戳与代理时间戳差值超过随机延时）则给它解锁就可以解决单个代理的使用问题。同时，我们在所有代理之间轮询寻找没上锁的代理来使用，而每次请求的响应时间会积累下来，考虑到使用代理的请求响应时间比较长，顶多五六个代理之后旧代理就已经解锁了。而实际上，我的代理池维护的代理数通常不会少于6。即使代理全都上了锁，我也可以等待1秒后重新轮询。于是，只要保证代理池足够大，同时维护代理池中代理的质量，我们就可以实现连续发送请求，事实上，经过实验，代理响应时间受代理质量影响有所浮动，平均请求周期最长达到过6/7秒，最短达到过5/3秒。<br>&nbsp;&nbsp;&nbsp; 至于维护代理池的方法，我从爬虫进程fork了一个守护进程用来更新代理池。定时（暂定30秒）爬取代理网站某页面上的100个代理，然后用多线程（暂定16线程）测试每个代理的响应时间，过滤掉响应太慢（暂定超时时间为3秒）的代理，用同样的方法过滤代理池中不在新代理列表中的代理，最后合并代理池和新代理列表，同时为新代理打上很小的时间戳（实际上是0），已有的代理时间戳不变。这样可以在代理损失的过程中不断扩充代理，使代理池的规模稳定甚至递增（经过实验，基本能使代理池大小保持稳定，没有出现代理池暴增的情况，暂时不对代理池大小加以限制）。<br>&nbsp;&nbsp;&nbsp; 关于新思路的实现，我在重构weibo-crawler后新建了weibo-crawler2项目，按惯例已挂<a href="https://github.com/bipedalBit/weibo-crawler2" target="_blank" rel="external">git</a>。下面是一些weibo-crawler2的使用截图：<br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/weibo-crawler2/crawler2包配置.png" alt="图１ crawler2包配置" title="__init__.py"><br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/weibo-crawler2/爬虫CLI输出.png" alt="图２ 爬虫CLI输出" title="爬虫CLI输出"><br><img src="http://7xnd0v.com1.z0.glb.clouddn.com/weibo-crawler2/爬虫日志.png" alt="图３ 爬虫日志" title="爬虫日志"></p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>&nbsp;&nbsp;&nbsp; 前一个版本的微博爬虫每发送一个HTTP请求就需要等待若干秒，模拟人类操作，避免引起服务器的注意，以至于每个请求平均耗时高达3秒。为了防止被服务器封禁，显然应该使用代理，伪装自己HTTP请求的来源。至于如何获取代理，如何使用这些代理，我进行了一些思考与探索，并完善上个版本的微博爬虫工具包，完成了新版的微博爬虫。<br>]]>
+    
+    </summary>
+    
+      <category term="proxy" scheme="http://blog.bipedalbit.net/tags/proxy/"/>
+    
+      <category term="python" scheme="http://blog.bipedalbit.net/tags/python/"/>
+    
+      <category term="网络爬虫" scheme="http://blog.bipedalbit.net/tags/%E7%BD%91%E7%BB%9C%E7%88%AC%E8%99%AB/"/>
+    
+      <category term="python" scheme="http://blog.bipedalbit.net/categories/python/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[weibo.cn模拟登录器的python重构]]></title>
@@ -919,331 +942,6 @@ apt-<span class="keyword">get</span> <span class="keyword">install</span> libxin
       <category term="python" scheme="http://blog.bipedalbit.net/tags/python/"/>
     
       <category term="python" scheme="http://blog.bipedalbit.net/categories/python/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[BP神经网络的python（pybrain库）实现]]></title>
-    <link href="http://blog.bipedalbit.net/2015/10/13/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84python%EF%BC%88pybrain%E5%BA%93%EF%BC%89%E5%AE%9E%E7%8E%B0/"/>
-    <id>http://blog.bipedalbit.net/2015/10/13/BP神经网络的python（pybrain库）实现/</id>
-    <published>2015-10-13T06:54:25.000Z</published>
-    <updated>2015-10-13T07:28:03.521Z</updated>
-    <content type="html"><![CDATA[<p>&nbsp;&nbsp;&nbsp; 上一篇文用C++手写了BP神经网络，事实上，生产环境中已经很少有人再亲自写神经网络了，已经出现了很多成熟的机器学习开源库。我安装了C++的shark库和python的pybrain库，在研究shark库的文档时发现shark库封装度太低了，用起来很麻烦，遂弃。虽然放弃C++的高效库很遗憾，但是后来发现pybrain库真是非常友好非常方便，于是分别写了分类器和函数拟合的例子及测评。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; 看两个库的源码时发现，shark库的机器学习模型比较多，pybrain的少一些，但是提供一些实时图形化的接口（虽然我嫌麻烦没用）。于是pybrain也可以与matlab和R语言争争份额了（虽然显然还是matlab和R比较专业）。<br>&nbsp;&nbsp;&nbsp; 首先来看分类器的实现，还是那个寻找点与平面位置关系规则的问题，上代码，NNClassifier.py：</p>
-<pre><code><span class="comment">#!/usr/bin/env python</span>
-<span class="comment"># -*- coding: utf-8 -*-</span>
-<span class="comment"># 关于前馈神经网络二分类点集的尝试</span>
-<span class="comment"># 因为是首次尝试使用pybrain，不使用快捷方式创建神经网络以求思路清晰。</span>
-
-__author__ = <span class="string">'Bipedal Bit, hmemoryl@163.com'</span>
-
-<span class="keyword">from</span> pybrain.structure <span class="keyword">import</span> FeedForwardNetwork
-<span class="keyword">from</span> pybrain.structure <span class="keyword">import</span> LinearLayer, SigmoidLayer
-<span class="keyword">from</span> pybrain.structure <span class="keyword">import</span> FullConnection
-<span class="keyword">from</span> pybrain.datasets <span class="keyword">import</span> SupervisedDataSet
-<span class="keyword">import</span> random
-<span class="keyword">from</span> pybrain.supervised.trainers <span class="keyword">import</span> BackpropTrainer
-<span class="keyword">import</span> time
-<span class="keyword">from</span> pybrain.tools.customxml.networkwriter <span class="keyword">import</span> NetworkWriter
-<span class="keyword">from</span> pybrain.tools.customxml.networkreader <span class="keyword">import</span> NetworkReader
-
-<span class="comment"># ================== 构造神经网络 ======================</span>
-<span class="comment"># 建立前馈神经网络FNN</span>
-FNN = FeedForwardNetwork()
-
-<span class="comment"># 逐层建立神经元</span>
-<span class="comment"># 建立m个输入参数的输入层（inLayer）</span>
-inLayer = LinearLayer(<span class="number">7</span>, name = <span class="string">'inLayer'</span>)
-<span class="comment"># 建立隐含层</span>
-hiddenLayer0 = SigmoidLayer(<span class="number">30</span>, name = <span class="string">'hiddenLayer0'</span>)
-<span class="comment"># 建立n个输出参数的输出层（outLayer）</span>
-outLayer = SigmoidLayer(<span class="number">2</span>, name = <span class="string">'outLayer'</span>)
-
-<span class="comment"># 将层加入神经网络（向神经网络内添加不同功能的神经元）</span>
-FNN.addInputModule(inLayer)
-FNN.addModule(hiddenLayer0)
-FNN.addOutputModule(outLayer)
-
-<span class="comment"># 建立层之间的连接，使用全连接，即两层的神经元之间两两全部连接</span>
-conn_inToHidden0 = FullConnection(inLayer, hiddenLayer0)
-conn_hidden0ToOut = FullConnection(hiddenLayer0, outLayer)
-
-<span class="comment"># 将连接加入神经网络</span>
-FNN.addConnection(conn_inToHidden0)
-FNN.addConnection(conn_hidden0ToOut)
-
-<span class="comment"># 神经元拓扑排序，准备使用</span>
-FNN.sortModules()
-
-<span class="comment"># ================== 构造数据集 ======================</span>
-<span class="comment"># 建立带监督的数据集，参数为输入维数和输出维数</span>
-DS = SupervisedDataSet(<span class="number">7</span>, <span class="number">2</span>)
-
-<span class="comment"># 向数据集添加样本</span>
-<span class="comment"># 将一个0~1的随机数扩展到适当的范围</span>
-<span class="function"><span class="keyword">def</span> <span class="title">expand</span><span class="params">(n)</span>:</span>
-    <span class="keyword">return</span> n*<span class="number">20</span> - <span class="number">10</span>
-<span class="comment"># 数据组数</span>
-dataCnt = <span class="number">2000</span>
-<span class="keyword">for</span> i <span class="keyword">in</span> xrange(<span class="number">1</span>, dataCnt):
-    <span class="comment"># 生成归一化样本数据</span>
-    _x = random.random()
-    _y = random.random()
-    _z = random.random()
-    _a = random.random()
-    _b = random.random()
-    _c = random.random()
-    _d = random.random()
-    <span class="comment"># 扩散出样本真实值</span>
-    x = expand(_x)
-    y = expand(_y)
-    z = expand(_z)
-    a = expand(_a)
-    b = expand(_b)
-    c = expand(_c)
-    d = expand(_d)
-    <span class="comment"># 计算监督值</span>
-    above = <span class="number">1</span> <span class="keyword">if</span> z &gt; (a*x + b*y + d)/(-c) <span class="keyword">else</span> <span class="number">0</span>
-    below = <span class="number">1</span> <span class="keyword">if</span> above == <span class="number">0</span> <span class="keyword">else</span> <span class="number">0</span>
-    <span class="comment"># 添加数据</span>
-    DS.addSample([_x, _y, _z, _a, _b, _c, _d], [above, below])
-
-<span class="comment"># 分别索引输入/输出数据集合</span>
-X, Y = DS[<span class="string">'input'</span>], DS[<span class="string">'target'</span>]
-
-<span class="comment"># 按比例切分训练集与测试集（训练集：测试集 = 8:2）</span>
-DSTrain, DSTest = DS.splitWithProportion(<span class="number">0.8</span>)
-
-<span class="comment"># 分别索引训练集和测试集的输入/输出数据集合</span>
-XTrain, YTrain = DSTrain[<span class="string">'input'</span>], DSTrain[<span class="string">'target'</span>]
-XTest, YTest = DSTest[<span class="string">'input'</span>], DSTest[<span class="string">'target'</span>]
-
-<span class="comment"># =================== 读取神经网络 =====================</span>
-FNN = NetworkReader.readFrom(<span class="string">'networkClasssifier.xml'</span>)
-
-<span class="comment"># ================== 训练神经网络 ======================</span>
-<span class="comment"># 使用BP算法训练神经网络</span>
-trainer = BackpropTrainer(FNN, DSTrain, verbose = <span class="keyword">True</span>, learningrate = <span class="number">0.01</span>, lrdecay = <span class="number">1</span>, momentum = <span class="number">0</span>)
-
-<span class="comment"># 开始计时</span>
-t_start = time.clock()
-
-<span class="comment"># 训练至收敛</span>
-trainer.trainUntilConvergence(maxEpochs = <span class="number">100</span>)
-
-<span class="comment"># 计时结束</span>
-t_end = time.clock()
-
-<span class="comment"># 输出训练用时</span>
-<span class="keyword">print</span> <span class="string">'训练用时：'</span>, t_end - t_start, <span class="string">'s'</span>
-
-<span class="comment"># =================== 存储神经网络 =====================</span>
-NetworkWriter.writeToFile(FNN, <span class="string">'networkClasssifier.xml'</span>)
-
-<span class="comment"># =================== 结果可视化 =======================</span>
-
-
-<span class="comment"># ====================== 测试 ==========================</span>
-successCnt = <span class="number">0</span>
-<span class="keyword">for</span> i <span class="keyword">in</span> xrange(<span class="number">0</span>, len(XTest)-<span class="number">1</span>):
-    <span class="comment"># 获取测试数据</span>
-    x = XTest[i]
-    y = YTest[i]
-    <span class="comment"># 测试</span>
-    prediction = FNN.activate(x)
-    <span class="keyword">if</span> (y[<span class="number">0</span>] - y[<span class="number">1</span>])*(prediction[<span class="number">0</span>] - prediction[<span class="number">1</span>]) &gt; <span class="number">0</span>:
-        successCnt += <span class="number">1</span>
-<span class="keyword">print</span> <span class="string">'测试：'</span>, len(XTest)
-<span class="keyword">print</span> <span class="string">'命中：'</span>, successCnt
-<span class="keyword">print</span> <span class="string">'命中率：'</span>, (successCnt*<span class="number">1.</span>)/len(XTest)*<span class="number">100</span>, <span class="string">'%'</span>
-</code></pre><p>&nbsp;&nbsp;&nbsp; 训练结果我不太意外，误差函数值在0.05左右，算不上好，正确率在82%左右，只能说还行。这次只是简单测评，就不对收敛程度做太高要求了。（其实是我把隐含层神经元都加到30个了精度也不是很高，有点累了，毕竟经验公式说这种输入输出参数量最多加到13个）<br>&nbsp;&nbsp;&nbsp; 最后的神经网络保存文档（权重数组），networkClassifier.xml：</p>
-<pre><code>&lt;?xml version="1.0" ?&gt;
-&lt;PyBrain&gt;
-    &lt;Network class="pybrain.structure.networks.feedforward.FeedForwardNetwork" name="FeedForwardNetwork-5"&gt;
-        &lt;name val="u'FeedForwardNetwork-5'"/&gt;
-        &lt;Modules&gt;
-            &lt;LinearLayer class="pybrain.structure.modules.linearlayer.LinearLayer" inmodule="True" name="inLayer"&gt;
-                &lt;dim val="7"/&gt;
-                &lt;name val="'inLayer'"/&gt;
-            &lt;/LinearLayer&gt;
-            &lt;SigmoidLayer class="pybrain.structure.modules.sigmoidlayer.SigmoidLayer" name="outLayer" outmodule="True"&gt;
-                &lt;dim val="2"/&gt;
-                &lt;name val="'outLayer'"/&gt;
-            &lt;/SigmoidLayer&gt;
-            &lt;SigmoidLayer class="pybrain.structure.modules.sigmoidlayer.SigmoidLayer" name="hiddenLayer0"&gt;
-                &lt;dim val="30"/&gt;
-                &lt;name val="'hiddenLayer0'"/&gt;
-            &lt;/SigmoidLayer&gt;
-        &lt;/Modules&gt;
-        &lt;Connections&gt;
-            &lt;FullConnection class="pybrain.structure.connections.full.FullConnection" name="FullConnection-3"&gt;
-                &lt;inmod val="inLayer"/&gt;
-                &lt;outmod val="hiddenLayer0"/&gt;
-                &lt;Parameters&gt;[-<span class="number">4.46346467</span><span class="number">60183774</span>, -<span class="number">1.866355182</span><span class="number">4786604</span>, <span class="number">1.57969847</span><span class="number">84944188</span>, -<span class="number">4.1545734140</span>399917, -<span class="number">1.42353799</span><span class="number">09335284</span>, <span class="number">10.81441888</span><span class="number">6792573</span>, -<span class="number">0.35697065</span><span class="number">520281313</span>, <span class="number">3.71685998</span><span class="number">40362613</span>, -<span class="number">1.39540060</span><span class="number">78608174</span>, <span class="number">3.28887082</span><span class="number">57680479</span>, -<span class="number">1.27287133</span><span class="number">82523704</span>, <span class="number">5.168248584</span><span class="number">9770519</span>, -<span class="number">10.34545939</span><span class="number">3449577</span>, <span class="number">0.40944729</span><span class="number">400489821</span>, -<span class="number">0.86432327</span><span class="number">459917391</span>, <span class="number">0.874152677</span><span class="number">39043501</span>, -<span class="number">1.126184746</span><span class="number">4737353</span>, <span class="number">0.265508249</span><span class="number">04566483</span>, -<span class="number">0.69655632</span><span class="number">472406404</span>, -<span class="number">1.09264964</span><span class="number">54783619</span>, -<span class="number">1.324101436</span><span class="number">3212174</span>, -<span class="number">1.234526267</span><span class="number">1004642</span>, -<span class="number">5.35451549</span><span class="number">53074556</span>, -<span class="number">3.29773091</span><span class="number">06602868</span>, -<span class="number">1.919214264</span><span class="number">8212187</span>, <span class="number">3.521903240</span><span class="number">2205235</span>, <span class="number">8.82431164</span><span class="number">75870895</span>, -<span class="number">0.347110738</span><span class="number">57964059</span>, -<span class="number">0.76652402</span><span class="number">450096546</span>, -<span class="number">0.458006251</span><span class="number">82882904</span>, <span class="number">0.1092123431</span><span class="number">0650819</span>, <span class="number">1.09068828</span><span class="number">81030282</span>, <span class="number">0.581223858</span><span class="number">51806679</span>, <span class="number">0.74902769</span><span class="number">546891046</span>, <span class="number">0.57778560</span><span class="number">396382117</span>, -<span class="number">0.36268964</span><span class="number">602939496</span>, -<span class="number">1.45607165</span><span class="number">52974731</span>, <span class="number">0.02580747</span><span class="number">5393432977</span>, -<span class="number">0.5232463249</span><span class="number">0359346</span>, -<span class="number">1.47682599</span><span class="number">74689912</span>, -<span class="number">1.32265485</span><span class="number">04200857</span>, -<span class="number">0.5602443177</span><span class="number">4602601</span>, <span class="number">0.52538133</span><span class="number">85807985</span>, -<span class="number">2.360136852</span><span class="number">8359932</span>, <span class="number">3.439192432</span><span class="number">7008545</span>, -<span class="number">3.45290594</span><span class="number">57340887</span>, -<span class="number">0.36798304</span><span class="number">125763204</span>, <span class="number">0.2464238781</span><span class="number">1765787</span>, <span class="number">0.74392363</span><span class="number">594535504</span>, -<span class="number">1.42000928</span><span class="number">17628436</span>, -<span class="number">0.95882940</span><span class="number">181717424</span>, <span class="number">0.90204884</span><span class="number">683974906</span>, -<span class="number">2.212330742</span><span class="number">5066581</span>, -<span class="number">1.29274955</span><span class="number">94815508</span>, -<span class="number">2.64182980</span><span class="number">86483243</span>, <span class="number">0.00897377</span><span class="number">28359628229</span>, -<span class="number">0.96131150</span><span class="number">512314989</span>, -<span class="number">0.423869137</span><span class="number">03414159</span>, <span class="number">2.74238279</span><span class="number">71590629</span>, <span class="number">0.49257080</span><span class="number">970361217</span>, -<span class="number">0.73140003</span><span class="number">600797654</span>, -<span class="number">0.97237673</span><span class="number">817617065</span>, <span class="number">0.021672107</span><span class="number">067701795</span>, -<span class="number">0.30730995</span><span class="number">794768651</span>, -<span class="number">0.283771102</span><span class="number">59164756</span>, -<span class="number">1.376942150</span><span class="number">2868895</span>, -<span class="number">0.499234809</span><span class="number">94397734</span>, <span class="number">0.63167130</span><span class="number">189837051</span>, <span class="number">0.72750574</span><span class="number">299622528</span>, -<span class="number">0.508232437</span><span class="number">24360356</span>, -<span class="number">2.32492362</span><span class="number">93984685</span>, -<span class="number">1.00849303</span><span class="number">98088603</span>, <span class="number">0.554834233</span><span class="number">19351144</span>, -<span class="number">3.089595146</span><span class="number">8032683</span>, -<span class="number">1.569810215</span>716863, -<span class="number">4.67127781</span><span class="number">20909002</span>, <span class="number">2.147697792</span><span class="number">7094589</span>, -<span class="number">0.926019225</span><span class="number">52049853</span>, <span class="number">0.809131226</span><span class="number">03871213</span>, <span class="number">1.01678193</span><span class="number">96610751</span>, <span class="number">1.25789161</span><span class="number">10729925</span>, <span class="number">1.1336741124</span>853456, -<span class="number">1.446257114</span><span class="number">8912973</span>, <span class="number">0.44986374</span><span class="number">09091461</span>, -<span class="number">0.00465702</span><span class="number">55381198191</span>, <span class="number">1.01304907</span><span class="number">43040022</span>, <span class="number">0.06780874</span><span class="number">2574706565</span>, -<span class="number">3.1665123334</span>368257, -<span class="number">1.369584190</span><span class="number">2759027</span>, -<span class="number">0.61944129</span><span class="number">404109394</span>, <span class="number">0.327125206</span><span class="number">16674406</span>, -<span class="number">4.09448871</span><span class="number">53367588</span>, <span class="number">0.334251125</span><span class="number">96763401</span>, <span class="number">0.53786026</span><span class="number">328450398</span>, <span class="number">3.78370706</span><span class="number">9693385</span>, -<span class="number">0.737711163</span><span class="number">33542275</span>, -<span class="number">7.31168438</span><span class="number">63108363</span>, -<span class="number">0.908473190</span><span class="number">43398045</span>, -<span class="number">1.30729975</span><span class="number">63815252</span>, <span class="number">1.58643575</span><span class="number">35576585</span>, -<span class="number">2.177336939</span><span class="number">5271285</span>, <span class="number">0.165827133</span><span class="number">03194607</span>, <span class="number">0.624236043</span><span class="number">97793453</span>, <span class="number">0.59389298</span><span class="number">905810417</span>, -<span class="number">0.31484499</span><span class="number">272512129</span>, <span class="number">5.07084864</span><span class="number">45028633</span>, <span class="number">0.91681404</span><span class="number">432938907</span>, <span class="number">0.31193631</span><span class="number">582711534</span>, -<span class="number">5.44732041</span><span class="number">54043851</span>, -<span class="number">0.78472409</span><span class="number">29315491</span>, -<span class="number">7.695103064</span><span class="number">9320984</span>, -<span class="number">0.320148384</span><span class="number">44510901</span>, <span class="number">0.56829986</span><span class="number">867023885</span>, -<span class="number">0.29653458</span><span class="number">065896326</span>, <span class="number">0.51800388</span><span class="number">373753137</span>, -<span class="number">0.56704382</span><span class="number">593349767</span>, -<span class="number">0.252646061</span><span class="number">09631066</span>, <span class="number">0.785142706</span><span class="number">24403915</span>, <span class="number">0.67787739</span><span class="number">064705022</span>, -<span class="number">0.00144309</span><span class="number">92506962728</span>, -<span class="number">1.191564995</span><span class="number">8214867</span>, -<span class="number">2.83398641</span><span class="number">38165369</span>, -<span class="number">1.29209585</span><span class="number">46780335</span>, -<span class="number">1.2004239162</span>539645, -<span class="number">5.55183609</span><span class="number">74893373</span>, <span class="number">2.68870499</span><span class="number">48956299</span>, -<span class="number">1.88370196</span><span class="number">33804577</span>, <span class="number">2.85871094</span><span class="number">49831924</span>, <span class="number">3.86843848</span><span class="number">35516568</span>, -<span class="number">2.70900256</span><span class="number">88862394</span>, -<span class="number">3.31543403</span><span class="number">36962216</span>, <span class="number">1.06883348</span><span class="number">74085363</span>, <span class="number">0.43275994</span><span class="number">294040698</span>, -<span class="number">3.87847766</span><span class="number">61421345</span>, -<span class="number">0.85786783</span><span class="number">30233066</span>, <span class="number">1.82707385</span><span class="number">85600814</span>, <span class="number">5.447732148</span><span class="number">7215189</span>, <span class="number">2.75541232</span><span class="number">18891138</span>, -<span class="number">6.99653046</span><span class="number">25370077</span>, <span class="number">0.91986888</span><span class="number">975642622</span>, <span class="number">1.62060201</span><span class="number">26465939</span>, <span class="number">0.40565735</span><span class="number">648759632</span>, <span class="number">1.62643831</span><span class="number">51366206</span>, -<span class="number">2.09109487</span><span class="number">25615417</span>, -<span class="number">0.96054739</span><span class="number">666906863</span>, <span class="number">0.83967430</span><span class="number">154853273</span>, <span class="number">0.178264449</span><span class="number">97023716</span>, <span class="number">0.937185478</span><span class="number">27806598</span>, -<span class="number">5.223230271</span><span class="number">6871377</span>, -<span class="number">0.377159534</span><span class="number">25266679</span>, <span class="number">1.105727398</span><span class="number">1735851</span>, -<span class="number">5.02286300</span><span class="number">28488084</span>, <span class="number">8.78335927</span><span class="number">18428406</span>, -<span class="number">0.178627704</span><span class="number">62286087</span>, <span class="number">0.071119534</span><span class="number">208408983</span>, <span class="number">0.61781354</span><span class="number">218205642</span>, -<span class="number">2.048204155</span><span class="number">9354802</span>, -<span class="number">1.228639844</span><span class="number">0013546</span>, <span class="number">0.30582092</span><span class="number">080786355</span>, <span class="number">0.74602342</span><span class="number">033773583</span>, -<span class="number">0.126232755</span><span class="number">90092933</span>, -<span class="number">0.89369108</span><span class="number">883986548</span>, -<span class="number">1.01738252</span><span class="number">08087091</span>, <span class="number">0.217645688</span><span class="number">58325722</span>, <span class="number">1.1182634120</span>634272, <span class="number">0.443644182</span>76133, <span class="number">1.138196191</span>040812, <span class="number">0.106626083</span><span class="number">95776786</span>, -<span class="number">0.258382128</span><span class="number">20199019</span>, -<span class="number">0.86982182</span><span class="number">253008533</span>, -<span class="number">0.55680951</span><span class="number">312883542</span>, <span class="number">0.253076137</span><span class="number">18779792</span>, -<span class="number">0.90155685</span><span class="number">220035831</span>, <span class="number">1.835084251</span>778919, -<span class="number">0.81174579</span><span class="number">278015824</span>, <span class="number">0.482153465</span><span class="number">67645934</span>, <span class="number">6.267187930</span>149162, -<span class="number">2.180548737</span><span class="number">6071957</span>, <span class="number">1.06286477</span><span class="number">12248505</span>, -<span class="number">3.094316126</span><span class="number">2836401</span>, -<span class="number">4.93275878</span><span class="number">98336835</span>, <span class="number">1.37490055</span><span class="number">04013798</span>, -<span class="number">5.510221231</span><span class="number">6356844</span>, -<span class="number">0.96863134</span><span class="number">222439218</span>, <span class="number">0.826886226</span><span class="number">2896568</span>, <span class="number">4.35402592</span><span class="number">68851402</span>, -<span class="number">0.505181567</span><span class="number">39373588</span>, <span class="number">3.89347305</span><span class="number">49155523</span>, -<span class="number">0.39568193</span><span class="number">061006912</span>, -<span class="number">3.78591208</span><span class="number">47720105</span>, <span class="number">2.05956659</span><span class="number">43684325</span>, -<span class="number">2.663398208</span><span class="number">2854342</span>, -<span class="number">4.08073600</span><span class="number">28025208</span>, <span class="number">3.744217707</span><span class="number">5679623</span>, <span class="number">5.117731459</span>48146, -<span class="number">0.446306165</span><span class="number">09537863</span>, <span class="number">0.2071409186</span><span class="number">7709217</span>, -<span class="number">0.68731754</span><span class="number">10894995</span>, <span class="number">0.06146009</span><span class="number">5180831932</span>, -<span class="number">0.44453400</span><span class="number">594106057</span>, <span class="number">0.35250696</span><span class="number">385984698</span>, <span class="number">2.25654550</span><span class="number">35241082</span>, -<span class="number">0.07940170</span><span class="number">0376001166</span>, -<span class="number">0.181779744</span><span class="number">49629683</span>, <span class="number">0.71736053</span><span class="number">566879954</span>, <span class="number">0.54270386</span><span class="number">006022042</span>, <span class="number">0.75951868</span><span class="number">740937811</span>, <span class="number">1.30783783</span><span class="number">24277897</span>, -<span class="number">2.1881100701</span>125251, <span class="number">0.84052630</span><span class="number">355979829</span>]&lt;/Parameters&gt;
-            &lt;/FullConnection&gt;
-            &lt;FullConnection class="pybrain.structure.connections.full.FullConnection" name="FullConnection-4"&gt;
-                &lt;inmod val="hiddenLayer0"/&gt;
-                &lt;outmod val="outLayer"/&gt;
-                &lt;Parameters&gt;[-<span class="number">8.212904156</span><span class="number">8200112</span>, -<span class="number">6.79959559</span><span class="number">20941888</span>, <span class="number">0.48890334</span><span class="number">859207907</span>, <span class="number">7.606678177</span><span class="number">3027499</span>, <span class="number">2.82704075</span><span class="number">53317769</span>, -<span class="number">1.00084891</span><span class="number">51414828</span>, <span class="number">3.03039296</span><span class="number">67267862</span>, -<span class="number">2.45076393</span><span class="number">56974593</span>, <span class="number">1.92051373</span><span class="number">72795547</span>, -<span class="number">2.067711107</span><span class="number">9872867</span>, -<span class="number">4.62787338</span><span class="number">53833467</span>, <span class="number">3.31596372</span><span class="number">61922645</span>, <span class="number">0.49840276</span><span class="number">88395733</span>, <span class="number">4.74151201</span><span class="number">62351183</span>, -<span class="number">2.50339786</span><span class="number">52108386</span>, <span class="number">5.1877234768</span>369922, <span class="number">0.876237182</span><span class="number">21836022</span>, -<span class="number">5.04152835</span><span class="number">50332814</span>, <span class="number">4.07076274</span><span class="number">81245554</span>, -<span class="number">6.441144158</span><span class="number">0882105</span>, <span class="number">2.63699696</span><span class="number">76415286</span>, -<span class="number">8.57756841</span><span class="number">78164635</span>, -<span class="number">1.313121167</span>107631, -<span class="number">0.89764250</span><span class="number">697180914</span>, -<span class="number">0.78729432</span><span class="number">668282306</span>, -<span class="number">4.130066467</span><span class="number">6586489</span>, <span class="number">5.64462457</span><span class="number">51676667</span>, -<span class="number">4.5102393183</span>383498, <span class="number">0.1106246177</span>522491, <span class="number">3.27166280</span><span class="number">12569964</span>, <span class="number">8.28441657</span><span class="number">53556958</span>, <span class="number">6.92380028</span><span class="number">22405154</span>, <span class="number">0.33656468</span><span class="number">267775197</span>, -<span class="number">7.696064182</span><span class="number">3743456</span>, <span class="number">0.84148765</span><span class="number">790877422</span>, <span class="number">1.74839683</span><span class="number">44478173</span>, -<span class="number">2.99388851</span><span class="number">21262571</span>, <span class="number">2.250849674</span><span class="number">3698845</span>, -<span class="number">3.32379735</span><span class="number">90853258</span>, <span class="number">0.2550234669</span><span class="number">6281558</span>, <span class="number">4.48946753</span><span class="number">38875496</span>, -<span class="number">2.53504675</span><span class="number">50996507</span>, -<span class="number">0.112696631</span><span class="number">25646072</span>, -<span class="number">4.75930008</span><span class="number">20253231</span>, <span class="number">1.80995873</span><span class="number">44845871</span>, -<span class="number">5.1168105240</span>606856, -<span class="number">1.71001164</span><span class="number">03752497</span>, <span class="number">4.81790298</span><span class="number">08866174</span>, -<span class="number">4.142155637</span><span class="number">3685728</span>, <span class="number">6.58706133</span><span class="number">47344591</span>, -<span class="number">1.9261388149</span>076637, <span class="number">8.49277202</span><span class="number">62891935</span>, <span class="number">1.620359117</span><span class="number">4629115</span>, -<span class="number">1.70238487</span><span class="number">7536026</span>, <span class="number">1.98229968</span><span class="number">27269457</span>, <span class="number">3.64775174</span><span class="number">64649072</span>, -<span class="number">5.40080401</span><span class="number">15101963</span>, <span class="number">4.72008087</span><span class="number">2228464</span>, -<span class="number">0.76546727</span><span class="number">507485091</span>, -<span class="number">3.67036186</span><span class="number">16272795</span>]&lt;/Parameters&gt;
-            &lt;/FullConnection&gt;
-        &lt;/Connections&gt;
-    &lt;/Network&gt;
-&lt;/PyBrain&gt;
-</code></pre><p>&nbsp;&nbsp;&nbsp; 函数拟合实验选择了简单的a+b问题，上代码，NNRegression.py：</p>
-<pre><code><span class="preprocessor">#!/usr/bin/env python</span>
-<span class="preprocessor"># -*- coding: utf-8 -*-</span>
-<span class="preprocessor"># 关于前馈神经网络函数拟合的尝试</span>
-<span class="preprocessor"># 因为是首次尝试使用pybrain，不使用快捷方式创建神经网络以求思路清晰。</span>
-
-__author__ = <span class="string">'Bipedal Bit, hmemoryl@163.com'</span>
-
-from pybrain.structure import FeedForwardNetwork
-from pybrain.structure import LinearLayer, SigmoidLayer
-from pybrain.structure import FullConnection
-from pybrain.datasets import SupervisedDataSet
-import random
-from pybrain.supervised.trainers import BackpropTrainer
-import time
-from pybrain.tools.customxml.networkwriter import NetworkWriter
-from pybrain.tools.customxml.networkreader import NetworkReader
-
-<span class="preprocessor"># ================== 构造神经网络 ======================</span>
-<span class="preprocessor"># 建立前馈神经网络FNN</span>
-FNN = FeedForwardNetwork()
-
-<span class="preprocessor"># 逐层建立神经元</span>
-<span class="preprocessor"># 建立m个输入参数的输入层（inLayer）</span>
-inLayer = LinearLayer(<span class="number">2</span>, name = <span class="string">'inLayer'</span>)
-<span class="preprocessor"># 建立隐含层</span>
-hiddenLayer0 = SigmoidLayer(<span class="number">20</span>, name = <span class="string">'hiddenLayer0'</span>)
-<span class="preprocessor"># 建立n个输出参数的输出层（outLayer）</span>
-outLayer = LinearLayer(<span class="number">1</span>, name = <span class="string">'outLayer'</span>)
-
-<span class="preprocessor"># 将层加入神经网络（向神经网络内添加不同功能的神经元）</span>
-FNN.addInputModule(inLayer)
-FNN.addModule(hiddenLayer0)
-FNN.addOutputModule(outLayer)
-
-<span class="preprocessor"># 建立层之间的连接，使用全连接，即两层的神经元之间两两全部连接</span>
-conn_inToHidden0 = FullConnection(inLayer, hiddenLayer0)
-conn_hidden0ToOut = FullConnection(hiddenLayer0, outLayer)
-
-<span class="preprocessor"># 将连接加入神经网络</span>
-FNN.addConnection(conn_inToHidden0)
-FNN.addConnection(conn_hidden0ToOut)
-
-<span class="preprocessor"># 神经元拓扑排序，准备使用</span>
-FNN.sortModules()
-
-<span class="preprocessor"># ================== 构造数据集 ======================</span>
-<span class="preprocessor"># 建立带监督的数据集，参数为输入维数和输出维数</span>
-DS = SupervisedDataSet(<span class="number">2</span>, <span class="number">1</span>)
-
-<span class="preprocessor"># 向数据集添加样本</span>
-<span class="preprocessor"># 数据组数</span>
-dataCnt = <span class="number">1000</span>
-<span class="keyword">for</span> i in xrange(<span class="number">1</span>, dataCnt):
-    # 生成归一化样本数据
-    a = random.random()
-    b = random.random()
-    # 计算监督值
-    s = a*<span class="number">20</span> - <span class="number">10</span> + b*<span class="number">20</span> - <span class="number">10</span>
-    # 添加数据
-    DS.addSample([a, b], [s])
-
-<span class="preprocessor"># 分别索引输入/输出数据集合</span>
-X,<span class="constant"> Y </span>= DS[<span class="string">'input'</span>], DS[<span class="string">'target'</span>]
-
-<span class="preprocessor"># 按比例切分训练集与测试集（训练集：测试集 = 8:2）</span>
-DSTrain, DSTest = DS.splitWithProportion(<span class="number">0.8</span>)
-
-<span class="preprocessor"># 分别索引训练集和测试集的输入/输出数据集合</span>
-XTrain, YTrain = DSTrain[<span class="string">'input'</span>], DSTrain[<span class="string">'target'</span>]
-XTest, YTest = DSTest[<span class="string">'input'</span>], DSTest[<span class="string">'target'</span>]
-
-<span class="preprocessor"># =================== 读取神经网络 =====================</span>
-FNN = NetworkReader.readFrom(<span class="string">'networkRegression.xml'</span>)
-
-<span class="preprocessor"># ================== 训练神经网络 ======================</span>
-<span class="preprocessor"># 使用BP算法训练神经网络</span>
-trainer = BackpropTrainer(FNN, DSTrain, verbose = True, learningrate = <span class="number">0.01</span>, lrdecay = <span class="number">1</span>, momentum = <span class="number">0</span>)
-
-<span class="preprocessor"># 开始计时</span>
-t_start = time.clock()
-
-<span class="preprocessor"># 训练至收敛</span>
-trainer.trainUntilConvergence(maxEpochs = <span class="number">100</span>)
-
-<span class="preprocessor"># 计时结束</span>
-t_end = time.clock()
-
-<span class="preprocessor"># 输出训练用时</span>
-print <span class="string">'训练用时：'</span>, t_end - t_start, <span class="string">'s'</span>
-
-<span class="preprocessor"># =================== 存储神经网络 =====================</span>
-NetworkWriter.writeToFile(FNN, <span class="string">'networkRegression.xml'</span>)
-
-<span class="preprocessor"># =================== 结果可视化 =======================</span>
-
-
-<span class="preprocessor"># ====================== 测试 ==========================</span>
-<span class="keyword">for</span> i in xrange(<span class="number">0</span>, <span class="number">10</span>):#len(XTest)-<span class="number">1</span>):
-    # 获取测试数据
-    x = XTest[i]
-    y = YTest[i]
-    # 测试
-    prediction = FNN.activate(x)
-    print <span class="string">'期望值：'</span>, y
-    print <span class="string">'预测值：'</span>, prediction
-    print <span class="string">'--------------------------------------'</span>
-</code></pre><p>&nbsp;&nbsp;&nbsp; 评测结果有些诡异，尽管我丧心病狂的把隐含层神经元数慢慢加到了20个之多，收敛精度依然不太高。误差函数值在0.016左右，计算结果多的时候能有一点几的误差。至于为什么诡异，你们知道我用C++手写的那个BP神经网络a+b拟合测评结果什么样吗？我每次增加隐含层神经元，精度都在提高，最后加到11个神经元时，误差值只有10^-7的数量级了。我在想，莫非pybrain的BP实现写的比我还糟糕？当然我没有闲到对比源码找差别的地步，毕竟这是在扩展知识面而不是开题写论文，要学的东西还有很多。<br>&nbsp;&nbsp;&nbsp; 训练结果，networkRegression.xml：</p>
-<pre><code>&lt;?xml version="1.0" ?&gt;
-&lt;PyBrain&gt;
-    &lt;Network class="pybrain.structure.networks.feedforward.FeedForwardNetwork" name="FeedForwardNetwork-5"&gt;
-        &lt;name val="u'FeedForwardNetwork-5'"/&gt;
-        &lt;Modules&gt;
-            &lt;LinearLayer class="pybrain.structure.modules.linearlayer.LinearLayer" inmodule="True" name="inLayer"&gt;
-                &lt;dim val="2"/&gt;
-                &lt;name val="'inLayer'"/&gt;
-            &lt;/LinearLayer&gt;
-            &lt;LinearLayer class="pybrain.structure.modules.linearlayer.LinearLayer" name="outLayer" outmodule="True"&gt;
-                &lt;dim val="1"/&gt;
-                &lt;name val="'outLayer'"/&gt;
-            &lt;/LinearLayer&gt;
-            &lt;SigmoidLayer class="pybrain.structure.modules.sigmoidlayer.SigmoidLayer" name="hiddenLayer0"&gt;
-                &lt;dim val="20"/&gt;
-                &lt;name val="'hiddenLayer0'"/&gt;
-            &lt;/SigmoidLayer&gt;
-        &lt;/Modules&gt;
-        &lt;Connections&gt;
-            &lt;FullConnection class="pybrain.structure.connections.full.FullConnection" name="FullConnection-4"&gt;
-                &lt;inmod val="inLayer"/&gt;
-                &lt;outmod val="hiddenLayer0"/&gt;
-                &lt;Parameters&gt;[<span class="number">0.66989695</span><span class="number">089493184</span>, <span class="number">0.2015454178</span><span class="number">7085151</span>, -<span class="number">0.50128908</span><span class="number">433773467</span>, -<span class="number">0.37527744</span><span class="number">480307418</span>, -<span class="number">0.746110145</span><span class="number">78997958</span>, -<span class="number">0.123371902</span><span class="number">84043228</span>, -<span class="number">0.26139108</span><span class="number">724410959</span>, -<span class="number">0.622237906</span><span class="number">66112244</span>, <span class="number">0.76934737</span><span class="number">325151314</span>, <span class="number">0.09727336</span><span class="number">5366757986</span>, -<span class="number">0.702419114</span><span class="number">19677627</span>, -<span class="number">0.167552161</span><span class="number">7762078</span>, -<span class="number">0.52875791</span><span class="number">799833338</span>, -<span class="number">0.347018205</span><span class="number">33745775</span>, <span class="number">0.91136351</span><span class="number">597023102</span>, -<span class="number">0.051368168</span><span class="number">009540249</span>, -<span class="number">0.4641538107</span><span class="number">6169848</span>, -<span class="number">0.41344842</span><span class="number">847904884</span>, -<span class="number">0.36379899</span><span class="number">37993043</span>, -<span class="number">0.51709189</span><span class="number">928560939</span>, <span class="number">0.02191754</span><span class="number">0062381426</span>, -<span class="number">0.91373858</span><span class="number">562576571</span>, <span class="number">0.185587097</span><span class="number">21271155</span>, <span class="number">0.70146289</span><span class="number">478301882</span>, <span class="number">0.165764270</span><span class="number">3601043</span>, <span class="number">0.72042804</span><span class="number">496432955</span>, -<span class="number">0.05199583</span><span class="number">6002024759</span>, -<span class="number">0.83682492</span><span class="number">233986472</span>, -<span class="number">0.57633470</span><span class="number">846976453</span>, -<span class="number">0.29793296</span><span class="number">256418189</span>, -<span class="number">0.00426687</span><span class="number">00361729222</span>, <span class="number">0.896136281</span><span class="number">91472339</span>, <span class="number">0.78248084</span><span class="number">199047585</span>, <span class="number">0.08375240</span><span class="number">7601260875</span>, -<span class="number">0.344260219</span><span class="number">47865065</span>, -<span class="number">0.536773188</span><span class="number">54588607</span>, -<span class="number">0.59630570</span><span class="number">148683881</span>, -<span class="number">0.277203371</span><span class="number">1210245</span>, -<span class="number">0.29072335</span><span class="number">479904238</span>, -<span class="number">0.592217530</span><span class="number">51512371</span>]&lt;/Parameters&gt;
-            &lt;/FullConnection&gt;
-            &lt;FullConnection class="pybrain.structure.connections.full.FullConnection" name="FullConnection-3"&gt;
-                &lt;inmod val="hiddenLayer0"/&gt;
-                &lt;outmod val="outLayer"/&gt;
-                &lt;Parameters&gt;[<span class="number">7.00337879</span><span class="number">39978653</span>, -<span class="number">8.92047040</span><span class="number">09603475</span>, -<span class="number">7.00193574</span><span class="number">87260141</span>, -<span class="number">9.185134883</span><span class="number">8825597</span>, <span class="number">11.222280489</span>358978, -<span class="number">9.132151261</span><span class="number">6209173</span>, -<span class="number">10.187840330</span>915042, <span class="number">12.40878268</span>578923, -<span class="number">8.194628734</span><span class="number">8945397</span>, -<span class="number">9.72986745</span><span class="number">8003703</span>, -<span class="number">10.577209749</span>285847, <span class="number">12.70972731</span><span class="number">0110253</span>, <span class="number">9.51826149</span><span class="number">87221701</span>, -<span class="number">8.45804565</span><span class="number">00212975</span>, -<span class="number">7.953143360</span><span class="number">8618309</span>, <span class="number">11.918092172</span>946009, <span class="number">10.860113340</span>49692, -<span class="number">8.31081181</span><span class="number">8166254</span>, -<span class="number">9.538585176</span><span class="number">7871586</span>, -<span class="number">9.53183866</span><span class="number">4642386</span>]&lt;/Parameters&gt;
-            &lt;/FullConnection&gt;
-        &lt;/Connections&gt;
-    &lt;/Network&gt;
-&lt;/PyBrain&gt;
-</code></pre><p>&nbsp;&nbsp;&nbsp; 以上。欢迎留言探讨。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>&nbsp;&nbsp;&nbsp; 上一篇文用C++手写了BP神经网络，事实上，生产环境中已经很少有人再亲自写神经网络了，已经出现了很多成熟的机器学习开源库。我安装了C++的shark库和python的pybrain库，在研究shark库的文档时发现shark库封装度太低了，用起来很麻烦，遂弃。虽然放弃C++的高效库很遗憾，但是后来发现pybrain库真是非常友好非常方便，于是分别写了分类器和函数拟合的例子及测评。<br>]]>
-    
-    </summary>
-    
-      <category term="BP神经网络" scheme="http://blog.bipedalbit.net/tags/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/"/>
-    
-      <category term="pybrain" scheme="http://blog.bipedalbit.net/tags/pybrain/"/>
-    
-      <category term="python" scheme="http://blog.bipedalbit.net/tags/python/"/>
-    
-      <category term="机器学习" scheme="http://blog.bipedalbit.net/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
-    
-      <category term="机器学习" scheme="http://blog.bipedalbit.net/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
     
   </entry>
   
