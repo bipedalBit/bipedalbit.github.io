@@ -12,7 +12,7 @@
 <meta property="og:url" content="http://blog.bipedalbit.net/2015/11/15/中国象棋人机博弈实现练习/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
 <meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集">
-<meta property="og:updated_time" content="2015-11-19T06:02:25.972Z">
+<meta property="og:updated_time" content="2016-01-15T07:46:18.003Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="中国象棋人机博弈实现练习">
 <meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集">
@@ -111,29 +111,8 @@
 <h2 id="2-3_走法生成器">2.3 走法生成器</h2><p>&nbsp;&nbsp;&nbsp; 不管计算形式是串行还是并行的，走法生成器应该按照中国象棋规则提供特定局面下合法的所有走法，并装载在一个走法容器中以备查询。合法的走法除需要符合基本的中国象棋行棋规则之外，还应该根据已走局面剔除循环走法。</p>
 <h2 id="2-4_搜索核心">2.4 搜索核心</h2><p>&nbsp;&nbsp;&nbsp; 搜索核心应该作为游戏程序的主线索，调用走法生成器和局面评估核心对接下来的人机博弈状态做一系列的预演，然后给出相对最好的走法。搜索过程中还应该收集一些程序运行信息，比如评估结点数，搜索时间。搜索每一个新层次时势必要管理搜索树占用的内存空间，应该给出一个可行的空间管理方案。</p>
 <h2 id="2-5_局面评估核心">2.5 局面评估核心</h2><p>&nbsp;&nbsp;&nbsp; 如前所述，暂且只要求实现一个基于少量中国象棋实际经验和主观猜测的评估函数。这个评估函数可能会需要一个类似于走法生成器但有所不同的“棋子影响力覆盖范围生成器”作为工具函数。</p>
-<h1 id="3_详细设计">3 详细设计</h1><h2 id="3-1_GUI">3.1 GUI</h2><p>&nbsp;&nbsp;&nbsp; Qt5设计GUI有多方便相信用过的读者都有体会，无非就是拖拖控件写写槽函数加点资源调调样式。<br>&nbsp;&nbsp;&nbsp; 本来我想在轮到电脑的回合时间显示一个正在加载时的常见gif图片，但发现这涉及到Qt5的并行计算方式。经过简单的尝试（利用QtConcurrent类）后发现无法在不同线程中顺畅管理相同的控件状态，这可能是资源同步互斥管理的问题（这里相信一些读者会联想到一个关于多线程的笑话：一个程序员遇到了一个问题，想通过多线程来解决它，现在他有两个问题了），于是干脆放弃显示图片的想法了，你将在我的Qt源码中发现我尝试的痕迹。<br>&nbsp;&nbsp;&nbsp; 另一点稍微值得一提的事是，我在准备好一切，要开始写点击棋子的槽函数的时候发现，QLabel控件居然没有Clicked默认事件，看来我是Web应用写多了有点惯性思维了。于是我只好自定义了一个ClickableLabel类，这个类是对QLabel类的封装，重载了基类QWidget的mouseReleaseEvent方法，在方法里发射了一个clicked消息。最后把所有需要点击互动的QLabel提升成了ClickableLabel，并添加了ClickableLabel的clicked消息的槽函数。<br>&nbsp;&nbsp;&nbsp; clickablelable.h：</p>
-<pre><code><span class="preprocessor">#<span class="keyword">ifndef</span> CLICKABLELABEL_H</span>
-<span class="preprocessor">#<span class="keyword">define</span> CLICKABLELABEL_H</span>
-
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;QLabel&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;QWidget&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;QPoint&gt;</span></span>
-
-<span class="keyword">class</span> ClickableLabel : <span class="keyword">public</span> QLabel
-{
-    Q_OBJECT
-<span class="keyword">public</span>:
-    <span class="function"><span class="keyword">explicit</span> <span class="title">ClickableLabel</span><span class="params">(QWidget* parent = <span class="number">0</span>)</span></span>;
-    ~ClickableLabel();
-signals:
-    <span class="function"><span class="keyword">void</span> <span class="title">clicked</span><span class="params">(ClickableLabel* clickableLabel)</span></span>;
-    <span class="function"><span class="keyword">void</span> <span class="title">clicked</span><span class="params">(QPoint pos, ClickableLabel* clickableLabel)</span></span>;
-<span class="keyword">protected</span>:
-    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mouseReleaseEvent</span><span class="params">(QMouseEvent *event)</span></span>;
-};
-
-<span class="preprocessor">#<span class="keyword">endif</span> <span class="comment">// CLICKABLELABEL_H</span></span>
-</code></pre><p>&nbsp;&nbsp;&nbsp; clickablelable.cpp：</p>
+<h1 id="3_详细设计">3 详细设计</h1><h2 id="3-1_GUI">3.1 GUI</h2><p>&nbsp;&nbsp;&nbsp; Qt5设计GUI有多方便相信用过的读者都有体会，无非就是拖拖控件写写槽函数加点资源调调样式。<br>&nbsp;&nbsp;&nbsp; 本来我想在轮到电脑的回合时间显示一个正在加载时的常见gif图片，但发现这涉及到Qt5的并行计算方式。经过简单的尝试（利用QtConcurrent类）后发现无法在不同线程中顺畅管理相同的控件状态，这可能是资源同步互斥管理的问题（这里相信一些读者会联想到一个关于多线程的笑话：一个程序员遇到了一个问题，想通过多线程来解决它，现在他有两个问题了），于是干脆放弃显示图片的想法了，你将在我的Qt源码中发现我尝试的痕迹。<br>&nbsp;&nbsp;&nbsp; 另一点稍微值得一提的事是，我在准备好一切，要开始写点击棋子的槽函数的时候发现，QLabel控件居然没有Clicked默认事件，看来我是Web应用写多了有点惯性思维了。于是我只好自定义了一个ClickableLabel类，这个类是对QLabel类的封装，重载了基类QWidget的mouseReleaseEvent方法，在方法里发射了一个clicked消息。最后把所有需要点击互动的QLabel提升成了ClickableLabel，并添加了ClickableLabel的clicked消息的槽函数。<br>&nbsp;&nbsp;&nbsp; clickablelable.h：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">ifndef</span> CLICKABLELABEL_H</span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">define</span> CLICKABLELABEL_H</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;QLabel&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;QWidget&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;QPoint&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> ClickableLabel : <span class="keyword">public</span> QLabel</span><br><span class="line">&#123;</span><br><span class="line">	Q_OBJECT</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="keyword">explicit</span> <span class="title">ClickableLabel</span><span class="params">(QWidget* parent = <span class="number">0</span>)</span></span>;</span><br><span class="line">	~ClickableLabel();</span><br><span class="line">signals:</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">clicked</span><span class="params">(ClickableLabel* clickableLabel)</span></span>;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">clicked</span><span class="params">(QPoint pos, ClickableLabel* clickableLabel)</span></span>;</span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mouseReleaseEvent</span><span class="params">(QMouseEvent *event)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#<span class="keyword">endif</span> <span class="comment">// CLICKABLELABEL_H</span></span></span><br></pre></td></tr></table></figure></p>
+<p>&nbsp;&nbsp;&nbsp; clickablelable.cpp：</p>
 <pre><code><span class="id">#include</span> "<span class="tag">clickablelabel</span><span class="class">.h</span>"
 <span class="id">#include</span> "<span class="tag">QMouseEvent</span>"
 
@@ -490,7 +469,7 @@ void ClickableLabel::<span class="function">mouseReleaseEvent</span>(QMouseEvent
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/11/15/中国象棋人机博弈实现练习/" data-id="cij1nl6du003n2j97a8s3p9lj" class="article-share-link" data-share="baidu" data-title="中国象棋人机博弈实现练习">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/11/15/中国象棋人机博弈实现练习/" data-id="cijfauo1q003n7397xfdk5vb7" class="article-share-link" data-share="baidu" data-title="中国象棋人机博弈实现练习">分享到</a>
       
 
       
