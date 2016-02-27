@@ -12,7 +12,7 @@
 <meta property="og:url" content="http://blog.bipedalbit.net/2015/10/8/C-二进制-十进制转换器/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
 <meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 布置了二进制-十进制转换器的小作业，本来还要求顺手扩展一下大数的四则运算，我嫌麻烦没做扩展，就只是写来玩玩。也算熟悉一下底层的二进制-十进制转换机制，顺便复习下C++源码规范。注释写了很多，就不多做解释了，只贴代码。">
-<meta property="og:updated_time" content="2015-10-08T14:18:53.572Z">
+<meta property="og:updated_time" content="2015-10-08T14:18:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="C++二进制-十进制转换器">
 <meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 布置了二进制-十进制转换器的小作业，本来还要求顺手扩展一下大数的四则运算，我嫌麻烦没做扩展，就只是写来玩玩。也算熟悉一下底层的二进制-十进制转换机制，顺便复习下C++源码规范。注释写了很多，就不多做解释了，只贴代码。">
@@ -99,67 +99,67 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>&nbsp;&nbsp;&nbsp; 布置了二进制-十进制转换器的小作业，本来还要求顺手扩展一下大数的四则运算，我嫌麻烦没做扩展，就只是写来玩玩。也算熟悉一下底层的二进制-十进制转换机制，顺便复习下C++源码规范。注释写了很多，就不多做解释了，只贴代码。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; converter.h:</p>
-<pre><code><span class="comment">/*
+<pre><code>/*
  * Copyright (C) Bipedal Bit
  * Verson 1.0.0.1
- */</span>
+ */
 
-<span class="preprocessor">#<span class="keyword">ifndef</span> _CONVERTER_H_</span>
-<span class="preprocessor">#<span class="keyword">define</span> _CONVERTER_H_</span>
+#ifndef _CONVERTER_H_
+#define _CONVERTER_H_
 
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span>
+#include &lt;string&gt;
 
-<span class="comment">/*
+/*
  * This is a class to offer operations converting radix of number in string.
- */</span>
-<span class="keyword">class</span> Converter
+ */
+class Converter
 {
-<span class="keyword">private</span>:
-    <span class="comment">/* to store the binary form of picked up number string */</span>
-    <span class="built_in">std</span>::<span class="built_in">string</span> binVal;
-    <span class="comment">/* to store the decimal form of picked up number string */</span>
-    <span class="built_in">std</span>::<span class="built_in">string</span> decVal;
-    <span class="comment">/* to sign the number by marking wether it is negtive */</span>
-    <span class="keyword">bool</span> negtive;
-    <span class="comment">/* to mark wether the number has a dot */</span>
-    <span class="keyword">bool</span> hasDot;
-    <span class="comment">/* to store the index of dot in binary number string */</span>
-    <span class="keyword">int</span> binDotIndex;
-    <span class="comment">/* to store the index of dot in decimal number string */</span>
-    <span class="keyword">int</span> decDotIndex;
-    <span class="comment">/* max reserved digits sum when float converted from decimal to binary */</span>
-    <span class="keyword">int</span> binFloatPrecision;
-    <span class="comment">/*
+private:
+    /* to store the binary form of picked up number string */
+    std::string binVal;
+    /* to store the decimal form of picked up number string */
+    std::string decVal;
+    /* to sign the number by marking wether it is negtive */
+    bool negtive;
+    /* to mark wether the number has a dot */
+    bool hasDot;
+    /* to store the index of dot in binary number string */
+    int binDotIndex;
+    /* to store the index of dot in decimal number string */
+    int decDotIndex;
+    /* max reserved digits sum when float converted from decimal to binary */
+    int binFloatPrecision;
+    /*
      * Convert the binary number to decimal form then fill this-&gt;decVal.
-     */</span>
-    <span class="function"><span class="keyword">void</span> <span class="title">bin2Dec</span><span class="params">()</span></span>;
-    <span class="comment">/*
+     */
+    void bin2Dec();
+    /*
      * Convert the decimal number to binary form then fill this-&gt;binVal.
-     */</span>
-    <span class="function"><span class="keyword">void</span> <span class="title">dec2Bin</span><span class="params">()</span></span>;
-<span class="keyword">public</span>:
-    <span class="comment">/*
+     */
+    void dec2Bin();
+public:
+    /*
      * Constructor of the class to pick up number in string and fill both this-&gt;binVal and this-&gt;decVal.
-     */</span>
-    Converter(<span class="built_in">std</span>::<span class="built_in">string</span> str, <span class="keyword">int</span> radix, <span class="keyword">int</span> binFloatPrecision = <span class="number">20</span>);
-    <span class="comment">/*
+     */
+    Converter(std::string str, int radix, int binFloatPrecision = 20);
+    /*
      * Get the the number string with specified radix.
-     */</span>
-    <span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">getNum</span><span class="params">(<span class="keyword">int</span> radix)</span></span>;
+     */
+    std::string getNum(int radix);
 };
 
-<span class="preprocessor">#<span class="keyword">endif</span></span>
+#endif
 </code></pre><p>&nbsp;&nbsp;&nbsp; converter.cpp:</p>
-<pre><code><span class="comment">/*
+<pre><code>/*
  * Copyright (C) Bipedal Bit
  * Verson 1.0.0.1
- */</span>
+ */
 
- <span class="preprocessor">#<span class="keyword">include</span> <span class="string">"converter.h"</span></span>
- <span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
- <span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;stdexcept&gt;</span></span>
+ #include &quot;converter.h&quot;
+ #include &lt;iostream&gt;
+ #include &lt;stdexcept&gt;
 
-<span class="comment">/*
+/*
  * name: Converter
  * args:
  *    string str: the original string containing target number
@@ -167,452 +167,452 @@
  *    int binFloatPrecision: max reserved digits sum when float converted from decimal to binary
  *        whose default value is 20
  * Constructor of the class to pick up number in string and fill both this-&gt;binVal and this-&gt;decVal.
- */</span>
- Converter::Converter(<span class="built_in">std</span>::<span class="built_in">string</span> str, <span class="keyword">int</span> radix, <span class="keyword">int</span> binFloatPrecision)
+ */
+ Converter::Converter(std::string str, int radix, int binFloatPrecision)
 {
-    <span class="comment">/* check radix */</span>
-    <span class="keyword">if</span> (radix != <span class="number">2</span> &amp;&amp; radix != <span class="number">10</span>)
+    /* check radix */
+    if (radix != 2 &amp;&amp; radix != 10)
     {
-        <span class="built_in">std</span>::<span class="built_in">cerr</span> &lt;&lt; <span class="string">"Invalid argument: Do not support radixes beyond binary and decimal yet.\n"</span>;
-        <span class="keyword">return</span>;
+        std::cerr &lt;&lt; &quot;Invalid argument: Do not support radixes beyond binary and decimal yet.\n&quot;;
+        return;
     }
-    <span class="comment">/* check binFloatPrecision */</span>
-    <span class="keyword">if</span> (binFloatPrecision &lt; <span class="number">1</span>)
+    /* check binFloatPrecision */
+    if (binFloatPrecision &lt; 1)
     {
-        <span class="built_in">std</span>::<span class="built_in">cerr</span> &lt;&lt; <span class="string">"Invalid argument: binFloatPrecision should be greater than 0.\n"</span>;
-        <span class="keyword">return</span>;
+        std::cerr &lt;&lt; &quot;Invalid argument: binFloatPrecision should be greater than 0.\n&quot;;
+        return;
     }
-    <span class="comment">/* fill this-&gt;binFloatPrecision */</span>
-    <span class="keyword">this</span>-&gt;binFloatPrecision = binFloatPrecision;
-    <span class="comment">/* assistant variables for traversing the original string */</span>
-    <span class="keyword">int</span> len = str.size();
-    <span class="keyword">int</span> i = <span class="number">0</span>;
-    <span class="comment">/* mark wether there's a dot in the number */</span>
-    <span class="keyword">bool</span> hasDot = <span class="literal">false</span>;
-    <span class="comment">/* store number string temporarily */</span>
-    <span class="built_in">std</span>::<span class="built_in">string</span> tmp = <span class="string">""</span>;
-    <span class="keyword">if</span> (len &gt; <span class="number">0</span>)
+    /* fill this-&gt;binFloatPrecision */
+    this-&gt;binFloatPrecision = binFloatPrecision;
+    /* assistant variables for traversing the original string */
+    int len = str.size();
+    int i = 0;
+    /* mark wether there&apos;s a dot in the number */
+    bool hasDot = false;
+    /* store number string temporarily */
+    std::string tmp = &quot;&quot;;
+    if (len &gt; 0)
     {
-        <span class="comment">/* handle binary radix */</span>
-        <span class="keyword">if</span> (radix == <span class="number">2</span>)
+        /* handle binary radix */
+        if (radix == 2)
         {
-            <span class="comment">/* remove useless characters */</span>
-            <span class="keyword">while</span>(str[i] != <span class="string">'-'</span> &amp;&amp; str[i] != <span class="string">'0'</span> &amp;&amp; str[i] != <span class="string">'1'</span>)
+            /* remove useless characters */
+            while(str[i] != &apos;-&apos; &amp;&amp; str[i] != &apos;0&apos; &amp;&amp; str[i] != &apos;1&apos;)
             {
                 i++;
             }
-            <span class="comment">/* pick up '-' */</span>
-            <span class="keyword">if</span>(str[i] == <span class="string">'-'</span>)
+            /* pick up &apos;-&apos; */
+            if(str[i] == &apos;-&apos;)
             {
-                <span class="keyword">this</span>-&gt;negtive = <span class="literal">true</span>;
+                this-&gt;negtive = true;
                 i++;
             }
-            <span class="keyword">else</span>
+            else
             {
-                <span class="keyword">this</span>-&gt;negtive = <span class="literal">false</span>;
+                this-&gt;negtive = false;
             }
-            <span class="comment">/* remove spare '0's */</span>
-            <span class="keyword">while</span>(str[i] == <span class="string">'0'</span>)
+            /* remove spare &apos;0&apos;s */
+            while(str[i] == &apos;0&apos;)
             {
                 i++;
             }
-            <span class="comment">/* get numbers */</span>
-            <span class="keyword">for</span>(; i &lt; len ; i++)
+            /* get numbers */
+            for(; i &lt; len ; i++)
             {
-                <span class="comment">/* get first dot only */</span>
-                <span class="keyword">if</span> (!hasDot &amp;&amp; str[i] == <span class="string">'.'</span>)
+                /* get first dot only */
+                if (!hasDot &amp;&amp; str[i] == &apos;.&apos;)
                 {
-                    hasDot = <span class="literal">true</span>;
-                    tmp += <span class="string">'.'</span>;
-                    <span class="keyword">continue</span>;
+                    hasDot = true;
+                    tmp += &apos;.&apos;;
+                    continue;
                 }
-                <span class="comment">/* get '0's and '1's only */</span>
-                <span class="keyword">if</span> (str[i] != <span class="string">'0'</span> &amp;&amp; str[i] != <span class="string">'1'</span>)
+                /* get &apos;0&apos;s and &apos;1&apos;s only */
+                if (str[i] != &apos;0&apos; &amp;&amp; str[i] != &apos;1&apos;)
                 {
-                    <span class="keyword">break</span>;
+                    break;
                 }
                 tmp += str[i];
             }
         }
-        <span class="comment">/* handle decimal radix */</span>
-        <span class="keyword">else</span>
+        /* handle decimal radix */
+        else
         {
-            <span class="comment">/* remove useless characters */</span>
-            <span class="keyword">while</span>(str[i] != <span class="string">'-'</span> &amp;&amp; !(str[i] &gt;= <span class="string">'0'</span> &amp;&amp; str[i] &lt;= <span class="string">'9'</span>))
+            /* remove useless characters */
+            while(str[i] != &apos;-&apos; &amp;&amp; !(str[i] &gt;= &apos;0&apos; &amp;&amp; str[i] &lt;= &apos;9&apos;))
             {
                 i++;
             }
-            <span class="comment">/* pick up '-' */</span>
-            <span class="keyword">if</span>(str[i] == <span class="string">'-'</span>)
+            /* pick up &apos;-&apos; */
+            if(str[i] == &apos;-&apos;)
             {
-                <span class="keyword">this</span>-&gt;negtive = <span class="literal">true</span>;
+                this-&gt;negtive = true;
                 i++;
             }
-            <span class="keyword">else</span>
+            else
             {
-                <span class="keyword">this</span>-&gt;negtive = <span class="literal">false</span>;
+                this-&gt;negtive = false;
             }
-            <span class="comment">/* remove spare '0's */</span>
-            <span class="keyword">while</span>(str[i] == <span class="string">'0'</span>)
+            /* remove spare &apos;0&apos;s */
+            while(str[i] == &apos;0&apos;)
             {
                 i++;
             }
-            <span class="comment">/* get numbers */</span>
-            <span class="keyword">for</span>(; i &lt; len ; i++)
+            /* get numbers */
+            for(; i &lt; len ; i++)
             {
-                <span class="comment">/* get first dot only */</span>
-                <span class="keyword">if</span> (!hasDot &amp;&amp; str[i] == <span class="string">'.'</span>)
+                /* get first dot only */
+                if (!hasDot &amp;&amp; str[i] == &apos;.&apos;)
                 {
-                    hasDot = <span class="literal">true</span>;
-                    tmp += <span class="string">'.'</span>;
-                    <span class="keyword">continue</span>;
+                    hasDot = true;
+                    tmp += &apos;.&apos;;
+                    continue;
                 }
-                <span class="comment">/* get all arabic numerals */</span>
-                <span class="keyword">if</span>(!(str[i] &gt;= <span class="string">'0'</span> &amp;&amp; str[i] &lt;= <span class="string">'9'</span>))
+                /* get all arabic numerals */
+                if(!(str[i] &gt;= &apos;0&apos; &amp;&amp; str[i] &lt;= &apos;9&apos;))
                 {
-                    <span class="keyword">break</span>;
+                    break;
                 }
                 tmp += str[i];
             }
         }
     }
-    <span class="comment">/* if no number picked up set 0 */</span>
-    <span class="keyword">if</span>(tmp == <span class="string">""</span>)
+    /* if no number picked up set 0 */
+    if(tmp == &quot;&quot;)
     {
-        tmp = <span class="string">"0"</span>;
+        tmp = &quot;0&quot;;
     }
-    <span class="comment">/* add '0' if necessary */</span>
-    <span class="keyword">if</span> (tmp[<span class="number">0</span>] == <span class="string">'.'</span>)
+    /* add &apos;0&apos; if necessary */
+    if (tmp[0] == &apos;.&apos;)
     {
-        tmp = <span class="string">'0'</span> + tmp;
+        tmp = &apos;0&apos; + tmp;
     }
-    <span class="comment">/* mark wether the number has a dot */</span>
-    <span class="keyword">this</span>-&gt;hasDot = hasDot;
-    <span class="comment">/* fill corresponding number form */</span>
-    <span class="keyword">if</span> (radix == <span class="number">2</span>)
+    /* mark wether the number has a dot */
+    this-&gt;hasDot = hasDot;
+    /* fill corresponding number form */
+    if (radix == 2)
     {
-        <span class="keyword">this</span>-&gt;binVal = tmp;
-        <span class="keyword">if</span> (hasDot)
+        this-&gt;binVal = tmp;
+        if (hasDot)
         {
-            <span class="comment">/* store dot's index in the number string of binary form */</span>
-            <span class="keyword">this</span>-&gt;binDotIndex = tmp.find(<span class="string">'.'</span>);
+            /* store dot&apos;s index in the number string of binary form */
+            this-&gt;binDotIndex = tmp.find(&apos;.&apos;);
         }
         bin2Dec();
     }
-    <span class="keyword">else</span>
+    else
     {
-        <span class="keyword">this</span>-&gt;decVal = tmp;
-        <span class="keyword">if</span> (hasDot)
+        this-&gt;decVal = tmp;
+        if (hasDot)
         {
-            <span class="comment">/* store dot's index in the number string of decimal form */</span>
-            <span class="keyword">this</span>-&gt;decDotIndex = tmp.find(<span class="string">'.'</span>);
+            /* store dot&apos;s index in the number string of decimal form */
+            this-&gt;decDotIndex = tmp.find(&apos;.&apos;);
         }
         dec2Bin();
     }
-    <span class="comment">/* have a test */</span>
-<span class="comment">/*
-    std::cout &lt;&lt; "radix: 2" &lt;&lt; std::endl;
+    /* have a test */
+/*
+    std::cout &lt;&lt; &quot;radix: 2&quot; &lt;&lt; std::endl;
     if(this-&gt;negtive)
     {
-        std::cout &lt;&lt; '-';
+        std::cout &lt;&lt; &apos;-&apos;;
     }
     std::cout &lt;&lt; this-&gt;binVal &lt;&lt; std::endl;
-    std::cout &lt;&lt; "radix: 10" &lt;&lt; std::endl;
+    std::cout &lt;&lt; &quot;radix: 10&quot; &lt;&lt; std::endl;
     if(this-&gt;negtive)
     {
-        std::cout &lt;&lt; '-';
+        std::cout &lt;&lt; &apos;-&apos;;
     }
     std::cout &lt;&lt; this-&gt;decVal &lt;&lt; std::endl;
-*/</span>
+*/
 }
 
-<span class="comment">/*
+/*
  * name: getNum
  * arguments:
  *    int radix: spedify a radix to find which form number is to got
  * return: the number string with specified form
  * access: public
  * Get the the number string with specified radix.
- */</span>
- <span class="built_in">std</span>::<span class="built_in">string</span> Converter::getNum(<span class="keyword">int</span> radix)
+ */
+ std::string Converter::getNum(int radix)
  {
-     <span class="comment">/* check radix */</span>
-    <span class="keyword">if</span> (radix != <span class="number">2</span> &amp;&amp; radix != <span class="number">10</span>)
+     /* check radix */
+    if (radix != 2 &amp;&amp; radix != 10)
     {
-        <span class="built_in">std</span>::<span class="built_in">cerr</span> &lt;&lt; <span class="string">"Invalid argument: Do not support radixes beyond binary and decimal yet.\n"</span>;
-        <span class="keyword">return</span> <span class="literal">NULL</span>;
+        std::cerr &lt;&lt; &quot;Invalid argument: Do not support radixes beyond binary and decimal yet.\n&quot;;
+        return NULL;
     }
-     <span class="built_in">std</span>::<span class="built_in">string</span> tmp = <span class="string">""</span>;
-     <span class="comment">/* add the '-' character if necessary */</span>
-     <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;negtive)
+     std::string tmp = &quot;&quot;;
+     /* add the &apos;-&apos; character if necessary */
+     if (this-&gt;negtive)
      {
-         tmp += <span class="string">'-'</span>;
+         tmp += &apos;-&apos;;
      }
-     <span class="comment">/* add the binary form number */</span>
-     <span class="keyword">if</span> (radix == <span class="number">2</span>)
+     /* add the binary form number */
+     if (radix == 2)
      {
-         tmp += <span class="keyword">this</span>-&gt;binVal;
+         tmp += this-&gt;binVal;
      }
-     <span class="comment">/* add the decimal form number */</span>
-     <span class="keyword">else</span>
+     /* add the decimal form number */
+     else
      {
-         tmp += <span class="keyword">this</span>-&gt;decVal;
+         tmp += this-&gt;decVal;
      }
-     <span class="keyword">return</span> tmp;
+     return tmp;
  }
 
-<span class="comment">/*
+/*
  * name: bin2Dec
  * access: private
  * Convert the binary number to decimal form then fill this-&gt;decVal.
- */</span>
- <span class="keyword">void</span> Converter::bin2Dec()
+ */
+ void Converter::bin2Dec()
  {
-     <span class="comment">/* store number string temporarily */</span>
-     <span class="built_in">std</span>::<span class="built_in">string</span> tmp = <span class="string">""</span>;
-     <span class="comment">/* ============== int part ============== */</span>
-     <span class="comment">/* to get the int range of the binary number string */</span>
-     <span class="keyword">int</span> intLen;
-     <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;hasDot)
+     /* store number string temporarily */
+     std::string tmp = &quot;&quot;;
+     /* ============== int part ============== */
+     /* to get the int range of the binary number string */
+     int intLen;
+     if (this-&gt;hasDot)
      {
-         intLen = <span class="keyword">this</span>-&gt;binDotIndex;
+         intLen = this-&gt;binDotIndex;
      }
-     <span class="keyword">else</span>
+     else
      {
-         intLen = <span class="keyword">this</span>-&gt;binVal.size();
+         intLen = this-&gt;binVal.size();
      }
-     <span class="comment">/* may need carry while traversing digits */</span>
-     <span class="keyword">char</span> carry = <span class="number">0</span>;
-     <span class="comment">/* to store tmp's length */</span>
-     <span class="keyword">int</span> decLen;
-     <span class="comment">/* convert radix digit by digit while traversing the int part of the binary number string */</span>
-     <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; intLen ; i++)
+     /* may need carry while traversing digits */
+     char carry = 0;
+     /* to store tmp&apos;s length */
+     int decLen;
+     /* convert radix digit by digit while traversing the int part of the binary number string */
+     for(int i = 0 ; i &lt; intLen ; i++)
      {
-         <span class="comment">/* add new binary digit into carry */</span>
-         carry += <span class="keyword">this</span>-&gt;binVal[i]-<span class="string">'0'</span>;
-         <span class="comment">/* update tmp's length */</span>
+         /* add new binary digit into carry */
+         carry += this-&gt;binVal[i]-&apos;0&apos;;
+         /* update tmp&apos;s length */
          decLen = tmp.size();
-         <span class="comment">/* traverse tmp to multiply each digit by 2 and add carries */</span>
-         <span class="keyword">for</span>(<span class="keyword">int</span> j = decLen-<span class="number">1</span> ; j &gt;= <span class="number">0</span> ; j--)
+         /* traverse tmp to multiply each digit by 2 and add carries */
+         for(int j = decLen-1 ; j &gt;= 0 ; j--)
          {
-             tmp[j] = tmp[j]*<span class="number">2</span>+carry;
-             <span class="keyword">if</span> (tmp[j] &gt; <span class="number">9</span>)
+             tmp[j] = tmp[j]*2+carry;
+             if (tmp[j] &gt; 9)
              {
-                 <span class="comment">/* update carry */</span>
-                 carry = tmp[j]/<span class="number">10</span>;
-                 <span class="comment">/* limit digit within 10 */</span>
-                 tmp[j] %= <span class="number">10</span>;
+                 /* update carry */
+                 carry = tmp[j]/10;
+                 /* limit digit within 10 */
+                 tmp[j] %= 10;
              }
-             <span class="keyword">else</span>
+             else
              {
-                carry = <span class="number">0</span>;
+                carry = 0;
              }
          }
-         <span class="comment">/* expand digits if necessary */</span>
-         <span class="keyword">while</span>(carry)
+         /* expand digits if necessary */
+         while(carry)
          {
-             tmp = <span class="keyword">char</span>(carry%<span class="number">10</span>)+tmp;
-             carry /= <span class="number">10</span>;
+             tmp = char(carry%10)+tmp;
+             carry /= 10;
          }
      }
-     <span class="comment">/* ============= part end ============== */</span>
-     <span class="comment">/* add '0' if need */</span>
-     <span class="keyword">if</span> (tmp == <span class="string">""</span>)
+     /* ============= part end ============== */
+     /* add &apos;0&apos; if need */
+     if (tmp == &quot;&quot;)
      {
-         tmp += (<span class="keyword">char</span>)<span class="number">0</span>;
+         tmp += (char)0;
      }
-     <span class="comment">/* ============= float part ============== */</span>
-     <span class="comment">/* if there is a float part */</span>
-     <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;hasDot)
+     /* ============= float part ============== */
+     /* if there is a float part */
+     if (this-&gt;hasDot)
      {
-         <span class="comment">/* add the dot to the number string */</span>
-         tmp += <span class="string">'.'</span>;
-         <span class="comment">/* get the length except the float part */</span>
-         <span class="keyword">int</span> decIntLen = tmp.size();
-         <span class="comment">/* get the length of the whole binary number string */</span>
-         <span class="keyword">int</span> binLen = <span class="keyword">this</span>-&gt;binVal.size();
-         <span class="comment">/* convert radix digit by digit while traversing the float part of the binary number string */</span>
-         <span class="keyword">for</span>(<span class="keyword">int</span> i = binLen-<span class="number">1</span> ; i &gt; intLen ; i--)
+         /* add the dot to the number string */
+         tmp += &apos;.&apos;;
+         /* get the length except the float part */
+         int decIntLen = tmp.size();
+         /* get the length of the whole binary number string */
+         int binLen = this-&gt;binVal.size();
+         /* convert radix digit by digit while traversing the float part of the binary number string */
+         for(int i = binLen-1 ; i &gt; intLen ; i--)
          {
-             <span class="comment">/* carry to first float digit if occur a '1' */</span>
-             carry = (<span class="keyword">this</span>-&gt;binVal[i] == <span class="string">'1'</span> ? <span class="number">5</span> : <span class="number">0</span>);
-             <span class="comment">/* update tmp's length */</span>
+             /* carry to first float digit if occur a &apos;1&apos; */
+             carry = (this-&gt;binVal[i] == &apos;1&apos; ? 5 : 0);
+             /* update tmp&apos;s length */
              decLen = tmp.size();
-             <span class="comment">/* traverse tmp to divide each digit by 2 and add carries */</span>
-             <span class="keyword">for</span>(<span class="keyword">int</span> j = decIntLen ; j &lt; decLen ; j++)
+             /* traverse tmp to divide each digit by 2 and add carries */
+             for(int j = decIntLen ; j &lt; decLen ; j++)
              {
-                 <span class="keyword">if</span> (tmp[j] &amp; <span class="number">1</span>)
+                 if (tmp[j] &amp; 1)
                  {
-                     tmp[j] = tmp[j]/<span class="number">2</span> + carry;
-                     carry = <span class="number">5</span>;
+                     tmp[j] = tmp[j]/2 + carry;
+                     carry = 5;
                  }
-                 <span class="keyword">else</span>
+                 else
                  {
-                     tmp[j] = tmp[j]/<span class="number">2</span> + carry;
-                     carry = <span class="number">0</span>;
+                     tmp[j] = tmp[j]/2 + carry;
+                     carry = 0;
                  }
              }
-             <span class="comment">/* expand digit if necessary */</span>
-             <span class="keyword">if</span> (carry)
+             /* expand digit if necessary */
+             if (carry)
              {
                  tmp += carry;
              }
          }
      }
-     <span class="comment">/* ============== part end =============== */</span>
-     <span class="comment">/* adjust string and fill this-&gt;decVal and this-&gt;decDotIndex */</span>
-     <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; tmp.size() ; i++)
+     /* ============== part end =============== */
+     /* adjust string and fill this-&gt;decVal and this-&gt;decDotIndex */
+     for(int i = 0 ; i &lt; tmp.size() ; i++)
      {
-         <span class="keyword">if</span> (tmp[i] == <span class="string">'.'</span>)
+         if (tmp[i] == &apos;.&apos;)
          {
-             <span class="keyword">continue</span>;
+             continue;
          }
-         tmp[i] += <span class="string">'0'</span>;
+         tmp[i] += &apos;0&apos;;
      }
-     <span class="keyword">this</span>-&gt;decVal = tmp;
-     <span class="keyword">this</span>-&gt;decDotIndex = tmp.find(<span class="string">'.'</span>);
+     this-&gt;decVal = tmp;
+     this-&gt;decDotIndex = tmp.find(&apos;.&apos;);
  }
 
-<span class="comment">/*
+/*
  * name: dec2Bin
  * access: private
  * Convert the decimal number to binary form then fill this-&gt;binVal.
- */</span>
- <span class="keyword">void</span> Converter::dec2Bin()
+ */
+ void Converter::dec2Bin()
  {
-     <span class="comment">/* store number string temporarily */</span>
-     <span class="built_in">std</span>::<span class="built_in">string</span> tmp = <span class="string">""</span>;
-     <span class="comment">/* ============== int part ============== */</span>
-     <span class="comment">/* to get the int range of the decimal number string */</span>
-     <span class="keyword">int</span> intLen;
-     <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;hasDot)
+     /* store number string temporarily */
+     std::string tmp = &quot;&quot;;
+     /* ============== int part ============== */
+     /* to get the int range of the decimal number string */
+     int intLen;
+     if (this-&gt;hasDot)
      {
-         intLen = <span class="keyword">this</span>-&gt;decDotIndex;
+         intLen = this-&gt;decDotIndex;
      }
-     <span class="keyword">else</span>
+     else
      {
-         intLen = <span class="keyword">this</span>-&gt;decVal.size();
+         intLen = this-&gt;decVal.size();
      }
-     <span class="comment">/* may need carry while traversing digits */</span>
-     <span class="keyword">char</span> carry = <span class="number">0</span>;
-     <span class="comment">/* to store tmp's length */</span>
-     <span class="keyword">int</span> binLen;
-     <span class="comment">/* convert radix digit by digit while traversing the int part of the decimal number string */</span>
-     <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; intLen ; i++)
+     /* may need carry while traversing digits */
+     char carry = 0;
+     /* to store tmp&apos;s length */
+     int binLen;
+     /* convert radix digit by digit while traversing the int part of the decimal number string */
+     for(int i = 0 ; i &lt; intLen ; i++)
      {
-         <span class="comment">/* add new decimal digit into carry */</span>
-         carry += <span class="keyword">this</span>-&gt;decVal[i]-<span class="string">'0'</span>;
-         <span class="comment">/* update tmp's length */</span>
+         /* add new decimal digit into carry */
+         carry += this-&gt;decVal[i]-&apos;0&apos;;
+         /* update tmp&apos;s length */
          binLen = tmp.size();
-         <span class="comment">/* traverse tmp to multiply each digit by 10 and add carries */</span>
-         <span class="keyword">for</span>(<span class="keyword">int</span> j = binLen-<span class="number">1</span> ; j &gt;= <span class="number">0</span> ; j--)
+         /* traverse tmp to multiply each digit by 10 and add carries */
+         for(int j = binLen-1 ; j &gt;= 0 ; j--)
          {
-             <span class="comment">/*
+             /*
               * Type of tmp[] is char[] and MAX_CHAR = 127 &gt; 99.
               * So the assignment statement below will work safely.
-              */</span>
-             tmp[j] = tmp[j]*<span class="number">10</span>+carry;
-             <span class="keyword">if</span> (tmp[j] &gt; <span class="number">1</span>)
+              */
+             tmp[j] = tmp[j]*10+carry;
+             if (tmp[j] &gt; 1)
              {
-                 <span class="comment">/* update carry */</span>
-                 carry = tmp[j]/<span class="number">2</span>;
-                 <span class="comment">/* limit digit within 2 */</span>
-                 tmp[j] &amp;= <span class="number">1</span>;
+                 /* update carry */
+                 carry = tmp[j]/2;
+                 /* limit digit within 2 */
+                 tmp[j] &amp;= 1;
              }
-             <span class="keyword">else</span>
+             else
              {
-                carry = <span class="number">0</span>;
+                carry = 0;
              }
          }
-         <span class="comment">/* expand digits if necessary */</span>
-         <span class="keyword">while</span>(carry)
+         /* expand digits if necessary */
+         while(carry)
          {
-             tmp = <span class="keyword">char</span>(carry%<span class="number">2</span>)+tmp;
-             carry /= <span class="number">2</span>;
+             tmp = char(carry%2)+tmp;
+             carry /= 2;
          }
      }
-     <span class="comment">/* ============= part end ============== */</span>
-     <span class="comment">/* add '0' if need */</span>
-     <span class="keyword">if</span> (tmp == <span class="string">""</span>)
+     /* ============= part end ============== */
+     /* add &apos;0&apos; if need */
+     if (tmp == &quot;&quot;)
      {
-         tmp += (<span class="keyword">char</span>)<span class="number">0</span>;
+         tmp += (char)0;
      }
-     <span class="comment">/* ============= float part ============== */</span>
-     <span class="comment">/* if there is a float part */</span>
-    <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;hasDot)
+     /* ============= float part ============== */
+     /* if there is a float part */
+    if (this-&gt;hasDot)
      {
-         <span class="comment">/* add the dot to the number string */</span>
-         tmp += <span class="string">'.'</span>;
-         <span class="comment">/* may need carry while traversing digits */</span>
-         carry = <span class="number">0</span>;
-         <span class="comment">/* get the length of the whole decimal number string */</span>
-         <span class="keyword">int</span> decLen = <span class="keyword">this</span>-&gt;decVal.size();
-         <span class="comment">/* get the length of the float part of the decimal number string */</span>
-         <span class="keyword">int</span> floatLen = decLen-intLen-<span class="number">1</span>;
-         <span class="comment">/* get a copy of the float part of the decimal number string */</span>
-         <span class="built_in">std</span>::<span class="built_in">string</span> tmp2 = <span class="keyword">this</span>-&gt;decVal.substr(intLen+<span class="number">1</span>, floatLen);
-         <span class="comment">/* adjust tmp2 to prepare for algorithm below */</span>
-         <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; floatLen ; i++)
+         /* add the dot to the number string */
+         tmp += &apos;.&apos;;
+         /* may need carry while traversing digits */
+         carry = 0;
+         /* get the length of the whole decimal number string */
+         int decLen = this-&gt;decVal.size();
+         /* get the length of the float part of the decimal number string */
+         int floatLen = decLen-intLen-1;
+         /* get a copy of the float part of the decimal number string */
+         std::string tmp2 = this-&gt;decVal.substr(intLen+1, floatLen);
+         /* adjust tmp2 to prepare for algorithm below */
+         for(int i = 0 ; i &lt; floatLen ; i++)
          {
-             tmp2[i] -= <span class="string">'0'</span>;
+             tmp2[i] -= &apos;0&apos;;
          }
-         <span class="comment">/*
+         /*
           * asume:   B = b1*2^-1 + b2*2^-2 + b3*2^-3 + ...
           *            2*B = b1 + b2*2^-1 + b3*2^-2 + ...     // take b1 as first digit
           * 2*(2*B-b1) = b2 + b3*2^-1 + ...         // take b2 as second digit
           *         ...
           * so the binary float will got digit by digit in order
-          */</span>
-         <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; <span class="keyword">this</span>-&gt;binFloatPrecision ; i++)
+          */
+         for(int i = 0 ; i &lt; this-&gt;binFloatPrecision ; i++)
          {
-             <span class="comment">/* traverse tmp2 to multiply each digit by 2 and add carries */</span>
-             <span class="keyword">for</span>(<span class="keyword">int</span> j = floatLen-<span class="number">1</span> ; j &gt;= <span class="number">0</span> ; j--)
+             /* traverse tmp2 to multiply each digit by 2 and add carries */
+             for(int j = floatLen-1 ; j &gt;= 0 ; j--)
              {
-                 tmp2[j] = tmp2[j]*<span class="number">2</span>+carry;
-                 <span class="keyword">if</span> (tmp2[j] &gt; <span class="number">9</span>)
+                 tmp2[j] = tmp2[j]*2+carry;
+                 if (tmp2[j] &gt; 9)
                  {
-                     <span class="comment">/* update carry */</span>
-                     carry = tmp2[j]/<span class="number">10</span>;
-                     <span class="comment">/* limit digit within 10 */</span>
-                     tmp2[j] %= <span class="number">10</span>;
+                     /* update carry */
+                     carry = tmp2[j]/10;
+                     /* limit digit within 10 */
+                     tmp2[j] %= 10;
                  }
-                 <span class="keyword">else</span>
+                 else
                  {
-                     carry = <span class="number">0</span>;
+                     carry = 0;
                  }
              }
-             <span class="comment">/* get the last carry as new digit of binary float */</span>
+             /* get the last carry as new digit of binary float */
              tmp += carry;
-             <span class="comment">/* reset carry */</span>
-             carry = <span class="number">0</span>;
+             /* reset carry */
+             carry = 0;
          }
      }
-     <span class="comment">/* ============== part end =============== */</span>
-     <span class="comment">/* adjust string and fill this-&gt;binVal and this-&gt;binDotIndex */</span>
-     <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; tmp.size() ; i++)
+     /* ============== part end =============== */
+     /* adjust string and fill this-&gt;binVal and this-&gt;binDotIndex */
+     for(int i = 0 ; i &lt; tmp.size() ; i++)
      {
-         <span class="keyword">if</span> (tmp[i] == <span class="string">'.'</span>)
+         if (tmp[i] == &apos;.&apos;)
          {
-             <span class="keyword">continue</span>;
+             continue;
          }
-         tmp[i] += <span class="string">'0'</span>;
+         tmp[i] += &apos;0&apos;;
      }
-     <span class="keyword">this</span>-&gt;binVal = tmp;
-     <span class="keyword">this</span>-&gt;binDotIndex = tmp.find(<span class="string">'.'</span>);
+     this-&gt;binVal = tmp;
+     this-&gt;binDotIndex = tmp.find(&apos;.&apos;);
  }
 </code></pre><p>&nbsp;&nbsp;&nbsp; test.cpp:</p>
-<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">"converter.h"</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span>
+<pre><code>#include &quot;converter.h&quot;
+#include &lt;iostream&gt;
+#include &lt;climits&gt;
 
-<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
+using namespace std;
 
-<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
-</span>{
-    <span class="comment">//Converter c("0.625", 10);</span>
-    <span class="function">Converter <span class="title">c</span><span class="params">(<span class="string">"ujsgdfksagrua0.10100000000000000000"</span>, <span class="number">2</span>)</span></span>;
-    <span class="built_in">cout</span> &lt;&lt; c.getNum(<span class="number">10</span>) &lt;&lt; endl;
-    <span class="keyword">return</span> <span class="number">0</span>;
+int main()
+{
+    //Converter c(&quot;0.625&quot;, 10);
+    Converter c(&quot;ujsgdfksagrua0.10100000000000000000&quot;, 2);
+    cout &lt;&lt; c.getNum(10) &lt;&lt; endl;
+    return 0;
 }
 </code></pre><p>&nbsp;&nbsp;&nbsp; 都过500行了，会不会写得有点啰嗦？</p>
 
@@ -620,7 +620,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/8/C-二进制-十进制转换器/" data-id="cijfauo2f004d7397qupe7ys3" class="article-share-link" data-share="baidu" data-title="C++二进制-十进制转换器">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/8/C-二进制-十进制转换器/" data-id="cil51ojar000d0de4x00e3vht" class="article-share-link" data-share="baidu" data-title="C++二进制-十进制转换器">分享到</a>
       
 
       

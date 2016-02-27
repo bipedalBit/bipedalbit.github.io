@@ -4,18 +4,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>【二】nginx源码文件结构浏览  | Hacking to the gate!</title>
+  <title>【二】nginx源码文件结构浏览 | Hacking to the gate!</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 要读大项目的源码，最好还是先把项目文件组织结构弄清楚，这样后面找源码会比较方便，对整体项目的架构也能有一个具体一些的概念。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【二】nginx源码文件结构浏览 ">
+<meta property="og:title" content="【二】nginx源码文件结构浏览">
 <meta property="og:url" content="http://blog.bipedalbit.net/2015/7/23/【二】nginx源码文件结构浏览/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
 <meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 要读大项目的源码，最好还是先把项目文件组织结构弄清楚，这样后面找源码会比较方便，对整体项目的架构也能有一个具体一些的概念。">
 <meta property="og:image" content="http://img.blog.csdn.net/20150723165913000?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
-<meta property="og:updated_time" content="2015-09-15T14:10:12.419Z">
+<meta property="og:updated_time" content="2016-02-27T11:13:14.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="【二】nginx源码文件结构浏览 ">
+<meta name="twitter:title" content="【二】nginx源码文件结构浏览">
 <meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 要读大项目的源码，最好还是先把项目文件组织结构弄清楚，这样后面找源码会比较方便，对整体项目的架构也能有一个具体一些的概念。">
   
     <link rel="alternative" href="/atom.xml" title="Hacking to the gate!" type="application/atom+xml">
@@ -91,7 +91,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      【二】nginx源码文件结构浏览 
+      【二】nginx源码文件结构浏览
     </h1>
   
 
@@ -100,19 +100,19 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>&nbsp;&nbsp;&nbsp; 要读大项目的源码，最好还是先把项目文件组织结构弄清楚，这样后面找源码会比较方便，对整体项目的架构也能有一个具体一些的概念。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; 我下载的<span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">源码版本不可考，按日期来看是</span><span style="font-family:Times New Roman;">2015</span><span style="font-family:宋体;">年</span><span style="font-family:Times New Roman;">7</span><span style="font-family:宋体;">月的最新版本。解压包获得源码文件夹，进入根目录发现有几个子目录：</span><span style="font-family:Times New Roman;">auto</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">conf</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">contrib</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">docs</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">misc</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">src</span><span style="font-family:宋体;">。从字面上猜测，是自动机或脚本（</span><span style="font-family:Times New Roman;">auto&nbsp;script</span><span style="font-family:宋体;">）、配置文件（</span><span style="font-family:Times New Roman;">configuration</span><span style="font-family:宋体;">）、支持文件（</span><span style="font-family:Times New Roman;">contributions</span><span style="font-family:宋体;">）、文档（</span><span style="font-family:Times New Roman;">document</span><span style="font-family:宋体;">）、杂项（</span><span style="font-family:Times New Roman;">miscellaneous</span><span style="font-family:宋体;">）、源码（</span><span style="font-family:Times New Roman;">source&nbsp;code</span><span style="font-family:宋体;">）。</span></p>
-<h3 id="1、浏览源码文件夹根目录">1<span style="font-family:宋体;">、浏览源码文件夹根目录</span></h3><p>&nbsp;&nbsp;&nbsp; 按照惯例，我选择先看看文档，但是<span style="font-family:Times New Roman;">doc</span><span style="font-family:宋体;">子目录里并没有详细的离线文档，只有</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">官网的链接和一些看不懂的小文件。</span></p>
+<h3 id="1、浏览源码文件夹根目录"><a href="#1、浏览源码文件夹根目录" class="headerlink" title="1、浏览源码文件夹根目录"></a>1<span style="font-family:宋体;">、浏览源码文件夹根目录</span></h3><p>&nbsp;&nbsp;&nbsp; 按照惯例，我选择先看看文档，但是<span style="font-family:Times New Roman;">doc</span><span style="font-family:宋体;">子目录里并没有详细的离线文档，只有</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">官网的链接和一些看不懂的小文件。</span></p>
 <p>&nbsp;&nbsp;&nbsp; 杂项<span style="font-family:Times New Roman;">misc</span><span style="font-family:宋体;">里也只有看不太懂的一个</span><span style="font-family:Times New Roman;">GNUmakefile</span><span style="font-family:宋体;">和一个</span><span style="font-family:Times New Roman;">README</span><span style="font-family:宋体;">文件。</span></p>
 <p>&nbsp;&nbsp;&nbsp; contrib<span style="font-family:宋体;">子目录里有一个</span><span style="font-family:Times New Roman;">geo2nginx.pl</span><span style="font-family:宋体;">（</span><span style="font-family:Times New Roman;">geo</span><span style="font-family:宋体;">模块的</span><span style="font-family:Times New Roman;">CSV</span><span style="font-family:宋体;">数据库格式转换</span><span style="font-family:Times New Roman;">perl</span><span style="font-family:宋体;">脚本），一套编码转换文件（包括两个编码映射表和一个编码转换</span><span style="font-family:Times New Roman;">perl</span><span style="font-family:宋体;">脚本），和</span><span style="font-family:Times New Roman;">vim</span><span style="font-family:宋体;">的</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">专用语法高亮配置文件。</span></p>
 <p>&nbsp;&nbsp;&nbsp; conf<span style="font-family:宋体;">子目录里有几个编码映射表、变量映射表和一个服务器配置文件。</span></p>
 <p>&nbsp;&nbsp;&nbsp; auto<span style="font-family:宋体;">子目录里有包括服务器安装脚本在内的许多脚本，现在看脚本还比较吃力，所以只简单浏览一下。我们发现</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">支持很多主流的操作系统平台：苹果的开源系统</span><span style="font-family:Times New Roman;">darwin</span><span style="font-family:宋体;">、重要的</span><span style="font-family:Times New Roman;">Unix</span><span style="font-family:宋体;">分支</span><span style="font-family:Times New Roman;">freebsd</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">linux</span><span style="font-family:宋体;">、大多数版本已经开源的又一个</span><span style="font-family:Times New Roman;">Unix</span><span style="font-family:宋体;">分支</span><span style="font-family:Times New Roman;">solaris</span><span style="font-family:宋体;">、用户占有率最高的</span><span style="font-family:Times New Roman;">win32</span><span style="font-family:宋体;">。</span></p>
 <p>&nbsp;&nbsp;&nbsp; src<span style="font-family:宋体;">子目录果然都是需要研究的</span><span style="font-family:Times New Roman;">nginx</span><span style="font-family:宋体;">的</span><span style="font-family:Times New Roman;">C</span><span style="font-family:宋体;">源码，下面我们会深入浏览。</span></p>
-<h3 id="2、浏览src子目录">2<span style="font-family:宋体;">、浏览</span><span style="font-family:Times New Roman;">src</span><span style="font-family:宋体;">子目录</span></h3><p>&nbsp;&nbsp;&nbsp; 还是来看一下<span style="font-family:Times New Roman;">src</span><span style="font-family:宋体;">子目录下有哪些子目录：</span><span style="font-family:Times New Roman;">core</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">event</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">http</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">mail</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">misc</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">mysql</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">os</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">stream</span><span style="font-family:宋体;">。还是来按照字面意思猜测一下：核心（主函数、数据结构、主要方法）、事件（事件处理机制）、超文本传输协议（</span><span style="font-family:Times New Roman;">http</span><span style="font-family:宋体;">相关）、邮件（邮件相关）、杂项（</span><span style="font-family:Times New Roman;">google&nbsp;perftools</span><span style="font-family:宋体;">相关源码）、</span><span style="font-family:Times New Roman;">mysql</span><span style="font-family:宋体;">数据库、操作系统（</span><span style="font-family:Times New Roman;">Unix</span><span style="font-family:宋体;">和</span><span style="font-family:Times New Roman;">Win32</span><span style="font-family:宋体;">两类系统的系统调用程序源码）、流（意义不明）。看起来</span><span style="font-family:Times New Roman;">./src/core</span><span style="font-family:宋体;">子目录对研究源码来说是一个不错的开始。</span></p>
+<h3 id="2、浏览src子目录"><a href="#2、浏览src子目录" class="headerlink" title="2、浏览src子目录"></a>2<span style="font-family:宋体;">、浏览</span><span style="font-family:Times New Roman;">src</span><span style="font-family:宋体;">子目录</span></h3><p>&nbsp;&nbsp;&nbsp; 还是来看一下<span style="font-family:Times New Roman;">src</span><span style="font-family:宋体;">子目录下有哪些子目录：</span><span style="font-family:Times New Roman;">core</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">event</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">http</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">mail</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">misc</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">mysql</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">os</span><span style="font-family:宋体;">、</span><span style="font-family:Times New Roman;">stream</span><span style="font-family:宋体;">。还是来按照字面意思猜测一下：核心（主函数、数据结构、主要方法）、事件（事件处理机制）、超文本传输协议（</span><span style="font-family:Times New Roman;">http</span><span style="font-family:宋体;">相关）、邮件（邮件相关）、杂项（</span><span style="font-family:Times New Roman;">google&nbsp;perftools</span><span style="font-family:宋体;">相关源码）、</span><span style="font-family:Times New Roman;">mysql</span><span style="font-family:宋体;">数据库、操作系统（</span><span style="font-family:Times New Roman;">Unix</span><span style="font-family:宋体;">和</span><span style="font-family:Times New Roman;">Win32</span><span style="font-family:宋体;">两类系统的系统调用程序源码）、流（意义不明）。看起来</span><span style="font-family:Times New Roman;">./src/core</span><span style="font-family:宋体;">子目录对研究源码来说是一个不错的开始。</span></p>
 <p align="center"><br>    <span style="font-family:宋体;"><img src="http://img.blog.csdn.net/20150723165913000?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></span><br>    图<span style="font-family:Times New Roman;">2&nbsp;nginx</span><span style="font-family:宋体;">源码文件结构图</span><br></p>
       
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/7/23/【二】nginx源码文件结构浏览/" data-id="cijfauo0x00257397ix1nkzmg" class="article-share-link" data-share="baidu" data-title="【二】nginx源码文件结构浏览 ">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/7/23/【二】nginx源码文件结构浏览/" data-id="cil51ojbh00280de42i2p1v6h" class="article-share-link" data-share="baidu" data-title="【二】nginx源码文件结构浏览">分享到</a>
       
 
       
@@ -151,7 +151,7 @@
 
   <section id="comments">
     <!-- 多说评论框 start -->
-      <div class="ds-thread" data-thread-key="2015/7/23/【二】nginx源码文件结构浏览/" data-title="【二】nginx源码文件结构浏览 " data-url="http://blog.bipedalbit.net/2015/7/23/【二】nginx源码文件结构浏览/"></div>
+      <div class="ds-thread" data-thread-key="2015/7/23/【二】nginx源码文件结构浏览/" data-title="【二】nginx源码文件结构浏览" data-url="http://blog.bipedalbit.net/2015/7/23/【二】nginx源码文件结构浏览/"></div>
     <!-- 多说评论框 end -->
     <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
     <script type="text/javascript">

@@ -12,7 +12,7 @@
 <meta property="og:url" content="http://blog.bipedalbit.net/2015/8/18/【五】nginx的数据结构-3-——扩展红黑树/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
 <meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 基础版的红黑树写完之后总觉得有些辅助功能不补充一下就难以体现红黑树在统计方面的优越性，于是我又写了红黑树扩展版。">
-<meta property="og:updated_time" content="2016-01-15T07:03:01.318Z">
+<meta property="og:updated_time" content="2016-02-27T11:20:13.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【五】nginx的数据结构(3)——扩展红黑树">
 <meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 基础版的红黑树写完之后总觉得有些辅助功能不补充一下就难以体现红黑树在统计方面的优越性，于是我又写了红黑树扩展版。">
@@ -99,314 +99,314 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>&nbsp;&nbsp;&nbsp; 基础版的红黑树写完之后总觉得有些辅助功能不补充一下就难以体现红黑树在统计方面的优越性，于是我又写了红黑树扩展版。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; 发扬我一贯的支线任务狂魔的作风，一晚上就完成了之前设想的红黑树扩展版本。<br>&nbsp;&nbsp;&nbsp; rbtree.h：</p>
-<pre><code><span class="comment">/*
+<pre><code>/*
  * Copyright (C) Bipedal Bit
  * Verson 1.0.0.2
- */</span>
+ */
 
-<span class="preprocessor">#<span class="keyword">ifndef</span> _RBTREE_H_INCLUDED_</span>
-<span class="preprocessor">#<span class="keyword">define</span> _RBTREE_H_INCLUDED_</span>
+#ifndef _RBTREE_H_INCLUDED_
+#define _RBTREE_H_INCLUDED_
 
-<span class="comment">/* the node structure of the red-black tree */</span>
-<span class="keyword">typedef</span> <span class="keyword">struct</span> rbtree_node_s <span class="keyword">rbtree_node_t</span>;
-<span class="comment">/* Using type int means its range is -0x7fffffff-1~0x7fffffff. */</span>
-<span class="keyword">typedef</span> <span class="keyword">int</span> <span class="keyword">rbtree_key_t</span>;
-<span class="comment">/* Abstract type is complicated to achieve with C so I use char* instead. */</span>
-<span class="keyword">typedef</span> <span class="keyword">char</span>* <span class="keyword">rbtree_data_t</span>;
+/* the node structure of the red-black tree */
+typedef struct rbtree_node_s rbtree_node_t;
+/* Using type int means its range is -0x7fffffff-1~0x7fffffff. */
+typedef int rbtree_key_t;
+/* Abstract type is complicated to achieve with C so I use char* instead. */
+typedef char* rbtree_data_t;
 
-<span class="keyword">struct</span> rbtree_node_s
+struct rbtree_node_s
 {
-    <span class="comment">/* key of the node */</span>
-    <span class="keyword">rbtree_key_t</span>    key;
-    <span class="comment">/* pointer of the parent of the node */</span>
-    <span class="keyword">rbtree_node_t</span>*    parent;
-    <span class="comment">/* pointer of the left kid of the node */</span>
-    <span class="keyword">rbtree_node_t</span>*    left;
-    <span class="comment">/* pointer of the right kid of the node */</span>
-    <span class="keyword">rbtree_node_t</span>*    right;
-    <span class="comment">/* color of the node */</span>
-    <span class="keyword">unsigned</span> <span class="keyword">char</span>    color;
-    <span class="comment">/* pointer of the value of the node corresponding to the key */</span>
-    <span class="keyword">rbtree_data_t</span>    value;
-    <span class="comment">/* count of nodes in the subtree whose root is the current node */</span>
-    <span class="keyword">int</span> node_cnt;
+    /* key of the node */
+    rbtree_key_t    key;
+    /* pointer of the parent of the node */
+    rbtree_node_t*  parent;
+    /* pointer of the left kid of the node */
+    rbtree_node_t*  left;
+    /* pointer of the right kid of the node */
+    rbtree_node_t*  right;
+    /* color of the node */
+    unsigned char   color;
+    /* pointer of the value of the node corresponding to the key */
+    rbtree_data_t   value;
+    /* count of nodes in the subtree whose root is the current node */
+    int node_cnt;
 };
 
-<span class="comment">/* the tree object stucture of the red-black tree */</span>
-<span class="keyword">typedef</span> <span class="keyword">struct</span> rbtree_s <span class="keyword">rbtree_t</span>;
-<span class="comment">/* foundational insert function pointer */</span>
-<span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*rbtree_insert_p)</span> <span class="params">(rbtree_t* root, rbtree_node_t* node)</span></span>;
-<span class="comment">/* foundational visit function pointer */</span>
-<span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*rbtree_visit_p)</span> <span class="params">(rbtree_node_t* node)</span></span>;
+/* the tree object stucture of the red-black tree */
+typedef struct rbtree_s rbtree_t;
+/* foundational insert function pointer */
+typedef void (*rbtree_insert_p) (rbtree_t* root, rbtree_node_t* node);
+/* foundational visit function pointer */
+typedef void (*rbtree_visit_p) (rbtree_node_t* node);
 
-<span class="keyword">struct</span> rbtree_s
+struct rbtree_s
 {
-    <span class="comment">/* the pointer of the root node of the tree */</span>
-    <span class="keyword">rbtree_node_t</span>* root;
-    <span class="comment">/* black leaf nodes as sentinel */</span>
-    <span class="keyword">rbtree_node_t</span>* sentinel;
-    <span class="comment">/* the polymorphic insert function pointer */</span>
+    /* the pointer of the root node of the tree */
+    rbtree_node_t* root;
+    /* black leaf nodes as sentinel */
+    rbtree_node_t* sentinel;
+    /* the polymorphic insert function pointer */
     rbtree_insert_p insert;
 };
 
-<span class="comment">/* macros */</span>
-<span class="preprocessor">#<span class="keyword">define</span> rbtree_init(tree, s, i)        \
+/* macros */
+#define rbtree_init(tree, s, i)     \
 rbtree_sentinel_init(s);            \
-(tree)-&gt;root = s;                \
-(tree)-&gt;sentinel = s;            \
-(tree)-&gt;insert = i</span>
+(tree)-&gt;root = s;               \
+(tree)-&gt;sentinel = s;           \
+(tree)-&gt;insert = i
 
-<span class="preprocessor">#<span class="keyword">define</span> rbtree_red(node)    ((node)-&gt;color = <span class="number">1</span>)</span>
-<span class="preprocessor">#<span class="keyword">define</span> rbtree_black(node)    ((node)-&gt;color = <span class="number">0</span>)</span>
-<span class="preprocessor">#<span class="keyword">define</span> rbtree_is_red(node)    ((node)-&gt;color)</span>
-<span class="preprocessor">#<span class="keyword">define</span> rbtree_is_black(node)    (!rbtree_is_red(node))</span>
- <span class="comment">/* copy n2's color to n1 */</span>
-<span class="preprocessor">#<span class="keyword">define</span> rbtree_copy_color(n1, n2)    (n1-&gt;color = n2-&gt;color)</span>
-<span class="comment">/* sentinel must be black cuz it's leaf node */</span>
-<span class="preprocessor">#<span class="keyword">define</span> rbtree_sentinel_init(node)    \
-rbtree_black(node);            \
-(node)-&gt;node_cnt = <span class="number">0</span></span>
+#define rbtree_red(node)    ((node)-&gt;color = 1)
+#define rbtree_black(node)  ((node)-&gt;color = 0)
+#define rbtree_is_red(node) ((node)-&gt;color)
+#define rbtree_is_black(node)   (!rbtree_is_red(node))
+ /* copy n2&apos;s color to n1 */
+#define rbtree_copy_color(n1, n2)   (n1-&gt;color = n2-&gt;color)
+/* sentinel must be black cuz it&apos;s leaf node */
+#define rbtree_sentinel_init(node)  \
+rbtree_black(node);         \
+(node)-&gt;node_cnt = 0
 
-<span class="comment">/* statements of public methods */</span>
-<span class="function"><span class="keyword">void</span> <span class="title">rbtree_insert_value</span><span class="params">(rbtree_t* tree, rbtree_node_t* node)</span></span>;
-<span class="function"><span class="keyword">void</span> <span class="title">rbtree_insert</span><span class="params">(rbtree_t* tree, rbtree_node_t* node)</span></span>;
-<span class="function"><span class="keyword">void</span> <span class="title">rbtree_delete</span><span class="params">(rbtree_t* tree, rbtree_node_t* node)</span></span>;
-<span class="comment">/* get node by key */</span>
-<span class="keyword">rbtree_node_t</span>* rbtree_find(<span class="keyword">rbtree_t</span>* tree, <span class="keyword">rbtree_key_t</span> key);
-<span class="comment">/* get node by order number */</span>
-<span class="keyword">rbtree_node_t</span>* rbtree_index(<span class="keyword">rbtree_t</span>* tree, <span class="keyword">int</span> index);
-<span class="function"><span class="keyword">int</span> <span class="title">rbtree_height</span><span class="params">(rbtree_t* tree, rbtree_node_t* node)</span></span>;
-<span class="function"><span class="keyword">int</span> <span class="title">rbtree_count</span><span class="params">(rbtree_t* tree)</span></span>;
-<span class="function"><span class="keyword">void</span> <span class="title">rbtree_visit</span><span class="params">(rbtree_node_t* node)</span></span>;
-<span class="function"><span class="keyword">void</span> <span class="title">rbtree_traversal</span><span class="params">(rbtree_t* tree, rbtree_node_t* node, rbtree_visit_p)</span></span>;
+/* statements of public methods */
+void rbtree_insert_value(rbtree_t* tree, rbtree_node_t* node);
+void rbtree_insert(rbtree_t* tree, rbtree_node_t* node);
+void rbtree_delete(rbtree_t* tree, rbtree_node_t* node);
+/* get node by key */
+rbtree_node_t* rbtree_find(rbtree_t* tree, rbtree_key_t key);
+/* get node by order number */
+rbtree_node_t* rbtree_index(rbtree_t* tree, int index);
+int rbtree_height(rbtree_t* tree, rbtree_node_t* node);
+int rbtree_count(rbtree_t* tree);
+void rbtree_visit(rbtree_node_t* node);
+void rbtree_traversal(rbtree_t* tree, rbtree_node_t* node, rbtree_visit_p);
 
-<span class="preprocessor">#<span class="keyword">endif</span>    <span class="comment">/* _RBTREE_H_INCLUDED_ */</span></span>
+#endif  /* _RBTREE_H_INCLUDED_ */
 </code></pre><p>&nbsp;&nbsp;&nbsp; 可以看到，我增加了按序号查找结点、求树高、求结点数、可重写访问节点方法的遍历，这么几个功能。<br>&nbsp;&nbsp;&nbsp; 为了提高按序号查找结点的效率，我增加了一个结点项node_cnt，代表当前结点为根的子树上的结点总数。这样按序号查找结点的过程将是一个二分查找，时间效率与按key查找相同，都是O(log2n)。<br>&nbsp;&nbsp;&nbsp; 遍历方法使用递归的中序遍历，默认的结点访问方法是个空方法，用户可以自行重写。<br>&nbsp;&nbsp;&nbsp; rbtree.c：</p>
-<pre><code><span class="comment">/*
+<pre><code>/*
  * Copyright (C) Bipedal Bit
  * Verson 1.0.0.2
- */</span>
+ */
 
-<span class="variable">#include</span> &lt;stddef<span class="built_in">.</span>h&gt;
-<span class="variable">#include</span> <span class="string">"rbtree.h"</span>
+#include &lt;stddef.h&gt;
+#include &quot;rbtree.h&quot;
 
-<span class="comment">/* inline methods */</span>
-<span class="comment">/* get the node with the minimum key in a subtree of the red-black tree */</span>
-static <span class="keyword">inline</span> rbtree_node_t*
+/* inline methods */
+/* get the node with the minimum key in a subtree of the red-black tree */
+static inline rbtree_node_t*
 rbtree_subtree_min(rbtree_node_t* node, rbtree_node_t* sentinel)
 {
-    <span class="keyword">while</span>(node<span class="subst">-&gt;</span>left != sentinel)
+    while(node-&gt;left != sentinel)
     {
-        node = node<span class="subst">-&gt;</span>left;
+        node = node-&gt;left;
     }
 
-    <span class="keyword">return</span> node;
+    return node;
 }
 
-<span class="comment">/* replace the node "node" in the tree with node "tmp" */</span>
-static <span class="keyword">inline</span> <span class="literal">void</span> rbtree_replace(rbtree_t* tree,
+/* replace the node &quot;node&quot; in the tree with node &quot;tmp&quot; */
+static inline void rbtree_replace(rbtree_t* tree,
     rbtree_node_t* node, rbtree_node_t* tmp)
 {
-    <span class="comment">/* upward: p[node] &lt;- p[tmp] */</span>
-    tmp<span class="subst">-&gt;</span><span class="keyword">parent</span> = node<span class="subst">-&gt;</span><span class="keyword">parent</span>;
+    /* upward: p[node] &lt;- p[tmp] */
+    tmp-&gt;parent = node-&gt;parent;
 
-    <span class="keyword">if</span> (node == tree<span class="subst">-&gt;</span>root)
+    if (node == tree-&gt;root)
     {
-        tree<span class="subst">-&gt;</span>root = tmp;
+        tree-&gt;root = tmp;
     }
-    <span class="keyword">else</span> <span class="keyword">if</span> (node == node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left)
+    else if (node == node-&gt;parent-&gt;left)
     {
-        <span class="comment">/* downward: left[p[node]] &lt;- tmp */</span>
-        node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left = tmp;
+        /* downward: left[p[node]] &lt;- tmp */
+        node-&gt;parent-&gt;left = tmp;
     }
-    <span class="keyword">else</span>
+    else
     {
-        <span class="comment">/* downward: right[p[node]] &lt;- tmp */</span>
-        node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right = tmp;
+        /* downward: right[p[node]] &lt;- tmp */
+        node-&gt;parent-&gt;right = tmp;
     }
 
-    node<span class="subst">-&gt;</span><span class="keyword">parent</span> = tmp;
+    node-&gt;parent = tmp;
 }
 
-<span class="comment">/* change the topologic structure of the tree keeping the order of the nodes */</span>
-static <span class="keyword">inline</span> <span class="literal">void</span> rbtree_left_rotate(rbtree_t* tree, rbtree_node_t* node)
+/* change the topologic structure of the tree keeping the order of the nodes */
+static inline void rbtree_left_rotate(rbtree_t* tree, rbtree_node_t* node)
 {
-    <span class="comment">/* node as the var x in CLRS while tmp as the var y */</span>
-    rbtree_node_t* tmp = node<span class="subst">-&gt;</span>right;
+    /* node as the var x in CLRS while tmp as the var y */
+    rbtree_node_t* tmp = node-&gt;right;
 
-    <span class="comment">/* fix node_cnt */</span>
-    node<span class="subst">-&gt;</span>node_cnt = node<span class="subst">-&gt;</span>left<span class="subst">-&gt;</span>node_cnt + tmp<span class="subst">-&gt;</span>left<span class="subst">-&gt;</span>node_cnt + <span class="number">1</span>;
-    tmp<span class="subst">-&gt;</span>node_cnt = node<span class="subst">-&gt;</span>node_cnt + tmp<span class="subst">-&gt;</span>right<span class="subst">-&gt;</span>node_cnt + <span class="number">1</span>;
+    /* fix node_cnt */
+    node-&gt;node_cnt = node-&gt;left-&gt;node_cnt + tmp-&gt;left-&gt;node_cnt + 1;
+    tmp-&gt;node_cnt = node-&gt;node_cnt + tmp-&gt;right-&gt;node_cnt + 1;
 
-    <span class="comment">/* replace y with left[y] */</span>
-    <span class="comment">/* downward: right[x] &lt;- left[y] */</span>
-    node<span class="subst">-&gt;</span>right = tmp<span class="subst">-&gt;</span>left;
-    <span class="comment">/* if left[[y] is not NIL it has a parent */</span>
-    <span class="keyword">if</span> (tmp<span class="subst">-&gt;</span>left != tree<span class="subst">-&gt;</span>sentinel)
+    /* replace y with left[y] */
+    /* downward: right[x] &lt;- left[y] */
+    node-&gt;right = tmp-&gt;left;
+    /* if left[[y] is not NIL it has a parent */
+    if (tmp-&gt;left != tree-&gt;sentinel)
     {
-        <span class="comment">/* upward: p[left[y]] &lt;- x */</span>
-        tmp<span class="subst">-&gt;</span>left<span class="subst">-&gt;</span><span class="keyword">parent</span> = node;
+        /* upward: p[left[y]] &lt;- x */
+        tmp-&gt;left-&gt;parent = node;
     }
 
-    <span class="comment">/* replace x with y */</span>
+    /* replace x with y */
     rbtree_replace(tree, node, tmp);
-    tmp<span class="subst">-&gt;</span>left = node;
+    tmp-&gt;left = node;
 }
 
-static <span class="keyword">inline</span> <span class="literal">void</span> rbtree_right_rotate(rbtree_t* tree, rbtree_node_t* node)
+static inline void rbtree_right_rotate(rbtree_t* tree, rbtree_node_t* node)
 {
-    rbtree_node_t* tmp = node<span class="subst">-&gt;</span>left;
+    rbtree_node_t* tmp = node-&gt;left;
 
-    <span class="comment">/* fix node_cnt */</span>
-    node<span class="subst">-&gt;</span>node_cnt = node<span class="subst">-&gt;</span>right<span class="subst">-&gt;</span>node_cnt + tmp<span class="subst">-&gt;</span>right<span class="subst">-&gt;</span>node_cnt + <span class="number">1</span>;
-    tmp<span class="subst">-&gt;</span>node_cnt = node<span class="subst">-&gt;</span>node_cnt + tmp<span class="subst">-&gt;</span>left<span class="subst">-&gt;</span>node_cnt + <span class="number">1</span>;
+    /* fix node_cnt */
+    node-&gt;node_cnt = node-&gt;right-&gt;node_cnt + tmp-&gt;right-&gt;node_cnt + 1;
+    tmp-&gt;node_cnt = node-&gt;node_cnt + tmp-&gt;left-&gt;node_cnt + 1;
 
-    <span class="comment">/* replace y with right[y] */</span>
-    node<span class="subst">-&gt;</span>left = tmp<span class="subst">-&gt;</span>right;
-    <span class="keyword">if</span> (tmp<span class="subst">-&gt;</span>right != tree<span class="subst">-&gt;</span>sentinel)
+    /* replace y with right[y] */
+    node-&gt;left = tmp-&gt;right;
+    if (tmp-&gt;right != tree-&gt;sentinel)
     {
-        tmp<span class="subst">-&gt;</span>right<span class="subst">-&gt;</span><span class="keyword">parent</span> = node;
+        tmp-&gt;right-&gt;parent = node;
     }
 
-    <span class="comment">/* replace x with y */</span>
+    /* replace x with y */
     rbtree_replace(tree, node, tmp);
-    tmp<span class="subst">-&gt;</span>right = node;
+    tmp-&gt;right = node;
 }
 
-<span class="comment">/* static methods */</span>
-<span class="comment">/* fix the red-black tree after the new node inserted */</span>
-static <span class="literal">void</span> rbtree_insert_fixup(rbtree_t* tree, rbtree_node_t* node)
+/* static methods */
+/* fix the red-black tree after the new node inserted */
+static void rbtree_insert_fixup(rbtree_t* tree, rbtree_node_t* node)
 {
-    <span class="keyword">while</span>(rbtree_is_red(node<span class="subst">-&gt;</span><span class="keyword">parent</span>))
+    while(rbtree_is_red(node-&gt;parent))
     {
-        <span class="keyword">if</span> (node<span class="subst">-&gt;</span><span class="keyword">parent</span> == node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left)
+        if (node-&gt;parent == node-&gt;parent-&gt;parent-&gt;left)
         {
-            <span class="comment">/* case 1: node's uncle is red */</span>
-            <span class="keyword">if</span> (rbtree_is_red(node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right))
+            /* case 1: node&apos;s uncle is red */
+            if (rbtree_is_red(node-&gt;parent-&gt;parent-&gt;right))
             {
-                rbtree_black(node<span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                rbtree_black(node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right);
-                rbtree_red(node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                node = node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>;
-                <span class="comment">/* Then we can consider the whole subtree */</span>
-                <span class="comment">/* which is represented by the new "node" as the "node" before */</span>
-                <span class="comment">/* and keep looping till "node" become the root. */</span>
+                rbtree_black(node-&gt;parent);
+                rbtree_black(node-&gt;parent-&gt;parent-&gt;right);
+                rbtree_red(node-&gt;parent-&gt;parent);
+                node = node-&gt;parent-&gt;parent;
+                /* Then we can consider the whole subtree */
+                /* which is represented by the new &quot;node&quot; as the &quot;node&quot; before */
+                /* and keep looping till &quot;node&quot; become the root. */
             }
-            <span class="comment">/* case 2: node's uncle is black */</span>
-            <span class="keyword">else</span>
+            /* case 2: node&apos;s uncle is black */
+            else
             {
-                <span class="comment">/* ensure node is the left kid of its parent */</span>
-                <span class="keyword">if</span> (node == node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right)
+                /* ensure node is the left kid of its parent */
+                if (node == node-&gt;parent-&gt;right)
                 {
-                    node = node<span class="subst">-&gt;</span><span class="keyword">parent</span>;
+                    node = node-&gt;parent;
                     rbtree_left_rotate(tree, node);
                 }
-                <span class="comment">/* case 2 -&gt; case 1 */</span>
-                rbtree_black(node<span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                rbtree_red(node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                rbtree_right_rotate(tree, node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>);
+                /* case 2 -&gt; case 1 */
+                rbtree_black(node-&gt;parent);
+                rbtree_red(node-&gt;parent-&gt;parent);
+                rbtree_right_rotate(tree, node-&gt;parent-&gt;parent);
             }
         }
-        <span class="comment">/* same as the "if" clause before with "left" and "right" exchanged */</span>
-        <span class="keyword">else</span>
+        /* same as the &quot;if&quot; clause before with &quot;left&quot; and &quot;right&quot; exchanged */
+        else
         {
-            <span class="keyword">if</span> (rbtree_is_red(node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left))
+            if (rbtree_is_red(node-&gt;parent-&gt;parent-&gt;left))
             {
-                rbtree_black(node<span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                rbtree_black(node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left);
-                rbtree_red(node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                node = node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>;
+                rbtree_black(node-&gt;parent);
+                rbtree_black(node-&gt;parent-&gt;parent-&gt;left);
+                rbtree_red(node-&gt;parent-&gt;parent);
+                node = node-&gt;parent-&gt;parent;
             }
-            <span class="keyword">else</span>
+            else
             {
-                <span class="keyword">if</span> (node == node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left)
+                if (node == node-&gt;parent-&gt;left)
                 {
-                    node = node<span class="subst">-&gt;</span><span class="keyword">parent</span>;
+                    node = node-&gt;parent;
                     rbtree_right_rotate(tree, node);
                 }
-                rbtree_black(node<span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                rbtree_red(node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                rbtree_left_rotate(tree, node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span><span class="keyword">parent</span>);
+                rbtree_black(node-&gt;parent);
+                rbtree_red(node-&gt;parent-&gt;parent);
+                rbtree_left_rotate(tree, node-&gt;parent-&gt;parent);
             }
         }
     }
-    <span class="comment">/* ensure the root node being black */</span>
-    rbtree_black(tree<span class="subst">-&gt;</span>root);
+    /* ensure the root node being black */
+    rbtree_black(tree-&gt;root);
 }
 
-static <span class="literal">void</span> rbtree_delete_fixup(rbtree_t* tree, rbtree_node_t* node)
+static void rbtree_delete_fixup(rbtree_t* tree, rbtree_node_t* node)
 {
-    rbtree_node_t* brother = <span class="built_in">NULL</span>;
+    rbtree_node_t* brother = NULL;
 
-    <span class="keyword">while</span>(node != tree<span class="subst">-&gt;</span>root <span class="subst">&amp;&amp;</span> rbtree_is_black(node))
+    while(node != tree-&gt;root &amp;&amp; rbtree_is_black(node))
     {
-        <span class="keyword">if</span> (node == node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left)
+        if (node == node-&gt;parent-&gt;left)
         {
-            brother = node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right;
-            <span class="keyword">if</span> (rbtree_is_red(brother))
+            brother = node-&gt;parent-&gt;right;
+            if (rbtree_is_red(brother))
             {
                 rbtree_black(brother);
-                rbtree_red(node<span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                rbtree_left_rotate(tree, node<span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                <span class="comment">/* update brother after topologic change of the tree */</span>
-                brother = node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right;
+                rbtree_red(node-&gt;parent);
+                rbtree_left_rotate(tree, node-&gt;parent);
+                /* update brother after topologic change of the tree */
+                brother = node-&gt;parent-&gt;right;
             }
 
-            <span class="keyword">if</span> (rbtree_is_black(brother<span class="subst">-&gt;</span>left) <span class="subst">&amp;&amp;</span> rbtree_is_black(brother<span class="subst">-&gt;</span>right))
+            if (rbtree_is_black(brother-&gt;left) &amp;&amp; rbtree_is_black(brother-&gt;right))
             {
                 rbtree_red(brother);
-                <span class="comment">/* go upward and keep on fixing color */</span>
-                node = node<span class="subst">-&gt;</span><span class="keyword">parent</span>;
+                /* go upward and keep on fixing color */
+                node = node-&gt;parent;
             }
-            <span class="keyword">else</span>
+            else
             {
-                <span class="keyword">if</span> (rbtree_is_black(brother<span class="subst">-&gt;</span>right))
+                if (rbtree_is_black(brother-&gt;right))
                 {
-                    rbtree_black(brother<span class="subst">-&gt;</span>left);
+                    rbtree_black(brother-&gt;left);
                     rbtree_red(brother);
                     rbtree_right_rotate(tree, brother);
-                    <span class="comment">/* update brother after topologic change of the tree */</span>
-                    brother = node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right;
+                    /* update brother after topologic change of the tree */
+                    brother = node-&gt;parent-&gt;right;
                 }
-                rbtree_copy_col<span class="subst">or</span>(brother, node<span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                rbtree_black(node<span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                rbtree_black(brother<span class="subst">-&gt;</span>right);
-                rbtree_left_rotate(tree, node<span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                <span class="comment">/* end the loop and ensure root is black */</span>
-                node = tree<span class="subst">-&gt;</span>root;
+                rbtree_copy_color(brother, node-&gt;parent);
+                rbtree_black(node-&gt;parent);
+                rbtree_black(brother-&gt;right);
+                rbtree_left_rotate(tree, node-&gt;parent);
+                /* end the loop and ensure root is black */
+                node = tree-&gt;root;
             }
         }
-        <span class="comment">/* same as the "if" clause before with "left" and "right" exchanged */</span>
-        <span class="keyword">else</span>
+        /* same as the &quot;if&quot; clause before with &quot;left&quot; and &quot;right&quot; exchanged */
+        else
         {
-            brother = node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left;
-            <span class="keyword">if</span> (rbtree_is_red(brother))
+            brother = node-&gt;parent-&gt;left;
+            if (rbtree_is_red(brother))
             {
                 rbtree_black(brother);
-                rbtree_red(node<span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                rbtree_left_rotate(tree, node<span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                brother = node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left;
+                rbtree_red(node-&gt;parent);
+                rbtree_left_rotate(tree, node-&gt;parent);
+                brother = node-&gt;parent-&gt;left;
             }
 
-            <span class="keyword">if</span> (rbtree_is_black(brother<span class="subst">-&gt;</span>left) <span class="subst">&amp;&amp;</span> rbtree_is_black(brother<span class="subst">-&gt;</span>right))
+            if (rbtree_is_black(brother-&gt;left) &amp;&amp; rbtree_is_black(brother-&gt;right))
             {
                 rbtree_red(brother);
-                node = node<span class="subst">-&gt;</span><span class="keyword">parent</span>;
+                node = node-&gt;parent;
             }
-            <span class="keyword">else</span>
+            else
             {
-                <span class="keyword">if</span> (rbtree_is_black(brother<span class="subst">-&gt;</span>left))
+                if (rbtree_is_black(brother-&gt;left))
                 {
-                    rbtree_black(brother<span class="subst">-&gt;</span>right);
+                    rbtree_black(brother-&gt;right);
                     rbtree_red(brother);
                     rbtree_right_rotate(tree, brother);
-                    brother = node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left;
+                    brother = node-&gt;parent-&gt;left;
                 }
-                rbtree_copy_col<span class="subst">or</span>(brother, node<span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                rbtree_black(node<span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                rbtree_black(brother<span class="subst">-&gt;</span>left);
-                rbtree_left_rotate(tree, node<span class="subst">-&gt;</span><span class="keyword">parent</span>);
-                node = tree<span class="subst">-&gt;</span>root;
+                rbtree_copy_color(brother, node-&gt;parent);
+                rbtree_black(node-&gt;parent);
+                rbtree_black(brother-&gt;left);
+                rbtree_left_rotate(tree, node-&gt;parent);
+                node = tree-&gt;root;
             }
         }
     }
@@ -414,378 +414,378 @@ static <span class="literal">void</span> rbtree_delete_fixup(rbtree_t* tree, rbt
     rbtree_black(node);
 }
 
-<span class="comment">/* public methods */</span>
-<span class="literal">void</span> rbtree_insert_value(rbtree_t* tree, rbtree_node_t* node)
+/* public methods */
+void rbtree_insert_value(rbtree_t* tree, rbtree_node_t* node)
 {
-    <span class="comment">/* Using ** to know wether the new node will be a left kid */</span>
-    <span class="comment">/* or a right kid of its parent node. */</span>
-    rbtree_node_t** tmp = <span class="subst">&amp;</span>tree<span class="subst">-&gt;</span>root;
-    rbtree_node_t* <span class="keyword">parent</span>;
+    /* Using ** to know wether the new node will be a left kid */
+    /* or a right kid of its parent node. */
+    rbtree_node_t** tmp = &amp;tree-&gt;root;
+    rbtree_node_t* parent;
 
-    <span class="keyword">while</span>(*tmp != tree<span class="subst">-&gt;</span>sentinel)
+    while(*tmp != tree-&gt;sentinel)
     {
-        <span class="keyword">parent</span> = *tmp;
+        parent = *tmp;
 
-        <span class="comment">/* update node_cnt */</span>
-        (<span class="keyword">parent</span><span class="subst">-&gt;</span>node_cnt)++;
+        /* update node_cnt */
+        (parent-&gt;node_cnt)++;
 
-        tmp = (node<span class="subst">-&gt;</span>key &lt; <span class="keyword">parent</span><span class="subst">-&gt;</span>key) ? <span class="subst">&amp;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left : <span class="subst">&amp;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right;
+        tmp = (node-&gt;key &lt; parent-&gt;key) ? &amp;parent-&gt;left : &amp;parent-&gt;right;
     }
 
-    <span class="comment">/* The pointer knows wether the node should be on the left side */</span>
-    <span class="comment">/* or on the right one. */</span>
+    /* The pointer knows wether the node should be on the left side */
+    /* or on the right one. */
     *tmp = node;
-    node<span class="subst">-&gt;</span><span class="keyword">parent</span> = <span class="keyword">parent</span>;
-    node<span class="subst">-&gt;</span>left = tree<span class="subst">-&gt;</span>sentinel;
-    node<span class="subst">-&gt;</span>right = tree<span class="subst">-&gt;</span>sentinel;
+    node-&gt;parent = parent;
+    node-&gt;left = tree-&gt;sentinel;
+    node-&gt;right = tree-&gt;sentinel;
     rbtree_red(node);
 }
 
-<span class="literal">void</span> rbtree_visit(rbtree_node_t* node)
+void rbtree_visit(rbtree_node_t* node)
 {
-    <span class="comment">/* visiting the current node */</span>
+    /* visiting the current node */
 }
 
-<span class="literal">void</span> rbtree_insert(rbtree_t* tree, rbtree_node_t* node)
+void rbtree_insert(rbtree_t* tree, rbtree_node_t* node)
 {
-    rbtree_node_t* sentinel = tree<span class="subst">-&gt;</span>sentinel;
+    rbtree_node_t* sentinel = tree-&gt;sentinel;
 
-    <span class="comment">/* if the tree is empty */</span>
-    <span class="keyword">if</span> (tree<span class="subst">-&gt;</span>root == sentinel)
+    /* if the tree is empty */
+    if (tree-&gt;root == sentinel)
     {
-        tree<span class="subst">-&gt;</span>root = node;
-        node<span class="subst">-&gt;</span><span class="keyword">parent</span> = sentinel;
-        node<span class="subst">-&gt;</span>left = sentinel;
-        node<span class="subst">-&gt;</span>right = sentinel;
+        tree-&gt;root = node;
+        node-&gt;parent = sentinel;
+        node-&gt;left = sentinel;
+        node-&gt;right = sentinel;
         rbtree_black(node);
 
-        <span class="keyword">return</span>;
+        return;
     }
 
-    <span class="comment">/* generally */</span>
-    tree<span class="subst">-&gt;</span>insert(tree, node);
+    /* generally */
+    tree-&gt;insert(tree, node);
     rbtree_insert_fixup(tree, node);
 }
 
-<span class="literal">void</span> rbtree_delete(rbtree_t* tree, rbtree_node_t* node)
+void rbtree_delete(rbtree_t* tree, rbtree_node_t* node)
 {
-    rbtree_node_t* sentinel = tree<span class="subst">-&gt;</span>sentinel;
-    <span class="comment">/* wether "node" is on the left side or the right one */</span>
-    rbtree_node_t** ptr_to_node = <span class="built_in">NULL</span>;
-    <span class="comment">/* "cover" is the node which is going to cover "node" */</span>
-    rbtree_node_t* cover = <span class="built_in">NULL</span>;
-    <span class="comment">/* wether we lossing a red node on the edge of the tree */</span>
+    rbtree_node_t* sentinel = tree-&gt;sentinel;
+    /* wether &quot;node&quot; is on the left side or the right one */
+    rbtree_node_t** ptr_to_node = NULL;
+    /* &quot;cover&quot; is the node which is going to cover &quot;node&quot; */
+    rbtree_node_t* cover = NULL;
+    /* wether we lossing a red node on the edge of the tree */
     int loss_red = rbtree_is_red(node);
-    int is_root = (node == tree<span class="subst">-&gt;</span>root);
+    int is_root = (node == tree-&gt;root);
 
-    <span class="comment">/* get "cover" &amp; "loss_red"  */</span>
-    <span class="comment">/* sentinel in "node"'s kids */</span>
-    <span class="keyword">if</span> (node<span class="subst">-&gt;</span>left == sentinel)
+    /* get &quot;cover&quot; &amp; &quot;loss_red&quot;  */
+    /* sentinel in &quot;node&quot;&apos;s kids */
+    if (node-&gt;left == sentinel)
     {
-        cover = node<span class="subst">-&gt;</span>right;
+        cover = node-&gt;right;
     }
-    <span class="keyword">else</span> <span class="keyword">if</span> (node<span class="subst">-&gt;</span>right == sentinel)
+    else if (node-&gt;right == sentinel)
     {
-        cover = node<span class="subst">-&gt;</span>left;
+        cover = node-&gt;left;
     }
-    <span class="comment">/* "node"'s kids are both non-sentinel */</span>
-    <span class="keyword">else</span>
+    /* &quot;node&quot;&apos;s kids are both non-sentinel */
+    else
     {
-        <span class="comment">/* update "node" &amp; "loss_red" &amp; "is_root" &amp; "cover" */</span>
-        cover = rbtree_subtree_min(node<span class="subst">-&gt;</span>right, sentinel);
-        node<span class="subst">-&gt;</span>key = cover<span class="subst">-&gt;</span>key;
-        node<span class="subst">-&gt;</span>value = cover<span class="subst">-&gt;</span>value;
+        /* update &quot;node&quot; &amp; &quot;loss_red&quot; &amp; &quot;is_root&quot; &amp; &quot;cover&quot; */
+        cover = rbtree_subtree_min(node-&gt;right, sentinel);
+        node-&gt;key = cover-&gt;key;
+        node-&gt;value = cover-&gt;value;
         node = cover;
         loss_red = rbtree_is_red(node);
-        is_root = <span class="number">0</span>;
-        <span class="comment">/* move "cover"'s kids */</span>
-        <span class="comment">/* "cover" can only be a left kid */</span>
-        <span class="comment">/* and can only have a right non-sentinel kid */</span>
-        <span class="comment">/* because of function "rbtree_subtree_min" */</span>
-        cover = node<span class="subst">-&gt;</span>right;
+        is_root = 0;
+        /* move &quot;cover&quot;&apos;s kids */
+        /* &quot;cover&quot; can only be a left kid */
+        /* and can only have a right non-sentinel kid */
+        /* because of function &quot;rbtree_subtree_min&quot; */
+        cover = node-&gt;right;
     }
 
-    <span class="keyword">if</span> (is_root)
+    if (is_root)
     {
-        <span class="comment">/* update root */</span>
-        tree<span class="subst">-&gt;</span>root = cover;
+        /* update root */
+        tree-&gt;root = cover;
     }
-    <span class="keyword">else</span>
+    else
     {
-        <span class="comment">/* downward link */</span>
-        <span class="keyword">if</span> (node == node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left)
+        /* downward link */
+        if (node == node-&gt;parent-&gt;left)
         {
-            node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>left = cover;
+            node-&gt;parent-&gt;left = cover;
         }
-        <span class="keyword">else</span>
+        else
         {
-            node<span class="subst">-&gt;</span><span class="keyword">parent</span><span class="subst">-&gt;</span>right = cover;
+            node-&gt;parent-&gt;right = cover;
         }
     }
-    <span class="comment">/* upward link */</span>
-    cover<span class="subst">-&gt;</span><span class="keyword">parent</span> = node<span class="subst">-&gt;</span><span class="keyword">parent</span>;
-    <span class="comment">/* "cover" may be a sentinel */</span>
-    <span class="keyword">if</span> (cover != sentinel)
+    /* upward link */
+    cover-&gt;parent = node-&gt;parent;
+    /* &quot;cover&quot; may be a sentinel */
+    if (cover != sentinel)
     {
-        <span class="comment">/* set "cover" */</span>
-        cover<span class="subst">-&gt;</span>left = node<span class="subst">-&gt;</span>left;
-        cover<span class="subst">-&gt;</span>right = node<span class="subst">-&gt;</span>right;
-        rbtree_copy_col<span class="subst">or</span>(cover, node);
+        /* set &quot;cover&quot; */
+        cover-&gt;left = node-&gt;left;
+        cover-&gt;right = node-&gt;right;
+        rbtree_copy_color(cover, node);
     }
 
-    <span class="comment">/* clear "node" since it's useless */</span>
-    node<span class="subst">-&gt;</span>key = -<span class="number">1</span>;
-    node<span class="subst">-&gt;</span><span class="keyword">parent</span> = <span class="built_in">NULL</span>;
-    node<span class="subst">-&gt;</span>left = <span class="built_in">NULL</span>;
-    node<span class="subst">-&gt;</span>right = <span class="built_in">NULL</span>;
-    node<span class="subst">-&gt;</span>value = <span class="built_in">NULL</span>;
+    /* clear &quot;node&quot; since it&apos;s useless */
+    node-&gt;key = -1;
+    node-&gt;parent = NULL;
+    node-&gt;left = NULL;
+    node-&gt;right = NULL;
+    node-&gt;value = NULL;
 
-    <span class="comment">/* update node_cnt */</span>
-    rbtree_node_t* tmp = cover<span class="subst">-&gt;</span><span class="keyword">parent</span>;
-    <span class="keyword">while</span>(tmp != sentinel)
+    /* update node_cnt */
+    rbtree_node_t* tmp = cover-&gt;parent;
+    while(tmp != sentinel)
     {
-        (tmp<span class="subst">-&gt;</span>node_cnt)--;
-        tmp = tmp<span class="subst">-&gt;</span><span class="keyword">parent</span>;
+        (tmp-&gt;node_cnt)--;
+        tmp = tmp-&gt;parent;
     }
 
-    <span class="keyword">if</span> (loss_red)
+    if (loss_red)
     {
-        <span class="keyword">return</span>;
+        return;
     }
 
-    <span class="comment">/* When lossing a black node on edge */</span>
-    <span class="comment">/* the fifth rule of red-black tree will be broke. */</span>
-    <span class="comment">/* So the tree need to be fixed. */</span>
+    /* When lossing a black node on edge */
+    /* the fifth rule of red-black tree will be broke. */
+    /* So the tree need to be fixed. */
     rbtree_delete_fixup(tree, cover);
 }
 
-<span class="comment">/* find the node in the tree corresponding to the given key value */</span>
+/* find the node in the tree corresponding to the given key value */
 rbtree_node_t* rbtree_find(rbtree_t* tree, rbtree_key_t key)
 {
-    rbtree_node_t* tmp = tree<span class="subst">-&gt;</span>root;
-    <span class="comment">/* next line is just fot test */</span>
-    <span class="comment">// int step_cnt = 0;</span>
+    rbtree_node_t* tmp = tree-&gt;root;
+    /* next line is just fot test */
+    // int step_cnt = 0;
 
-    <span class="comment">/* search the binary tree */</span>
-    <span class="keyword">while</span>(tmp != tree<span class="subst">-&gt;</span>sentinel)
+    /* search the binary tree */
+    while(tmp != tree-&gt;sentinel)
     {
-        <span class="comment">/* next line is just fot test */</span>
-        <span class="comment">// step_cnt++;</span>
-        <span class="keyword">if</span>(key == tmp<span class="subst">-&gt;</span>key)
+        /* next line is just fot test */
+        // step_cnt++;
+        if(key == tmp-&gt;key)
         {
-            <span class="comment">/* next line is just for test */</span>
-            <span class="comment">// printf("step count: %d, color: %s, ", step_cnt, rbtree_is_red(tmp) ? "red" : "black");</span>
-            <span class="keyword">return</span> tmp;
+            /* next line is just for test */
+            // printf(&quot;step count: %d, color: %s, &quot;, step_cnt, rbtree_is_red(tmp) ? &quot;red&quot; : &quot;black&quot;);
+            return tmp;
         }
 
-        tmp = (key &lt; tmp<span class="subst">-&gt;</span>key) ? tmp<span class="subst">-&gt;</span>left : tmp<span class="subst">-&gt;</span>right;
+        tmp = (key &lt; tmp-&gt;key) ? tmp-&gt;left : tmp-&gt;right;
     }
 
-    <span class="keyword">return</span> <span class="built_in">NULL</span>;
+    return NULL;
 }
 
-<span class="comment">/* find the node in the tree corresponding to the given order number */</span>
+/* find the node in the tree corresponding to the given order number */
 rbtree_node_t* rbtree_index(rbtree_t* tree, int index)
 {
-    <span class="keyword">if</span> (index &lt; <span class="number">0</span> <span class="subst">||</span> index &gt;= rbtree_count(tree))
+    if (index &lt; 0 || index &gt;= rbtree_count(tree))
     {
-        <span class="keyword">return</span> <span class="built_in">NULL</span>;
+        return NULL;
     }
 
-    rbtree_node_t* tmp = tree<span class="subst">-&gt;</span>root;
-    int left_cnt = <span class="number">0</span>;
+    rbtree_node_t* tmp = tree-&gt;root;
+    int left_cnt = 0;
     int sub_left_cnt;
 
-    <span class="keyword">while</span>(tmp<span class="subst">-&gt;</span>node_cnt &gt; <span class="number">0</span>)
+    while(tmp-&gt;node_cnt &gt; 0)
     {
-        sub_left_cnt = tmp<span class="subst">-&gt;</span>left<span class="subst">-&gt;</span>node_cnt;
-        <span class="keyword">if</span> (left_cnt + sub_left_cnt == index)
+        sub_left_cnt = tmp-&gt;left-&gt;node_cnt;
+        if (left_cnt + sub_left_cnt == index)
         {
-            <span class="keyword">return</span> tmp;
+            return tmp;
         }
 
-        <span class="keyword">if</span> (left_cnt + sub_left_cnt &lt; index)
+        if (left_cnt + sub_left_cnt &lt; index)
         {
-            left_cnt += sub_left_cnt + <span class="number">1</span>;
-            tmp = tmp<span class="subst">-&gt;</span>right;
+            left_cnt += sub_left_cnt + 1;
+            tmp = tmp-&gt;right;
         }
-        <span class="keyword">else</span>
+        else
         {
-            tmp = tmp<span class="subst">-&gt;</span>left;
+            tmp = tmp-&gt;left;
         }
     }
 }
 
-<span class="comment">/* get the height of the subtree */</span>
+/* get the height of the subtree */
 int rbtree_height(rbtree_t* tree, rbtree_node_t* node)
 {
-    <span class="keyword">if</span> (node == tree<span class="subst">-&gt;</span>sentinel)
+    if (node == tree-&gt;sentinel)
     {
-        <span class="keyword">return</span> <span class="number">0</span>;
+        return 0;
     }
 
-    int left_height = rbtree_height(tree, node<span class="subst">-&gt;</span>left);
-    int right_height = rbtree_height(tree, node<span class="subst">-&gt;</span>right);
+    int left_height = rbtree_height(tree, node-&gt;left);
+    int right_height = rbtree_height(tree, node-&gt;right);
     int sub_height = (left_height &gt; right_height) ? left_height : right_height;
-    <span class="keyword">return</span> sub_height+<span class="number">1</span>;
+    return sub_height+1;
 }
 
-<span class="comment">/* get the count of nodes in the tree */</span>
+/* get the count of nodes in the tree */
 int rbtree_count(rbtree_t* tree)
 {
-    <span class="keyword">return</span> tree<span class="subst">-&gt;</span>root<span class="subst">-&gt;</span>node_cnt;
+    return tree-&gt;root-&gt;node_cnt;
 }
 
-<span class="comment">/* visit every node of the subtree whose root is given in order */</span>
-<span class="literal">void</span> rbtree_traversal(rbtree_t* tree, rbtree_node_t* node, rbtree_visit_p visit)
+/* visit every node of the subtree whose root is given in order */
+void rbtree_traversal(rbtree_t* tree, rbtree_node_t* node, rbtree_visit_p visit)
 {
-    <span class="keyword">if</span> (node != tree<span class="subst">-&gt;</span>sentinel)
+    if (node != tree-&gt;sentinel)
     {
-        rbtree_traversal(tree, node<span class="subst">-&gt;</span>left, visit);
+        rbtree_traversal(tree, node-&gt;left, visit);
         visit(node);
-        rbtree_traversal(tree, node<span class="subst">-&gt;</span>right, visit);
+        rbtree_traversal(tree, node-&gt;right, visit);
     }
 }
 </code></pre><p>&nbsp;&nbsp;&nbsp; 还是做个压力测试。<br>&nbsp;&nbsp;&nbsp; test.c：</p>
-<pre><code><span class="preprocessor">#include <span class="title">&lt;stdio.h&gt;</span></span>
-<span class="preprocessor">#include <span class="title">&lt;stdlib.h&gt;</span></span>
-<span class="preprocessor">#include <span class="title">&lt;time.h&gt;</span></span>
-<span class="preprocessor">#include <span class="title">"rbtree.h"</span></span>
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;time.h&gt;
+#include &quot;rbtree.h&quot;
 
-<span class="keyword">int</span> main(<span class="keyword">int</span> argc, <span class="keyword">char</span> <span class="keyword">const</span> *argv[])
+int main(int argc, char const *argv[])
 {
-    <span class="keyword">double</span> duration;
-    <span class="keyword">double</span> room;
+    double duration;
+    double room;
 
     rbtree_t t = {};
     rbtree_node_t s = {};
     rbtree_init(&amp;t, &amp;s, rbtree_insert_value);
 
-    <span class="keyword">const</span> <span class="keyword">int</span> cnt = <span class="number">1</span>&lt;&lt;<span class="number">20</span>;
-    <span class="keyword">const</span> <span class="keyword">int</span> max_len = <span class="number">15</span>;
+    const int cnt = 1&lt;&lt;20;
+    const int max_len = 15;
 
-<span class="preprocessor">#define TEST_VALUES {<span class="title">"apple"</span>, <span class="title">"banana"</span>, <span class="title">"cherry"</span>, <span class="title">"grape"</span>, <span class="title">"lemon"</span>, <span class="title">"mango"</span>, <span class="title">"pear"</span>, <span class="title">"pineapple"</span>, <span class="title">"strawberry"</span>, <span class="title">"watermelon"</span>}</span>
+#define TEST_VALUES {&quot;apple&quot;, &quot;banana&quot;, &quot;cherry&quot;, &quot;grape&quot;, &quot;lemon&quot;, &quot;mango&quot;, &quot;pear&quot;, &quot;pineapple&quot;, &quot;strawberry&quot;, &quot;watermelon&quot;}
 
-    <span class="comment">/* for gcc */</span>
-    <span class="keyword">char</span>* v[] = TEST_VALUES;
-    <span class="comment">/* for g++ */</span>
-    <span class="comment">// char v[][max_len] = TEST_VALUES;</span>
+    /* for gcc */
+    char* v[] = TEST_VALUES;
+    /* for g++ */
+    // char v[][max_len] = TEST_VALUES;
 
-    <span class="comment">/* Default stack size in Ubuntu Kylin 14.04 is 8MB. */</span>
-    <span class="comment">/* It's not enough. So I use memory in heap which offers a lot larger room. */</span>
-    rbtree_node_t* n = (rbtree_node_t*)calloc(cnt, <span class="keyword">sizeof</span>(rbtree_node_t));
-    <span class="keyword">int</span> i;
+    /* Default stack size in Ubuntu Kylin 14.04 is 8MB. */
+    /* It&apos;s not enough. So I use memory in heap which offers a lot larger room. */
+    rbtree_node_t* n = (rbtree_node_t*)calloc(cnt, sizeof(rbtree_node_t));
+    int i;
 
-    <span class="keyword">long</span> time1 = clock();
+    long time1 = clock();
 
-    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; cnt; i++)
+    for (i = 0; i &lt; cnt; i++)
     {
-        n[i]<span class="variable">.key</span> = i+<span class="number">1</span>;
-        n[i]<span class="variable">.value</span> = v[i%<span class="number">10</span>];
-        n[i]<span class="variable">.node_cnt</span> = <span class="number">1</span>;
+        n[i].key = i+1;
+        n[i].value = v[i%10];
+        n[i].node_cnt = 1;
         rbtree_insert(&amp;t, &amp;n[i]);
     }
 
-    srand( (<span class="keyword">unsigned</span> <span class="keyword">int</span>)time(<span class="number">0</span>) );
-    <span class="keyword">int</span> no = rand()%cnt;
-    printf(<span class="string">"n[%d]-&gt;key = %d\n"</span>, no, rbtree_index(&amp;t, no)-&gt;key);
+    srand( (unsigned int)time(0) );
+    int no = rand()%cnt;
+    printf(&quot;n[%d]-&gt;key = %d\n&quot;, no, rbtree_index(&amp;t, no)-&gt;key);
 
-    <span class="keyword">long</span> time2 = clock();
-    room = <span class="number">48.0</span>*cnt/(<span class="number">1</span>&lt;&lt;<span class="number">20</span>);
-    duration = (<span class="keyword">double</span>)(time2 - time1) / CLOCKS_PER_SEC;
-    printf(<span class="string">"Inserting %d nodes costs %.2fMB and spends %f seconds.\n"</span>, cnt, room, duration);
+    long time2 = clock();
+    room = 48.0*cnt/(1&lt;&lt;20);
+    duration = (double)(time2 - time1) / CLOCKS_PER_SEC;
+    printf(&quot;Inserting %d nodes costs %.2fMB and spends %f seconds.\n&quot;, cnt, room, duration);
 
-    <span class="keyword">const</span> <span class="keyword">int</span> search_cnt = <span class="number">1</span>&lt;&lt;<span class="number">10</span>;
-    <span class="keyword">for</span>( i = <span class="number">0</span> ; i &lt; search_cnt ; i++ )
+    const int search_cnt = 1&lt;&lt;10;
+    for( i = 0 ; i &lt; search_cnt ; i++ )
     {
-        rbtree_find(&amp;t, (rand()%cnt)+<span class="number">1</span>);
+        rbtree_find(&amp;t, (rand()%cnt)+1);
     }
 
-    <span class="keyword">long</span> time3 = clock();
-    duration = (<span class="keyword">double</span>)(time3 - time2) / CLOCKS_PER_SEC;
-    printf(<span class="string">"Searching %d nodes among %d spends %f seconds.\n"</span>, search_cnt, cnt, duration);
+    long time3 = clock();
+    duration = (double)(time3 - time2) / CLOCKS_PER_SEC;
+    printf(&quot;Searching %d nodes among %d spends %f seconds.\n&quot;, search_cnt, cnt, duration);
 
-    <span class="keyword">const</span> <span class="keyword">int</span> index_cnt = <span class="number">1</span>&lt;&lt;<span class="number">10</span>;
-    <span class="keyword">for</span>( i = <span class="number">0</span> ; i &lt; index_cnt ; i++ )
+    const int index_cnt = 1&lt;&lt;10;
+    for( i = 0 ; i &lt; index_cnt ; i++ )
     {
         rbtree_index(&amp;t, (rand()%cnt));
     }
 
-    <span class="keyword">long</span> time4 = clock();
-    duration = (<span class="keyword">double</span>)(time4 - time3) / CLOCKS_PER_SEC;
-    printf(<span class="string">"Indexing %d nodes among %d spends %f seconds.\n"</span>, index_cnt, cnt, duration);
+    long time4 = clock();
+    duration = (double)(time4 - time3) / CLOCKS_PER_SEC;
+    printf(&quot;Indexing %d nodes among %d spends %f seconds.\n&quot;, index_cnt, cnt, duration);
 
-    <span class="keyword">const</span> <span class="keyword">int</span> delete_cnt = <span class="number">1</span>&lt;&lt;<span class="number">10</span>;
-    <span class="keyword">int</span> nums[delete_cnt];
-    <span class="keyword">int</span> num;
-    <span class="comment">/* Let's hash! */</span>
-    <span class="keyword">char</span>* mark = (<span class="keyword">char</span>*)calloc(cnt, <span class="keyword">sizeof</span>(<span class="keyword">char</span>));
-    memset(mark, <span class="number">0</span>, cnt*<span class="keyword">sizeof</span>(<span class="keyword">char</span>));
-    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; delete_cnt; i++)
+    const int delete_cnt = 1&lt;&lt;10;
+    int nums[delete_cnt];
+    int num;
+    /* Let&apos;s hash! */
+    char* mark = (char*)calloc(cnt, sizeof(char));
+    memset(mark, 0, cnt*sizeof(char));
+    for(i = 0; i &lt; delete_cnt; i++)
     {
-        <span class="keyword">for</span>(;;)
+        for(;;)
         {
             num = rand()%cnt;
-            <span class="keyword">if</span> (mark[num] == <span class="number">0</span>)
+            if (mark[num] == 0)
             {
-                mark[num] = <span class="number">1</span>;
+                mark[num] = 1;
                 nums[i] = num;
-                <span class="keyword">break</span>;
+                break;
             }
         }
     }
 
-    <span class="keyword">long</span> time5 = clock();
-    duration = (<span class="keyword">double</span>)(time5 - time4) / CLOCKS_PER_SEC;
-    printf(<span class="string">"Hash %d times spends %f seconds.\n"</span>, delete_cnt, duration);
+    long time5 = clock();
+    duration = (double)(time5 - time4) / CLOCKS_PER_SEC;
+    printf(&quot;Hash %d times spends %f seconds.\n&quot;, delete_cnt, duration);
 
-    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; delete_cnt; i++)
+    for(i = 0; i &lt; delete_cnt; i++)
     {
         rbtree_delete(&amp;t, &amp;n[nums[i]]);
     }
 
-    <span class="keyword">long</span> time6 = clock();
-    duration = (<span class="keyword">double</span>)(time6 - time5) / CLOCKS_PER_SEC;
-    printf(<span class="string">"Deleting %d nodes among %d spends %f seconds.\n"</span>, delete_cnt, cnt, duration);
+    long time6 = clock();
+    duration = (double)(time6 - time5) / CLOCKS_PER_SEC;
+    printf(&quot;Deleting %d nodes among %d spends %f seconds.\n&quot;, delete_cnt, cnt, duration);
     free(mark);
 
-    <span class="keyword">int</span> h = rbtree_height(&amp;t, t<span class="variable">.root</span>);
-    <span class="keyword">long</span> time7 = clock();
-    duration = (<span class="keyword">double</span>)(time7 - time6) / CLOCKS_PER_SEC;
-    printf(<span class="string">"The height of the tree is %d. Getting it spends %f seconds.\n"</span>, h, duration);
+    int h = rbtree_height(&amp;t, t.root);
+    long time7 = clock();
+    duration = (double)(time7 - time6) / CLOCKS_PER_SEC;
+    printf(&quot;The height of the tree is %d. Getting it spends %f seconds.\n&quot;, h, duration);
 
-    rbtree_traversal(&amp;t, t<span class="variable">.root</span>, rbtree_visit);
-    <span class="keyword">long</span> time8 = clock();
-    duration = (<span class="keyword">double</span>)(time8 - time7) / CLOCKS_PER_SEC;
-    printf(<span class="string">"Traversal the tree spends %f seconds.\n"</span>, duration);
+    rbtree_traversal(&amp;t, t.root, rbtree_visit);
+    long time8 = clock();
+    duration = (double)(time8 - time7) / CLOCKS_PER_SEC;
+    printf(&quot;Traversal the tree spends %f seconds.\n&quot;, duration);
 
-    printf(<span class="string">"Count of nodes in the tree is %d.\n"</span>, rbtree_count(&amp;t));
+    printf(&quot;Count of nodes in the tree is %d.\n&quot;, rbtree_count(&amp;t));
 
     free(n);
 
-    <span class="keyword">return</span> <span class="number">0</span>;
+    return 0;
 }
 </code></pre><p>&nbsp;&nbsp;&nbsp; 上一个版本的压力测试结果：</p>
-<pre><code>Inserting <span class="number">1048576</span> nodes costs <span class="number">48.00</span>MB and spends <span class="number">0.425416</span> seconds.
-Searching <span class="number">1024</span> nodes among <span class="number">1048576</span> spends <span class="number">0.001140</span> seconds.
-Hash <span class="number">1024</span> times spends <span class="number">0.000334</span> seconds.
-Deleting <span class="number">1024</span> nodes among <span class="number">1048576</span> spends <span class="number">0.000783</span> seconds.
+<pre><code>Inserting 1048576 nodes costs 48.00MB and spends 0.425416 seconds.
+Searching 1024 nodes among 1048576 spends 0.001140 seconds.
+Hash 1024 times spends 0.000334 seconds.
+Deleting 1024 nodes among 1048576 spends 0.000783 seconds.
 </code></pre><p>&nbsp;&nbsp;&nbsp; 扩展版本的压力测试结果：</p>
-<pre><code>Inserting <span class="number">1048576</span> nodes costs <span class="number">48.00</span>MB and spends <span class="number">0.467859</span> seconds.
-Searching <span class="number">1024</span> nodes among <span class="number">1048576</span> spends <span class="number">0.001188</span> seconds.
-Indexing <span class="number">1024</span> nodes among <span class="number">1048576</span> spends <span class="number">0.001484</span> seconds.
-Hash <span class="number">1024</span> times spends <span class="number">0.000355</span> seconds.
-Deleting <span class="number">1024</span> nodes among <span class="number">1048576</span> spends <span class="number">0.001417</span> seconds.
-The height of the tree is <span class="number">28.</span> Getting it spends <span class="number">0.021669</span> seconds.
-Traversal the tree spends <span class="number">0.023913</span> seconds.
-Count of nodes in the tree is <span class="number">1047552.</span>
+<pre><code>Inserting 1048576 nodes costs 48.00MB and spends 0.467859 seconds.
+Searching 1024 nodes among 1048576 spends 0.001188 seconds.
+Indexing 1024 nodes among 1048576 spends 0.001484 seconds.
+Hash 1024 times spends 0.000355 seconds.
+Deleting 1024 nodes among 1048576 spends 0.001417 seconds.
+The height of the tree is 28. Getting it spends 0.021669 seconds.
+Traversal the tree spends 0.023913 seconds.
+Count of nodes in the tree is 1047552.
 </code></pre><p>&nbsp;&nbsp;&nbsp; 比较一下可以发现：<br>&nbsp;&nbsp;&nbsp; 1.插入结点略慢了一点，因为插入时多维护了一个node_cnt项。<br>&nbsp;&nbsp;&nbsp; 2.按key查找结点速度没有变化。<br>&nbsp;&nbsp;&nbsp; 3.哈希查找速度没有变化。<br>&nbsp;&nbsp;&nbsp; 4.删除结点花的时间几乎是原来的两倍，因为每次删除后都要一路向上更新node_cnt，几乎相当于包含了一次按key查询。<br>&nbsp;&nbsp;&nbsp; 5.按序号查询比按key查询略慢，因为每次进入右子树需要多做一次加法。<br>&nbsp;&nbsp;&nbsp; 6.遍历花的时间与求树高相同，因为它们的实质都是遍历树，时间效率O(n)数量级，具体点为2n次结点访问，分别为结点入栈和出栈时。<br>&nbsp;&nbsp;&nbsp; 别问我max、min、mid在哪，能按序号查询了这些还是问题吗？</p>
 
       
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/8/18/【五】nginx的数据结构-3-——扩展红黑树/" data-id="cijfauo0d001d7397w4mwvww3" class="article-share-link" data-share="baidu" data-title="【五】nginx的数据结构(3)——扩展红黑树">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/8/18/【五】nginx的数据结构-3-——扩展红黑树/" data-id="cil51ojb000180de4um5hbkzi" class="article-share-link" data-share="baidu" data-title="【五】nginx的数据结构(3)——扩展红黑树">分享到</a>
       
 
       
@@ -801,7 +801,7 @@ Count of nodes in the tree is <span class="number">1047552.</span>
     
 <nav id="article-nav">
   
-    <a href="/2015/9/6/node.js的'Cannot enqueue Handshake after invoking quit'错误/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2015/9/6/node-js的-Cannot-enqueue-Handshake-after-invoking-quit-错误/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">下一篇</strong>
       <div class="article-nav-title">
         
@@ -811,7 +811,7 @@ Count of nodes in the tree is <span class="number">1047552.</span>
     </a>
   
   
-    <a href="/2015/8/16/Linux下Sublime的C-C++多文件程序Makefile-清理-执行配置/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2015/8/16/Linux下Sublime的C-C-多文件程序Makefile-清理-执行配置/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">上一篇</strong>
       <div class="article-nav-title">Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置</div>
     </a>

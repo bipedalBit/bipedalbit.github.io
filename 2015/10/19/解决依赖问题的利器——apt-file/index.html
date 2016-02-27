@@ -12,7 +12,7 @@
 <meta property="og:url" content="http://blog.bipedalbit.net/2015/10/19/解决依赖问题的利器——apt-file/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
 <meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 学校的有线网络客户端是DrCom，Windows下停掉热点分享服务和代理后跑的很顺利。可是切到我常用的Ubuntu下时客户端却跑不起来。从终端用命令运行客户端时发现有依赖文件缺失，借着这个契机，我认识了Ubuntu（Debian）下解决依赖问题的利器——apt-file。">
-<meta property="og:updated_time" content="2015-10-19T11:59:16.123Z">
+<meta property="og:updated_time" content="2015-10-19T11:59:16.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="解决依赖问题的利器——apt-file">
 <meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 学校的有线网络客户端是DrCom，Windows下停掉热点分享服务和代理后跑的很顺利。可是切到我常用的Ubuntu下时客户端却跑不起来。从终端用命令运行客户端时发现有依赖文件缺失，借着这个契机，我认识了Ubuntu（Debian）下解决依赖问题的利器——apt-file。">
@@ -107,32 +107,32 @@
 </ul>
 <p>&nbsp;&nbsp;&nbsp; 于是可以动手解决问题了：</p>
 <pre><code>sudo -i
-apt-get <span class="operator"><span class="keyword">install</span> apt-<span class="keyword">file</span>
-apt-<span class="keyword">file</span> <span class="keyword">update</span>
-ldd DrClientLinux</span>
+apt-get install apt-file
+apt-file update
+ldd DrClientLinux
 </code></pre><p>&nbsp;&nbsp;&nbsp; 缺的也不多，找到那几个“not found”的依赖文件，然后继续。</p>
-<pre><code>apt-<span class="keyword">file</span> <span class="keyword">search</span> libxi|grep libxi.<span class="keyword">so</span>.6
-apt-<span class="keyword">file</span> <span class="keyword">search</span> libxi|grep libxi
+<pre><code>apt-file search libxi|grep libxi.so.6
+apt-file search libxi|grep libxi
 apt-get install libxi6:i386
 ./DrClientLinux
 </code></pre><p>&nbsp;&nbsp;&nbsp; 跟之前报告说缺的依赖文件有了不同，继续。</p>
-<pre><code>apt-<span class="type">file</span> search libxrender|grep libxrender
-apt-<span class="keyword">get</span> install libxrender1:i386
+<pre><code>apt-file search libxrender|grep libxrender
+apt-get install libxrender1:i386
 ./DrClientLinux
 </code></pre><p>&nbsp;&nbsp;&nbsp; 缺的依赖文件又不同了。发现这些依赖文件所属包的命名规律了，直接装，不用找了。</p>
-<pre><code>apt-get <span class="operator"><span class="keyword">install</span> libxrandr2:i386
+<pre><code>apt-get install libxrandr2:i386
 ./DrClientLinux
-apt-<span class="keyword">get</span> <span class="keyword">install</span> libxcursor1:i386
+apt-get install libxcursor1:i386
 ./DrClientLinux
-apt-<span class="keyword">get</span> <span class="keyword">install</span> libxinerama1:i386
-./DrClientLinux</span>
+apt-get install libxinerama1:i386
+./DrClientLinux
 </code></pre><p>&nbsp;&nbsp;&nbsp; 妥了，可喜可贺！</p>
 
       
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/19/解决依赖问题的利器——apt-file/" data-id="cijfauo2t004t7397b0sqloh6" class="article-share-link" data-share="baidu" data-title="解决依赖问题的利器——apt-file">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/19/解决依赖问题的利器——apt-file/" data-id="cil51s8hu001l14e4bpnissgq" class="article-share-link" data-share="baidu" data-title="解决依赖问题的利器——apt-file">分享到</a>
       
 
       

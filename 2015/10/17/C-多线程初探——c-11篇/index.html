@@ -12,7 +12,7 @@
 <meta property="og:url" content="http://blog.bipedalbit.net/2015/10/17/C-多线程初探——c-11篇/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
 <meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 今天被说C++出身的猿不会多线程跟不会C++有什么分别，于是放下刚到手的Go和R的书，痛定思痛准备来给自己补补课。">
-<meta property="og:updated_time" content="2016-02-13T11:12:20.798Z">
+<meta property="og:updated_time" content="2016-02-13T11:12:20.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="C++多线程初探——c++11篇">
 <meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 今天被说C++出身的猿不会多线程跟不会C++有什么分别，于是放下刚到手的Go和R的书，痛定思痛准备来给自己补补课。">
@@ -99,32 +99,32 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>&nbsp;&nbsp;&nbsp; 今天被说C++出身的猿不会多线程跟不会C++有什么分别，于是放下刚到手的Go和R的书，痛定思痛准备来给自己补补课。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; C++新标准c++11出现之前（虽然“新”标准已经发布好几年了），大家用C++写多线程通常有两种方式：Unix/Linux下通常使用POSIX标准的pthread.h库，pthread并不是语言本身提供的内置库，gcc编译带pthread的程序时需要加上<code>-lpthread</code>标识参数；Windows下，win系列系统提供了一些线程API，但是由于gcc/g++等编译器的跨平台性，其实也可以在win下使用pthread。<br>&nbsp;&nbsp;&nbsp; 然而2011年夏天，c++11标准发布了，新C++有了许多方便的新特性，其中就包括内置的，对多线程的支持。gcc 4.6及以前的版本编译c++11标准的多线程程序时还要加<code>-pthread</code>标识参数（注意与pthread库的<code>-lpthread</code>参数的区别）。后来也默认的支持新C++的内置多线程了，实测gcc 4.8.4除了<code>-std=c++11</code>不加别的参数，能够顺利编译运行c++11的多线程程序。<br>&nbsp;&nbsp;&nbsp; 铺垫了这么多，下面就先来试试c++11的多线程吧。<br>&nbsp;&nbsp;&nbsp; helloWorld.cpp：</p>
-<pre><code><span class="comment">/* c++11线程类的所在，下面的std::thread和std::this_thread都在其中 */</span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
-<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
+<pre><code>/* c++11线程类的所在，下面的std::thread和std::this_thread都在其中 */
+#include &lt;thread&gt;
+#include &lt;iostream&gt;
+using namespace std;
 
-<span class="function"><span class="keyword">void</span> <span class="title">thread_task</span><span class="params">()</span>
-</span>{
-    <span class="built_in">cout</span> &lt;&lt; <span class="string">"Hello world! My thread ID is "</span> &lt;&lt; this_thread::get_id() &lt;&lt; endl;
+void thread_task()
+{
+    cout &lt;&lt; &quot;Hello world! My thread ID is &quot; &lt;&lt; this_thread::get_id() &lt;&lt; endl;
 }
 
-<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> <span class="keyword">const</span> *argv[])</span>
-</span>{
-    <span class="comment">// 主线程测试</span>
-    <span class="comment">/* get_id函数是thread类和this_thread类的成员，获取线程ID */</span>
-    <span class="built_in">cout</span> &lt;&lt; <span class="string">"I'm the main thread. My thread ID is "</span> &lt;&lt; this_thread::get_id() &lt;&lt; endl;
-    <span class="comment">// 子线程测试</span>
-    <span class="comment">/* 构造子线程时指派线程任务函数指针 */</span>
-    <span class="function">thread <span class="title">t1</span><span class="params">(thread_task)</span></span>;
-    <span class="function">thread <span class="title">t2</span><span class="params">(thread_task)</span></span>;
-    <span class="function">thread <span class="title">t3</span><span class="params">(thread_task)</span></span>;
-    <span class="comment">/* 主线程创建子线程 */</span>
+int main(int argc, char const *argv[])
+{
+    // 主线程测试
+    /* get_id函数是thread类和this_thread类的成员，获取线程ID */
+    cout &lt;&lt; &quot;I&apos;m the main thread. My thread ID is &quot; &lt;&lt; this_thread::get_id() &lt;&lt; endl;
+    // 子线程测试
+    /* 构造子线程时指派线程任务函数指针 */
+    thread t1(thread_task);
+    thread t2(thread_task);
+    thread t3(thread_task);
+    /* 主线程创建子线程 */
     t1.join();
     t2.join();
     t3.join();
 
-    <span class="keyword">return</span> <span class="number">0</span>;
+    return 0;
 }
 </code></pre><p>&nbsp;&nbsp;&nbsp; 最简单的多线程测试看起来运行的很顺利。下面我们稍微详细一点研究下std::thread的<a href="http://www.cplusplus.com/reference/thread/thread/" target="_blank" rel="external">官方文档</a>。</p>
 <ul>
@@ -157,7 +157,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/17/C-多线程初探——c-11篇/" data-id="cijfauo2y00527397is2k9j1i" class="article-share-link" data-share="baidu" data-title="C++多线程初探——c++11篇">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/17/C-多线程初探——c-11篇/" data-id="cil51s8hz001v14e47zxbnqax" class="article-share-link" data-share="baidu" data-title="C++多线程初探——c++11篇">分享到</a>
       
 
       

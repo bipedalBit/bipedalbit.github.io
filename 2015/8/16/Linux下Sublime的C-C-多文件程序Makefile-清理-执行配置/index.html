@@ -4,18 +4,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>C++ cin、cout的优化及测评 | Hacking to the gate!</title>
+  <title>Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置 | Hacking to the gate!</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降">
+  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 不自己动手为Sublime配个C/C++的通用Makefile脚本吗？不能自动编译链接多文件的编辑器不是好IDE。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="C++ cin、cout的优化及测评">
-<meta property="og:url" content="http://blog.bipedalbit.net/2015/10/8/C-cin、cout的优化及测评/index.html">
+<meta property="og:title" content="Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置">
+<meta property="og:url" content="http://blog.bipedalbit.net/2015/8/16/Linux下Sublime的C-C-多文件程序Makefile-清理-执行配置/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
-<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降">
-<meta property="og:updated_time" content="2015-10-08T13:39:19.000Z">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 不自己动手为Sublime配个C/C++的通用Makefile脚本吗？不能自动编译链接多文件的编辑器不是好IDE。">
+<meta property="og:updated_time" content="2016-02-27T11:16:55.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="C++ cin、cout的优化及测评">
-<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降">
+<meta name="twitter:title" content="Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置">
+<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 不自己动手为Sublime配个C/C++的通用Makefile脚本吗？不能自动编译链接多文件的编辑器不是好IDE。">
   
     <link rel="alternative" href="/atom.xml" title="Hacking to the gate!" type="application/atom+xml">
   
@@ -72,14 +72,14 @@
   </div>
 </header>
     <div class="outer">
-      <section id="main"><article id="post-C-cin、cout的优化及测评" class="article article-type-post" itemscope itemprop="blogPost">
+      <section id="main"><article id="post-Linux下Sublime的C-C-多文件程序Makefile-清理-执行配置" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/10/8/C-cin、cout的优化及测评/" class="article-date">
-  <time datetime="2015-10-08T11:56:46.000Z" itemprop="datePublished">2015-10-08</time>
+    <a href="/2015/8/16/Linux下Sublime的C-C-多文件程序Makefile-清理-执行配置/" class="article-date">
+  <time datetime="2015-08-16T14:45:46.000Z" itemprop="datePublished">2015-08-16</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/C/">C++</a>
+    <a class="article-category-link" href="/categories/Sublime-Text/">Sublime Text</a>
   </div>
 
   </div>
@@ -90,7 +90,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      C++ cin、cout的优化及测评
+      Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置
     </h1>
   
 
@@ -98,263 +98,325 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&nbsp;&nbsp;&nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降低了执行效率。那么可能挽回这种效率损失吗？答案是可以。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; C++中提供了解除指针同步的方法：<code>ios::sync_with_stdio(false)</code>。如字面意思，这个方法用来设置输入输出流是否与C的stdio同步。那么解除同步之后能有多大效果呢？毕竟C++确实因为封装程度比C高多多少少损失了一些执行效率。我动手进行了一系列测评，下面是源码。</p>
-<p>&nbsp;&nbsp;&nbsp; 这里我统一对输入输出做了重定向，不论是输入数据来源还是输入数据目标都是“data”文件。所有的输入/输出测试都是读或写10^7次字符串与整型数的组合数据，每种输入/输出测试都进行10次并取平均耗时作为评估值。</p>
-<p>&nbsp;&nbsp;&nbsp; 首先是C的输入输出。</p>
-<p>&nbsp;&nbsp;&nbsp; scanf.cpp:</p>
-<pre><code>#include &lt;cstdio&gt;
-#include &lt;ctime&gt;
+        <p>&nbsp;&nbsp;&nbsp; 不自己动手为Sublime配个C/C++的通用Makefile脚本吗？不能自动编译链接多文件的编辑器不是好IDE。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; 首先我们需要了解几个事实：</p>
+<p>&nbsp;&nbsp;&nbsp; 1.Sublime自带的C/C++编译+执行配置使用的是g++编译器，此外这套配置只针对单文件程序。如果要编译多文件，只能采用入口函数所在文件包含需要的源文件而非头文件的方式。比起我们熟悉的几种IDE，这显然无法令人接受。</p>
+<p>&nbsp;&nbsp;&nbsp; 2.Linux下的C/C++程序员应该熟悉Makefile，Makefile可以算是一种脚本，执行关键字是一般是make，它可以设计多文件程序的编译+链接过程，生成.o文件和可执行文件。</p>
+<p>&nbsp;&nbsp;&nbsp; 3.Sublime也有默认的Make配置，但是第一，Sublime没有提供通用的C/C++的Makefile脚本（自动组织而非每次手动重写），第二点是个小瑕疵，Sublime提供的Make配置只有编译、链接、清理功能，执行程序需要手动。</p>
+<p>&nbsp;&nbsp;&nbsp; 之前重写红黑树最重要的副产品就是一个通用的C/C++的Makefile脚本。每次使用基本只需要改改输出的可执行文件名，或者干脆想个默认文件名以后都不改了，gcc/g++编译器的选择是自动的，当然也可以手动配置一些编译选项，这个自己看脚本注释就好。上干货：</p>
+<pre><code>#############################################################
+# Generic Makefile for C/C++ Program
+#
+# License: GPL (General Public License)
+# Author:  whyglinux &lt;whyglinux AT gmail DOT com&gt;
+# Date:    2006/03/04 (version 0.1)
+#          2007/03/24 (version 0.2)
+#          2007/04/09 (version 0.3)
+#          2007/06/26 (version 0.4)
+#          2008/04/05 (version 0.5)
+#
+# Description:
+# ------------
+# This is an easily customizable makefile template. The purpose is to
+# provide an instant building environment for C/C++ programs.
+#
+# It searches all the C/C++ source files in the specified directories,
+# makes dependencies, compiles and links to form an executable.
+#
+# Besides its default ability to build C/C++ programs which use only
+# standard C/C++ libraries, you can customize the Makefile to build
+# those using other libraries. Once done, without any changes you can
+# then build programs using the same or less libraries, even if source
+# files are renamed, added or removed. Therefore, it is particularly
+# convenient to use it to build codes for experimental or study use.
+#
+# GNU make is expected to use the Makefile. Other versions of makes
+# may or may not work.
+#
+# Usage:
+# ------
+# 1. Copy the Makefile to your program directory.
+# 2. Customize in the &quot;Customizable Section&quot; only if necessary:
+#    * to use non-standard C/C++ libraries, set pre-processor or compiler
+#      options to &lt;MY_CFLAGS&gt; and linker ones to &lt;MY_LIBS&gt;
+#      (See Makefile.gtk+-2.0 for an example)
+#    * to search sources in more directories, set to &lt;SRCDIRS&gt;
+#    * to specify your favorite program name, set to &lt;PROGRAM&gt;
+# 3. Type make to start building your program.
+#
+# Make Target:
+# ------------
+# The Makefile provides the following targets to make:
+#   $ make           compile and link
+#   $ make NODEP=yes compile and link without generating dependencies
+#   $ make objs      compile only (no linking)
+#   $ make tags      create tags for Emacs editor
+#   $ make ctags     create ctags for VI editor
+#   $ make clean     clean objects and the executable file
+#   $ make distclean clean objects, the executable and dependencies
+#   $ make help      get the usage of the makefile
+#
+#===========================================================================
 
-int main()
-{
-    int testCnt = 10;
-    int caseCnt = 10000000;
-    double t_sum = 0;
-    freopen(&quot;data&quot;, &quot;r&quot;, stdin);
-    for(int j = 0 ; j &lt; testCnt ; j++)
-    {
-        long t_start = clock();
-        char s[20];
-        for(int i = 0 ; i &lt; caseCnt ; i++)
+## Customizable Section: adapt those variables to suit your program.
+##==========================================================================
+
+# The pre-processor and compiler options.
+MY_CFLAGS =
+
+# The linker options.
+MY_LIBS   =
+
+# The pre-processor options used by the cpp (man cpp for more).
+# CPPFLAGS  = -Wall
+
+# The options used in linking as well as in any direct use of ld.
+LDFLAGS   =
+
+# The directories in which source files reside.
+# If not specified, only the current directory will be serached.
+SRCDIRS   =
+
+# The executable file name.
+# If not specified, current directory name or `a.out&apos; will be used.
+PROGRAM   = test
+
+## Implicit Section: change the following only when necessary.
+##==========================================================================
+
+# The source file types (headers excluded).
+# .c indicates C source files, and others C++ ones.
+SRCEXTS = .c .C .cc .cpp .CPP .c++ .cxx .cp
+
+# The header file types.
+HDREXTS = .h .H .hh .hpp .HPP .h++ .hxx .hp
+
+# The pre-processor and compiler options.
+# Users can override those variables from the command line.
+# CFLAGS  = -g -O2
+# CXXFLAGS= -g -O2
+
+# The C program compiler.
+# CC     = gcc
+
+# The C++ program compiler.
+#CXX    = g++
+
+# Un-comment the following line to compile C programs as C++ ones.
+#CC     = $(CXX)
+
+# The command used to delete file.
+#RM     = rm -f
+
+ETAGS = etags
+ETAGSFLAGS =
+
+CTAGS = ctags
+CTAGSFLAGS =
+
+## Stable Section: usually no need to be changed. But you can add more.
+##==========================================================================
+SHELL   = /bin/sh
+EMPTY   =
+SPACE   = $(EMPTY) $(EMPTY)
+ifeq ($(PROGRAM),)
+  CUR_PATH_NAMES = $(subst /,$(SPACE),$(subst $(SPACE),_,$(CURDIR)))
+  PROGRAM = $(word $(words $(CUR_PATH_NAMES)),$(CUR_PATH_NAMES))
+  ifeq ($(PROGRAM),)
+    PROGRAM = a.out
+  endif
+endif
+ifeq ($(SRCDIRS),)
+  SRCDIRS = .
+endif
+SOURCES = $(foreach d,$(SRCDIRS),$(wildcard $(addprefix $(d)/*,$(SRCEXTS))))
+HEADERS = $(foreach d,$(SRCDIRS),$(wildcard $(addprefix $(d)/*,$(HDREXTS))))
+SRC_CXX = $(filter-out %.c,$(SOURCES))
+OBJS    = $(addsuffix .o, $(basename $(SOURCES)))
+DEPS    = $(OBJS:.o=.d)
+
+## Define some useful variables.
+DEP_OPT = $(shell if `$(CC) --version | grep &quot;GCC&quot; &gt;/dev/null`; then \
+                  echo &quot;-MM -MP&quot;; else echo &quot;-M&quot;; fi )
+DEPEND      = $(CC)  $(DEP_OPT)  $(MY_CFLAGS) $(CFLAGS) $(CPPFLAGS)
+DEPEND.d    = $(subst -g ,,$(DEPEND))
+COMPILE.c   = $(CC)  $(MY_CFLAGS) $(CFLAGS)   $(CPPFLAGS) -c
+COMPILE.cxx = $(CXX) $(MY_CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -c
+LINK.c      = $(CC)  $(MY_CFLAGS) $(CFLAGS)   $(CPPFLAGS) $(LDFLAGS)
+LINK.cxx    = $(CXX) $(MY_CFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
+
+.PHONY: all objs tags ctags clean distclean help show
+
+# Delete the default suffixes
+.SUFFIXES:
+
+all: $(PROGRAM)
+
+# Rules for creating dependency files (.d).
+#------------------------------------------
+
+%.d:%.c
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+%.d:%.C
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+%.d:%.cc
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+%.d:%.cpp
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+%.d:%.CPP
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+%.d:%.c++
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+%.d:%.cp
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+%.d:%.cxx
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+# Rules for generating object files (.o).
+#----------------------------------------
+objs:$(OBJS)
+
+%.o:%.c
+    $(COMPILE.c) $&lt; -o $@
+
+%.o:%.C
+    $(COMPILE.cxx) $&lt; -o $@
+
+%.o:%.cc
+    $(COMPILE.cxx) $&lt; -o $@
+
+%.o:%.cpp
+    $(COMPILE.cxx) $&lt; -o $@
+
+%.o:%.CPP
+    $(COMPILE.cxx) $&lt; -o $@
+
+%.o:%.c++
+    $(COMPILE.cxx) $&lt; -o $@
+
+%.o:%.cp
+    $(COMPILE.cxx) $&lt; -o $@
+
+%.o:%.cxx
+    $(COMPILE.cxx) $&lt; -o $@
+
+# Rules for generating the tags.
+#-------------------------------------
+tags: $(HEADERS) $(SOURCES)
+    $(ETAGS) $(ETAGSFLAGS) $(HEADERS) $(SOURCES)
+
+ctags: $(HEADERS) $(SOURCES)
+    $(CTAGS) $(CTAGSFLAGS) $(HEADERS) $(SOURCES)
+
+# Rules for generating the executable.
+#-------------------------------------
+$(PROGRAM):$(OBJS)
+ifeq ($(SRC_CXX),)              # C program
+    $(LINK.c)   $(OBJS) $(MY_LIBS) -o $@
+    @echo Type ./$@ to execute the program.
+else                            # C++ program
+    $(LINK.cxx) $(OBJS) $(MY_LIBS) -o $@
+    @echo Type ./$@ to execute the program.
+endif
+
+ifndef NODEP
+ifneq ($(DEPS),)
+  sinclude $(DEPS)
+endif
+endif
+
+clean:
+    $(RM) $(OBJS) $(PROGRAM) $(PROGRAM).exe
+
+distclean: clean
+    $(RM) $(DEPS) TAGS
+
+# Show help.
+help:
+    @echo &apos;Generic Makefile for C/C++ Programs (gcmakefile) version 0.5&apos;
+    @echo &apos;Copyright (C) 2007, 2008 whyglinux &lt;whyglinux@hotmail.com&gt;&apos;
+    @echo
+    @echo &apos;Usage: make [TARGET]&apos;
+    @echo &apos;TARGETS:&apos;
+    @echo &apos;  all       (=make) compile and link.&apos;
+    @echo &apos;  NODEP=yes make without generating dependencies.&apos;
+    @echo &apos;  objs      compile only (no linking).&apos;
+    @echo &apos;  tags      create tags for Emacs editor.&apos;
+    @echo &apos;  ctags     create ctags for VI editor.&apos;
+    @echo &apos;  clean     clean objects and the executable file.&apos;
+    @echo &apos;  distclean clean objects, the executable and dependencies.&apos;
+    @echo &apos;  show      show variables (for debug use only).&apos;
+    @echo &apos;  help      print this message.&apos;
+    @echo
+    @echo &apos;Report bugs to &lt;whyglinux AT gmail DOT com&gt;.&apos;
+
+# Show variables (for debug use only.)
+show:
+    @echo &apos;PROGRAM     :&apos; $(PROGRAM)
+    @echo &apos;SRCDIRS     :&apos; $(SRCDIRS)
+    @echo &apos;HEADERS     :&apos; $(HEADERS)
+    @echo &apos;SOURCES     :&apos; $(SOURCES)
+    @echo &apos;SRC_CXX     :&apos; $(SRC_CXX)
+    @echo &apos;OBJS        :&apos; $(OBJS)
+    @echo &apos;DEPS        :&apos; $(DEPS)
+    @echo &apos;DEPEND      :&apos; $(DEPEND)
+    @echo &apos;COMPILE.c   :&apos; $(COMPILE.c)
+    @echo &apos;COMPILE.cxx :&apos; $(COMPILE.cxx)
+    @echo &apos;link.c      :&apos; $(LINK.c)
+    @echo &apos;link.cxx    :&apos; $(LINK.cxx)
+
+## End of the Makefile ##  Suggestions are welcome  ## All rights reserved ##
+##############################################################
+</code></pre><p>&nbsp;&nbsp;&nbsp; 感谢whyglinux大大！然后上Sublime的配置C C++ Multiple Files.sublime-build：</p>
+<pre><code>{
+    &quot;shell_cmd&quot;: &quot;make&quot;,
+    &quot;file_regex&quot;: &quot;^(..[^:\n]*):([0-9]+):?([0-9]+)?:? (.*)$&quot;,
+    &quot;working_dir&quot;: &quot;${folder:${project_path:${file_path}}}&quot;,
+    &quot;selector&quot;: &quot;source.c, source.cpp&quot;,
+    &quot;syntax&quot;: &quot;Packages/Makefile/Make.build-language&quot;,
+    &quot;keyfiles&quot;: [&quot;Makefile&quot;, &quot;makefile&quot;],
+
+    &quot;variants&quot;:
+    [
         {
-            scanf(&quot;%s&quot;, s);
-        }
-        long t_end = clock();
-        t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    printf(&quot;average cost: %lfs\n&quot;, t_sum/testCnt);
-    fclose(stdin);
-    return 0;
-}
-</code></pre><p>&nbsp;&nbsp;&nbsp; printf.cpp:</p>
-<pre><code>#include &lt;cstdio&gt;
-#include &lt;ctime&gt;
-
-int main()
-{
-    int testCnt = 10;
-    int caseCnt = 10000000;
-    double t_sum = 0;
-    freopen(&quot;data&quot;, &quot;w&quot;, stdout);
-    for(int j = 0 ; j &lt; testCnt ; j++)
-    {
-        long t_start = clock();
-        for(int i = 0 ; i &lt; caseCnt ; i++)
+            &quot;name&quot;: &quot;Clean&quot;,
+            &quot;shell_cmd&quot;: &quot;make clean&quot;
+        },
         {
-            printf(&quot;string%d\n&quot;, i);
+            &quot;name&quot;: &quot;Run&quot;,
+            &quot;shell_cmd&quot;: &quot;${file_path}/${file_base_name}&quot;
         }
-        long t_end = clock();
-        t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    printf(&quot;average cost: %lfs\n&quot;, t_sum/testCnt);
-    fclose(stdout);
-    return 0;
+    ]
 }
-</code></pre><p>&nbsp;&nbsp;&nbsp; 然后是不解锁同步的cin、cout方法。</p>
-<p>&nbsp;&nbsp;&nbsp; cin.cpp:</p>
-<pre><code>#include &lt;iostream&gt;
-#include &lt;cstdio&gt;
-#include &lt;ctime&gt;
-#include &lt;string&gt;
-#include &lt;fstream&gt;
-
-using namespace std;
-
-int main()
-{
-    int testCnt = 10;
-    int caseCnt = 10000000;
-    double t_sum = 0;
-    ifstream fin(&quot;data&quot;);
-    streambuf *_cin =  cin.rdbuf(fin.rdbuf());
-    for(int j = 0 ; j &lt; testCnt ; j++)
-    {
-        long t_start = clock();
-        string s;
-        for(int i = 0 ; i &lt; caseCnt ; i++)
-        {
-            cin &gt;&gt; s;
-        }
-        long t_end = clock();
-        t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    cout &lt;&lt; &quot;average cost: &quot; &lt;&lt; t_sum/testCnt &lt;&lt; &quot;s\n&quot;;
-    cin.rdbuf(_cin);
-    fin.close();
-    return 0;
-}
-</code></pre><p>&nbsp;&nbsp;&nbsp; cout.cpp:</p>
-<pre><code>#include &lt;iostream&gt;
-#include &lt;ctime&gt;
-#include &lt;string&gt;
-#include &lt;fstream&gt;
-
-using namespace std;
-
-int main()
-{
-    int testCnt = 10;
-    int caseCnt = 10000000;
-    double t_sum = 0;
-    ofstream fout(&quot;data&quot;);
-    streambuf *_cout =  cout.rdbuf(fout.rdbuf());
-    for(int j = 0 ; j &lt; testCnt ; j++)
-    {
-        long t_start = clock();
-        for(int i = 0 ; i &lt; caseCnt ; i++)
-        {
-            cout &lt;&lt; &quot;string&quot; &lt;&lt; i &lt;&lt; &apos;\n&apos;;
-        }
-        long t_end = clock();
-        t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    cout &lt;&lt; &quot;average cost: &quot; &lt;&lt; t_sum/testCnt &lt;&lt; &quot;s\n&quot;;
-    cout.rdbuf(_cout);
-    fout.close();
-    return 0;
-}
-</code></pre><p>&nbsp;&nbsp;&nbsp; 接下来是解锁同步的cin、cout方法。</p>
-<p>&nbsp;&nbsp;&nbsp; optimized_cin.cpp:</p>
-<pre><code>#include &lt;iostream&gt;
-#include &lt;cstdio&gt;
-#include &lt;ctime&gt;
-#include &lt;string&gt;
-#include &lt;fstream&gt;
-
-using namespace std;
-
-int main()
-{
-    int testCnt = 10;
-    int caseCnt = 10000000;
-    double t_sum = 0;
-    ios::sync_with_stdio(false);
-    ifstream fin(&quot;data&quot;);
-    streambuf *_cin =  cin.rdbuf(fin.rdbuf());
-    for(int j = 0 ; j &lt; testCnt ; j++)
-    {
-        long t_start = clock();
-        string s;
-        for(int i = 0 ; i &lt; caseCnt ; i++)
-        {
-            cin &gt;&gt; s;
-        }
-        long t_end = clock();
-        t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    cout &lt;&lt; &quot;average cost: &quot; &lt;&lt; t_sum/testCnt &lt;&lt; &quot;s\n&quot;;
-    cin.rdbuf(_cin);
-    fin.close();
-    return 0;
-}
-</code></pre><p>&nbsp;&nbsp;&nbsp; optimized_cout.cpp:</p>
-<pre><code>#include &lt;iostream&gt;
-#include &lt;ctime&gt;
-#include &lt;string&gt;
-#include &lt;fstream&gt;
-
-using namespace std;
-
-int main()
-{
-    int testCnt = 10;
-    int caseCnt = 10000000;
-    double t_sum = 0;
-    ios::sync_with_stdio(false);
-    ofstream fout(&quot;data&quot;);
-    streambuf *_cout =  cout.rdbuf(fout.rdbuf());
-    for(int j = 0 ; j &lt; testCnt ; j++)
-    {
-        long t_start = clock();
-        for(int i = 0 ; i &lt; caseCnt ; i++)
-        {
-            cout &lt;&lt; &quot;string&quot; &lt;&lt; i &lt;&lt; &apos;\n&apos;;
-        }
-        long t_end = clock();
-        t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    cout &lt;&lt; &quot;average cost: &quot; &lt;&lt; t_sum/testCnt &lt;&lt; &quot;s\n&quot;;
-    cout.rdbuf(_cout);
-    fout.close();
-    return 0;
-}
-</code></pre><p>&nbsp;&nbsp;&nbsp; 同时测试C++直接读写文件的方法。</p>
-<p>&nbsp;&nbsp;&nbsp; fin.cpp:</p>
-<pre><code>#include &lt;iostream&gt;
-#include &lt;cstdio&gt;
-#include &lt;ctime&gt;
-#include &lt;string&gt;
-#include &lt;fstream&gt;
-
-using namespace std;
-
-int main()
-{
-    int testCnt = 10;
-    int caseCnt = 10000000;
-    double t_sum = 0;
-    ifstream fin(&quot;data&quot;);
-    for(int j = 0 ; j &lt; testCnt ; j++)
-    {
-        long t_start = clock();
-        string s;
-        for(int i = 0 ; i &lt; caseCnt ; i++)
-        {
-            fin &gt;&gt; s;
-        }
-        long t_end = clock();
-        t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    cout &lt;&lt; &quot;average cost: &quot; &lt;&lt; t_sum/testCnt &lt;&lt; &quot;s\n&quot;;
-    fin.close();
-    return 0;
-}
-</code></pre><p>&nbsp;&nbsp;&nbsp; fout.cpp:</p>
-<pre><code>#include &lt;iostream&gt;
-#include &lt;ctime&gt;
-#include &lt;string&gt;
-#include &lt;fstream&gt;
-
-using namespace std;
-
-int main()
-{
-    int testCnt = 10;
-    int caseCnt = 10000000;
-    double t_sum = 0;
-    ofstream fout(&quot;data&quot;);
-    for(int j = 0 ; j &lt; testCnt ; j++)
-    {
-        long t_start = clock();
-        for(int i = 0 ; i &lt; caseCnt ; i++)
-        {
-            fout &lt;&lt; &quot;string&quot; &lt;&lt; i &lt;&lt; &apos;\n&apos;;
-        }
-        long t_end = clock();
-        t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
-    }
-    cout &lt;&lt; &quot;average cost: &quot; &lt;&lt; t_sum/testCnt &lt;&lt; &quot;s\n&quot;;
-    fout.close();
-    return 0;
-}
-</code></pre><p>&nbsp;&nbsp;&nbsp; 下面是测试结果：</p>
-<table><tr><th></th><th>scanf与printf</th><th>cin与cout</th><th>优化的cin与cout</th>    <th>fin与fout</th></tr><tr><td>输入</td><td>1.125694s</td><td>2.46949s</td><td>0.950055s</td><td>0.834976s</td></tr><tr><td>输出</td><td>1.304706s</td><td>1.46059s</td><td>1.41783s</td><td>1.41298s</td></tr></table>
-
-<p>&nbsp;&nbsp;&nbsp; 可以看到，事实上，解开同步之前，cin耗时是scanf的两倍还多，cout则比printf略慢。解开枷锁的cin执行效率与直接读文件接近，甚至比C的scanf还要快。至于输出，解开同步的cout执行效率略有提高，同样接近直接写文件，但是确实还是比C的printf略慢一点。</p>
+</code></pre><p>&nbsp;&nbsp;&nbsp; 你们大可以配成执行时自动弹出终端，这样还能交互。我为了解决Sublime里中文输入法的问题用了gtk2，但是gnome-terminal用的是gtk3，不兼容了。写写控制台程序也不用那么多交互，懒得折腾了，你们随意。</p>
 
       
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/8/C-cin、cout的优化及测评/" data-id="cil51qjag000014e43nb3b0wo" class="article-share-link" data-share="baidu" data-title="C++ cin、cout的优化及测评">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/8/16/Linux下Sublime的C-C-多文件程序Makefile-清理-执行配置/" data-id="cil51ojb5001k0de4bz3b7bx2" class="article-share-link" data-share="baidu" data-title="Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置">分享到</a>
       
 
       
-        <a href="http://blog.bipedalbit.net/2015/10/8/C-cin、cout的优化及测评/#ds-thread" class="article-comment-link">评论</a>
+        <a href="http://blog.bipedalbit.net/2015/8/16/Linux下Sublime的C-C-多文件程序Makefile-清理-执行配置/#ds-thread" class="article-comment-link">评论</a>
       
 
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cin/">cin</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cout/">cout</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/printf/">printf</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scanf/">scanf</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/">C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/makefile/">makefile</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sublime/">sublime</a></li></ul>
 
     </footer>
   </div>
@@ -362,19 +424,19 @@ int main()
     
 <nav id="article-nav">
   
-    <a href="/2015/10/8/C-二进制-十进制转换器/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2015/8/18/【五】nginx的数据结构-3-——扩展红黑树/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">下一篇</strong>
       <div class="article-nav-title">
         
-          C++二进制-十进制转换器
+          【五】nginx的数据结构(3)——扩展红黑树
         
       </div>
     </a>
   
   
-    <a href="/2015/9/30/nginx之回头补课/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2015/8/16/【四】nginx的数据结构-2-——自己动手重写红黑树/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">上一篇</strong>
-      <div class="article-nav-title">nginx之回头补课</div>
+      <div class="article-nav-title">【四】nginx的数据结构(2)——自己动手重写红黑树</div>
     </a>
   
 </nav>
@@ -385,7 +447,7 @@ int main()
 
   <section id="comments">
     <!-- 多说评论框 start -->
-      <div class="ds-thread" data-thread-key="2015/10/8/C-cin、cout的优化及测评/" data-title="C++ cin、cout的优化及测评" data-url="http://blog.bipedalbit.net/2015/10/8/C-cin、cout的优化及测评/"></div>
+      <div class="ds-thread" data-thread-key="2015/8/16/Linux下Sublime的C-C-多文件程序Makefile-清理-执行配置/" data-title="Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置" data-url="http://blog.bipedalbit.net/2015/8/16/Linux下Sublime的C-C-多文件程序Makefile-清理-执行配置/"></div>
     <!-- 多说评论框 end -->
     <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
     <script type="text/javascript">

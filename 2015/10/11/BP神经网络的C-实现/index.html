@@ -12,7 +12,7 @@
 <meta property="og:url" content="http://blog.bipedalbit.net/2015/10/11/BP神经网络的C-实现/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
 <meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前说了组里的任务是手写BP神经网络，上一篇文总结了一下BP神经网络的概念，老实说，总结概念前的一个C++实现版本在总结概念之后重新审视时觉得实在是惨不忍睹，于是今晚回炉重写了。这篇文就来挂我的BP神经网络C++实现。">
-<meta property="og:updated_time" content="2015-10-12T07:42:25.318Z">
+<meta property="og:updated_time" content="2015-10-12T07:42:25.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="BP神经网络的C++实现">
 <meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前说了组里的任务是手写BP神经网络，上一篇文总结了一下BP神经网络的概念，老实说，总结概念前的一个C++实现版本在总结概念之后重新审视时觉得实在是惨不忍睹，于是今晚回炉重写了。这篇文就来挂我的BP神经网络C++实现。">
@@ -100,86 +100,86 @@
       
         <p>&nbsp;&nbsp;&nbsp; 之前说了组里的任务是手写BP神经网络，上一篇文总结了一下BP神经网络的概念，老实说，总结概念前的一个C++实现版本在总结概念之后重新审视时觉得实在是惨不忍睹，于是今晚回炉重写了。这篇文就来挂我的BP神经网络C++实现。<br><a id="more"></a></p>
 <p>&nbsp;&nbsp;&nbsp; 老师提出的具体问题是平面对点集的二分类。ACM战过这么多场，写板子早成了习惯，就把通用的BP认真封装了一下：<br>&nbsp;&nbsp;&nbsp; 头文件里的Data结构体是输入数据的数据结构，可自定义，这里用的是点分类问题的模型，BP.h：</p>
-<pre><code><span class="preprocessor">#<span class="keyword">ifndef</span> _BP_H_</span>
-<span class="preprocessor">#<span class="keyword">define</span> _BP_H_</span>
+<pre><code>#ifndef _BP_H_
+#define _BP_H_
 
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span>
-<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+using namespace std;
 
-<span class="comment">/* 数据样本类 */</span>
-<span class="keyword">struct</span> Data
+/* 数据样本类 */
+struct Data
 {
-    <span class="comment">/* 输入参数，包括： */</span>
-    <span class="comment">/* 三维直角坐标系点的坐标(x, y, z) */</span>
-    <span class="comment">/* 三维直角坐标系平面a*x + b*y + c*z + d = 0的4个系数 */</span>
-    <span class="keyword">double</span> x[<span class="number">7</span>];
-    <span class="comment">/* 期望输出即监督值 */</span>
-    <span class="comment">/* 拟合 */</span>
-    <span class="comment">// double d[1];</span>
-    <span class="comment">/* 分类 */</span>
-    <span class="keyword">double</span> d[<span class="number">2</span>];
-    <span class="comment">/* 数据构造函数 */</span>
+    /* 输入参数，包括： */
+    /* 三维直角坐标系点的坐标(x, y, z) */
+    /* 三维直角坐标系平面a*x + b*y + c*z + d = 0的4个系数 */
+    double x[7];
+    /* 期望输出即监督值 */
+    /* 拟合 */
+    // double d[1];
+    /* 分类 */
+    double d[2];
+    /* 数据构造函数 */
     Data();
 };
 
-<span class="keyword">class</span> BP
+class BP
 {
-<span class="keyword">private</span>:
-    <span class="comment">/* ========== 常数 ========== */</span>
-    <span class="comment">/* 输入层节点数 */</span>
-    <span class="keyword">int</span> I;
-    <span class="comment">/* 隐含层神经元数 */</span>
-    <span class="keyword">int</span> H;
-    <span class="comment">/* 输出层神经元数 */</span>
-    <span class="keyword">int</span> O;
-    <span class="comment">/* 权重学习速率 */</span>
-    <span class="keyword">double</span> LR;
-    <span class="comment">/* 偏置学习速率 */</span>
-    <span class="keyword">double</span> LR2;
-    <span class="comment">/* 学习速率衰减率（每次衰减与当前LR相乘） */</span>
-    <span class="keyword">double</span> LRDecay;
-    <span class="comment">/* 误差函数收敛阈值 */</span>
-    <span class="keyword">double</span> C;
-    <span class="comment">/* ========== 容器 ========== */</span>
-    <span class="comment">/* 训练用数据样本集 */</span>
-    <span class="built_in">vector</span>&lt;Data&gt; trainDS;
-    <span class="comment">/* 测使用数据集 */</span>
-    <span class="built_in">vector</span>&lt;Data&gt; testDS;
-    <span class="comment">/* 输入层与隐含层间的全连接权重：w[I(包含一个偏置值)][H] */</span>
-    <span class="keyword">double</span> **w;
-    <span class="comment">/* w修正值 */</span>
-    <span class="keyword">double</span> *dw;
-    <span class="comment">/* 隐含层阈值 */</span>
-    <span class="keyword">double</span> *th;
-    <span class="comment">/* 隐含层输入积累即净激活，也存放之后的激活输出值：u[H] */</span>
-    <span class="keyword">double</span> *u;
-    <span class="comment">/* 隐含层与输出层间的全连接权重：v[H][O] */</span>
-    <span class="keyword">double</span> **v;
-    <span class="comment">/* v修正值 */</span>
-    <span class="keyword">double</span> *dv;
-    <span class="comment">/* 输出层阈值 */</span>
-    <span class="keyword">double</span> *to;
-    <span class="comment">/* 输出层输入积累即净激活，也存放之后的激活输出值：y[O] */</span>
-    <span class="keyword">double</span> *y;
-    <span class="comment">/* 拟合标识 */</span>
-    <span class="keyword">bool</span> regression;
-    <span class="comment">/* ========== 方法 ========== */</span>
-    <span class="comment">/* 填充训练用数据样本集 */</span>
-    <span class="function"><span class="keyword">void</span> <span class="title">fillTrainDS</span><span class="params">(<span class="keyword">int</span> sampleCnt)</span></span>;
-    <span class="comment">/* 清空训练用数据样本集 */</span>
-    <span class="function"><span class="keyword">void</span> <span class="title">clearTrainDS</span><span class="params">()</span></span>;
-    <span class="comment">/* 填充测试使用数据集 */</span>
-    <span class="function"><span class="keyword">void</span> <span class="title">fillTestDS</span><span class="params">(<span class="keyword">int</span> sampleCnt)</span></span>;
-    <span class="comment">/* 清空测试使用数据集 */</span>
-    <span class="function"><span class="keyword">void</span> <span class="title">clearTestDS</span><span class="params">()</span></span>;
-    <span class="comment">/* 预测 */</span>
-    <span class="function"><span class="keyword">void</span> <span class="title">forward</span><span class="params">(<span class="keyword">int</span> index, <span class="keyword">bool</span> test = <span class="literal">false</span>)</span></span>;
-    <span class="comment">/* 调整 */</span>
-    <span class="function"><span class="keyword">void</span> <span class="title">backward</span><span class="params">(<span class="keyword">int</span> index)</span></span>;
-<span class="keyword">public</span>:
-    <span class="comment">/* ========== 接口 ========== */</span>
-    <span class="comment">/*
+private:
+    /* ========== 常数 ========== */
+    /* 输入层节点数 */
+    int I;
+    /* 隐含层神经元数 */
+    int H;
+    /* 输出层神经元数 */
+    int O;
+    /* 权重学习速率 */
+    double LR;
+    /* 偏置学习速率 */
+    double LR2;
+    /* 学习速率衰减率（每次衰减与当前LR相乘） */
+    double LRDecay;
+    /* 误差函数收敛阈值 */
+    double C;
+    /* ========== 容器 ========== */
+    /* 训练用数据样本集 */
+    vector&lt;Data&gt; trainDS;
+    /* 测使用数据集 */
+    vector&lt;Data&gt; testDS;
+    /* 输入层与隐含层间的全连接权重：w[I(包含一个偏置值)][H] */
+    double **w;
+    /* w修正值 */
+    double *dw;
+    /* 隐含层阈值 */
+    double *th;
+    /* 隐含层输入积累即净激活，也存放之后的激活输出值：u[H] */
+    double *u;
+    /* 隐含层与输出层间的全连接权重：v[H][O] */
+    double **v;
+    /* v修正值 */
+    double *dv;
+    /* 输出层阈值 */
+    double *to;
+    /* 输出层输入积累即净激活，也存放之后的激活输出值：y[O] */
+    double *y;
+    /* 拟合标识 */
+    bool regression;
+    /* ========== 方法 ========== */
+    /* 填充训练用数据样本集 */
+    void fillTrainDS(int sampleCnt);
+    /* 清空训练用数据样本集 */
+    void clearTrainDS();
+    /* 填充测试使用数据集 */
+    void fillTestDS(int sampleCnt);
+    /* 清空测试使用数据集 */
+    void clearTestDS();
+    /* 预测 */
+    void forward(int index, bool test = false);
+    /* 调整 */
+    void backward(int index);
+public:
+    /* ========== 接口 ========== */
+    /*
      * 类构造函数，初始化BP神经网络结构和训练参数
      * int _I：        输入参数数目。
      * int _O：        输出值数目。
@@ -189,186 +189,186 @@
      * double _LRDecay：    学习速率衰减率（每次衰减与当前LR相乘）。
      * double _C：        误差函数收敛阈值。
      * bool regression：    拟合标识。
-     */</span>
-    BP(<span class="keyword">int</span> _I, <span class="keyword">int</span> _O, <span class="keyword">int</span> A = <span class="number">1</span>, <span class="keyword">double</span> _LR = <span class="number">0.01</span>, <span class="keyword">double</span> _LR2 = <span class="number">0.035</span>, <span class="keyword">double</span> _LRDecay = <span class="number">1.0</span>, <span class="keyword">double</span> _C = <span class="number">0.01</span>, <span class="keyword">bool</span> regression = <span class="literal">false</span>);
-    <span class="comment">/* 类析构函数，释放容器分配的堆空间 */</span>
+     */
+    BP(int _I, int _O, int A = 1, double _LR = 0.01, double _LR2 = 0.035, double _LRDecay = 1.0, double _C = 0.01, bool regression = false);
+    /* 类析构函数，释放容器分配的堆空间 */
     ~BP();
-    <span class="comment">/* 使用指定数目的样本训练指定数目次循环，返回最后的误差函数值 */</span>
-    <span class="function"><span class="keyword">double</span> <span class="title">train</span><span class="params">(<span class="keyword">int</span> sampleCnt = <span class="number">1000</span>, <span class="keyword">int</span> trainCnt = <span class="number">100</span>)</span></span>;
-    <span class="comment">/*
+    /* 使用指定数目的样本训练指定数目次循环，返回最后的误差函数值 */
+    double train(int sampleCnt = 1000, int trainCnt = 100);
+    /*
      * 使用指定数目的样本循环训练。
      * 误差函数值进入可接受范围判定收敛并停止训练；
      * 到达最大训练次数时停止训练。
      * 返回是否收敛。
-     */</span>
-    <span class="function"><span class="keyword">bool</span> <span class="title">trainTillConvergent</span><span class="params">(<span class="keyword">int</span> sampleCnt = <span class="number">1000</span>, <span class="keyword">int</span> maxEpoch = <span class="number">1000</span>)</span></span>;
-    <span class="comment">/* 生成指定数目组数据测试当前神经网络 */</span>
-    <span class="function"><span class="keyword">void</span> <span class="title">testNetwork</span><span class="params">(<span class="keyword">int</span> testCnt = <span class="number">1000</span>)</span></span>;
-    <span class="comment">/* 保存当前神经网络，即两个权重数组 */</span>
-    <span class="function"><span class="keyword">void</span> <span class="title">saveNetwork</span><span class="params">(<span class="built_in">string</span> wPath = <span class="string">"wNetwork"</span>, <span class="built_in">string</span> vPath = <span class="string">"vNetwork"</span>)</span></span>;
-    <span class="comment">/* 载入两个权重数组，还原神经网络 */</span>
-    <span class="function"><span class="keyword">void</span> <span class="title">loadNetwork</span><span class="params">(<span class="built_in">string</span> wPath = <span class="string">"wNetwork"</span>, <span class="built_in">string</span> vPath = <span class="string">"vNetwork"</span>)</span></span>;
-    <span class="comment">/* 使用指定数据预测输出值并返回输出值 */</span>
-    <span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; runNetwork(<span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; x);
+     */
+    bool trainTillConvergent(int sampleCnt = 1000, int maxEpoch = 1000);
+    /* 生成指定数目组数据测试当前神经网络 */
+    void testNetwork(int testCnt = 1000);
+    /* 保存当前神经网络，即两个权重数组 */
+    void saveNetwork(string wPath = &quot;wNetwork&quot;, string vPath = &quot;vNetwork&quot;);
+    /* 载入两个权重数组，还原神经网络 */
+    void loadNetwork(string wPath = &quot;wNetwork&quot;, string vPath = &quot;vNetwork&quot;);
+    /* 使用指定数据预测输出值并返回输出值 */
+    vector&lt;double&gt; runNetwork(vector&lt;double&gt; x);
 };
 
-<span class="preprocessor">#<span class="keyword">endif</span></span>
+#endif
 </code></pre><p>&nbsp;&nbsp;&nbsp; 类实现源码里的Data结构体的构造函数是输入数据的处理和问题模型的建立，可自定义，这里用的是点分类问题的数据处理，BP.cpp：</p>
-<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">"BP.h"</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;ctime&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span></span>
-<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
+<pre><code>#include &quot;BP.h&quot;
+#include &lt;iostream&gt;
+#include &lt;cstdlib&gt;
+#include &lt;ctime&gt;
+#include &lt;cmath&gt;
+#include &lt;fstream&gt;
+using namespace std;
 
-<span class="comment">/* 数据构造函数 */</span>
+/* 数据构造函数 */
 Data::Data()
 {
-    <span class="comment">/* 归一参数 */</span>
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span> ; i &lt; <span class="number">8</span> ; i++)
+    /* 归一参数 */
+    for(int i = 1 ; i &lt; 8 ; i++)
     {
-        x[i] = rand()/(<span class="keyword">double</span>)RAND_MAX;
+        x[i] = rand()/(double)RAND_MAX;
     }
-    <span class="comment">/* 实际参数 */</span>
-    <span class="keyword">double</span> _x = x[<span class="number">1</span>]*<span class="number">20</span> - <span class="number">10</span>;
-    <span class="keyword">double</span> y = x[<span class="number">2</span>]*<span class="number">20</span> - <span class="number">10</span>;
-    <span class="keyword">double</span> z = x[<span class="number">3</span>]*<span class="number">20</span> - <span class="number">10</span>;
-    <span class="keyword">double</span> a = x[<span class="number">4</span>]*<span class="number">20</span> - <span class="number">10</span>;
-    <span class="keyword">double</span> b = x[<span class="number">5</span>]*<span class="number">20</span> - <span class="number">10</span>;
-    <span class="keyword">double</span> c = x[<span class="number">6</span>]*<span class="number">20</span> - <span class="number">10</span>;
-    <span class="keyword">double</span> _d = x[<span class="number">7</span>]*<span class="number">20</span> - <span class="number">10</span>;
-    <span class="comment">/* 拟合 */</span>
-    <span class="comment">// d[0] = z - (a*_x + b*y + _d)/(-1*c);</span>
-    <span class="comment">/* 分类 */</span>
-    d[<span class="number">0</span>] = z &gt; (a*_x + b*y + _d)/(-<span class="number">1</span>*c) ? <span class="number">1</span> : <span class="number">0</span>;
-    d[<span class="number">1</span>] = d[<span class="number">0</span>] ? <span class="number">0</span> : <span class="number">1</span>;
+    /* 实际参数 */
+    double _x = x[1]*20 - 10;
+    double y = x[2]*20 - 10;
+    double z = x[3]*20 - 10;
+    double a = x[4]*20 - 10;
+    double b = x[5]*20 - 10;
+    double c = x[6]*20 - 10;
+    double _d = x[7]*20 - 10;
+    /* 拟合 */
+    // d[0] = z - (a*_x + b*y + _d)/(-1*c);
+    /* 分类 */
+    d[0] = z &gt; (a*_x + b*y + _d)/(-1*c) ? 1 : 0;
+    d[1] = d[0] ? 0 : 1;
 }
 
-<span class="comment">/* 填充训练用数据样本集 */</span>
-<span class="keyword">void</span> BP::fillTrainDS(<span class="keyword">int</span> sampleCnt)
+/* 填充训练用数据样本集 */
+void BP::fillTrainDS(int sampleCnt)
 {
-    <span class="keyword">while</span>(sampleCnt--)
+    while(sampleCnt--)
     {
         trainDS.push_back(Data());
     }
 }
 
-<span class="comment">/* 清空训练用数据样本集 */</span>
-<span class="keyword">void</span> BP::clearTrainDS()
+/* 清空训练用数据样本集 */
+void BP::clearTrainDS()
 {
-    <span class="built_in">vector</span>&lt;Data&gt; v;
+    vector&lt;Data&gt; v;
     trainDS.swap(v);
 }
 
-<span class="comment">/* 填充测试使用数据集 */</span>
-<span class="keyword">void</span> BP::fillTestDS(<span class="keyword">int</span> sampleCnt)
+/* 填充测试使用数据集 */
+void BP::fillTestDS(int sampleCnt)
 {
-    <span class="keyword">while</span>(sampleCnt--)
+    while(sampleCnt--)
     {
         testDS.push_back(Data());
     }
 }
 
-<span class="comment">/* 清空测试使用数据集 */</span>
-<span class="keyword">void</span> BP::clearTestDS()
+/* 清空测试使用数据集 */
+void BP::clearTestDS()
 {
-    <span class="built_in">vector</span>&lt;Data&gt; v;
+    vector&lt;Data&gt; v;
     testDS.swap(v);
 }
 
-<span class="comment">/* 预测 */</span>
-<span class="keyword">void</span> BP::forward(<span class="keyword">int</span> index, <span class="keyword">bool</span> test)
+/* 预测 */
+void BP::forward(int index, bool test)
 {
-    <span class="comment">/* 隐含层 */</span>
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; H ; i++)
+    /* 隐含层 */
+    for(int i = 0 ; i &lt; H ; i++)
     {
-        u[i] = <span class="number">0</span>;
-        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; I ; j++)
+        u[i] = 0;
+        for(int j = 0 ; j &lt; I ; j++)
         {
-            <span class="keyword">double</span> x = test ? testDS[index].x[j] : trainDS[index].x[j];
-            <span class="comment">/* 积累输入 */</span>
+            double x = test ? testDS[index].x[j] : trainDS[index].x[j];
+            /* 积累输入 */
             u[i] += w[j][i]*x;
         }
         u[i] += th[i];
-        <span class="comment">/* Sigmoid函数作为激活函数 */</span>
-        u[i] = <span class="number">1</span> / (<span class="number">1</span> + <span class="built_in">exp</span>(-<span class="number">1</span>*u[i]));
+        /* Sigmoid函数作为激活函数 */
+        u[i] = 1 / (1 + exp(-1*u[i]));
     }
-    <span class="comment">/* 输出层 */</span>
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; O ; i++)
+    /* 输出层 */
+    for(int i = 0 ; i &lt; O ; i++)
     {
-        y[i] = <span class="number">0</span>;
-        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; H ; j++)
+        y[i] = 0;
+        for(int j = 0 ; j &lt; H ; j++)
         {
-            <span class="comment">/* 积累输入 */</span>
+            /* 积累输入 */
             y[i] += v[j][i]*u[j];
         }
         y[i] += to[i];
-        <span class="comment">/* 分类：Sigmoid函数作为激活函数 */</span>
-        <span class="keyword">if</span> (!regression)
+        /* 分类：Sigmoid函数作为激活函数 */
+        if (!regression)
         {
-            y[i] = <span class="number">1</span> / (<span class="number">1</span> + <span class="built_in">exp</span>(-<span class="number">1</span>*y[i]));
+            y[i] = 1 / (1 + exp(-1*y[i]));
         }
     }
 }
 
-<span class="comment">/* 调整 */</span>
-<span class="keyword">void</span> BP::backward(<span class="keyword">int</span> index)
+/* 调整 */
+void BP::backward(int index)
 {
-    <span class="comment">/* 计算隐含层与输出层间权重调整值 */</span>
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; O ; i++)
+    /* 计算隐含层与输出层间权重调整值 */
+    for(int i = 0 ; i &lt; O ; i++)
     {
-        <span class="comment">/* 拟合：计算输出层学习误差 */</span>
-        <span class="keyword">if</span> (regression)
+        /* 拟合：计算输出层学习误差 */
+        if (regression)
         {
             dv[i] = y[i] - trainDS[index].d[i];
         }
-        <span class="comment">/* 分类：计算输出层学习误差 */</span>
-        <span class="keyword">else</span>
+        /* 分类：计算输出层学习误差 */
+        else
         {
-            dv[i] = (y[i] - trainDS[index].d[i])*y[i]*(<span class="number">1</span> - y[i]);
+            dv[i] = (y[i] - trainDS[index].d[i])*y[i]*(1 - y[i]);
         }
     }
-    <span class="comment">/* 计算输入层与隐含层间权重调整值 */</span>
-    <span class="keyword">double</span> t;
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; H ; i++)
+    /* 计算输入层与隐含层间权重调整值 */
+    double t;
+    for(int i = 0 ; i &lt; H ; i++)
     {
-        t = <span class="number">0</span>;
-        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; O ; j++)
+        t = 0;
+        for(int j = 0 ; j &lt; O ; j++)
         {
             t += dv[j]*v[i][j];
         }
-        dw[i] = t*u[i]*(<span class="number">1</span> - u[i]);
+        dw[i] = t*u[i]*(1 - u[i]);
     }
-    <span class="comment">/* 调整隐含层与输出层间权重 */</span>
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; H ; i++)
+    /* 调整隐含层与输出层间权重 */
+    for(int i = 0 ; i &lt; H ; i++)
     {
-        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; O ; j++)
+        for(int j = 0 ; j &lt; O ; j++)
         {
             v[i][j] -= LR*dv[j]*u[i];
         }
     }
-    <span class="comment">/* 调整输出层偏置 */</span>
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; O ; i++)
+    /* 调整输出层偏置 */
+    for(int i = 0 ; i &lt; O ; i++)
     {
         to[i] -= LR2*dv[i];
     }
-    <span class="comment">/* 调整输入层与隐含层间权重 */</span>
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; I ; i++)
+    /* 调整输入层与隐含层间权重 */
+    for(int i = 0 ; i &lt; I ; i++)
     {
-        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; H ; j++)
+        for(int j = 0 ; j &lt; H ; j++)
         {
             w[i][j] -= LR*dw[j]*trainDS[index].x[i];
         }
     }
-    <span class="comment">/* 调整隐含层偏置 */</span>
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; H ; i++)
+    /* 调整隐含层偏置 */
+    for(int i = 0 ; i &lt; H ; i++)
     {
         th[i] -= LR2*dw[i];
     }
 }
 
-<span class="comment">/*
+/*
  * 类构造函数，初始化BP神经网络结构和训练参数
  * int _I：        输入参数数目，包括偏置值对应的参数-1。
  * int _O：        输出值数目。
@@ -378,246 +378,246 @@ Data::Data()
  * double _LRDecay：    学习速率衰减率（每次衰减与当前LR相乘）。
  * double _C：        误差函数收敛阈值。
  * bool regression：    拟合标识。
- */</span>
-BP::BP(<span class="keyword">int</span> _I, <span class="keyword">int</span> _O, <span class="keyword">int</span> A, <span class="keyword">double</span> _LR, <span class="keyword">double</span> _LR2, <span class="keyword">double</span> _LRDecay, <span class="keyword">double</span> _C, <span class="keyword">bool</span> _regression)
+ */
+BP::BP(int _I, int _O, int A, double _LR, double _LR2, double _LRDecay, double _C, bool _regression)
 {
-    <span class="comment">/* ========== 初始化常数 ========== */</span>
+    /* ========== 初始化常数 ========== */
     I = _I;
-    H = <span class="built_in">ceil</span>(<span class="built_in">sqrt</span>(_I + _O)) + A;
+    H = ceil(sqrt(_I + _O)) + A;
     O = _O;
     LR = _LR;
     LR2 = _LR2;
     LRDecay = _LRDecay;
     C = _C;
     regression = _regression;
-    <span class="comment">/* ========== 初始化容器 ========== */</span>
-    srand((<span class="keyword">unsigned</span>)time(<span class="literal">NULL</span>));
-    <span class="comment">/* 初始化w */</span>
-    w = <span class="keyword">new</span> <span class="keyword">double</span>*[I];
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; I ; i++)
+    /* ========== 初始化容器 ========== */
+    srand((unsigned)time(NULL));
+    /* 初始化w */
+    w = new double*[I];
+    for(int i = 0 ; i &lt; I ; i++)
     {
-        w[i] = <span class="keyword">new</span> <span class="keyword">double</span>[H];
-        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; H ; j++)
+        w[i] = new double[H];
+        for(int j = 0 ; j &lt; H ; j++)
         {
-            w[i][j] = rand()/(<span class="keyword">double</span>)RAND_MAX;
+            w[i][j] = rand()/(double)RAND_MAX;
         }
     }
-    <span class="comment">/* 初始化dw */</span>
-    dw = <span class="keyword">new</span> <span class="keyword">double</span>[H];
-    <span class="comment">/* 初始化th */</span>
-    th = <span class="keyword">new</span> <span class="keyword">double</span>[H];
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; H ; i++)
+    /* 初始化dw */
+    dw = new double[H];
+    /* 初始化th */
+    th = new double[H];
+    for(int i = 0 ; i &lt; H ; i++)
     {
-        th[i] = rand()/(<span class="keyword">double</span>)RAND_MAX;
+        th[i] = rand()/(double)RAND_MAX;
     }
-    <span class="comment">/* 初始化u */</span>
-    u = <span class="keyword">new</span> <span class="keyword">double</span>[H];
-    <span class="comment">/* 初始化v */</span>
-    v = <span class="keyword">new</span> <span class="keyword">double</span>*[H];
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; H ; i++)
+    /* 初始化u */
+    u = new double[H];
+    /* 初始化v */
+    v = new double*[H];
+    for(int i = 0 ; i &lt; H ; i++)
     {
-        v[i] = <span class="keyword">new</span> <span class="keyword">double</span>[O];
-        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; O ; j++)
+        v[i] = new double[O];
+        for(int j = 0 ; j &lt; O ; j++)
         {
-            v[i][j] = rand()/(<span class="keyword">double</span>)RAND_MAX;
+            v[i][j] = rand()/(double)RAND_MAX;
         }
     }
-    <span class="comment">/* 初始化dv */</span>
-    dv = <span class="keyword">new</span> <span class="keyword">double</span>[O];
-    <span class="comment">/* 初始化to */</span>
-    to = <span class="keyword">new</span> <span class="keyword">double</span>[O];
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; O ; i++)
+    /* 初始化dv */
+    dv = new double[O];
+    /* 初始化to */
+    to = new double[O];
+    for(int i = 0 ; i &lt; O ; i++)
     {
-        to[i] = rand()/(<span class="keyword">double</span>)RAND_MAX;
+        to[i] = rand()/(double)RAND_MAX;
     }
-    <span class="comment">/* 初始化y */</span>
-    y = <span class="keyword">new</span> <span class="keyword">double</span>[O];
+    /* 初始化y */
+    y = new double[O];
 }
 
-<span class="comment">/* 类析构函数，释放容器分配的堆空间 */</span>
+/* 类析构函数，释放容器分配的堆空间 */
 BP::~BP()
 {
-    <span class="comment">/* 释放w */</span>
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; I ; i++)
+    /* 释放w */
+    for(int i = 0 ; i &lt; I ; i++)
     {
-        <span class="keyword">delete</span> []w[i];
+        delete []w[i];
     }
-    <span class="keyword">delete</span> []w;
-    <span class="comment">/* 释放dw */</span>
-    <span class="keyword">delete</span> []dw;
-    <span class="comment">/* 释放th */</span>
-    <span class="keyword">delete</span> []th;
-    <span class="comment">/* 释放u */</span>
-    <span class="keyword">delete</span> []u;
-    <span class="comment">/* 释放v */</span>
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; H ; i++)
+    delete []w;
+    /* 释放dw */
+    delete []dw;
+    /* 释放th */
+    delete []th;
+    /* 释放u */
+    delete []u;
+    /* 释放v */
+    for(int i = 0 ; i &lt; H ; i++)
     {
-        <span class="keyword">delete</span> []v[i];
+        delete []v[i];
     }
-    <span class="keyword">delete</span> []v;
-    <span class="comment">/* 释放dv */</span>
-    <span class="keyword">delete</span> []dv;
-    <span class="comment">/* 释放to */</span>
-    <span class="keyword">delete</span> []to;
-    <span class="comment">/* 释放y */</span>
-    <span class="keyword">delete</span> []y;
+    delete []v;
+    /* 释放dv */
+    delete []dv;
+    /* 释放to */
+    delete []to;
+    /* 释放y */
+    delete []y;
 }
 
-<span class="comment">/* 使用指定数目的样本训练指定数目次循环，返回最后的误差函数值 */</span>
-<span class="keyword">double</span> BP::train(<span class="keyword">int</span> sampleCnt, <span class="keyword">int</span> trainCnt)
+/* 使用指定数目的样本训练指定数目次循环，返回最后的误差函数值 */
+double BP::train(int sampleCnt, int trainCnt)
 {
     fillTrainDS(sampleCnt);
-    <span class="keyword">double</span> e;
-    <span class="keyword">while</span>(trainCnt--)
+    double e;
+    while(trainCnt--)
     {
-        e = <span class="number">0</span>;
-        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; trainDS.size() ; i++)
+        e = 0;
+        for(int i = 0 ; i &lt; trainDS.size() ; i++)
         {
-            <span class="comment">/* 预测 */</span>
+            /* 预测 */
             forward(i);
-            <span class="comment">/* 误差积累 */</span>
-            <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; O ; j++)
+            /* 误差积累 */
+            for(int j = 0 ; j &lt; O ; j++)
             {
-                e += <span class="built_in">pow</span>(y[j] - trainDS[i].d[j], <span class="number">2.0</span>);
+                e += pow(y[j] - trainDS[i].d[j], 2.0);
             }
-            <span class="comment">/* 调整 */</span>
+            /* 调整 */
             backward(i);
         }
-        e /= <span class="number">2</span>*sampleCnt;
-        <span class="comment">/* 学习速率衰减 */</span>
-        <span class="keyword">if</span> (LR &gt; <span class="number">0.01</span>)
+        e /= 2*sampleCnt;
+        /* 学习速率衰减 */
+        if (LR &gt; 0.01)
         {
             LR *= LRDecay;
         }
     }
     clearTrainDS();
-    <span class="keyword">return</span> e;
+    return e;
 }
 
-<span class="comment">/*
+/*
  * 使用指定数目的样本循环训练。
  * 误差函数值进入可接受范围判定收敛并停止训练；
  * 到达最大训练次数时停止训练。
  * 返回是否收敛。
- */</span>
-<span class="keyword">bool</span> BP::trainTillConvergent(<span class="keyword">int</span> sampleCnt, <span class="keyword">int</span> maxEpoch)
+ */
+bool BP::trainTillConvergent(int sampleCnt, int maxEpoch)
 {
     fillTrainDS(sampleCnt);
-    <span class="keyword">double</span> e;
-    <span class="keyword">for</span>(;;)
+    double e;
+    for(;;)
     {
-        e = <span class="number">0</span>;
-        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; trainDS.size() ; i++, maxEpoch--)
+        e = 0;
+        for(int i = 0 ; i &lt; trainDS.size() ; i++, maxEpoch--)
         {
-            <span class="keyword">if</span> (!maxEpoch)
+            if (!maxEpoch)
             {
                 clearTrainDS();
-                <span class="keyword">return</span> <span class="literal">false</span>;
+                return false;
             }
-            <span class="comment">/* 预测 */</span>
+            /* 预测 */
             forward(i);
-            <span class="comment">/* 误差积累 */</span>
-            <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; O ; j++)
+            /* 误差积累 */
+            for(int j = 0 ; j &lt; O ; j++)
             {
-                e += <span class="built_in">pow</span>(y[j] - trainDS[i].d[j], <span class="number">2.0</span>);
+                e += pow(y[j] - trainDS[i].d[j], 2.0);
             }
-            <span class="comment">/* 调整 */</span>
+            /* 调整 */
             backward(i);
         }
-        <span class="comment">/* 判定收敛，中止训练 */</span>
-        <span class="keyword">if</span> (e/(<span class="number">2</span>*sampleCnt) &lt; C)
+        /* 判定收敛，中止训练 */
+        if (e/(2*sampleCnt) &lt; C)
         {
             clearTrainDS();
-            <span class="keyword">return</span> <span class="literal">true</span>;
+            return true;
         }
-        <span class="comment">/* 学习速率衰减 */</span>
-        <span class="keyword">if</span> (LR &gt; <span class="number">0.01</span>)
+        /* 学习速率衰减 */
+        if (LR &gt; 0.01)
         {
             LR *= LRDecay;
         }
     }
     clearTrainDS();
-    <span class="keyword">return</span> <span class="literal">false</span>;
+    return false;
 }
 
-<span class="comment">/* 生成指定数目组数据测试当前神经网络 */</span>
-<span class="keyword">void</span> BP::testNetwork(<span class="keyword">int</span> testCnt)
+/* 生成指定数目组数据测试当前神经网络 */
+void BP::testNetwork(int testCnt)
 {
     fillTestDS(testCnt);
-    <span class="keyword">double</span> e = <span class="number">0</span>;
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; testCnt ; i++)
+    double e = 0;
+    for(int i = 0 ; i &lt; testCnt ; i++)
     {
-        forward(i, <span class="literal">true</span>);
-        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; O ; j++)
+        forward(i, true);
+        for(int j = 0 ; j &lt; O ; j++)
         {
-            e += <span class="built_in">pow</span>(y[j] - testDS[i].d[j], <span class="number">2.0</span>);
+            e += pow(y[j] - testDS[i].d[j], 2.0);
         }
     }
-    <span class="built_in">cout</span> &lt;&lt; testCnt &lt;&lt; <span class="string">"组数据测试预测值相对期望值方差为："</span> &lt;&lt; e/(<span class="number">2</span>*testCnt) &lt;&lt; endl;
+    cout &lt;&lt; testCnt &lt;&lt; &quot;组数据测试预测值相对期望值方差为：&quot; &lt;&lt; e/(2*testCnt) &lt;&lt; endl;
     clearTestDS();
 }
 
-<span class="comment">/* 保存当前神经网络，即两个权重数组 */</span>
-<span class="keyword">void</span> BP::saveNetwork(<span class="built_in">string</span> wPath, <span class="built_in">string</span> vPath)
+/* 保存当前神经网络，即两个权重数组 */
+void BP::saveNetwork(string wPath, string vPath)
 {
-    <span class="function">ofstream <span class="title">fout_w</span><span class="params">(wPath)</span></span>;
-    <span class="keyword">if</span>(fout_w == <span class="literal">NULL</span>)
+    ofstream fout_w(wPath);
+    if(fout_w == NULL)
     {
-        <span class="built_in">cout</span> &lt;&lt; <span class="string">"打开文件失败"</span> &lt;&lt; endl;
-        <span class="keyword">return</span>;
+        cout &lt;&lt; &quot;打开文件失败&quot; &lt;&lt; endl;
+        return;
     }
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; I ; i++)
+    for(int i = 0 ; i &lt; I ; i++)
     {
-        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; H ; j++)
+        for(int j = 0 ; j &lt; H ; j++)
         {
-            fout_w &lt;&lt; w[i][j] &lt;&lt; <span class="string">'\t'</span>;
+            fout_w &lt;&lt; w[i][j] &lt;&lt; &apos;\t&apos;;
         }
-        fout_w &lt;&lt; <span class="string">'\n'</span>;
+        fout_w &lt;&lt; &apos;\n&apos;;
     }
     fout_w.close();
-    <span class="function">ofstream <span class="title">fout_v</span><span class="params">(vPath)</span></span>;
-    <span class="keyword">if</span>(fout_v == <span class="literal">NULL</span>)
+    ofstream fout_v(vPath);
+    if(fout_v == NULL)
     {
-        <span class="built_in">cout</span> &lt;&lt; <span class="string">"打开文件失败"</span> &lt;&lt; endl;
-        <span class="keyword">return</span>;
+        cout &lt;&lt; &quot;打开文件失败&quot; &lt;&lt; endl;
+        return;
     }
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; H ; i++)
+    for(int i = 0 ; i &lt; H ; i++)
     {
-        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; O ; j++)
+        for(int j = 0 ; j &lt; O ; j++)
         {
-            fout_v &lt;&lt; v[i][j] &lt;&lt; <span class="string">'\t'</span>;
+            fout_v &lt;&lt; v[i][j] &lt;&lt; &apos;\t&apos;;
         }
-        fout_v &lt;&lt; <span class="string">'\n'</span>;
+        fout_v &lt;&lt; &apos;\n&apos;;
     }
     fout_v.close();
 }
 
-<span class="comment">/* 载入两个权重数组，还原神经网络 */</span>
-<span class="keyword">void</span> BP::loadNetwork(<span class="built_in">string</span> wPath, <span class="built_in">string</span> vPath)
+/* 载入两个权重数组，还原神经网络 */
+void BP::loadNetwork(string wPath, string vPath)
 {
-    <span class="function">ifstream <span class="title">fin_w</span><span class="params">(wPath)</span></span>;
-    <span class="keyword">if</span>(fin_w == <span class="literal">NULL</span>)
+    ifstream fin_w(wPath);
+    if(fin_w == NULL)
     {
-        <span class="built_in">cout</span> &lt;&lt; <span class="string">"打开文件失败"</span> &lt;&lt; endl;
-        <span class="keyword">return</span>;
+        cout &lt;&lt; &quot;打开文件失败&quot; &lt;&lt; endl;
+        return;
     }
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; I ; i++)
+    for(int i = 0 ; i &lt; I ; i++)
     {
-        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; H ; j++)
+        for(int j = 0 ; j &lt; H ; j++)
         {
             fin_w &gt;&gt; w[i][j];
         }
     }
     fin_w.close();
-    <span class="function">ifstream <span class="title">fin_v</span><span class="params">(vPath)</span></span>;
-    <span class="keyword">if</span>(fin_v == <span class="literal">NULL</span>)
+    ifstream fin_v(vPath);
+    if(fin_v == NULL)
     {
-        <span class="built_in">cout</span> &lt;&lt; <span class="string">"打开文件失败"</span> &lt;&lt; endl;
-        <span class="keyword">return</span>;
+        cout &lt;&lt; &quot;打开文件失败&quot; &lt;&lt; endl;
+        return;
     }
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; H ; i++)
+    for(int i = 0 ; i &lt; H ; i++)
     {
-        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; O ; j++)
+        for(int j = 0 ; j &lt; O ; j++)
         {
             fin_v &gt;&gt; v[i][j];
         }
@@ -625,52 +625,52 @@ BP::~BP()
     fin_v.close();
 }
 
-<span class="comment">/* 使用指定数据预测输出值并返回输出值 */</span>
-<span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; BP::runNetwork(<span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; x)
+/* 使用指定数据预测输出值并返回输出值 */
+vector&lt;double&gt; BP::runNetwork(vector&lt;double&gt; x)
 {
-    <span class="comment">/* 隐含层 */</span>
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; H ; i++)
+    /* 隐含层 */
+    for(int i = 0 ; i &lt; H ; i++)
     {
-        u[i] = <span class="number">0</span>;
-        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; x.size() ; j++)
+        u[i] = 0;
+        for(int j = 0 ; j &lt; x.size() ; j++)
         {
-            <span class="comment">/* 积累输入 */</span>
+            /* 积累输入 */
             u[i] += w[j][i]*x[j];
         }
         u[i] += th[i];
-        <span class="comment">/* Sigmoid函数作为激活函数 */</span>
-        u[i] = <span class="number">1</span> / (<span class="number">1</span> + <span class="built_in">exp</span>(-<span class="number">1</span>*u[i]));
+        /* Sigmoid函数作为激活函数 */
+        u[i] = 1 / (1 + exp(-1*u[i]));
     }
-    <span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; o;
-    <span class="keyword">double</span> y;
-    <span class="comment">/* 输出层 */</span>
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; O ; i++)
+    vector&lt;double&gt; o;
+    double y;
+    /* 输出层 */
+    for(int i = 0 ; i &lt; O ; i++)
     {
-        y = <span class="number">0</span>;
-        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; H ; j++)
+        y = 0;
+        for(int j = 0 ; j &lt; H ; j++)
         {
-            <span class="comment">/* 积累输入 */</span>
+            /* 积累输入 */
             y += v[j][i]*u[j];
         }
         y += to[i];
-        <span class="comment">/* 分类：Sigmoid函数作为激活函数 */</span>
-        <span class="keyword">if</span> (!regression)
+        /* 分类：Sigmoid函数作为激活函数 */
+        if (!regression)
         {
-            y = <span class="number">1</span> / (<span class="number">1</span> + <span class="built_in">exp</span>(-<span class="number">1</span>*y));
+            y = 1 / (1 + exp(-1*y));
         }
         o.push_back(y);
     }
-    <span class="keyword">return</span> o;
+    return o;
 }
 </code></pre><p>&nbsp;&nbsp;&nbsp; 类的测试方法里无非是根据实际问题初始化类，做一系列的训练，调整参数，慢慢提高预测精度，test.cpp：</p>
-<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">"BP.h"</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span>
+<pre><code>#include &quot;BP.h&quot;
+#include &lt;iostream&gt;
 
-<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;
+using namespace std;
 
-<span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>
-</span>{
-    <span class="comment">/*
+int main()
+{
+    /*
      * 类构造函数，初始化BP神经网络结构和训练参数
      * int _I：        输入参数数目，包括偏置值对应的参数-1。
      * int _O：        输出值数目。
@@ -680,83 +680,83 @@ BP::~BP()
      * double _LRDecay：    学习速率衰减率（每次衰减与当前LR相乘）。
      * double _C：        误差函数收敛阈值。
      * bool regression：    拟合标识。
-     */</span>
-    <span class="function">BP <span class="title">o</span><span class="params">(<span class="number">7</span>, <span class="number">2</span>, <span class="number">8</span>, <span class="number">0.2</span>, <span class="number">0.02</span>, <span class="number">0.99</span>, <span class="number">3.2e-2</span>, <span class="literal">false</span>)</span></span>;
+     */
+    BP o(7, 2, 8, 0.2, 0.02, 0.99, 3.2e-2, false);
 
-    <span class="comment">// o.loadNetwork();</span>
+    // o.loadNetwork();
 
-    <span class="comment">/* 使用指定数目的样本训练指定数目次循环，返回最后的误差函数值 */</span>
-    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; <span class="number">20</span> ; i++)
+    /* 使用指定数目的样本训练指定数目次循环，返回最后的误差函数值 */
+    for(int i = 0 ; i &lt; 20 ; i++)
     {
-        <span class="built_in">cout</span> &lt;&lt; <span class="string">"误差函数值："</span> &lt;&lt; o.train(<span class="number">1000</span>, <span class="number">2e3</span>) &lt;&lt; endl;
+        cout &lt;&lt; &quot;误差函数值：&quot; &lt;&lt; o.train(1000, 2e3) &lt;&lt; endl;
     }
 
-    <span class="comment">/*
+    /*
      * 使用指定数目的样本循环训练。
      * 误差函数值进入可接受范围判定收敛并停止训练；
      * 到达最大训练次数时停止训练。
      * 返回是否收敛。
-     */</span>
-    <span class="comment">// bool success = o.trainTillConvergent(1000, 1e5*1000);</span>
-    <span class="comment">// cout &lt;&lt; "收敛：" &lt;&lt; (success ? "success" : "fail") &lt;&lt; endl;</span>
+     */
+    // bool success = o.trainTillConvergent(1000, 1e5*1000);
+    // cout &lt;&lt; &quot;收敛：&quot; &lt;&lt; (success ? &quot;success&quot; : &quot;fail&quot;) &lt;&lt; endl;
 
-    o.testNetwork(<span class="number">1000</span>);
+    o.testNetwork(1000);
 
     o.saveNetwork();
 
-    <span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; X;
-    <span class="keyword">double</span> x = <span class="number">0.1</span>;
-    <span class="keyword">double</span> y = <span class="number">0.1</span>;
-    <span class="keyword">double</span> z = <span class="number">0.1</span>;
-    <span class="keyword">double</span> a = <span class="number">1</span>;
-    <span class="keyword">double</span> b = <span class="number">1</span>;
-    <span class="keyword">double</span> c = <span class="number">1</span>;
-    <span class="keyword">double</span> d = -<span class="number">1</span>;
-    X.push_back((x + <span class="number">10</span>)/<span class="number">20.0</span>);
-    X.push_back((y + <span class="number">10</span>)/<span class="number">20.0</span>);
-    X.push_back((z + <span class="number">10</span>)/<span class="number">20.0</span>);
-    X.push_back((a + <span class="number">10</span>)/<span class="number">20.0</span>);
-    X.push_back((b + <span class="number">10</span>)/<span class="number">20.0</span>);
-    X.push_back((c + <span class="number">10</span>)/<span class="number">20.0</span>);
-    X.push_back((d + <span class="number">10</span>)/<span class="number">20.0</span>);
-    <span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; Y = o.runNetwork(X);
-    <span class="comment">/* 拟合 */</span>
-    <span class="comment">// cout &lt;&lt; "期望值：" &lt;&lt; z - (a*x + b*y + d)/(-c) &lt;&lt; endl;</span>
-    <span class="comment">// cout &lt;&lt; "输出值：" &lt;&lt; Y[0] &lt;&lt; endl;</span>
-    <span class="comment">/* 分类 */</span>
-    <span class="built_in">cout</span> &lt;&lt; <span class="string">"期望值："</span> &lt;&lt; (z &gt; (a*x + b*y + d)/(-c) ? <span class="string">"1\t0"</span> : <span class="string">"0\t1"</span>) &lt;&lt; endl;
-    <span class="built_in">cout</span> &lt;&lt; <span class="string">"输出值："</span> &lt;&lt; Y[<span class="number">0</span>] &lt;&lt; <span class="string">'\t'</span> &lt;&lt; Y[<span class="number">1</span>] &lt;&lt; endl;
+    vector&lt;double&gt; X;
+    double x = 0.1;
+    double y = 0.1;
+    double z = 0.1;
+    double a = 1;
+    double b = 1;
+    double c = 1;
+    double d = -1;
+    X.push_back((x + 10)/20.0);
+    X.push_back((y + 10)/20.0);
+    X.push_back((z + 10)/20.0);
+    X.push_back((a + 10)/20.0);
+    X.push_back((b + 10)/20.0);
+    X.push_back((c + 10)/20.0);
+    X.push_back((d + 10)/20.0);
+    vector&lt;double&gt; Y = o.runNetwork(X);
+    /* 拟合 */
+    // cout &lt;&lt; &quot;期望值：&quot; &lt;&lt; z - (a*x + b*y + d)/(-c) &lt;&lt; endl;
+    // cout &lt;&lt; &quot;输出值：&quot; &lt;&lt; Y[0] &lt;&lt; endl;
+    /* 分类 */
+    cout &lt;&lt; &quot;期望值：&quot; &lt;&lt; (z &gt; (a*x + b*y + d)/(-c) ? &quot;1\t0&quot; : &quot;0\t1&quot;) &lt;&lt; endl;
+    cout &lt;&lt; &quot;输出值：&quot; &lt;&lt; Y[0] &lt;&lt; &apos;\t&apos; &lt;&lt; Y[1] &lt;&lt; endl;
 
-    <span class="keyword">return</span> <span class="number">0</span>;
+    return 0;
 }
 </code></pre><p>&nbsp;&nbsp;&nbsp; 点分类问题我先尝试了函数拟合方式，训练情况很糟糕，动辄上十万的方差。后来改用分类方式，降低训练要求，方差立马降下来了。下午例会就要做报告了，我没有训练到充分收敛，但是离平面比较远的点判断正确率已经很高了。下面提供平面分类点集问题当前训练进度下，输入层与隐含层间权重数组、隐含层与输出层间权重数组的保存文件。</p>
 <p>&nbsp;&nbsp;&nbsp; 输入层与隐含层间权重数组wNetwork：</p>
-<pre><code><span class="number">0.15513</span>    <span class="number">0.56829</span>    <span class="number">0.461073</span>    <span class="number">0.27552</span>    <span class="number">0.44408</span>    <span class="number">0.144657</span>    <span class="number">0.95798</span>    <span class="number">0.335522</span>    <span class="number">0.325092</span>    <span class="number">0.254423</span>    <span class="number">0.79217</span>
--<span class="number">1.06417</span>    -<span class="number">0.0241895</span>    <span class="number">3.99915</span>    <span class="number">0.228275</span>    -<span class="number">0.483658</span>    <span class="number">6.68402</span>    -<span class="number">1.61574</span>    <span class="number">0.753689</span>    <span class="number">4.14272</span>    -<span class="number">4.58112</span>    -<span class="number">3.09481</span>
-<span class="number">3.70442</span>    -<span class="number">3.7423</span>    <span class="number">0.0852013</span>    -<span class="number">0.564758</span>    -<span class="number">4.99619</span>    <span class="number">1.29436</span>    -<span class="number">4.19077</span>    -<span class="number">1.75579</span>    -<span class="number">0.568722</span>    -<span class="number">2.57748</span>    <span class="number">1.20149</span>
--<span class="number">0.311858</span>    <span class="number">2.12485</span>    <span class="number">0.494471</span>    -<span class="number">3.32854</span>    -<span class="number">0.393046</span>    <span class="number">1.12112</span>    -<span class="number">0.585242</span>    -<span class="number">3.45739</span>    -<span class="number">0.687711</span>    -<span class="number">1.37346</span>    -<span class="number">0.860532</span>
-<span class="number">1.29214</span>    <span class="number">0.74987</span>    <span class="number">4.41025</span>    -<span class="number">1.37666</span>    <span class="number">0.268284</span>    <span class="number">6.72309</span>    <span class="number">2.0978</span>    -<span class="number">1.8259</span>    <span class="number">4.20105</span>    -<span class="number">6.15165</span>    <span class="number">5.04569</span>
--<span class="number">3.76331</span>    -<span class="number">3.22432</span>    -<span class="number">0.450262</span>    <span class="number">1.77063</span>    -<span class="number">5.89358</span>    <span class="number">3.40051</span>    <span class="number">3.64122</span>    <span class="number">1.30879</span>    -<span class="number">0.98291</span>    -<span class="number">0.931413</span>    -<span class="number">1.72719</span>
-<span class="number">9.53636</span>    <span class="number">9.64562</span>    <span class="number">9.82743</span>    <span class="number">13.4779</span>    -<span class="number">12.3668</span>    <span class="number">12.5147</span>    <span class="number">8.37658</span>    <span class="number">6.32437</span>    -<span class="number">10.263</span>    -<span class="number">13.8476</span>    -<span class="number">5.31933</span>
+<pre><code>0.15513    0.56829    0.461073    0.27552    0.44408    0.144657    0.95798    0.335522    0.325092    0.254423    0.79217
+-1.06417    -0.0241895    3.99915    0.228275    -0.483658    6.68402    -1.61574    0.753689    4.14272    -4.58112    -3.09481
+3.70442    -3.7423    0.0852013    -0.564758    -4.99619    1.29436    -4.19077    -1.75579    -0.568722    -2.57748    1.20149
+-0.311858    2.12485    0.494471    -3.32854    -0.393046    1.12112    -0.585242    -3.45739    -0.687711    -1.37346    -0.860532
+1.29214    0.74987    4.41025    -1.37666    0.268284    6.72309    2.0978    -1.8259    4.20105    -6.15165    5.04569
+-3.76331    -3.22432    -0.450262    1.77063    -5.89358    3.40051    3.64122    1.30879    -0.98291    -0.931413    -1.72719
+9.53636    9.64562    9.82743    13.4779    -12.3668    12.5147    8.37658    6.32437    -10.263    -13.8476    -5.31933
 </code></pre><p>&nbsp;&nbsp;&nbsp; 隐含层与输出层间权重数组vNetwork：</p>
-<pre><code><span class="number">31.4711</span>    -<span class="number">31.5094</span>
-<span class="number">27.536</span>    -<span class="number">27.5713</span>
--<span class="number">25.7692</span>    <span class="number">25.7999</span>
--<span class="number">27.4329</span>    <span class="number">27.467</span>
--<span class="number">17.6709</span>    <span class="number">17.6933</span>
--<span class="number">18.464</span>    <span class="number">17.5204</span>
-<span class="number">25.8167</span>    -<span class="number">25.8471</span>
--<span class="number">23.2151</span>    <span class="number">23.2434</span>
-<span class="number">27.3533</span>    -<span class="number">27.387</span>
-<span class="number">26.9126</span>    -<span class="number">26.9519</span>
--<span class="number">24.7905</span>    <span class="number">24.8209</span>
+<pre><code>31.4711    -31.5094
+27.536    -27.5713
+-25.7692    25.7999
+-27.4329    27.467
+-17.6709    17.6933
+-18.464    17.5204
+25.8167    -25.8471
+-23.2151    23.2434
+27.3533    -27.387
+26.9126    -26.9519
+-24.7905    24.8209
 </code></pre><p>&nbsp;&nbsp;&nbsp; 这个类我还做过a+b问题的函数拟合，收敛非常顺利，精度很高。<br>&nbsp;&nbsp;&nbsp; <strong>后来，例会上提任务的博士说他明明是要我们寻找分割点集的平面，我把问题泛化成寻找点与平面位置关系规则的问题了，能用泛化能力不太强的BP整的差不多收敛也是不容易。我表示生无可恋……</strong></p>
 
       
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/11/BP神经网络的C-实现/" data-id="cijfauo39005j7397t3s8carg" class="article-share-link" data-share="baidu" data-title="BP神经网络的C++实现">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/11/BP神经网络的C-实现/" data-id="cil51s8ha000l14e47ik7y0ja" class="article-share-link" data-share="baidu" data-title="BP神经网络的C++实现">分享到</a>
       
 
       
