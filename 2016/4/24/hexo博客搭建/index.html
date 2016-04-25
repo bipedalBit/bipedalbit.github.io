@@ -1,0 +1,418 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>hexo博客搭建 | Hacking to the gate!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 转眼三个多月没更博文了，并没有荒废只是有点忙。攒了很多想写的东西，先填个拖了很久的坑：我这个博客是怎么搭起来的。&amp;nbsp;&amp;nbsp;&amp;nbsp; 总的来说，我的博客是由Github Pages维护，本地用Hexo管理的一个静态博客。这篇文里我将介绍搭建Github Pages+Hexo博客的过程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hexo博客搭建">
+<meta property="og:url" content="http://blog.bipedalbit.net/2016/4/24/hexo博客搭建/index.html">
+<meta property="og:site_name" content="Hacking to the gate!">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 转眼三个多月没更博文了，并没有荒废只是有点忙。攒了很多想写的东西，先填个拖了很久的坑：我这个博客是怎么搭起来的。&amp;nbsp;&amp;nbsp;&amp;nbsp; 总的来说，我的博客是由Github Pages维护，本地用Hexo管理的一个静态博客。这篇文里我将介绍搭建Github Pages+Hexo博客的过程。">
+<meta property="og:updated_time" content="2016-04-25T04:57:53.980Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="hexo博客搭建">
+<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 转眼三个多月没更博文了，并没有荒废只是有点忙。攒了很多想写的东西，先填个拖了很久的坑：我这个博客是怎么搭起来的。&amp;nbsp;&amp;nbsp;&amp;nbsp; 总的来说，我的博客是由Github Pages维护，本地用Hexo管理的一个静态博客。这篇文里我将介绍搭建Github Pages+Hexo博客的过程。">
+  
+    <link rel="alternative" href="/atom.xml" title="Hacking to the gate!" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" type="image/x-png" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <link href="//fonts.useso.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
+  
+</head>
+<body>
+<div id="container">
+  <div id="wrap">
+    <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hacking to the gate!</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">为了证明并非止步不前，为了安慰被神牛震慑的心。</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="http://www.baidu.com/baidu" method="get" accept-charset="utf-8" class="search-form">
+          <input type="search" name="word" maxlength="20" class="search-form-input" placeholder="Search">
+          <input type="submit" value="" class="search-form-submit">
+          <input name=tn type=hidden value="bds">
+          <input name=cl type=hidden value="3">
+          <input name=ct type=hidden value="2097152">
+          <input type="hidden" name="si" value="blog.bipedalbit.net">
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+    <div class="outer">
+      <section id="main"><article id="post-hexo博客搭建" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/4/24/hexo博客搭建/" class="article-date">
+  <time datetime="2016-04-24T13:02:39.000Z" itemprop="datePublished">2016-04-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/website/">website</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      hexo博客搭建
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>&nbsp;&nbsp;&nbsp; 转眼三个多月没更博文了，并没有荒废只是有点忙。攒了很多想写的东西，先填个拖了很久的坑：我这个博客是怎么搭起来的。<br>&nbsp;&nbsp;&nbsp; 总的来说，我的博客是由Github Pages维护，本地用Hexo管理的一个静态博客。这篇文里我将介绍搭建Github Pages+Hexo博客的过程。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; 在讲搭建流程之前需要铺垫一下，介绍几个基本概念，Github Pages、Hexo、域名和DNS服务。</p>
+<h3 id="Github-Pages"><a href="#Github-Pages" class="headerlink" title="Github Pages"></a>Github Pages</h3><p>&nbsp;&nbsp;&nbsp; 如果想搭建一个自己的博客，首先你需要一个7×24不间断服务的稳定服务器。一般来说，geek们不会自己买一个，我们可以租一个云服务器。有更好的选择吗？有。我们也可以找到一些免费的云空间，比如新浪的SAE（以后没准就不免费了），还有我要讲的Github Pages。Github Pages是Github（如果你不知道Github是什么可以自己百度，这里我不太想解释）提供的一项福利，帮助广大geek们维护一个静态网站空间。静态网站就是页面内容不会随着数据库中数据的变化而动态的发生变化的网站，各大购物网站都是典型的动态网站。通常个人博客主要包含静态内容，就算需要修改更新，手动处理也完全足够，评论系统除外，但评论系统可以用第三方插件。于是这里有了分歧，一部分人选择了自己管理评论系统的数据库，还想偶尔在网站上玩点酷炫的动态网站花活，比如挂个网页游戏或者弹幕播放器，他们需要一个完全控制的云服务器，如SAE、百度云、腾讯云、Linode、Conoha等等；另一部分人希望让博客单纯一点，静态网站是更好的选择，Github向每一个用户帐号免费提供一个静态网站空间。<br>&nbsp;&nbsp;&nbsp; Github Page使用起来很简单，它的<a href="https://pages.github.com/" target="_blank" rel="external">网站首页</a>上有讲解，其实就是在Github新建一个repository，命名为username.github.io，其中username为你的Github用户名。这个repository就是你的静态网站空间了，访问它可以使用刚才的username.github.io，也就是Github Pages的二级域名。如果你是Github的用户，接下来你一定知道怎么更新网站内容了。</p>
+<h3 id="Hexo"><a href="#Hexo" class="headerlink" title="Hexo"></a>Hexo</h3><p>&nbsp;&nbsp;&nbsp; Hexo是一个开源的静态博客生成器，用node.js开发，作者是台湾大学生tommy351。这里我要提一句，node.js不是js，是基于谷歌v8引擎（js解析引擎）开发的一种服务端语言，语法与js没有什么两样，可以在http协议外（使用socket.io包）实现区别于AJAX的服务器主动推，鼓吹面向过程、基于消息机制的函数异步处理特性。Hexo封装了不止一种对免费服务器空间的接口，其中也包括Github的。这篇文里我准备介绍的是Github Pages搭配Hexo的搭建方式。</p>
+<h3 id="域名与DNS"><a href="#域名与DNS" class="headerlink" title="域名与DNS"></a>域名与DNS</h3><p>&nbsp;&nbsp;&nbsp; 要怎么访问一个网站？你当然可以直接访问网站的IP地址，但是这不方便，大家一般都使用域名（Domain）。域名最右边的一节是域名后缀，通常用于标识域名类型，域名最右边的两节xxx.xxx作为一个整体通常表示一个顶级域名。它的左边可以再加若干节，如果加了，那些就都是顶级域名下的子域名了。为了完成特定域名（包括子域名）到特定IP的映射，需要一个DNS（Domain Name System）服务器，它将对特定域名的请求转发到特定的IP地址。</p>
+<h3 id="Github-Pages-Hexo环境搭建"><a href="#Github-Pages-Hexo环境搭建" class="headerlink" title="Github Pages+Hexo环境搭建"></a>Github Pages+Hexo环境搭建</h3><p>&nbsp;&nbsp;&nbsp; Hexo有一些依赖环境，但是它没有现成的安装包，开源项目嘛，无可厚非。首先你需要安装node.js环境，大家系统平台多种多样，怎么装就自己去<a href="http://nodejs.cn/" target="_blank" rel="external">node官网</a>上看吧；git客户端也是要装的，同理也自己去<a href="https://git-scm.com/downloads" target="_blank" rel="external">官网</a>看。此外我们还需要分发个SSH证书，就是把你计算机的公钥在Github帐号里复制一份，这样通过SSH方式连接Github时就可以验证你的身份，就不用输用户名密码了。而Hexo连接Github的方式就是走的SSH方式，所以这个步骤是必要的。win平台通常用SSH Client管理SSH连接，或者也可以用终端形式的putty或者SSH Secure Shell；Ubuntu下是<code>sudo apt-get install openssh-server</code>；CentOS下是<code>sudo yum install openssh-server</code>；Mac OS自带SSH客户端。私钥公钥生成和端口配置什么的我不是很想全都介绍，说个Ubuntu的吧，比较简单。<br>&nbsp;&nbsp;&nbsp; 没配git帐号的先配一下：</p>
+<pre><code>git config --global user.email &quot;你的邮箱&quot;
+git config --global user.name &quot;你的Github用户名&quot;
+</code></pre><p>&nbsp;&nbsp;&nbsp; 生成SSH密钥对：</p>
+<pre><code>ssh -keygen -t rsa -C&quot;前面配git时填过的邮箱&quot;
+</code></pre><p>&nbsp;&nbsp;&nbsp; 然后一路回车，然后你在<code>~/.ssh</code>目录下就有了id_rsa和id_rsa.pub两个文件，它们分别是你的私钥和公钥，你需要把私钥登记一下：</p>
+<pre><code>ssh-add id_rsa
+</code></pre><p>&nbsp;&nbsp;&nbsp; 接下来就是分发公钥了，你可以手动进id_rsa.pub复制公钥内容，也可以用系统工具复制：</p>
+<pre><code>xclip -selection c  ~/.ssh/id_rsa.pub
+</code></pre><p>&nbsp;&nbsp;&nbsp; 然后登录Github并<a href="https://github.com/settings/ssh" target="_blank" rel="external">Add SSH Key</a>，给新公钥起个名粘贴进去就好。然后测试一下：</p>
+<pre><code>ssh -T git@github.com
+</code></pre><p>&nbsp;&nbsp;&nbsp; 提示信息包含“successfully authenticated”就算成功了。如果有问题，可以重新设置，常见问题请参考：<br><a href="https://help.github.com/articles/generating-an-ssh-key/" target="_blank" rel="external">GitHub Help - Generating SSH Keys</a><br><a href="https://help.github.com/articles/error-permission-denied-publickey/" target="_blank" rel="external">GitHub Help - Error Permission denied (publickey)</a><br>&nbsp;&nbsp;&nbsp; 接下来是为node安装Hexo包：</p>
+<pre><code>npm install -g hexo
+</code></pre><p>&nbsp;&nbsp;&nbsp; Hexo封装了一些博客管理接口：</p>
+<pre><code>hexo init &lt;folder&gt;  # 初始化目录，可以指定目录地址，我更喜欢进入目录后hexo init一下
+hexo n &quot;title&quot; # 创建新文章，你会在/source/_post目录下找到包含title的新md文档，你可以编辑它
+hexo s # 在本地查起服务查看效果，默认是访问0.0.0.0:4000
+hexo g # 为博客重新生成静态页面
+hexo d # 同步到Github Pages空间
+</code></pre><h3 id="写博文"><a href="#写博文" class="headerlink" title="写博文"></a>写博文</h3><p>&nbsp;&nbsp;&nbsp; 前面提到过，<code>hexo n</code>之后我们就获得了一个新md文档，接下来你需要按照Markdown语法编辑这个文档。但Hexo的博文还需要包含一些必要内容以辅助页面关联及效果：</p>
+<pre><code>title: postName #文章页面上的显示名称，可以任意修改，不会出现在URL中
+date: 2016-4-25 11:30:16 #文章生成时间，一般不改，当然也可以任意修改
+categories: #文章分类目录，可以为空，注意:后面有个空格
+tags: #文章标签，可空，多标签请用格式[tag1,tag2,tag3]，注意:后面有个空格
+---
+摘要
+&lt;!--more--&gt;
+这里开始使用markdown格式输入你的正文。
+</code></pre><p>&nbsp;&nbsp;&nbsp; 至于Markdown语法，读者可以自行百度，网上很多。写完保存之后可以先<code>hexo s</code>一下，去0.0.0.0:4000看效果，如果觉得满意，再<code>hexo g</code>生成静态页面并<code>hexo d</code>同步到Github Pages。注意这里生成的整个静态网站页面都在/public子目录下，你完全可以起一个服务器把本地80口映射到这里。</p>
+<h3 id="主题安装"><a href="#主题安装" class="headerlink" title="主题安装"></a>主题安装</h3><p>&nbsp;&nbsp;&nbsp; Hexo迄今为止已经衍生出了很多主题，主题列表<a href="https://github.com/hexojs/hexo/wiki/Themes" target="_blank" rel="external">Hexo Themes</a>，我的博客使用的是<a href="https://github.com/xiangming/landscape-plus" target="_blank" rel="external">Landscape plus</a>，一个专为中国大陆用户做过调整的Hexo主题，别的Hexo主题读者可以自己百度一下。<code>hexo init</code>一个目录之后，把选定的主题<code>git clone</code>到Hexo目录的themes子目录下，然后编辑/_config.yml：</p>
+<pre><code>theme: themename
+</code></pre><p>&nbsp;&nbsp;&nbsp; 然后配置一下主题下的_config.yml：</p>
+<pre><code>menu: #配置页头显示哪些菜单
+#  Home: /
+  Archives: /archives
+  Reading: /reading
+  About: /about
+#  Guestbook: /about
+
+excerpt_link: Read More #摘要链接文字
+archive_yearly: false #按年存档
+
+widgets: #配置页脚显示哪些小挂件
+  - category
+#  - tag
+  - tagcloud
+  - recent_posts
+#  - blogroll
+
+blogrolls: #友情链接
+  - sitename: http://site.address
+  - sitename: http://site.address
+  - sitename: http://site.address
+
+fancybox: true #是否开启fancybox效果，就是文章开头加一个电子相册的感觉
+
+duoshuo_shortname: username #多说账号
+
+google_analytics:
+rss:
+</code></pre><p>&nbsp;&nbsp;&nbsp; 要更新主题只需要从Github拉取主题内容即可<code>cd themes/modernist</code>然后<code>git pull</code>。</p>
+<h3 id="评论插件"><a href="#评论插件" class="headerlink" title="评论插件"></a>评论插件</h3><p>&nbsp;&nbsp;&nbsp; 有很多免费的第三方评论插件提供商，你可以通过简单的配置使用他们的数据库管理你网站的评论数据，hexo默认集成的是Disqus，但是有GFW存在，所以我选择了国内的<a href="http://duoshuo.com/" target="_blank" rel="external">多说</a>。直接用你的微博/豆瓣/人人/百度/开心网帐号登录多说，做一下基本设置。你也可以在多说后台自定义一下多说评论框的格式，比如评论框的位置，对于css设置，可以<a href="http://dev.duoshuo.com/docs/4ff1cfd0397309552c000017" target="_blank" rel="external">参考这里</a>。如果你是有的其他第三方评论系统，将通用代码粘贴到/themes/themename/layout/_partial/comment.ejs里面：</p>
+<pre><code>&lt;% if (config.disqus_shortname &amp;&amp; page.comments){ %&gt;
+&lt;section id=&quot;comment&quot;&gt;
+  #你的通用代码
+&lt;% } %&gt;
+</code></pre><h3 id="域名配置"><a href="#域名配置" class="headerlink" title="域名配置"></a>域名配置</h3><p>&nbsp;&nbsp;&nbsp; 国内域名服务商有万网、腾讯、阿里、美橙等等，国外推荐<a href="http://www.godaddy.com" target="_blank" rel="external">狗爹（godaddy）</a>。<br>&nbsp;&nbsp;&nbsp; 买完域名你需要给域名指定DNS服务器。DNS服务商非常多，一般域名服务商和云主机服务商都提供DNS服务，我选择的是国内的<a href="http://www.dnspod.cn" target="_blank" rel="external">DNSPod</a>，免费的，提供监测网站状态功能，还挺好用。<br>&nbsp;&nbsp;&nbsp; 域名服务商和DNS服务商那边的配置它们各自网站都会提供教程，自己网站空间中给静态网站绑定域名很简单，在网站根目录放一个叫CNAME的文档，里面填上你的域名就行了。</p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a href="http://ibruce.info/2013/11/22/hexo-your-blog/" target="_blank" rel="external">http://ibruce.info/2013/11/22/hexo-your-blog/</a>（大大的教程写的真心详细，基本就是这篇领我进门）</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://blog.bipedalbit.net/2016/4/24/hexo博客搭建/" data-id="cinfedke70000rxj1gypmaogn" class="article-share-link" data-share="baidu" data-title="hexo博客搭建">分享到</a>
+      
+
+      
+        <a href="http://blog.bipedalbit.net/2016/4/24/hexo博客搭建/#ds-thread" class="article-comment-link">评论</a>
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DNS/">DNS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/domain/">domain</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/github/">github</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/">hexo</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2016/1/6/微博爬虫之代理池/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">微博爬虫之代理池</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+  <section id="comments">
+    <!-- 多说评论框 start -->
+      <div class="ds-thread" data-thread-key="2016/4/24/hexo博客搭建/" data-title="hexo博客搭建" data-url="http://blog.bipedalbit.net/2016/4/24/hexo博客搭建/"></div>
+    <!-- 多说评论框 end -->
+    <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+    <script type="text/javascript">
+    var duoshuoQuery = {short_name:"bipedalbit"};
+      (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+      })();
+      </script>
+    <!-- 多说公共JS代码 end -->
+  </section>
+</section>
+      
+      <aside id="sidebar">
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">about</h3>
+	<div class="widget">
+		<ul>
+			<li><strong>本&nbsp;体：</strong>张亦鹏</li><hr>
+			<li><strong>现&nbsp;状：</strong>帝都CS硕士在读</li><hr>
+			<li><strong>邮&nbsp;箱：</strong>me@bipedalbit.net</li><hr>
+			<li><strong>企&nbsp;鹅：</strong>236771817</li><hr>
+			<li><strong>框&nbsp;架：</strong>hexo</li><hr>
+			<li><strong>主&nbsp;题：</strong>landscape-plus</li><hr>
+			<li><strong>简&nbsp;介：</strong><br>&nbsp;&nbsp;&nbsp; C++ ACMer出身，C++出身自然也通Qt，好奇心经常如脱缰的野狗在荒原上撒欢，于是习得ASP.NET、JSP、PHP、Python、Node.js等一众流行技术，前端也姑且能一战。可惜一般都是填完坑就扔，水平大都停留在入门级别。依然死不悔改持续开坑中，逛着B站补着番，不时脑洞一开。以上，求同好。_(:3J ∠)_</li>
+		</ul>
+	</div>
+ </div>
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Qt/">Qt</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Sublime-Text/">Sublime Text</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/codeigniter/">codeigniter</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/node-js/">node.js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ubuntu/">ubuntu</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/website/">website</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/人机博弈/">人机博弈</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/AlphaBeta/" style="font-size: 12px;">AlphaBeta</a> <a href="/tags/BP神经网络/" style="font-size: 14px;">BP神经网络</a> <a href="/tags/C/" style="font-size: 18px;">C</a> <a href="/tags/C/" style="font-size: 20px;">C++</a> <a href="/tags/DNS/" style="font-size: 10px;">DNS</a> <a href="/tags/IIS7/" style="font-size: 10px;">IIS7</a> <a href="/tags/MTD-f/" style="font-size: 12px;">MTD(f)</a> <a href="/tags/Maxmin/" style="font-size: 10px;">Maxmin</a> <a href="/tags/PVS/" style="font-size: 10px;">PVS</a> <a href="/tags/Q-OBJECT/" style="font-size: 10px;">Q_OBJECT</a> <a href="/tags/Qt/" style="font-size: 12px;">Qt</a> <a href="/tags/Web请求处理机制/" style="font-size: 10px;">Web请求处理机制</a> <a href="/tags/apache/" style="font-size: 10px;">apache</a> <a href="/tags/apt-file/" style="font-size: 10px;">apt-file</a> <a href="/tags/bitset/" style="font-size: 10px;">bitset</a> <a href="/tags/c-11/" style="font-size: 10px;">c++11</a> <a href="/tags/cin/" style="font-size: 10px;">cin</a> <a href="/tags/codeigniter/" style="font-size: 10px;">codeigniter</a> <a href="/tags/cout/" style="font-size: 10px;">cout</a> <a href="/tags/debian/" style="font-size: 10px;">debian</a> <a href="/tags/domain/" style="font-size: 10px;">domain</a> <a href="/tags/epoll/" style="font-size: 10px;">epoll</a> <a href="/tags/github/" style="font-size: 12px;">github</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/makefile/" style="font-size: 10px;">makefile</a> <a href="/tags/nginx/" style="font-size: 20px;">nginx</a> <a href="/tags/ngx-int-t/" style="font-size: 10px;">ngx_int_t</a> <a href="/tags/node-js/" style="font-size: 12px;">node.js</a> <a href="/tags/php/" style="font-size: 10px;">php</a> <a href="/tags/printf/" style="font-size: 10px;">printf</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/pybrain/" style="font-size: 10px;">pybrain</a> <a href="/tags/python/" style="font-size: 18px;">python</a> <a href="/tags/rbtree/" style="font-size: 14px;">rbtree</a> <a href="/tags/scanf/" style="font-size: 10px;">scanf</a> <a href="/tags/select-poll/" style="font-size: 10px;">select/poll</a> <a href="/tags/signal-slot/" style="font-size: 10px;">signal-slot</a> <a href="/tags/socket-io/" style="font-size: 10px;">socket.io</a> <a href="/tags/static/" style="font-size: 10px;">static</a> <a href="/tags/sublime/" style="font-size: 10px;">sublime</a> <a href="/tags/ubuntu/" style="font-size: 10px;">ubuntu</a> <a href="/tags/vector-lt-bool-gt/" style="font-size: 10px;">vector&lt;bool&gt;</a> <a href="/tags/事件驱动模型/" style="font-size: 10px;">事件驱动模型</a> <a href="/tags/人工神经网络/" style="font-size: 12px;">人工神经网络</a> <a href="/tags/人机博弈/" style="font-size: 12px;">人机博弈</a> <a href="/tags/位域/" style="font-size: 10px;">位域</a> <a href="/tags/内存分布/" style="font-size: 10px;">内存分布</a> <a href="/tags/同步-异步/" style="font-size: 10px;">同步/异步</a> <a href="/tags/多线程/" style="font-size: 10px;">多线程</a> <a href="/tags/机器学习/" style="font-size: 16px;">机器学习</a> <a href="/tags/模拟登录/" style="font-size: 10px;">模拟登录</a> <a href="/tags/类脑/" style="font-size: 10px;">类脑</a> <a href="/tags/网络爬虫/" style="font-size: 14px;">网络爬虫</a> <a href="/tags/进制转换/" style="font-size: 10px;">进制转换</a> <a href="/tags/阻塞-非阻塞/" style="font-size: 10px;">阻塞/非阻塞</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">八月 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">六月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">近期文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/4/24/hexo博客搭建/">hexo博客搭建</a>
+          </li>
+        
+          <li>
+            <a href="/2016/1/6/微博爬虫之代理池/">微博爬虫之代理池</a>
+          </li>
+        
+          <li>
+            <a href="/2016/1/2/weibo-cn模拟登录器的python重构/">weibo.cn模拟登录器的python重构</a>
+          </li>
+        
+          <li>
+            <a href="/2015/12/28/python练手之微博爬虫/">python练手之微博爬虫</a>
+          </li>
+        
+          <li>
+            <a href="/2015/12/5/由人工神经网络和类脑现状展开/">由人工神经网络和类脑现状展开</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">友情链接</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="https://github.com/bipedalBit" target="_blank">Bipedal Bit的Git</a>
+          </li>
+        
+          <li>
+            <a href="http://bipedalbit.sinaapp.com" target="_blank">Bipedal Bit的SAE实验室</a>
+          </li>
+        
+          <li>
+            <a href="http://blog.csdn.net/bipedal_bit" target="_blank">Bipedal Bit的CSDN博客</a>
+          </li>
+        
+          <li>
+            <a href="http://blog.sina.com.cn/u/2374285604" target="_blank">Bipedal Bit的新浪博客</a>
+          </li>
+        
+          <li>
+            <a href="http://xiguabaobao.com" target="_blank">主题作者</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&ptype=1&speed=0&skin=5&isTitle=1&noborder=1&isWeibo=1&isFans=1&uid=2374285604&verifier=91f284c4&dpc=1"></iframe>
+  
+</aside>
+      
+    </div>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Bipedal Bit<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      .
+      Theme by <a href="https://github.com/xiangming/landscape-plus" target="_blank">Landscape-plus</a>
+    </div>
+  </div>
+</footer>
+  </div>
+  <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+  <!-- totop start -->
+<div id="totop">
+<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+</div>
+
+<!-- totop end -->
+
+<!-- 多说公共js代码 start -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"bipedalbit"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+     || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+  </script>
+<!-- 多说公共js代码 end -->
+
+
+<!-- 百度分享 start -->
+
+<div id="article-share-box" class="article-share-box">
+  <div id="bdshare" class="bdsharebuttonbox article-share-links">
+    <a class="article-share-weibo" data-cmd="tsina" title="分享到新浪微博"></a>
+    <a class="article-share-weixin" data-cmd="weixin" title="分享到微信"></a>
+    <a class="article-share-qq" data-cmd="sqq" title="分享到QQ"></a>
+    <a class="article-share-renren" data-cmd="renren" title="分享到人人网"></a>
+    <a class="article-share-more" data-cmd="more" title="更多"></a>
+  </div>
+</div>
+<script>
+  function SetShareData(cmd, config) {
+    if (shareDataTitle && shareDataUrl) {
+      config.bdText = shareDataTitle;
+      config.bdUrl = shareDataUrl;
+    }
+    return config;
+  }
+  window._bd_share_config={
+    "common":{onBeforeClick: SetShareData},
+    "share":{"bdCustomStyle":"/css/bdshare.css"}
+  };
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+<!-- 百度分享 end -->
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+</div>
+</body>
+</html>
