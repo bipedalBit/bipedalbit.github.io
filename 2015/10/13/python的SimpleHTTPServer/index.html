@@ -12,7 +12,7 @@
 <meta property="og:url" content="http://blog.bipedalbit.net/2015/10/13/python的SimpleHTTPServer/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
 <meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; Linux下想要给局域网的其他终端共享文件大家一般会怎么做？是开个Nginx服务器或者Apache服务器？还是装个开源的FTP软件？其实还有更便捷的原生办法。">
-<meta property="og:updated_time" content="2015-10-13T10:04:42.089Z">
+<meta property="og:updated_time" content="2016-04-25T08:21:26.188Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="python的SimpleHTTPServer">
 <meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; Linux下想要给局域网的其他终端共享文件大家一般会怎么做？是开个Nginx服务器或者Apache服务器？还是装个开源的FTP软件？其实还有更便捷的原生办法。">
@@ -98,13 +98,29 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&nbsp;&nbsp;&nbsp; Linux下想要给局域网的其他终端共享文件大家一般会怎么做？是开个Nginx服务器或者Apache服务器？还是装个开源的FTP软件？其实还有更便捷的原生办法。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; Linux一般都预装了python，有个神奇的python命令：<br>&nbsp;&nbsp;&nbsp; <code>python -m SimpleHTTPServer 80</code><br>&nbsp;&nbsp;&nbsp; 读者可以试试发生了什么，没错，正如命令的字面意思，本地80口被开了个简易的HTTP服务器。如果当前文件夹下没有主页，局域网终端就可以通过本地IP访问本机并看到到执行该命令的当前文件夹下的文件目录了，接下来只要通过浏览器就可以下载本机的文件。<br>&nbsp;&nbsp;&nbsp; 不知道读者准备怎么使用这个命令，我有时候会忘记这个命令的一些细节所以选择把这个命令写成一个shell脚本，需要共享哪个文件夹就把脚本拖到哪里运行一下。<br>&nbsp;&nbsp;&nbsp; 如果想看这个python命令更详细的介绍可以参阅<a href="https://docs.python.org/2/library/simplehttpserver.html" target="_blank" rel="external">python官方文档</a>。</p>
-
+        <p>&nbsp;&nbsp;&nbsp; Linux下想要给局域网的其他终端共享文件大家一般会怎么做？是开个Nginx服务器或者Apache服务器？还是装个开源的FTP软件？其实还有更便捷的原生办法。<br><a id="more"></a><br>&nbsp;&nbsp;&nbsp; Linux一般都预装了python，有个神奇的python命令：<br>&nbsp;&nbsp;&nbsp; <code>python -m SimpleHTTPServer 80</code><br>&nbsp;&nbsp;&nbsp; 读者可以试试发生了什么，没错，正如命令的字面意思，本地80口被开了个简易的HTTP服务器。如果当前文件夹下没有主页，局域网终端就可以通过本地IP访问本机并看到到执行该命令的当前文件夹下的文件目录了，接下来只要通过浏览器就可以下载本机的文件。<br>&nbsp;&nbsp;&nbsp; 不知道读者准备怎么使用这个命令，我有时候会忘记这个命令的一些细节所以选择把这个命令写成一个shell脚本，需要共享哪个文件夹就把脚本拖到哪里运行一下。<br>&nbsp;&nbsp;&nbsp; 如果想看这个python命令更详细的介绍可以参阅<a href="https://docs.python.org/2/library/simplehttpserver.html" target="_blank" rel="external">python官方文档</a>。<br>&nbsp;&nbsp;&nbsp; 我的脚本也挂出来吧，应该只在debian系统下好用，仅供参考：</p>
+<pre><code>#!/bin/bash
+route=`route|grep default`
+route=${route##*&apos; &apos;}
+if [[ &quot;$route&quot; == usb* ]]; then
+    echo 正在使用usb共享网络。
+elif [[ &quot;$route&quot; == wlan* ]]; then
+    echo 正在使用无线网络。
+elif [[ &quot;$route&quot; == eth* ]]; then
+    echo 正在使用有线网络。
+else
+    echo 正在使用其他网络。
+fi
+ip=`ifconfig $route|grep &apos;inet &apos;|cut -d&apos;:&apos; -f2|cut -d&apos; &apos; -f1`
+echo 局域网ip地址：$ip
+echo 现在你可以从其他终端通过地址 http://$ip:2333/ 访问当前目录。
+python -m SimpleHTTPServer 2333
+</code></pre>
       
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/13/python的SimpleHTTPServer/" data-id="cinflodp4003fdjj1r925rgbl" class="article-share-link" data-share="baidu" data-title="python的SimpleHTTPServer">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/13/python的SimpleHTTPServer/" data-id="cinfqj4oz003maij1km75nc3j" class="article-share-link" data-share="baidu" data-title="python的SimpleHTTPServer">分享到</a>
       
 
       
