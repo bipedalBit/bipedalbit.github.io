@@ -73,6 +73,59 @@
     <div class="outer">
       <section id="main">
   
+    <article id="post-C-的位优化" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/12/1/C-的位优化/" class="article-date">
+  <time datetime="2015-12-01T02:53:29.000Z" itemprop="datePublished">2015-12-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/C/">C++</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/12/1/C-的位优化/">C++的位优化</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>&nbsp;&nbsp;&nbsp; 之前的中国象棋初版重在实现，老实说不论是时空效率还是健壮性都不太拿得出手，于是导师要求继续优化改进。考虑和调查过后，时间效率上可以借助之前设想的并行计算得到小幅优化，此外使用类似bool数组的手段也可以在走法生成器中小幅优化边界判断过程，最重要的时间效率优化手段是把博弈机改造成查表器，即以查表为主博弈为辅改变重心。以上都是时间效率优化，这篇文中暂且不展开，我的中国象棋初版在搜索深度大时（大于等于４层）开始出现程序崩溃的现象，暴露了空间效率问题。作为空间效率优化的铺垫，这次我来做个C++位优化的自科普。<br>
+        
+          <p class="article-more-link">
+            <a href="/2015/12/1/C-的位优化/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://blog.bipedalbit.net/2015/12/1/C-的位优化/" data-id="cinyco71d001tzlj1g1edlhfj" class="article-share-link" data-share="baidu" data-title="C++的位优化">分享到</a>
+      
+
+      
+        <a href="http://blog.bipedalbit.net/2015/12/1/C-的位优化/#ds-thread" class="article-comment-link">评论</a>
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/bitset/">bitset</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vector-lt-bool-gt/">vector&lt;bool&gt;</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/位域/">位域</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-中国象棋人机博弈实现练习" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2015/11/15/中国象棋人机博弈实现练习/" class="article-date">
@@ -109,7 +162,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/11/15/中国象棋人机博弈实现练习/" data-id="cinfqj4og001zaij1fv6kcoir" class="article-share-link" data-share="baidu" data-title="中国象棋人机博弈实现练习">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/11/15/中国象棋人机博弈实现练习/" data-id="cinyco71g0024zlj1po9eaqn1" class="article-share-link" data-share="baidu" data-title="中国象棋人机博弈实现练习">分享到</a>
       
 
       
@@ -162,7 +215,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/11/14/人机博弈初探/" data-id="cinfqj4oi002baij1a6oi8rn3" class="article-share-link" data-share="baidu" data-title="人机博弈初探">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/11/14/人机博弈初探/" data-id="cinyco71j002gzlj162ow9tg3" class="article-share-link" data-share="baidu" data-title="人机博弈初探">分享到</a>
       
 
       
@@ -215,7 +268,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/19/解决依赖问题的利器——apt-file/" data-id="cinfqj4ov0036aij1y8ir1u9b" class="article-share-link" data-share="baidu" data-title="解决依赖问题的利器——apt-file">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/19/解决依赖问题的利器——apt-file/" data-id="cinyco71w003bzlj143850q6m" class="article-share-link" data-share="baidu" data-title="解决依赖问题的利器——apt-file">分享到</a>
       
 
       
@@ -268,7 +321,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/17/C-多线程初探——c-11篇/" data-id="cinfqj4ox003faij1ex7dkd21" class="article-share-link" data-share="baidu" data-title="C++多线程初探——c++11篇">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/17/C-多线程初探——c-11篇/" data-id="cinyco71y003kzlj1wjav5ssd" class="article-share-link" data-share="baidu" data-title="C++多线程初探——c++11篇">分享到</a>
       
 
       
@@ -321,7 +374,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/13/python的SimpleHTTPServer/" data-id="cinfqj4oz003maij1km75nc3j" class="article-share-link" data-share="baidu" data-title="python的SimpleHTTPServer">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/13/python的SimpleHTTPServer/" data-id="cinyco722003rzlj1w7miqpxa" class="article-share-link" data-share="baidu" data-title="python的SimpleHTTPServer">分享到</a>
       
 
       
@@ -374,7 +427,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/13/BP神经网络的python（pybrain库）实现/" data-id="cinfqj4p2003paij16k9c1753" class="article-share-link" data-share="baidu" data-title="BP神经网络的python（pybrain库）实现">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/13/BP神经网络的python（pybrain库）实现/" data-id="cinyco724003uzlj1vgq7drvc" class="article-share-link" data-share="baidu" data-title="BP神经网络的python（pybrain库）实现">分享到</a>
       
 
       
@@ -383,59 +436,6 @@
 
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BP神经网络/">BP神经网络</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pybrain/">pybrain</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-BP神经网络的C-实现" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2015/10/11/BP神经网络的C-实现/" class="article-date">
-  <time datetime="2015-10-10T16:28:00.000Z" itemprop="datePublished">2015-10-11</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/机器学习/">机器学习</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/10/11/BP神经网络的C-实现/">BP神经网络的C++实现</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>&nbsp;&nbsp;&nbsp; 之前说了组里的任务是手写BP神经网络，上一篇文总结了一下BP神经网络的概念，老实说，总结概念前的一个C++实现版本在总结概念之后重新审视时觉得实在是惨不忍睹，于是今晚回炉重写了。这篇文就来挂我的BP神经网络C++实现。<br>
-        
-          <p class="article-more-link">
-            <a href="/2015/10/11/BP神经网络的C-实现/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://blog.bipedalbit.net/2015/10/11/BP神经网络的C-实现/" data-id="cinfqj4p5003waij1t8gco88e" class="article-share-link" data-share="baidu" data-title="BP神经网络的C++实现">分享到</a>
-      
-
-      
-        <a href="http://blog.bipedalbit.net/2015/10/11/BP神经网络的C-实现/#ds-thread" class="article-comment-link">评论</a>
-      
-
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BP神经网络/">BP神经网络</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
 
     </footer>
   </div>
@@ -472,7 +472,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Qt/">Qt</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Sublime-Text/">Sublime Text</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/codeigniter/">codeigniter</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/node-js/">node.js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ubuntu/">ubuntu</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/website/">website</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/人机博弈/">人机博弈</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">4</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Qt/">Qt</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Sublime-Text/">Sublime Text</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/codeigniter/">codeigniter</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/node-js/">node.js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ubuntu/">ubuntu</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/website/">website</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/人机博弈/">人机博弈</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">4</span></li></ul>
     </div>
   </div>
 
@@ -481,7 +481,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/AlphaBeta/" style="font-size: 11.67px;">AlphaBeta</a> <a href="/tags/BP神经网络/" style="font-size: 13.33px;">BP神经网络</a> <a href="/tags/C/" style="font-size: 16.67px;">C</a> <a href="/tags/C/" style="font-size: 18.33px;">C++</a> <a href="/tags/DNS/" style="font-size: 10px;">DNS</a> <a href="/tags/IIS7/" style="font-size: 10px;">IIS7</a> <a href="/tags/MTD-f/" style="font-size: 11.67px;">MTD(f)</a> <a href="/tags/Maxmin/" style="font-size: 10px;">Maxmin</a> <a href="/tags/PVS/" style="font-size: 10px;">PVS</a> <a href="/tags/Q-OBJECT/" style="font-size: 10px;">Q_OBJECT</a> <a href="/tags/Qt/" style="font-size: 11.67px;">Qt</a> <a href="/tags/Web请求处理机制/" style="font-size: 10px;">Web请求处理机制</a> <a href="/tags/apache/" style="font-size: 10px;">apache</a> <a href="/tags/apt-file/" style="font-size: 10px;">apt-file</a> <a href="/tags/bitset/" style="font-size: 10px;">bitset</a> <a href="/tags/c-11/" style="font-size: 10px;">c++11</a> <a href="/tags/cin/" style="font-size: 10px;">cin</a> <a href="/tags/codeigniter/" style="font-size: 10px;">codeigniter</a> <a href="/tags/cout/" style="font-size: 10px;">cout</a> <a href="/tags/debian/" style="font-size: 10px;">debian</a> <a href="/tags/domain/" style="font-size: 10px;">domain</a> <a href="/tags/dropbox/" style="font-size: 10px;">dropbox</a> <a href="/tags/epoll/" style="font-size: 10px;">epoll</a> <a href="/tags/github/" style="font-size: 11.67px;">github</a> <a href="/tags/hexo/" style="font-size: 11.67px;">hexo</a> <a href="/tags/makefile/" style="font-size: 10px;">makefile</a> <a href="/tags/nginx/" style="font-size: 20px;">nginx</a> <a href="/tags/ngx-int-t/" style="font-size: 10px;">ngx_int_t</a> <a href="/tags/node-js/" style="font-size: 11.67px;">node.js</a> <a href="/tags/php/" style="font-size: 10px;">php</a> <a href="/tags/printf/" style="font-size: 10px;">printf</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/pybrain/" style="font-size: 10px;">pybrain</a> <a href="/tags/python/" style="font-size: 16.67px;">python</a> <a href="/tags/rbtree/" style="font-size: 13.33px;">rbtree</a> <a href="/tags/scanf/" style="font-size: 10px;">scanf</a> <a href="/tags/select-poll/" style="font-size: 10px;">select/poll</a> <a href="/tags/signal-slot/" style="font-size: 10px;">signal-slot</a> <a href="/tags/socket-io/" style="font-size: 10px;">socket.io</a> <a href="/tags/static/" style="font-size: 10px;">static</a> <a href="/tags/sublime/" style="font-size: 10px;">sublime</a> <a href="/tags/ubuntu/" style="font-size: 10px;">ubuntu</a> <a href="/tags/vector-lt-bool-gt/" style="font-size: 10px;">vector&lt;bool&gt;</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/事件驱动模型/" style="font-size: 10px;">事件驱动模型</a> <a href="/tags/人工神经网络/" style="font-size: 11.67px;">人工神经网络</a> <a href="/tags/人机博弈/" style="font-size: 11.67px;">人机博弈</a> <a href="/tags/位域/" style="font-size: 10px;">位域</a> <a href="/tags/内存分布/" style="font-size: 10px;">内存分布</a> <a href="/tags/同步-异步/" style="font-size: 10px;">同步/异步</a> <a href="/tags/多线程/" style="font-size: 10px;">多线程</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/模拟登录/" style="font-size: 10px;">模拟登录</a> <a href="/tags/类脑/" style="font-size: 10px;">类脑</a> <a href="/tags/网络爬虫/" style="font-size: 13.33px;">网络爬虫</a> <a href="/tags/进制转换/" style="font-size: 10px;">进制转换</a> <a href="/tags/阻塞-非阻塞/" style="font-size: 10px;">阻塞/非阻塞</a>
+      <a href="/tags/AlphaBeta/" style="font-size: 11.43px;">AlphaBeta</a> <a href="/tags/BP神经网络/" style="font-size: 12.86px;">BP神经网络</a> <a href="/tags/C/" style="font-size: 15.71px;">C</a> <a href="/tags/C/" style="font-size: 18.57px;">C++</a> <a href="/tags/DNS/" style="font-size: 10px;">DNS</a> <a href="/tags/IIS7/" style="font-size: 10px;">IIS7</a> <a href="/tags/MTD-f/" style="font-size: 11.43px;">MTD(f)</a> <a href="/tags/Maxmin/" style="font-size: 10px;">Maxmin</a> <a href="/tags/PVS/" style="font-size: 10px;">PVS</a> <a href="/tags/Q-OBJECT/" style="font-size: 10px;">Q_OBJECT</a> <a href="/tags/Qt/" style="font-size: 11.43px;">Qt</a> <a href="/tags/Web请求处理机制/" style="font-size: 10px;">Web请求处理机制</a> <a href="/tags/apache/" style="font-size: 10px;">apache</a> <a href="/tags/apt-file/" style="font-size: 10px;">apt-file</a> <a href="/tags/bitset/" style="font-size: 10px;">bitset</a> <a href="/tags/c-11/" style="font-size: 10px;">c++11</a> <a href="/tags/cin/" style="font-size: 10px;">cin</a> <a href="/tags/codeigniter/" style="font-size: 10px;">codeigniter</a> <a href="/tags/cout/" style="font-size: 10px;">cout</a> <a href="/tags/debian/" style="font-size: 10px;">debian</a> <a href="/tags/domain/" style="font-size: 10px;">domain</a> <a href="/tags/dropbox/" style="font-size: 10px;">dropbox</a> <a href="/tags/epoll/" style="font-size: 10px;">epoll</a> <a href="/tags/ffmpeg/" style="font-size: 10px;">ffmpeg</a> <a href="/tags/github/" style="font-size: 11.43px;">github</a> <a href="/tags/hexo/" style="font-size: 11.43px;">hexo</a> <a href="/tags/makefile/" style="font-size: 10px;">makefile</a> <a href="/tags/nginx/" style="font-size: 20px;">nginx</a> <a href="/tags/ngx-int-t/" style="font-size: 10px;">ngx_int_t</a> <a href="/tags/node-js/" style="font-size: 11.43px;">node.js</a> <a href="/tags/php/" style="font-size: 10px;">php</a> <a href="/tags/printf/" style="font-size: 10px;">printf</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/pybrain/" style="font-size: 10px;">pybrain</a> <a href="/tags/python/" style="font-size: 17.14px;">python</a> <a href="/tags/rbtree/" style="font-size: 12.86px;">rbtree</a> <a href="/tags/scanf/" style="font-size: 10px;">scanf</a> <a href="/tags/select-poll/" style="font-size: 10px;">select/poll</a> <a href="/tags/signal-slot/" style="font-size: 10px;">signal-slot</a> <a href="/tags/socket-io/" style="font-size: 10px;">socket.io</a> <a href="/tags/static/" style="font-size: 10px;">static</a> <a href="/tags/sublime/" style="font-size: 10px;">sublime</a> <a href="/tags/ubuntu/" style="font-size: 10px;">ubuntu</a> <a href="/tags/vector-lt-bool-gt/" style="font-size: 10px;">vector&lt;bool&gt;</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/事件驱动模型/" style="font-size: 10px;">事件驱动模型</a> <a href="/tags/人工神经网络/" style="font-size: 11.43px;">人工神经网络</a> <a href="/tags/人机博弈/" style="font-size: 11.43px;">人机博弈</a> <a href="/tags/位域/" style="font-size: 10px;">位域</a> <a href="/tags/内存分布/" style="font-size: 10px;">内存分布</a> <a href="/tags/同步-异步/" style="font-size: 10px;">同步/异步</a> <a href="/tags/多线程/" style="font-size: 10px;">多线程</a> <a href="/tags/机器学习/" style="font-size: 14.29px;">机器学习</a> <a href="/tags/模拟登录/" style="font-size: 10px;">模拟登录</a> <a href="/tags/类脑/" style="font-size: 10px;">类脑</a> <a href="/tags/网络爬虫/" style="font-size: 12.86px;">网络爬虫</a> <a href="/tags/进制转换/" style="font-size: 10px;">进制转换</a> <a href="/tags/阻塞-非阻塞/" style="font-size: 10px;">阻塞/非阻塞</a>
     </div>
   </div>
 
@@ -490,7 +490,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">八月 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">六月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">八月 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">六月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -500,6 +500,10 @@
     <h3 class="widget-title">近期文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2016/5/8/FFmpeg批量抓帧脚本/">FFmpeg批量抓帧脚本</a>
+          </li>
         
           <li>
             <a href="/2016/4/25/利用Dropbox实现实时同步的静态站/">利用Dropbox实现实时同步的静态站</a>
@@ -515,10 +519,6 @@
         
           <li>
             <a href="/2016/1/2/weibo-cn模拟登录器的python重构/">weibo.cn模拟登录器的python重构</a>
-          </li>
-        
-          <li>
-            <a href="/2015/12/28/python练手之微博爬虫/">python练手之微博爬虫</a>
           </li>
         
       </ul>
