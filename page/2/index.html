@@ -73,112 +73,6 @@
     <div class="outer">
       <section id="main">
   
-    <article id="post-C-的位优化" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2015/12/1/C-的位优化/" class="article-date">
-  <time datetime="2015-12-01T02:53:29.000Z" itemprop="datePublished">2015-12-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/C/">C++</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/12/1/C-的位优化/">C++的位优化</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>&nbsp;&nbsp;&nbsp; 之前的中国象棋初版重在实现，老实说不论是时空效率还是健壮性都不太拿得出手，于是导师要求继续优化改进。考虑和调查过后，时间效率上可以借助之前设想的并行计算得到小幅优化，此外使用类似bool数组的手段也可以在走法生成器中小幅优化边界判断过程，最重要的时间效率优化手段是把博弈机改造成查表器，即以查表为主博弈为辅改变重心。以上都是时间效率优化，这篇文中暂且不展开，我的中国象棋初版在搜索深度大时（大于等于４层）开始出现程序崩溃的现象，暴露了空间效率问题。作为空间效率优化的铺垫，这次我来做个C++位优化的自科普。<br>
-        
-          <p class="article-more-link">
-            <a href="/2015/12/1/C-的位优化/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://blog.bipedalbit.net/2015/12/1/C-的位优化/" data-id="cipum8mgh0022sej1f32661kf" class="article-share-link" data-share="baidu" data-title="C++的位优化">分享到</a>
-      
-
-      
-        <a href="http://blog.bipedalbit.net/2015/12/1/C-的位优化/#ds-thread" class="article-comment-link">评论</a>
-      
-
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/bitset/">bitset</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vector-lt-bool-gt/">vector&lt;bool&gt;</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/位域/">位域</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-中国象棋人机博弈实现练习" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2015/11/15/中国象棋人机博弈实现练习/" class="article-date">
-  <time datetime="2015-11-15T13:54:03.000Z" itemprop="datePublished">2015-11-15</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/人机博弈/">人机博弈</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/11/15/中国象棋人机博弈实现练习/">中国象棋人机博弈实现练习</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>&nbsp;&nbsp;&nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集大成者。但是等把MTD(f)实现完，发现里面一层就是个AlphaBeta，于是AlphaBeta的搜索核心作为副产品也存在于实现成果中了。<br>
-        
-          <p class="article-more-link">
-            <a href="/2015/11/15/中国象棋人机博弈实现练习/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://blog.bipedalbit.net/2015/11/15/中国象棋人机博弈实现练习/" data-id="cipum8mgk002dsej1ey9wnel2" class="article-share-link" data-share="baidu" data-title="中国象棋人机博弈实现练习">分享到</a>
-      
-
-      
-        <a href="http://blog.bipedalbit.net/2015/11/15/中国象棋人机博弈实现练习/#ds-thread" class="article-comment-link">评论</a>
-      
-
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AlphaBeta/">AlphaBeta</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MTD-f/">MTD(f)</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Qt/">Qt</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/人机博弈/">人机博弈</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
     <article id="post-人机博弈初探" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2015/11/14/人机博弈初探/" class="article-date">
@@ -215,7 +109,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/11/14/人机博弈初探/" data-id="cipum8mgm002psej128ehjexm" class="article-share-link" data-share="baidu" data-title="人机博弈初探">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/11/14/人机博弈初探/" data-id="cipv32r0n002p9kj1ynf24rg7" class="article-share-link" data-share="baidu" data-title="人机博弈初探">分享到</a>
       
 
       
@@ -268,7 +162,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/19/解决依赖问题的利器——apt-file/" data-id="cipum8mgz003ksej1j1ys7njp" class="article-share-link" data-share="baidu" data-title="解决依赖问题的利器——apt-file">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/19/解决依赖问题的利器——apt-file/" data-id="cipv32r0x003k9kj1l7mfkx65" class="article-share-link" data-share="baidu" data-title="解决依赖问题的利器——apt-file">分享到</a>
       
 
       
@@ -321,7 +215,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/17/C-多线程初探——c-11篇/" data-id="cipum8mh3003tsej167vms9lp" class="article-share-link" data-share="baidu" data-title="C++多线程初探——c++11篇">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/17/C-多线程初探——c-11篇/" data-id="cipv32r13003t9kj13mqluj7g" class="article-share-link" data-share="baidu" data-title="C++多线程初探——c++11篇">分享到</a>
       
 
       
@@ -374,7 +268,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/13/python的SimpleHTTPServer/" data-id="cipum8mh50040sej1pu5dbz4x" class="article-share-link" data-share="baidu" data-title="python的SimpleHTTPServer">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/13/python的SimpleHTTPServer/" data-id="cipv32r1500409kj1z5a8h32d" class="article-share-link" data-share="baidu" data-title="python的SimpleHTTPServer">分享到</a>
       
 
       
@@ -427,7 +321,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/13/BP神经网络的python（pybrain库）实现/" data-id="cipum8mh70043sej18joxp6zb" class="article-share-link" data-share="baidu" data-title="BP神经网络的python（pybrain库）实现">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/13/BP神经网络的python（pybrain库）实现/" data-id="cipv32r1700439kj1rd793ax9" class="article-share-link" data-share="baidu" data-title="BP神经网络的python（pybrain库）实现">分享到</a>
       
 
       
@@ -480,7 +374,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/11/BP神经网络的C-实现/" data-id="cipum8mha004asej1gagw2eul" class="article-share-link" data-share="baidu" data-title="BP神经网络的C++实现">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/11/BP神经网络的C-实现/" data-id="cipv32r19004a9kj1dy2dutwu" class="article-share-link" data-share="baidu" data-title="BP神经网络的C++实现">分享到</a>
       
 
       
@@ -489,6 +383,218 @@
 
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BP神经网络/">BP神经网络</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-BP神经网络" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/10/9/BP神经网络/" class="article-date">
+  <time datetime="2015-10-09T04:45:11.000Z" itemprop="datePublished">2015-10-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/机器学习/">机器学习</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/10/9/BP神经网络/">BP神经网络</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>&nbsp;&nbsp;&nbsp; 组里要求新人手写个BP神经网络练练手先，具体要求是用一个平面把空间点集二分类，建模时我发现这个问题比起分类来更接近一个多元函数拟合，当然分类也不是不行，机器学习的要求更低，更容易有更好的结果。这都是后话，这篇文我决定先来总结一下BP神经网络的概念，也算是前几天的学习笔记了。<br>
+        
+          <p class="article-more-link">
+            <a href="/2015/10/9/BP神经网络/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://blog.bipedalbit.net/2015/10/9/BP神经网络/" data-id="cipv32r0q002y9kj1iojccr36" class="article-share-link" data-share="baidu" data-title="BP神经网络">分享到</a>
+      
+
+      
+        <a href="http://blog.bipedalbit.net/2015/10/9/BP神经网络/#ds-thread" class="article-comment-link">评论</a>
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BP神经网络/">BP神经网络</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/人工神经网络/">人工神经网络</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-C-二进制-十进制转换器" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/10/8/C-二进制-十进制转换器/" class="article-date">
+  <time datetime="2015-10-08T14:05:52.000Z" itemprop="datePublished">2015-10-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/C/">C++</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/10/8/C-二进制-十进制转换器/">C++二进制-十进制转换器</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>&nbsp;&nbsp;&nbsp; 布置了二进制-十进制转换器的小作业，本来还要求顺手扩展一下大数的四则运算，我嫌麻烦没做扩展，就只是写来玩玩。也算熟悉一下底层的二进制-十进制转换机制，顺便复习下C++源码规范。注释写了很多，就不多做解释了，只贴代码。<br>
+        
+          <p class="article-more-link">
+            <a href="/2015/10/8/C-二进制-十进制转换器/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://blog.bipedalbit.net/2015/10/8/C-二进制-十进制转换器/" data-id="cipv32r0s00349kj11epuj4zh" class="article-share-link" data-share="baidu" data-title="C++二进制-十进制转换器">分享到</a>
+      
+
+      
+        <a href="http://blog.bipedalbit.net/2015/10/8/C-二进制-十进制转换器/#ds-thread" class="article-comment-link">评论</a>
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/进制转换/">进制转换</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-C-cin、cout的优化及测评" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/10/8/C-cin、cout的优化及测评/" class="article-date">
+  <time datetime="2015-10-08T11:56:46.000Z" itemprop="datePublished">2015-10-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/C/">C++</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/10/8/C-cin、cout的优化及测评/">C++ cin、cout的优化及测评</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>&nbsp;&nbsp;&nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降低了执行效率。那么可能挽回这种效率损失吗？答案是可以。<br>
+        
+          <p class="article-more-link">
+            <a href="/2015/10/8/C-cin、cout的优化及测评/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://blog.bipedalbit.net/2015/10/8/C-cin、cout的优化及测评/" data-id="cipv32r0u00399kj1rbughewr" class="article-share-link" data-share="baidu" data-title="C++ cin、cout的优化及测评">分享到</a>
+      
+
+      
+        <a href="http://blog.bipedalbit.net/2015/10/8/C-cin、cout的优化及测评/#ds-thread" class="article-comment-link">评论</a>
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cin/">cin</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cout/">cout</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/printf/">printf</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scanf/">scanf</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-nginx之回头补课" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/9/30/nginx之回头补课/" class="article-date">
+  <time datetime="2015-09-30T04:50:34.000Z" itemprop="datePublished">2015-09-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/nginx/">nginx</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/9/30/nginx之回头补课/">nginx之回头补课</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>&nbsp;&nbsp;&nbsp; 最近买了苗泽的那本《Nginx高性能Web服务器详解》，准备系统地学习下Nginx相关的知识。于是在二次科普的过程中发现之前对Nginx的一些理解和认识被刷新细化了。特此发文总结补课。<br>
+        
+          <p class="article-more-link">
+            <a href="/2015/9/30/nginx之回头补课/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://blog.bipedalbit.net/2015/9/30/nginx之回头补课/" data-id="cipv32r1c004f9kj147rdff85" class="article-share-link" data-share="baidu" data-title="nginx之回头补课">分享到</a>
+      
+
+      
+        <a href="http://blog.bipedalbit.net/2015/9/30/nginx之回头补课/#ds-thread" class="article-comment-link">评论</a>
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web请求处理机制/">Web请求处理机制</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nginx/">nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/事件驱动模型/">事件驱动模型</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/同步-异步/">同步/异步</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/阻塞-非阻塞/">阻塞/非阻塞</a></li></ul>
 
     </footer>
   </div>
@@ -516,7 +622,9 @@
 			<li><strong>企&nbsp;鹅：</strong>236771817</li><hr>
 			<li><strong>框&nbsp;架：</strong>hexo</li><hr>
 			<li><strong>主&nbsp;题：</strong>landscape-plus</li><hr>
-			<li><strong>简&nbsp;介：</strong><br>&nbsp;&nbsp;&nbsp; C++ ACMer出身，C++出身自然也通Qt，好奇心经常如脱缰的野狗在荒原上撒欢，于是习得ASP.NET、JSP、PHP、Python、Node.js等一众流行技术，前端也姑且能一战。可惜一般都是填完坑就扔，水平大都停留在入门级别。依然死不悔改持续开坑中，逛着B站补着番，不时脑洞一开。以上，求同好。_(:3J ∠)_</li>
+			<li><strong>简&nbsp;介：</strong><br>&nbsp;&nbsp;&nbsp; C++ ACMer出身，C++出身自然也通Qt，好奇心经常如脱缰的野狗在荒原上撒欢，于是习得ASP.NET、JSP、PHP、Python、Node.js等一众流行技术，前端也姑且能一战。可惜一般都是填完坑就扔，水平大都停留在入门级别。依然死不悔改持续开坑中，逛着B站补着番，不时脑洞一开。以上，求同好。_(:3J ∠)_</li><hr>
+			<img src="http://7xnd0v.com1.z0.glb.clouddn.com/二维码/alipayQRCode.jpg" alt="二维码没刷出来" style="padding:10px; width:220px;height:220px;border:5px solid;-moz-border-radius:15px;-webkit-border-radius:15px;border-radius:15px;"/><br>
+			<div style="text-align:center;font-size:24px;font-style:bold;">欢迎打赏。</div>
 		</ul>
 	</div>
  </div>
@@ -618,7 +726,7 @@
           </li>
         
           <li>
-            <a href="http://codemiracle.cnblogs.com" target="_blank">兵神</a>
+            <a href="http://system128.com" target="_blank">兵神</a>
           </li>
         
           <li>
@@ -723,5 +831,6 @@ var duoshuoQuery = {short_name:"bipedalbit"};
 <script src="/js/script.js" type="text/javascript"></script>
 
 </div>
+<a href="https://github.com/bipedalbit"><img style="position: absolute; top: 0; left: 0; border: 0;z-index:9999;" src="https://camo.githubusercontent.com/8b6b8ccc6da3aa5722903da7b58eb5ab1081adee/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_orange_ff7600.png"></a>
 </body>
 </html>
