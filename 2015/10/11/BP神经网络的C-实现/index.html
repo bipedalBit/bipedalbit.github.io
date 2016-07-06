@@ -12,7 +12,7 @@
 <meta property="og:url" content="http://blog.bipedalbit.net/2015/10/11/BP神经网络的C-实现/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
 <meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前说了组里的任务是手写BP神经网络，上一篇文总结了一下BP神经网络的概念，老实说，总结概念前的一个C++实现版本在总结概念之后重新审视时觉得实在是惨不忍睹，于是今晚回炉重写了。这篇文就来挂我的BP神经网络C++实现。">
-<meta property="og:updated_time" content="2015-10-12T07:42:25.318Z">
+<meta property="og:updated_time" content="2016-07-06T11:38:16.986Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="BP神经网络的C++实现">
 <meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前说了组里的任务是手写BP神经网络，上一篇文总结了一下BP神经网络的概念，老实说，总结概念前的一个C++实现版本在总结概念之后重新审视时觉得实在是惨不忍睹，于是今晚回炉重写了。这篇文就来挂我的BP神经网络C++实现。">
@@ -751,12 +751,13 @@ int main()
 26.9126    -26.9519
 -24.7905    24.8209
 </code></pre><p>&nbsp;&nbsp;&nbsp; 这个类我还做过a+b问题的函数拟合，收敛非常顺利，精度很高。<br>&nbsp;&nbsp;&nbsp; <strong>后来，例会上提任务的博士说他明明是要我们寻找分割点集的平面，我把问题泛化成寻找点与平面位置关系规则的问题了，能用泛化能力不太强的BP整的差不多收敛也是不容易。我表示生无可恋……</strong></p>
+<p>&nbsp;&nbsp;&nbsp; <strong>读者注意一下，上一篇BP网络的理论介绍中，隐层与输入层之间的权重调整值的推导有一些问题，少乘了一个wij。推导已经改过来了，但是比较忙没空改代码，有需要的同学请自己参照上一篇博文修改一下代码。OTZ</strong></p>
 
       
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://blog.bipedalbit.net/2015/10/11/BP神经网络的C-实现/" data-id="cipxoijtm004a2cj1mlz71sob" class="article-share-link" data-share="baidu" data-title="BP神经网络的C++实现">分享到</a>
+        <a data-url="http://blog.bipedalbit.net/2015/10/11/BP神经网络的C-实现/" data-id="ciqat9wbt004azmj1go1tvc8i" class="article-share-link" data-share="baidu" data-title="BP神经网络的C++实现">分享到</a>
       
 
       
