@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://blog.bipedalbit.net</id>
+    <title>Hacking to the gate! • Posts by &#34;c++11&#34; tag</title>
+    <link href="https://blog.bipedalbit.net" />
+    <updated>2015-10-17T06:58:22.000Z</updated>
+    <category term="Qt" />
+    <category term="signal-slot" />
+    <category term="Q_OBJECT" />
+    <category term="nginx" />
+    <category term="select/poll" />
+    <category term="epoll" />
+    <category term="ngx_int_t" />
+    <category term="rbtree" />
+    <category term="C" />
+    <category term="static" />
+    <category term="内存分布" />
+    <category term="sublime" />
+    <category term="C++" />
+    <category term="makefile" />
+    <category term="node.js" />
+    <category term="github" />
+    <category term="socket.io" />
+    <category term="Web请求处理机制" />
+    <category term="同步/异步" />
+    <category term="阻塞/非阻塞" />
+    <category term="事件驱动模型" />
+    <category term="BP神经网络" />
+    <category term="机器学习" />
+    <category term="python" />
+    <category term="pybrain" />
+    <category term="c++11" />
+    <category term="多线程" />
+    <category term="ubuntu" />
+    <category term="debian" />
+    <category term="apt-file" />
+    <category term="cin" />
+    <category term="cout" />
+    <category term="scanf" />
+    <category term="printf" />
+    <category term="进制转换" />
+    <category term="人工神经网络" />
+    <category term="人机博弈" />
+    <category term="Maxmin" />
+    <category term="AlphaBeta" />
+    <category term="PVS" />
+    <category term="MTD(f)" />
+    <category term="位域" />
+    <category term="bitset" />
+    <category term="vector&amp;lt;bool&amp;gt;" />
+    <category term="网络爬虫" />
+    <category term="类脑" />
+    <category term="codeigniter" />
+    <category term="php" />
+    <category term="IIS7" />
+    <category term="apache" />
+    <category term="模拟登录" />
+    <category term="proxy" />
+    <category term="domain" />
+    <category term="DNS" />
+    <category term="hexo" />
+    <category term="vps" />
+    <category term="dropbox" />
+    <category term="ffmpeg" />
+    <category term="板绘" />
+    <category term="sai" />
+    <category term="琪露诺" />
+    <category term="LLM" />
+    <category term="ollama" />
+    <category term="open-webui" />
+    <category term="oneapi" />
+    <category term="mcpserver" />
+    <entry>
+        <id>https://blog.bipedalbit.net/2015/10/17/C-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%88%9D%E6%8E%A2%E2%80%94%E2%80%94c-11%E7%AF%87/</id>
+        <title>C++多线程初探——c++11篇</title>
+        <link rel="alternate" href="https://blog.bipedalbit.net/2015/10/17/C-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%88%9D%E6%8E%A2%E2%80%94%E2%80%94c-11%E7%AF%87/"/>
+        <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 今天被说C++出身的猿不会多线程跟不会C++有什么分别，于是放下刚到手的Go和R的书，痛定思痛准备来给自己补补课。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; C++新标准c++11出现之前（虽然“新”标准已经发布好几年了），大家用C++写多线程通常有两种方式：Unix&amp;#x2F;Linux下通常使用POSIX标准的pthread.h库，pthread并不是语言本身提供的内置库，gcc编译带pthread的程序时需要加上&lt;code&gt;-lpthread&lt;/code&gt;标识参数；Windows下，win系列系统提供了一些线程API，但是由于gcc&amp;#x2F;g++等编译器的跨平台性，其实也可以在win下使用pthread。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 然而2011年夏天，c++11标准发布了，新C++有了许多方便的新特性，其中就包括内置的，对多线程的支持。gcc 4.6及以前的版本编译c++11标准的多线程程序时还要加&lt;code&gt;-pthread&lt;/code&gt;标识参数（注意与pthread库的&lt;code&gt;-lpthread&lt;/code&gt;参数的区别）。后来也默认的支持新C++的内置多线程了，实测gcc 4.8.4除了&lt;code&gt;-std=c++11&lt;/code&gt;不加别的参数，能够顺利编译运行c++11的多线程程序。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 铺垫了这么多，下面就先来试试c++11的多线程吧。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; helloWorld.cpp：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;/* c++11线程类的所在，下面的std::thread和std::this_thread都在其中 */
+#include &amp;lt;thread&amp;gt;
+#include &amp;lt;iostream&amp;gt;
+using namespace std;
+
+void thread_task()
+&amp;#123;
+	cout &amp;lt;&amp;lt; &amp;quot;Hello world! My thread ID is &amp;quot; &amp;lt;&amp;lt; this_thread::get_id() &amp;lt;&amp;lt; endl;
+&amp;#125;
+
+int main(int argc, char const *argv[])
+&amp;#123;
+	// 主线程测试
+	/* get_id函数是thread类和this_thread类的成员，获取线程ID */
+	cout &amp;lt;&amp;lt; &amp;quot;I&amp;#39;m the main thread. My thread ID is &amp;quot; &amp;lt;&amp;lt; this_thread::get_id() &amp;lt;&amp;lt; endl;
+	// 子线程测试
+	/* 构造子线程时指派线程任务函数指针 */
+	thread t1(thread_task);
+	thread t2(thread_task);
+	thread t3(thread_task);
+	/* 主线程创建子线程 */
+	t1.join();
+	t2.join();
+	t3.join();
+
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 最简单的多线程测试看起来运行的很顺利。下面我们稍微详细一点研究下std::thread的&lt;a href=&#34;http://www.cplusplus.com/reference/thread/thread/&#34;&gt;官方文档&lt;/a&gt;。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;thread::id：thread下面有个子类型thread::id，表示线程ID。是thread::get_id和this_thread::get_id的返回值。thread::id的构造函数返回一个non-joinable（不代表任何一个线程，即不与任何一个未终止的线程对应的ID相等）的线程ID。一个活跃的线程的ID会在线程终止后变成non-joinable线程ID。&lt;/li&gt;
+&lt;li&gt;thread类的构造有4种形式：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;thread::thread()：默认构造函数，即不带参数的构造函数。构造一个非活跃（不可执行）的线程对象。&lt;/li&gt;
+&lt;li&gt;thread::thread (Fn&amp;amp;&amp;amp; fn, Args&amp;amp;&amp;amp;… args)：初始化构造函数，即带足够多参数，足以初始化一个线程的构造函数。初始化构造函数的参数列表包括一个函数指针和这个函数的参数列表。利用迟邦定技术，构造过程与对函数副本的请求同步完成。&lt;/li&gt;
+&lt;li&gt;复制构造函数，即从一个线程对象复制而得到一个新的线程对象。实际上，线程对象不允许被复制。&lt;/li&gt;
+&lt;li&gt;thread::thread (thread&amp;amp;&amp;amp; x)：移动构造函数，即重新给指定线程分配一个对象（句柄），并释放原来的线程对象（句柄）。注意这并不影响原线程的执行，因为只是释放了对象（句柄），而没有分离原进程、释放资源。参数只有原线程对象。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;thread::~thread()：如果一个活跃线程被释放，首先会调用terminal()方法停止线程的执行。&lt;/li&gt;
+&lt;li&gt;thread::operator&amp;#x3D;(thread&amp;amp;&amp;amp; rhs)：作用相当于移动构造函数，原线程句柄被释放，返回一个更换句柄的线程对象。&lt;/li&gt;
+&lt;li&gt;thread::get_id()：如果方法的目标线程对象是活跃的，生成一个唯一的ID并返回；如果调用方法的线程对象非活跃，先调用线程的默认构造函数生成一个non-joinable线程对象，然后生成一个唯一的ID并返回。&lt;/li&gt;
+&lt;li&gt;thread::joinable()：joinable方法的唯一参数为一个线程ID，它的bool型返回值代表这个线程ID是否对应一个活跃的线程。this_thread下并没有这个方法，因为当前线程如果不为活跃线程，它将不能完成任何线程任务，即不能调用任何方法。&lt;/li&gt;
+&lt;li&gt;thread::join()：这个方法将阻塞调用方法的线程（主线程），直到目标线程中的操作全部完成。这个方法返回之后，目标线程对象的状态就变为非活跃并可以被安全的释放了。换句话说，这个方法定义了一组线程同步关系。&lt;/li&gt;
+&lt;li&gt;thread::detach()：应该有读者注意到了，detach是join的反义词，该方法的作用是从调用线程（主线程）中分离目标线程，让目标线程可以独立并行执行。调用detach方法后两个线程（调用线程和目标线程）都不会被阻塞或者被同步，而是会并行执行直到各自完成所有操作，谁完成执行谁就释放自己的资源，互不影响。（不是我啰嗦，文档原文就是这么说的）这个方法返回之后，目标线程对象的状态就变为非活跃并可以被安全的释放了。换句话说，这个方法定义了一组线程异步关系。&lt;/li&gt;
+&lt;li&gt;thread::swap(thread&amp;amp; x)：文档原文说是交换两个线程对象的&lt;strong&gt;状态&lt;/strong&gt;，我表示不明白状态是指什么。实验表明应该是交换了线程与对象（句柄）的映射关系。thread类还重载了一个面向过程风格的swap方法版本：&lt;code&gt;void swap (thread&amp;amp; x, thread&amp;amp; y)&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;thread::hardware_concurrency()：这是个静态成员函数，返回一个无符号整型，返回一个大概的（不一定准确，因为系统可以支持或限制每个进程创建的线程数）基于硬件的最大并行线程数。如果这个试图返回的值没有被系统很好的定义，返回0。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; thread头文件中还有一个与thread并列的&lt;a href=&#34;http://www.cplusplus.com/reference/thread/this_thread/&#34;&gt;this_thread类&lt;/a&gt;，this_thread类非常简单，除了get_id方法只有另外三个方法：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;this_thread::yield()：顾名思义，使当前线程退让，从执行状态变为就绪状态，使同优先级的线程有机会被重新调度进入执行状态。如果当前进程没什么毛病那么使它退让并没有太大意义，甚至可能不会造成事实上的线程执行顺序变化。yield方法应该在当前线程忙等别的线程而又没有被阻塞时执行。&lt;/li&gt;
+&lt;li&gt;this_thread::sleep_until(const chrono::time_point&amp;lt;Clock,Duration&amp;gt;&amp;amp; abs_time)：阻塞当前线程直到特定时间点，使当前线程至少等待到特定时间点后继续执行，参数是一种特定格式的时间点数据。&lt;/li&gt;
+&lt;li&gt;this_thread::sleep_for(const chrono::duration&amp;lt;Rep,Period&amp;gt;&amp;amp; rel_time)：阻塞当前线程一段时间，使当前线程至少等待特定时长后继续执行，参数是一种特定格式的时间段数据。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 其实c++11标准下，除了thread，还有其他四个用来支持多线程的辅助头文件：&lt;a href=&#34;http://www.cplusplus.com/reference/atomic/&#34;&gt;atomic&lt;/a&gt;、&lt;a href=&#34;http://www.cplusplus.com/reference/mutex/&#34;&gt;mutex&lt;/a&gt;、&lt;a href=&#34;http://www.cplusplus.com/reference/condition_variable/&#34;&gt;condition_variable&lt;/a&gt;、&lt;a href=&#34;http://www.cplusplus.com/reference/future/&#34;&gt;future&lt;/a&gt;。前三个很好理解，分别提供封装好的原子数据类型、互斥锁设备和条件值，future头文件里提供的是一些对分享的数据资源进行竞争的必须设备（我很迷茫头文件为什么不干脆叫share而是叫future这个让人摸不着头脑的名字）。如果读者熟悉操作系统或者进程调度，一定不会对前面这些东西感到陌生。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我们不难管中窥豹猜测多线程的实质，操作系统实现了完善的进程调度，而同样的事情我们要自己对线程再做一遍。线程的调度（包括同步异步、资源调配等等）也就是多线程编程具体要做的事。（还一片茫然的读者请去看任意一本操作系统课本前两三章的样子补补课）&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这篇文主要是科普，入门，建立概念，复杂的多线程实现练习之后再慢慢做，当然也会发文的。下一篇文我准备再科普一下POSIX标准的多线程编程，即pthread库的多线程编程。是的，我不打算研究win下的多线程API了，直言不讳的说，我对Windows有偏见。&lt;/p&gt;
+</content>
+        <category term="C++" />
+        <category term="c++11" />
+        <category term="多线程" />
+        <updated>2015-10-17T06:58:22.000Z</updated>
+    </entry>
+</feed>

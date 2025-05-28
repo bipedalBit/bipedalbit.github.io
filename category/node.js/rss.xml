@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+    <channel>
+        <title>Hacking to the gate! • Posts by &#34;node.js&#34; category</title>
+        <link>https://blog.bipedalbit.net</link>
+        <description>Bipedal Bit&#39;s blog</description>
+        <language>zh-CN</language>
+        <pubDate>Sat, 12 Sep 2015 22:44:25 +0800</pubDate>
+        <lastBuildDate>Sat, 12 Sep 2015 22:44:25 +0800</lastBuildDate>
+        <category>Qt</category>
+        <category>signal-slot</category>
+        <category>Q_OBJECT</category>
+        <category>nginx</category>
+        <category>select/poll</category>
+        <category>epoll</category>
+        <category>ngx_int_t</category>
+        <category>rbtree</category>
+        <category>C</category>
+        <category>static</category>
+        <category>内存分布</category>
+        <category>sublime</category>
+        <category>C++</category>
+        <category>makefile</category>
+        <category>node.js</category>
+        <category>github</category>
+        <category>socket.io</category>
+        <category>Web请求处理机制</category>
+        <category>同步/异步</category>
+        <category>阻塞/非阻塞</category>
+        <category>事件驱动模型</category>
+        <category>BP神经网络</category>
+        <category>机器学习</category>
+        <category>python</category>
+        <category>pybrain</category>
+        <category>c++11</category>
+        <category>多线程</category>
+        <category>ubuntu</category>
+        <category>debian</category>
+        <category>apt-file</category>
+        <category>cin</category>
+        <category>cout</category>
+        <category>scanf</category>
+        <category>printf</category>
+        <category>进制转换</category>
+        <category>人工神经网络</category>
+        <category>人机博弈</category>
+        <category>Maxmin</category>
+        <category>AlphaBeta</category>
+        <category>PVS</category>
+        <category>MTD(f)</category>
+        <category>位域</category>
+        <category>bitset</category>
+        <category>vector&amp;lt;bool&amp;gt;</category>
+        <category>网络爬虫</category>
+        <category>类脑</category>
+        <category>codeigniter</category>
+        <category>php</category>
+        <category>IIS7</category>
+        <category>apache</category>
+        <category>模拟登录</category>
+        <category>proxy</category>
+        <category>domain</category>
+        <category>DNS</category>
+        <category>hexo</category>
+        <category>vps</category>
+        <category>dropbox</category>
+        <category>ffmpeg</category>
+        <category>板绘</category>
+        <category>sai</category>
+        <category>琪露诺</category>
+        <category>LLM</category>
+        <category>ollama</category>
+        <category>open-webui</category>
+        <category>oneapi</category>
+        <category>mcpserver</category>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/09/12/socket-io%E9%82%80%E8%AF%B7%E5%88%B6%E5%B8%A6%E7%99%BB%E5%BD%95%E8%81%8A%E5%A4%A9%E5%AE%A4%E5%AE%9E%E4%BE%8B%E3%80%90DRRR-chat-room%E3%80%91/</guid>
+            <title>socket.io邀请制带登录聊天室实例【DRRR-chat-room】</title>
+            <link>https://blog.bipedalbit.net/2015/09/12/socket-io%E9%82%80%E8%AF%B7%E5%88%B6%E5%B8%A6%E7%99%BB%E5%BD%95%E8%81%8A%E5%A4%A9%E5%AE%A4%E5%AE%9E%E4%BE%8B%E3%80%90DRRR-chat-room%E3%80%91/</link>
+            <category>node.js</category>
+            <category>github</category>
+            <category>socket.io</category>
+            <pubDate>Sat, 12 Sep 2015 22:44:25 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;strong&gt;写个博文其实也没什么特别要说的。研究node.js的过程中扩展了socket.io的聊天室demo，仿制了一个动漫DRRR（无头骑士异闻录）中的聊天室。使用邀请制，即注册需要提供邀请码。头一次在GitHub建项目：&lt;a href=&#34;https://github.com/bipedalBit/DRRR-chat-room&#34;&gt;DRRR-chat-room&lt;/a&gt;。下个项目可能是用socket.io做一个真·实时弹幕站，尽请期待。&lt;/strong&gt;&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/09/06/node-js%E7%9A%84-Cannot-enqueue-Handshake-after-invoking-quit-%E9%94%99%E8%AF%AF/</guid>
+            <title>node.js的&#39;Cannot enqueue Handshake after invoking quit&#39;错误</title>
+            <link>https://blog.bipedalbit.net/2015/09/06/node-js%E7%9A%84-Cannot-enqueue-Handshake-after-invoking-quit-%E9%94%99%E8%AF%AF/</link>
+            <category>node.js</category>
+            <pubDate>Sun, 06 Sep 2015 18:11:25 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 今天用node.js做无刷新聊天室的时候遇到”Error: Cannot enqueue Handshake after invoking quit.”的问题，在Stack Overflow被点化了。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;figure class=&#34;highlight javascript&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;26&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;27&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;28&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;29&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;30&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;31&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;32&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;33&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;34&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;35&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;36&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;37&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;38&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;39&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;40&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;41&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;42&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;43&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;44&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;45&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;46&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;47&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;48&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;49&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;50&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;51&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;52&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;53&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;54&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs javascript&#34;&gt;&lt;span class=&#34;hljs-variable language_&#34;&gt;module&lt;/span&gt;.&lt;span class=&#34;hljs-property&#34;&gt;exports&lt;/span&gt; = &amp;#123;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;getDataFromUserGps&lt;/span&gt;: &lt;span class=&#34;hljs-keyword&#34;&gt;function&lt;/span&gt;(&lt;span class=&#34;hljs-params&#34;&gt;callback&lt;/span&gt;)&lt;br&gt;    &amp;#123;&lt;br&gt;        connection.&lt;span class=&#34;hljs-title function_&#34;&gt;connect&lt;/span&gt;();&lt;br&gt;        connection.&lt;span class=&#34;hljs-title function_&#34;&gt;query&lt;/span&gt;(&lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;SELECT * FROM usergps&amp;quot;&lt;/span&gt;,&lt;br&gt;            &lt;span class=&#34;hljs-keyword&#34;&gt;function&lt;/span&gt;(&lt;span class=&#34;hljs-params&#34;&gt;err, results, fields&lt;/span&gt;) &amp;#123;&lt;br&gt;                &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (err) &lt;span class=&#34;hljs-keyword&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;hljs-title function_&#34;&gt;callback&lt;/span&gt;(err, &lt;span class=&#34;hljs-literal&#34;&gt;null&lt;/span&gt;);&lt;br&gt;                &lt;span class=&#34;hljs-keyword&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;hljs-title function_&#34;&gt;callback&lt;/span&gt;(&lt;span class=&#34;hljs-literal&#34;&gt;null&lt;/span&gt;, results);&lt;br&gt;            &amp;#125;&lt;br&gt;        );&lt;br&gt;        connection.&lt;span class=&#34;hljs-title function_&#34;&gt;end&lt;/span&gt;();&lt;br&gt;    &amp;#125;,&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;loginUser&lt;/span&gt;: &lt;span class=&#34;hljs-keyword&#34;&gt;function&lt;/span&gt;(&lt;span class=&#34;hljs-params&#34;&gt;login, pass, callback&lt;/span&gt;)&lt;br&gt;    &amp;#123;&lt;br&gt;        connection.&lt;span class=&#34;hljs-title function_&#34;&gt;connect&lt;/span&gt;();&lt;br&gt;        connection.&lt;span class=&#34;hljs-title function_&#34;&gt;query&lt;/span&gt;(&lt;br&gt;            &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;SELECT id FROM users WHERE login = ? AND pass = ?&amp;quot;&lt;/span&gt;,&lt;br&gt;            [login, pass],&lt;br&gt;            &lt;span class=&#34;hljs-keyword&#34;&gt;function&lt;/span&gt;(&lt;span class=&#34;hljs-params&#34;&gt;err, results, fields&lt;/span&gt;)&lt;br&gt;            &amp;#123;&lt;br&gt;                &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (err) &lt;span class=&#34;hljs-keyword&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;hljs-title function_&#34;&gt;callback&lt;/span&gt;(err, &lt;span class=&#34;hljs-literal&#34;&gt;null&lt;/span&gt;);&lt;br&gt;                &lt;span class=&#34;hljs-keyword&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;hljs-title function_&#34;&gt;callback&lt;/span&gt;(&lt;span class=&#34;hljs-literal&#34;&gt;null&lt;/span&gt;, results);&lt;br&gt;            &amp;#125;&lt;br&gt;        );&lt;br&gt;        connection.&lt;span class=&#34;hljs-title function_&#34;&gt;end&lt;/span&gt;();&lt;br&gt;    &amp;#125;,&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;getUserDetails&lt;/span&gt;: &lt;span class=&#34;hljs-keyword&#34;&gt;function&lt;/span&gt;(&lt;span class=&#34;hljs-params&#34;&gt;userid, callback&lt;/span&gt;)&lt;br&gt;    &amp;#123;&lt;br&gt;        connection.&lt;span class=&#34;hljs-title function_&#34;&gt;connect&lt;/span&gt;();&lt;br&gt;        connection.&lt;span class=&#34;hljs-title function_&#34;&gt;query&lt;/span&gt;(&lt;br&gt;            &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;SELECT * FROM userProfilDetails LEFT JOIN tags ON userProfilDetails.userId = tags.userId WHERE userProfilDetails.userid = ?&amp;quot;&lt;/span&gt;,&lt;br&gt;            [userid],&lt;br&gt;            &lt;span class=&#34;hljs-keyword&#34;&gt;function&lt;/span&gt;(&lt;span class=&#34;hljs-params&#34;&gt;err, results, fields&lt;/span&gt;)&lt;br&gt;            &amp;#123;&lt;br&gt;                &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (err) &lt;span class=&#34;hljs-keyword&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;hljs-title function_&#34;&gt;callback&lt;/span&gt;(err, &lt;span class=&#34;hljs-literal&#34;&gt;null&lt;/span&gt;);&lt;br&gt;                &lt;span class=&#34;hljs-keyword&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;hljs-title function_&#34;&gt;callback&lt;/span&gt;(&lt;span class=&#34;hljs-literal&#34;&gt;null&lt;/span&gt;, results);&lt;br&gt;            &amp;#125;&lt;br&gt;        );&lt;br&gt;        connection.&lt;span class=&#34;hljs-title function_&#34;&gt;end&lt;/span&gt;();&lt;br&gt;    &amp;#125;,&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;addTags&lt;/span&gt;: &lt;span class=&#34;hljs-keyword&#34;&gt;function&lt;/span&gt;(&lt;span class=&#34;hljs-params&#34;&gt;userId, tags&lt;/span&gt;)&lt;br&gt;    &amp;#123;&lt;br&gt;        connection.&lt;span class=&#34;hljs-title function_&#34;&gt;connect&lt;/span&gt;();&lt;br&gt;        connection.&lt;span class=&#34;hljs-title function_&#34;&gt;query&lt;/span&gt;(&lt;br&gt;            &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;INSERT INTO tag (userId, tag) VALUES (?, ?)&amp;quot;&lt;/span&gt;,&lt;br&gt;            [userId, tags],&lt;br&gt;            &lt;span class=&#34;hljs-keyword&#34;&gt;function&lt;/span&gt;(&lt;span class=&#34;hljs-params&#34;&gt;err, results, fields&lt;/span&gt;)&lt;br&gt;            &amp;#123;&lt;br&gt;                &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (err) &lt;span class=&#34;hljs-keyword&#34;&gt;throw&lt;/span&gt; err;&lt;br&gt;            &amp;#125;&lt;br&gt;        )&lt;br&gt;        connection.&lt;span class=&#34;hljs-title function_&#34;&gt;end&lt;/span&gt;();&lt;br&gt;    &amp;#125;&lt;br&gt;&amp;#125;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 一开始运行一切正常，但当我执行第二个&amp;quot;query&amp;quot;的时候，会报这个错：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;code&gt;Cannot enqueue Handshake after invoking quit&lt;/code&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我试过一直不用.end()方法关掉连接，然并卵。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 先谢过。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; Radex&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;strong&gt;&lt;span style=&#34;color:#FF0000;&#34;&gt;那些瞎解答和水贴的我就不翻译了。&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;根据:&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;Fixing Node Mysql &amp;quot;Error: Cannot enqueue Handshake after invoking quit.&amp;quot;:&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;a href=&#34;http://codetheory.in/fixing-node-mysql-error-cannot-enqueue-handshake-after-invoking-quit/&#34;&gt;http://codetheory.in/fixing-node-mysql-error-cannot-enqueue-handshake-after-invoking-quit/&lt;/a&gt;&lt;br&gt;的&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;strong&gt;TL;DR&lt;/strong&gt; &lt;code&gt;每次关掉连接之后你都需要用createConnection方法创建一个新连接。&lt;/code&gt;&lt;br&gt;以及&lt;br&gt;&lt;strong&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; Note:&lt;/strong&gt; 如果你是在伺服web请求，你就不该在每次请求处理完时关掉连接了。服务器启动时创建一个连接，然后一直用connection&amp;#x2F;client对象查询就好。要处理服务器断开和重连事件时你可以监听错误事件。完整代码：&lt;a target=&#34;_blank&#34; href=&#34;https://github.com/felixge/node-mysql#server-disconnects&#34;&gt;here&lt;/a&gt;.&lt;br&gt;又根据:&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; Readme.md - Server disconnects:&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;a href=&#34;https://github.com/felixge/node-mysql#server-disconnects&#34;&gt;https://github.com/felixge/node-mysql#server-disconnects&lt;/a&gt;&lt;br&gt;里边说&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;h2&gt;Server disconnects&lt;/h2&gt;
+你可能因为网络问题、服务器超时或者服务器挂了而失去与MySQL服务器的连接。 所有这些情况都被视为&amp;quot;fatal error&amp;quot;，而且会有一个错误代码 &lt;code&gt;err.code = &#39;PROTOCOL_CONNECTION_LOST&#39;&lt;/code&gt;。想了解更多可以看看错误处理章节。
+
+&lt;p&gt;处理这些不被期望的连接断开的最佳方式如下:&lt;/p&gt;
+&lt;figure class=&#34;highlight javascript&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs javascript&#34;&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;hljs-title function_&#34;&gt;handleDisconnect&lt;/span&gt;(&lt;span class=&#34;hljs-params&#34;&gt;connection&lt;/span&gt;) &amp;#123;&lt;br&gt;    connection.&lt;span class=&#34;hljs-title function_&#34;&gt;on&lt;/span&gt;(&lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;error&amp;#x27;&lt;/span&gt;, &lt;span class=&#34;hljs-keyword&#34;&gt;function&lt;/span&gt;(&lt;span class=&#34;hljs-params&#34;&gt;err&lt;/span&gt;) &amp;#123;&lt;br&gt;        &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (!err.&lt;span class=&#34;hljs-property&#34;&gt;fatal&lt;/span&gt;) &amp;#123;&lt;br&gt;          &lt;span class=&#34;hljs-keyword&#34;&gt;return&lt;/span&gt;;&lt;br&gt;        &amp;#125;&lt;br&gt;        &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (err.&lt;span class=&#34;hljs-property&#34;&gt;code&lt;/span&gt; !== &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;PROTOCOL_CONNECTION_LOST&amp;#x27;&lt;/span&gt;) &amp;#123;&lt;br&gt;          &lt;span class=&#34;hljs-keyword&#34;&gt;throw&lt;/span&gt; err;&lt;br&gt;        &amp;#125;&lt;br&gt;        &lt;span class=&#34;hljs-variable language_&#34;&gt;console&lt;/span&gt;.&lt;span class=&#34;hljs-title function_&#34;&gt;log&lt;/span&gt;(&lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;Re-connecting lost connection: &amp;#x27;&lt;/span&gt; + err.&lt;span class=&#34;hljs-property&#34;&gt;stack&lt;/span&gt;);&lt;br&gt;        connection = mysql.&lt;span class=&#34;hljs-title function_&#34;&gt;createConnection&lt;/span&gt;(connection.&lt;span class=&#34;hljs-property&#34;&gt;config&lt;/span&gt;);&lt;br&gt;        &lt;span class=&#34;hljs-title function_&#34;&gt;handleDisconnect&lt;/span&gt;(connection);&lt;br&gt;        connection.&lt;span class=&#34;hljs-title function_&#34;&gt;connect&lt;/span&gt;();&lt;br&gt;    &amp;#125;);&lt;br&gt;&amp;#125;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-title function_&#34;&gt;handleDisconnect&lt;/span&gt;(connection);&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 如上例所示，重连是通过创建一个新连接的方式达成的，因为连接对象被设计成一挂掉就无法重连。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 使用连接池的时候，挂掉的连接会被从连接池中移除并释放空间，新连接请求到来时自动创建一个新连接。&lt;/p&gt;
+&lt;/blockquote&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp; 答题人后面贴了一段自己的自动重连代码，这里我就不贴了。
+
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 回答于2013年5月3日18:58&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; XP1&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这个回答虽然没被题主采纳，但我和下面跟帖的一致认为这个回答比较好。&lt;/br&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;a href=&#34;http://stackoverflow.com/questions/14087924/cannot-enqueue-handshake-after-invoking-quit&#34;&gt;原网页&lt;/a&gt;&lt;/p&gt;
+ ]]></description>
+        </item>
+    </channel>
+</rss>

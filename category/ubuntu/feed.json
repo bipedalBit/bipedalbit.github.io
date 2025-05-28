@@ -1,0 +1,20 @@
+{
+    "version": "https://jsonfeed.org/version/1",
+    "title": "Hacking to the gate! • All posts by \"ubuntu\" category",
+    "description": "Bipedal Bit's blog",
+    "home_page_url": "https://blog.bipedalbit.net",
+    "items": [
+        {
+            "id": "https://blog.bipedalbit.net/2015/10/19/%E8%A7%A3%E5%86%B3%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98%E7%9A%84%E5%88%A9%E5%99%A8%E2%80%94%E2%80%94apt-file/",
+            "url": "https://blog.bipedalbit.net/2015/10/19/%E8%A7%A3%E5%86%B3%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98%E7%9A%84%E5%88%A9%E5%99%A8%E2%80%94%E2%80%94apt-file/",
+            "title": "解决依赖问题的利器——apt-file",
+            "date_published": "2015-10-19T10:33:33.000Z",
+            "content_html": "<p>&nbsp;&nbsp;&nbsp; 学校的有线网络客户端是DrCom，Windows下停掉热点分享服务和代理后跑的很顺利。可是切到我常用的Ubuntu下时客户端却跑不起来。从终端用命令运行客户端时发现有依赖文件缺失，借着这个契机，我认识了Ubuntu（Debian）下解决依赖问题的利器——apt-file。</p>\n<span id=\"more\"></span>\n<p>&nbsp;&nbsp;&nbsp; 事情的始末是这样的，当时报的文件缺失是libXi.so.6，发现文件缺失后我先在整个计算机范围内查找了这个文件，在<code>/usr/lib/x86_64-linux-gnu</code>目录下发现了一个，当时很不解，明明不缺依赖文件啊。<br>&nbsp;&nbsp;&nbsp; 后来我百度了一下大家遇到同类情况的解决方案，发现原来缺的是32位的libXi.so.6，刚才的目录下显然是64位的gnu文件。然后我发现大家开始用各种方式安装32位的兼容库，如ia32-libs，这个库还被Ubuntu抛弃好几年了，得换以前的源装之类的。也有人建议利用增加32位的架构来支持依赖32位库的软件。且不论有多么拐弯抹角有多麻烦，前面这些解决方案在我的Ubuntu Kylin 14.04 LTS下都没有见效。<br>&nbsp;&nbsp;&nbsp; 这时灰头土脸漫不经心在网上闲逛的我看见了一篇<a href=\"http://blog.163.com/shishihoule@126/blog/static/57293547201442683951681/\">惊艳的博文</a>。让我激动的是博主<strong>发现依赖缺失-&gt;利用apt-file找到依赖文件-&gt;逐个补全依赖文件-&gt;解决问题</strong>这一直截了当的过程的畅快感。感谢博主，感谢博主感谢的博主。<br>&nbsp;&nbsp;&nbsp; 在利用apt-file解决问题前我们需要做一点知识储备。<br>&nbsp;&nbsp;&nbsp; 首先我们需要了解，Linux下有一个检查可执行文档依赖项的命令：<a href=\"http://man7.org/linux/man-pages/man1/ldd.1.html\">ldd</a>。<br>&nbsp;&nbsp;&nbsp; 然后我们需要了解，Ubuntu下用apt-get来install文件时可以通过类似<code>sudo apt-get install libxi:i386</code>的格式来指定文件使用的架构，i386就是指32位架构。<br>&nbsp;&nbsp;&nbsp; 我们还可以借助Ubuntu的<code>sudo -i</code>命令让终端留在root权限下，免得我们在逐个安装依赖文件时总要在命令前加”sudo“。<br>&nbsp;&nbsp;&nbsp; 最后是apt-file的安装和使用：</p>\n<ul>\n<li>Ubuntu（Debian）系统中默认没有apt-file工具，安装和许多其他工具一样，<code>sudo apt-get install apt-file</code>就好。</li>\n<li>安装成功后还不能直接使用，<code>apt-file update</code>命令会更新软件缓存库，有了库才能搜索文件。第一次使用或<code>apt-get update</code>后都需运行一次该命令。</li>\n<li><code>apt-file search file_name</code>可以查找（含有目标字符串的）目标文件存在于哪些软件包中。直接search可能返回太多内容，可以利用Linux的grep命令获得返回内容中字符串完整匹配的部分，如<code>apt-file search filename | grep -w filename</code>，或者获得特定路径下的文件，如<code>apt-file search filename | grep /bin/</code>。</li>\n<li><code>apt-file list package_name</code>可以罗列目标软件包包含的文件。</li>\n</ul>\n<p>&nbsp;&nbsp;&nbsp; 于是可以动手解决问题了：</p>\n<pre><code class=\"hljs\">sudo -i\napt-get install apt-file\napt-file update\nldd DrClientLinux\n</code></pre>\n<p>&nbsp;&nbsp;&nbsp; 缺的也不多，找到那几个“not found”的依赖文件，然后继续。</p>\n<pre><code class=\"hljs\">apt-file search libxi|grep libxi.so.6\napt-file search libxi|grep libxi\napt-get install libxi6:i386\n./DrClientLinux\n</code></pre>\n<p>&nbsp;&nbsp;&nbsp; 跟之前报告说缺的依赖文件有了不同，继续。</p>\n<pre><code class=\"hljs\">apt-file search libxrender|grep libxrender\napt-get install libxrender1:i386\n./DrClientLinux\n</code></pre>\n<p>&nbsp;&nbsp;&nbsp; 缺的依赖文件又不同了。发现这些依赖文件所属包的命名规律了，直接装，不用找了。</p>\n<pre><code class=\"hljs\">apt-get install libxrandr2:i386\n./DrClientLinux\napt-get install libxcursor1:i386\n./DrClientLinux\napt-get install libxinerama1:i386\n./DrClientLinux\n</code></pre>\n<p>&nbsp;&nbsp;&nbsp; 妥了，可喜可贺！</p>\n",
+            "tags": [
+                "ubuntu",
+                "debian",
+                "apt-file"
+            ]
+        }
+    ]
+}

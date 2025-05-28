@@ -1,0 +1,2358 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+    <channel>
+        <title>Hacking to the gate! • Posts by &#34;c++&#34; tag</title>
+        <link>https://blog.bipedalbit.net</link>
+        <description>Bipedal Bit&#39;s blog</description>
+        <language>zh-CN</language>
+        <pubDate>Tue, 01 Dec 2015 10:53:29 +0800</pubDate>
+        <lastBuildDate>Tue, 01 Dec 2015 10:53:29 +0800</lastBuildDate>
+        <category>Qt</category>
+        <category>signal-slot</category>
+        <category>Q_OBJECT</category>
+        <category>nginx</category>
+        <category>select/poll</category>
+        <category>epoll</category>
+        <category>ngx_int_t</category>
+        <category>rbtree</category>
+        <category>C</category>
+        <category>static</category>
+        <category>内存分布</category>
+        <category>sublime</category>
+        <category>C++</category>
+        <category>makefile</category>
+        <category>node.js</category>
+        <category>github</category>
+        <category>socket.io</category>
+        <category>Web请求处理机制</category>
+        <category>同步/异步</category>
+        <category>阻塞/非阻塞</category>
+        <category>事件驱动模型</category>
+        <category>BP神经网络</category>
+        <category>机器学习</category>
+        <category>python</category>
+        <category>pybrain</category>
+        <category>c++11</category>
+        <category>多线程</category>
+        <category>ubuntu</category>
+        <category>debian</category>
+        <category>apt-file</category>
+        <category>cin</category>
+        <category>cout</category>
+        <category>scanf</category>
+        <category>printf</category>
+        <category>进制转换</category>
+        <category>人工神经网络</category>
+        <category>人机博弈</category>
+        <category>Maxmin</category>
+        <category>AlphaBeta</category>
+        <category>PVS</category>
+        <category>MTD(f)</category>
+        <category>位域</category>
+        <category>bitset</category>
+        <category>vector&amp;lt;bool&amp;gt;</category>
+        <category>网络爬虫</category>
+        <category>类脑</category>
+        <category>codeigniter</category>
+        <category>php</category>
+        <category>IIS7</category>
+        <category>apache</category>
+        <category>模拟登录</category>
+        <category>proxy</category>
+        <category>domain</category>
+        <category>DNS</category>
+        <category>hexo</category>
+        <category>vps</category>
+        <category>dropbox</category>
+        <category>ffmpeg</category>
+        <category>板绘</category>
+        <category>sai</category>
+        <category>琪露诺</category>
+        <category>LLM</category>
+        <category>ollama</category>
+        <category>open-webui</category>
+        <category>oneapi</category>
+        <category>mcpserver</category>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</guid>
+            <title>C++的位优化</title>
+            <link>https://blog.bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</link>
+            <category>C++</category>
+            <category>位域</category>
+            <category>bitset</category>
+            <category>vector&amp;lt;bool&amp;gt;</category>
+            <pubDate>Tue, 01 Dec 2015 10:53:29 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前的中国象棋初版重在实现，老实说不论是时空效率还是健壮性都不太拿得出手，于是导师要求继续优化改进。考虑和调查过后，时间效率上可以借助之前设想的并行计算得到小幅优化，此外使用类似bool数组的手段也可以在走法生成器中小幅优化边界判断过程，最重要的时间效率优化手段是把博弈机改造成查表器，即以查表为主博弈为辅改变重心。以上都是时间效率优化，这篇文中暂且不展开，我的中国象棋初版在搜索深度大时（大于等于４层）开始出现程序崩溃的现象，暴露了空间效率问题。作为空间效率优化的铺垫，这次我来做个C++位优化的自科普。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 关于空间效率优化，从前顶多考虑到基本变量类型选择的程度，然而C++提供了一些更精细的特性，供程序员进行位级别的内存微操——位域、bitset、vector&amp;lt;bool&amp;gt;。&lt;/p&gt;
+&lt;h1 id=&#34;1-位域&#34;&gt;&lt;a href=&#34;#1-位域&#34; class=&#34;headerlink&#34; title=&#34;1 位域&#34;&gt;&lt;/a&gt;1 位域&lt;/h1&gt;&lt;h2 id=&#34;1-1-字节对齐&#34;&gt;&lt;a href=&#34;#1-1-字节对齐&#34; class=&#34;headerlink&#34; title=&#34;1.1 字节对齐&#34;&gt;&lt;/a&gt;1.1 字节对齐&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 介绍位域之前，还需要做一点铺垫。业界C&amp;#x2F;C++面试、笔试题中，经常考到结构体的字节对齐问题。比如，可能会问下面两个结构体分别占多大内存：&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;hljs-title class_&#34;&gt;s1&lt;/span&gt;&lt;br&gt;&amp;#123;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; a;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;double&lt;/span&gt; f;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;int&lt;/span&gt; b;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; g;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; c[&lt;span class=&#34;hljs-number&#34;&gt;9&lt;/span&gt;];&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;float&lt;/span&gt; e;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;short&lt;/span&gt; d;&lt;br&gt;&amp;#125;;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;hljs-title class_&#34;&gt;s2&lt;/span&gt;&lt;br&gt;&amp;#123;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; a;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; c[&lt;span class=&#34;hljs-number&#34;&gt;9&lt;/span&gt;];&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;short&lt;/span&gt; d;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;float&lt;/span&gt; e;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;int&lt;/span&gt; b;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;double&lt;/span&gt; f;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; g;&lt;br&gt;&amp;#125;;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;code&gt;sizeof(s1)&lt;/code&gt;和&lt;code&gt;sizeof(s2)&lt;/code&gt;分别为56字节和40字节。先不管为什么装着同样变量的结构体占用的内存大小会不同，如果结构体中变量紧密排列，应该占多大内存？ａ：1字节，ｂ：4字节，ｃ：9字节，ｄ：2字节，ｅ：4字节，ｆ：8字节，ｇ：8字节，共36字节。显然这些变量实际上不是紧密排列的，存在一些对齐、填充字节的规则：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;有效对齐值默认为结构体最宽&lt;em&gt;基本类型&lt;/em&gt;成员的大小，注意结构体的结构体成员必须到内部寻找基本类型成员变量计算有效对齐值；&lt;/li&gt;
+&lt;li&gt;结构体变量的首地址能够被其有效对齐值所整除；&lt;/li&gt;
+&lt;li&gt;结构体每个成员相对于结构体首地址的偏移量都是其本身大小的整数倍，如有需要编译器会在成员之间加上填充字节；&lt;/li&gt;
+&lt;li&gt;结构体的总大小为结构体有效对齐值的整数倍，如有需要编译器会在最末一个成员之后加上填充字节；&lt;/li&gt;
+&lt;li&gt;存在指定对齐值（&lt;code&gt;#pragma pack (value)&lt;/code&gt;中的value）时，&lt;code&gt;有效对齐值 = min&amp;#123;默认对齐值, 指定对齐值&amp;#125;&lt;/code&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 至于为什么要做字节对齐，这与CPU取数方式有关，尤其与CPU与内存间数据总线宽度（现在除了单片机通常为32位）有关。因为数据总线宽度是硬件相关，所以一次取数的位数是固定的，假设总线宽度32位，那么一次取数的数据大小就为4字节，那么CPU读取内存数据就将以内存首地址为基址，以4个字节为偏移量单位。如果结构体中有一个char型和一个int型变量，紧密排列存储在内存中，读char型变量时照样取了结构体的前4个字节，其中高8位的哪个字节是存储着char型变量，会经过一些位运算后被提取出来（比如按位右移24位，这仅仅是猜测），到此为止看不出什么不好的。可是当读int型变量时问题就来了，CPU无法一次读取到整个int变量了，原因前面提到了：&lt;em&gt;CPU读取内存数据就将以内存首地址为基址，以4个字节为偏移量单位&lt;/em&gt;。经过两次取数才能获得被分割在两个字（32位内存单位）中完整的int型变量，这还不算完，还要分别从两个字中提取恰当的位并进行拼接，这很浪费时间。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 按特定规则进行字节对齐后，虽然浪费了一些填充字节的内存空间，情况还是好多了。以s1为例，有效对齐值是double型和long long型的8字节即两个字，这里称其为一个对齐空间，装填a（填充7个字节），装填f，装填b（填充4个字节），装填g，装填c（一个对齐空间内放不下，第二个空间中也放了1个字节，填充7个字节），装填e，装填d，结构体整体填充2字节，填满对齐空间的整数倍。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 同理也可求得s2的内存占用，至于两个结构体的内存占用不一样的原因，是它们的成员变量排列顺序不同，而结构体给成员变量分配内存的顺序与定义变量的顺序相同。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 当指定对齐值小于默认对齐值，可令结构体的成员变量排列更紧密，更省空间，但可能降低取数效率。特别的，当指定对齐值为1，结构体成员变量完全紧密排列。&lt;/p&gt;
+&lt;h2 id=&#34;1-2-位域与其利弊&#34;&gt;&lt;a href=&#34;#1-2-位域与其利弊&#34; class=&#34;headerlink&#34; title=&#34;1.2 位域与其利弊&#34;&gt;&lt;/a&gt;1.2 位域与其利弊&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不管是为数据结构的成员变量设计合适的排列顺序，还是指定合适的字节对齐值，都是在字节的层次上优化程序空间效率。而使用位域，可以在位的层次上优化程序空间效率。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 还是以1.1节中的s1为例，只在字节层面上优化，以不损失时间效率为前提，最佳策略如下：&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;pragma&lt;/span&gt; pack(4)&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;hljs-title class_&#34;&gt;s1&lt;/span&gt;&lt;br&gt;&amp;#123;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;double&lt;/span&gt; f;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; g;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;int&lt;/span&gt; b;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;float&lt;/span&gt; e;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;short&lt;/span&gt; d;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; a;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; c[&lt;span class=&#34;hljs-number&#34;&gt;9&lt;/span&gt;];&lt;br&gt;&amp;#125;;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;pragma&lt;/span&gt; pack()&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 实际上就是保证按32位字（4字节）对齐，变量按大小降序排列。此时的&lt;code&gt;sizeof(s1)&lt;/code&gt;为36字节，空间开销等同变量成员紧密排列，时间效率没有受到影响。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 下面这种写法不知读者见过没有：&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;pragma&lt;/span&gt; pack(4)&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;hljs-title class_&#34;&gt;s1&lt;/span&gt;&lt;br&gt;&amp;#123;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;double&lt;/span&gt; f;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; g: &lt;span class=&#34;hljs-number&#34;&gt;21&lt;/span&gt;;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;int&lt;/span&gt; b: &lt;span class=&#34;hljs-number&#34;&gt;7&lt;/span&gt;;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;float&lt;/span&gt; e;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;short&lt;/span&gt; d;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; a;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; c[&lt;span class=&#34;hljs-number&#34;&gt;9&lt;/span&gt;];&lt;br&gt;&amp;#125;;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;pragma&lt;/span&gt; pack()&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 对这样定义的结构体s1，&lt;code&gt;sizeof(s1)&lt;/code&gt;是28字节。变量b、g后面的‘:’和数字就是位域的描述方式。位域的作用是把一些用不到当前类型变量中所有位的变量做进一步压缩，比如这里的s1结构体中的g变量，原来占用64位，使用位域压缩后g变量只使用原内存空间的高21位，填充3位补满3个字节后，原long long变量的后5个字节就可以自由分配了；b变量，原来占用32位，使用位域压缩后b变量只使用原内存空间的高7位，填充1位填满1个字节后，原int变量的后3个字节的内存空间就可以自由分配了。b、g压缩过后刚好占据4个字节一个32位字，比原来少占８个字节。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 于是，借由位域压缩技术，C++得以进行位层次的空间效率优化了。然而位域的使用有着诸多限制和缺陷：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;位域不可以用于浮点型变量的压缩；&lt;/li&gt;
+&lt;li&gt;位域压缩有符号数时，由于其存储变量的编码方式是源码而非平常变量的补码，变量符号将可能出现不可预料的状态；&lt;/li&gt;
+&lt;li&gt;位域压缩将局部解除变量间原有的的字节对齐规范，即使位域压缩的变量与相邻变量紧密排列，这可能引起取数时间效率的损失。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;2-bitset&#34;&gt;&lt;a href=&#34;#2-bitset&#34; class=&#34;headerlink&#34; title=&#34;2 bitset&#34;&gt;&lt;/a&gt;2 bitset&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这一节我要介绍的是比特集，正如字面意思，它是一种比特的集合的特殊数据结构。位域是C遗留下来的特性，存在很多不完备和妥协的地方,C++中推荐的替换方案之一就是bitset。它的具体使用方法我不想细讲，这里只做个概念介绍，想了解更多可以看&lt;a href=&#34;http://www.cplusplus.com/reference/bitset/bitset/&#34;&gt;标准C++手册&lt;/a&gt;，&lt;del&gt;其实是我困了懒得写&lt;/del&gt;。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 比特集维护一个静态定义其长度的比特串，内存占用以系统字长（通常为&lt;em&gt;机器字长&lt;/em&gt;，即CPU中寄存器的位数，即CPU进行数据计算的单位位宽，而非前面提到的数据总线宽度，但机器字长一定是数据总线宽度的整数倍）为单位长度，当然如果读者使用64位的机器却安装32位的系统则是把机器当做32位机使用，每个CPU寄存器只使用一半的位数。比特集可以通过包含‘０’、‘１’的字符串来构造，也可以通过无符号的整型变量来构造。为什么是无符号数？因为比特的集合本来就是逻辑的、离散的，符号在比特集中没有意义。当然如果想用某个逻辑位来作为符号位也随用户喜欢。相应的，比特集也可以转换成‘０’、‘１’字符串或者整型数。理所当然的，比特集类封装了一系列位运算符号和逻辑位操作方法，注意比特集的位操作符号两边都应该是比特集，位移操作符除外。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 也许有读者想了解bitset的内存占用情况，我进行了下面的一系列测试：&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;10&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//8&lt;/span&gt;&lt;br&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;20&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//8&lt;/span&gt;&lt;br&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;40&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//8&lt;/span&gt;&lt;br&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;80&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//16&lt;/span&gt;&lt;br&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;160&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//24&lt;/span&gt;&lt;br&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;320&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//40&lt;/span&gt;&lt;br&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;640&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//80&lt;/span&gt;&lt;br&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;1280&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//160&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 测试结果我写在注释里了，可以看到，bitset的存储单位是8个字节，而我的这台笔记本电脑正是64位机器字长的，测试环境是64位的Ubuntu 14.04版本操作系统。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 同样的，比特bitset也有它的不足之处，比如它不能再与普通整型数直接进行位运算，且它一经构造，不可以改变长度。至于时间效率，可以充分相信它不比普通整型的同类操作慢。&lt;/p&gt;
+&lt;h1 id=&#34;3-vector&#34;&gt;&lt;a href=&#34;#3-vector&#34; class=&#34;headerlink&#34; title=&#34;3 vector&amp;lt;bool&amp;gt;&#34;&gt;&lt;/a&gt;3 vector&amp;lt;bool&amp;gt;&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 当我第一次在手册中看见vector&amp;lt;bool&amp;gt;时我并没有留意，虽然也对bool型的vector容器为什么有一套独立的API感到了一丝困惑。后来在查找bitset相关资料时发现有人写了vector&amp;lt;bool&amp;gt;与bitset的比较文章，这才知道，vector&amp;lt;bool&amp;gt;是C++提供的bitset之外的另一种位层次数据结构微操方案，同等长度的两者的内存占用几乎一样。vector&amp;lt;bool&amp;gt;的具体用法读者依旧可以查看&lt;a href=&#34;http://www.cplusplus.com/reference/vector/vector-bool/&#34;&gt;手册&lt;/a&gt;，&lt;del&gt;是的我又偷懒了XDDD&lt;/del&gt;。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 既然vector&amp;lt;bool&amp;gt;实现在vector库文件中，想必读者也能猜到它与bitset最大的不同，没错它是可变长的。相应的，作为牺牲，考虑数组与vector的区别，也不难猜到，vector&amp;lt;bool&amp;gt;比bitset慢。首先它的位操作也比bitset少得多，其次vector&amp;lt;bool&amp;gt;中的位不再能够用下标随机存取，而需要使用迭代器来访问。其实比起bitset的变长版本，我觉得说vector&amp;lt;bool&amp;gt;是bool型vector的空间优化版本更合适一些。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 以上就完成了简单的位层面程序空间效率优化的相关概念引入，下面会继续跟进我的中国象棋的改进版本。&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/</guid>
+            <title>中国象棋人机博弈实现练习</title>
+            <link>https://blog.bipedalbit.net/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/</link>
+            <category>Qt</category>
+            <category>C++</category>
+            <category>人机博弈</category>
+            <category>AlphaBeta</category>
+            <category>MTD(f)</category>
+            <pubDate>Sun, 15 Nov 2015 21:54:03 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集大成者。但是等把MTD(f)实现完，发现里面一层就是个AlphaBeta，于是AlphaBeta的搜索核心作为副产品也存在于实现成果中了。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我并不打算在这里贴包括Qt5的GUI实现代码在内的所有大概3500行代码（当然其中至少700行可能是注释），主要讲解一下我的实现思路，偶尔贴一些关键代码。完整项目源码我在GitHub建了仓库，这篇文最后会贴地址，读者也可以自己去我Git找找看，毕竟我一共也没建过几个仓库。下面开始正题。&lt;/p&gt;
+&lt;h1 id=&#34;1-需求分析&#34;&gt;&lt;a href=&#34;#1-需求分析&#34; class=&#34;headerlink&#34; title=&#34;1 需求分析&#34;&gt;&lt;/a&gt;1 需求分析&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;GUI：为了方便人工测试，灵活直观的展现测试结果&lt;del&gt;也方便随时嘚瑟&lt;/del&gt;，中国象棋人机博弈程序的实现应该有GUI（图形用户界面）。&lt;/li&gt;
+&lt;li&gt;通用部件：应该根据实际需要设计比较高效的、节省空间的、通用的局面表示部件与走法表示部件。&lt;/li&gt;
+&lt;li&gt;走法生成器：为了给并行计算和分布式计算做准备，应该设计通用的走法生成器接口。至少实现一个可靠的串行计算的走法生成器。&lt;/li&gt;
+&lt;li&gt;搜索核心：为了方便扩展与迭代开发，应该设计通用的搜索核心接口。若干不同版本的走法核心也应该被实现。&lt;/li&gt;
+&lt;li&gt;局面评估核心：考虑到短期内难以获得经过结构化解析的对局数据或棋谱，只实现一个参数可在代码中调整的静态局面评估核心，通用局面评估核心接口不予实现，暂时搁置等待重构。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;2-概要设计&#34;&gt;&lt;a href=&#34;#2-概要设计&#34; class=&#34;headerlink&#34; title=&#34;2 概要设计&#34;&gt;&lt;/a&gt;2 概要设计&lt;/h1&gt;&lt;h2 id=&#34;2-1-GUI&#34;&gt;&lt;a href=&#34;#2-1-GUI&#34; class=&#34;headerlink&#34; title=&#34;2.1 GUI&#34;&gt;&lt;/a&gt;2.1 GUI&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 图形界面中棋盘、棋子的图形是必要组成部分。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 此外考虑到人机博弈回合间电脑变动棋子位置太突兀，玩家有时甚至难以察觉棋子位置的变化，应当添加当前选定棋子的标记（对电脑方的棋子来说则是上一步刚被操作过的棋子的标记）。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 应当可以选择玩家先手开局或后手开局。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 应当有开局按钮。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 最好也有悔棋或状态回退按钮。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 应当可以在每轮电脑回合前更改电脑使用的搜索核心种类。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 应当可以在每轮电脑回合前更改电脑搜索的深度（模拟对局回合数）。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 应该显示每轮电脑搜索中评估的局面数量和搜索用时，方便在测试时对算法效率和优化效果进行评估。&lt;/p&gt;
+&lt;h2 id=&#34;2-2-通用部件&#34;&gt;&lt;a href=&#34;#2-2-通用部件&#34; class=&#34;headerlink&#34; title=&#34;2.2 通用部件&#34;&gt;&lt;/a&gt;2.2 通用部件&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 最基本的通用部件应该是&lt;em&gt;棋盘位置的表示部件&lt;/em&gt;，这个部件首先应当提供位置坐标的设置与查询方法。该部件还可能需要提供一些获取棋盘特定位置属性的方法，以辅助走法生成和局面评估。该部件的变量成员或容器应当进行适当的状态压缩以节省空间。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;em&gt;走法表示部件&lt;/em&gt;将提供特定走法的属性查询方法，如移动的棋子序号，走法中是否有棋子被吃，移动棋子的起点坐标和终点坐标。走法表示部件将使用棋盘位置表示部件做一些具体的实现。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 恰当的&lt;em&gt;局面状态表示部件&lt;/em&gt;也是必要的。这个部件将直接为走法生成器和评估核心提供所有棋子的位置、状态查询方法，所有棋子相对位置的属性查询方法，以及所有棋盘特定位置的属性查询方法，棋子位置变更时的局面更新方法，棋子位置变更时的变更回退方法等。毫无疑问局面表示部件将使用棋盘位置表示部件和走法表示部件来实现所需的方法。&lt;/p&gt;
+&lt;h2 id=&#34;2-3-走法生成器&#34;&gt;&lt;a href=&#34;#2-3-走法生成器&#34; class=&#34;headerlink&#34; title=&#34;2.3 走法生成器&#34;&gt;&lt;/a&gt;2.3 走法生成器&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不管计算形式是串行还是并行的，走法生成器应该按照中国象棋规则提供特定局面下合法的所有走法，并装载在一个走法容器中以备查询。合法的走法除需要符合基本的中国象棋行棋规则之外，还应该根据已走局面剔除循环走法。&lt;/p&gt;
+&lt;h2 id=&#34;2-4-搜索核心&#34;&gt;&lt;a href=&#34;#2-4-搜索核心&#34; class=&#34;headerlink&#34; title=&#34;2.4 搜索核心&#34;&gt;&lt;/a&gt;2.4 搜索核心&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 搜索核心应该作为游戏程序的主线索，调用走法生成器和局面评估核心对接下来的人机博弈状态做一系列的预演，然后给出相对最好的走法。搜索过程中还应该收集一些程序运行信息，比如评估结点数，搜索时间。搜索每一个新层次时势必要管理搜索树占用的内存空间，应该给出一个可行的空间管理方案。&lt;/p&gt;
+&lt;h2 id=&#34;2-5-局面评估核心&#34;&gt;&lt;a href=&#34;#2-5-局面评估核心&#34; class=&#34;headerlink&#34; title=&#34;2.5 局面评估核心&#34;&gt;&lt;/a&gt;2.5 局面评估核心&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 如前所述，暂且只要求实现一个基于少量中国象棋实际经验和主观猜测的评估函数。这个评估函数可能会需要一个类似于走法生成器但有所不同的“棋子影响力覆盖范围生成器”作为工具函数。&lt;/p&gt;
+&lt;h1 id=&#34;3-详细设计&#34;&gt;&lt;a href=&#34;#3-详细设计&#34; class=&#34;headerlink&#34; title=&#34;3 详细设计&#34;&gt;&lt;/a&gt;3 详细设计&lt;/h1&gt;&lt;h2 id=&#34;3-1-GUI&#34;&gt;&lt;a href=&#34;#3-1-GUI&#34; class=&#34;headerlink&#34; title=&#34;3.1 GUI&#34;&gt;&lt;/a&gt;3.1 GUI&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; Qt5设计GUI有多方便相信用过的读者都有体会，无非就是拖拖控件写写槽函数加点资源调调样式。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 本来我想在轮到电脑的回合时间显示一个正在加载时的常见gif图片，但发现这涉及到Qt5的并行计算方式。经过简单的尝试（利用QtConcurrent类）后发现无法在不同线程中顺畅管理相同的控件状态，这可能是资源同步互斥管理的问题（这里相信一些读者会联想到一个关于多线程的笑话：一个程序员遇到了一个问题，想通过多线程来解决它，现在他有两个问题了），于是干脆放弃显示图片的想法了，你将在我的Qt源码中发现我尝试的痕迹。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 另一点稍微值得一提的事是，我在准备好一切，要开始写点击棋子的槽函数的时候发现，QLabel控件居然没有Clicked默认事件，看来我是Web应用写多了有点惯性思维了。于是我只好自定义了一个ClickableLabel类，这个类是对QLabel类的封装，重载了基类QWidget的mouseReleaseEvent方法，在方法里发射了一个clicked消息。最后把所有需要点击互动的QLabel提升成了ClickableLabel，并添加了ClickableLabel的clicked消息的槽函数。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; clickablelable.h：&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;ifndef&lt;/span&gt; CLICKABLELABEL_H&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;define&lt;/span&gt; CLICKABLELABEL_H&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;include&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;lt;QLabel&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;include&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;lt;QWidget&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;include&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;lt;QPoint&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;hljs-title class_&#34;&gt;ClickableLabel&lt;/span&gt; : &lt;span class=&#34;hljs-keyword&#34;&gt;public&lt;/span&gt; QLabel&lt;br&gt;&amp;#123;&lt;br&gt;	Q_OBJECT&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;public&lt;/span&gt;:&lt;br&gt;	&lt;span class=&#34;hljs-function&#34;&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;explicit&lt;/span&gt; &lt;span class=&#34;hljs-title&#34;&gt;ClickableLabel&lt;/span&gt;&lt;span class=&#34;hljs-params&#34;&gt;(QWidget* parent = &lt;span class=&#34;hljs-number&#34;&gt;0&lt;/span&gt;)&lt;/span&gt;&lt;/span&gt;;&lt;br&gt;	~&lt;span class=&#34;hljs-built_in&#34;&gt;ClickableLabel&lt;/span&gt;();&lt;br&gt;signals:&lt;br&gt;	&lt;span class=&#34;hljs-function&#34;&gt;&lt;span class=&#34;hljs-type&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;hljs-title&#34;&gt;clicked&lt;/span&gt;&lt;span class=&#34;hljs-params&#34;&gt;(ClickableLabel* clickableLabel)&lt;/span&gt;&lt;/span&gt;;&lt;br&gt;	&lt;span class=&#34;hljs-function&#34;&gt;&lt;span class=&#34;hljs-type&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;hljs-title&#34;&gt;clicked&lt;/span&gt;&lt;span class=&#34;hljs-params&#34;&gt;(QPoint pos, ClickableLabel* clickableLabel)&lt;/span&gt;&lt;/span&gt;;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;protected&lt;/span&gt;:&lt;br&gt;	&lt;span class=&#34;hljs-function&#34;&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;virtual&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;hljs-title&#34;&gt;mouseReleaseEvent&lt;/span&gt;&lt;span class=&#34;hljs-params&#34;&gt;(QMouseEvent *event)&lt;/span&gt;&lt;/span&gt;;&lt;br&gt;&amp;#125;;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;endif&lt;/span&gt; &lt;span class=&#34;hljs-comment&#34;&gt;// CLICKABLELABEL_H&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; clickablelable.cpp：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;quot;clickablelabel.h&amp;quot;
+#include &amp;quot;QMouseEvent&amp;quot;
+
+ClickableLabel::ClickableLabel(QWidget* parent)
+	: QLabel(parent)
+&amp;#123;
+&amp;#125;
+
+ClickableLabel::~ClickableLabel()
+&amp;#123;
+&amp;#125;
+
+void ClickableLabel::mouseReleaseEvent(QMouseEvent* event)
+&amp;#123;
+	emit clicked(this);
+	emit clicked(event-&amp;gt;pos(), this);
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 还挺简单的，不是吗？&lt;/p&gt;
+&lt;h2 id=&#34;3-2-通用部件&#34;&gt;&lt;a href=&#34;#3-2-通用部件&#34; class=&#34;headerlink&#34; title=&#34;3.2 通用部件&#34;&gt;&lt;/a&gt;3.2 通用部件&lt;/h2&gt;&lt;h3 id=&#34;3-2-1-棋盘位置表示部件&#34;&gt;&lt;a href=&#34;#3-2-1-棋盘位置表示部件&#34; class=&#34;headerlink&#34; title=&#34;3.2.1 棋盘位置表示部件&#34;&gt;&lt;/a&gt;3.2.1 棋盘位置表示部件&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我为棋盘位置表示部件实现了一个Position类，只有一个unsigned char型成员变量，８位，一个字节，高四位表示纵坐标即行序号，第四位表示横坐标即列序号，全１有两个方面的含义：对特定棋子来书，当前位置坐标全１表示该棋子已经被吃；对棋盘上特定位置来说，全１表示棋盘上这个位置没有棋子。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 因为这个类中的横纵坐标是状态压缩的，需要分别提供横纵坐标的提取／解析方法x()、y()，还有棋子死活／有无的判定及设置方法dead()、kill()。具体实现都是些简单的位运算，比如取第四位用按位与，取高四位用位移。比较局面状态难免要做一系列的棋盘位置比较，所以还实现了“&amp;#x3D;&amp;#x3D;”和“!&amp;#x3D;”符号。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 后面在搜索核心的实现有时候会用到置换表，生成hash key需要获取底层的坐标存储数据，所以这个类还有个突兀的友元声明。&lt;/p&gt;
+&lt;h3 id=&#34;3-2-2-走法表示部件&#34;&gt;&lt;a href=&#34;#3-2-2-走法表示部件&#34; class=&#34;headerlink&#34; title=&#34;3.2.2 走法表示部件&#34;&gt;&lt;/a&gt;3.2.2 走法表示部件&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 走法表示使用四个成员变量：移动的棋子序号、被吃的棋子序号、原棋盘位置、新棋盘位置，全部使用unsigned char型变量，共４个字节。实现这个类时我偷了个懒，干脆把成员变量访问限定符都定为public了，于是除了空构造函数和一个初始化所有成员变量的重载，只写了一个比较符号“&amp;#x3D;&amp;#x3D;”。没什么特别的。&lt;/p&gt;
+&lt;h3 id=&#34;3-2-3-局面状态表示部件&#34;&gt;&lt;a href=&#34;#3-2-3-局面状态表示部件&#34; class=&#34;headerlink&#34; title=&#34;3.2.3 局面状态表示部件&#34;&gt;&lt;/a&gt;3.2.3 局面状态表示部件&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这个部件还比较有意思。实际上，写游戏初版时，因为走法生成器，搜索核心或评估核心内部实现过程不顺心，曾经一度重构通用部件，其中也伴随着通用部件新需求的不断提出。作为直接向三大模块提供服务的部件，局面状态表示部件的修改最为频繁。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 资料提出的中国象棋棋盘状态存储模型有：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;用32颗棋子的棋盘分布（32*10*9个比特）来保存局面状态；&lt;/li&gt;
+&lt;li&gt;用14种棋子的棋盘分布（14*10*9个比特）来保存局面状态；&lt;/li&gt;
+&lt;li&gt;用10*9个棋盘位置上32颗棋子的互斥存在标识（10*9*5个比特）来保存局面状态；&lt;/li&gt;
+&lt;li&gt;用10*9个棋盘位置上14种棋子的互斥存在标识（10*9*4个比特）来保存局面状态；&lt;/li&gt;
+&lt;li&gt;用32颗棋子的坐标值（32*8个比特）来保存局面状态。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 可以看出，上述模型占用空间的大小依次递减。如果比较占用空间大小，第五种模型显然最优。但是实现走法生成器和评估核心时，需要对棋子相对位置上的棋子有无、棋子归属进行大量查询。如果每次针对特定棋盘位置的棋子查询都通过遍历32颗棋子来完成，何况每颗棋子都需要对若干个相对位置做棋子查询，尤其是車、炮这种自由度很大的棋子，恐怕随着搜索树的展开，将累计很大的时间开销。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 那么如果换用第四种模型呢？特定棋子相对位置的状态可以直接查询到了，同类查询的时间开销降到了第五种模型的1&amp;#x2F;32。那么如果选用第四种模型，除了稍多一些的空间开销，有没有做出别的牺牲呢？当我们想要查询特定棋子的坐标，不再能够直接查到了，我们需要遍历整个棋盘来寻找一颗棋子，还需要标记这颗棋子是否同类棋子（同归属方、同兵种）中我们需要的那一颗。同类查询的时间开销变成了原来的90倍以上。这并不是一个典型的、合算的空间换时间型优化。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我们重新思考一下局面表示部件在搜索过程中的实际使用情况，不难发现，如果把当前局面作为一个引用参数引入搜索核心类，那么整个搜索过程中，不论采用怎样的局面表示模型，不论对当前局面状态做了多少次更新和回退，空间开销的差别其实微乎其微。真正对空间开销起明显作用的是走法表示部件的数据结构。想到这里不禁觉得一阵无力感袭来，局面状态表示部件的状态压缩是不太有意义的。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 那么我们现在可以专注于提高局面状态表示部件中各种方法的时间效率而无视空间开销了。于是我用了一个双向索引，即同时在部件中使用第一种模型和第五种模型。这样不管按棋子序号查询坐标还是按特定坐标查询棋盘位置状态，都可以以常数级的时间开销完成查询过程。当然还实现了许多为三大模块提供服务的方法，还需要记录局面评分和主动权归属。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; State.h：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#ifndef _STATE_H_
+#define _STATE_H_
+
+#include &amp;quot;Position.h&amp;quot;
+#include &amp;quot;Move.h&amp;quot;
+
+/* 棋子序号 */
+/* 红帅 */
+#define R_KING 0
+/* 红仕序号起点（序号个数2） */
+#define R_MANDARIN 1
+/* 红相序号起点（序号个数2） */
+#define R_ELEPHANT 3
+/* 红马序号起点（序号个数2） */
+#define R_KNIGHT 5
+/* 红車序号起点（序号个数2） */
+#define R_ROOK 7
+/* 红炮序号起点（序号个数2） */
+#define R_CANNON 9
+/* 红兵序号起点（序号个数5） */
+#define R_PAWN 11
+/* 红子序号起点 */
+#define R_BEGIN R_KING
+/* 红子序号终点 */
+#define R_END R_PAWN+4
+/* 黑将 */
+#define B_KING 16
+/* 黑士序号起点（序号个数2） */
+#define B_MANDARIN 17
+/* 黑象序号起点（序号个数2） */
+#define B_ELEPHANT 19
+/* 黑马序号起点（序号个数2） */
+#define B_KNIGHT 21
+/* 黑車序号起点（序号个数2） */
+#define B_ROOK 23
+/* 黑炮序号起点（序号个数2） */
+#define B_CANNON 25
+/* 黑卒序号起点（序号个数5） */
+#define B_PAWN 27
+/* 黑子序号起点 */
+#define B_BEGIN B_KING
+/* 黑子序号终点 */
+#define B_END B_PAWN+4
+/* 坐标数组中表示棋子已被吃 */
+#define DEAD 0xff
+/* 棋子数组中表示坐标无棋子占用 */
+#define NONE DEAD
+
+/* 局面状态类：32+90=122字节 */
+/* 这个类负责记录局面状态，包括局面的棋子索引的状态和坐标索引的状态。 */
+/* 坐标索引的状态提供坐标优先的快速状态查询； */
+/* 棋子索引的状态提供棋子优先的快速状态查询。 */
+class State
+&amp;#123;
+public:
+	/* 当前局面下红方是否持有行动权 */
+	bool RTurn;
+	/* 根据中国象棋规则初始化局面状态 */
+	State();
+	/* 根据走法更新棋盘状态 */
+	void move(const Move &amp;amp;m);
+	/* 还原按走法还原更新前的棋盘状态 */
+	void undo(const Move &amp;amp;m);
+	/* 获取特定棋子行号，即棋子y坐标 */
+	unsigned char y(unsigned char chessNo) const;
+	/* 获取特定棋子列号，即棋子x坐标 */
+	unsigned char x(unsigned char chessNo) const;
+	/* 获取特定坐标上的棋子序号或空序号 */
+	unsigned char getNo(unsigned char x, unsigned char y) const;
+	/* 存活判定 */
+	bool isAlive(unsigned char chessNo) const;
+	/* 红子判定 */
+	bool isRed(unsigned char chessNo) const;
+	/* 黑子判定 */
+	bool isBlack(unsigned char chessNo) const;
+	/* 友方判定 */
+	bool isFriend(unsigned char chessNo1, unsigned char chessNo2) const;
+	/* 特定棋子相对位置处是否有子 */
+	bool relExist(unsigned char chessNo, char x, char y) const;
+	/* 特定棋子相对位置处是否有红子 */
+	bool relRedExist(unsigned char chessNo, char x, char y) const;
+	/* 特定棋子相对位置处是否有黑子 */
+	bool relBlackExist(unsigned char chessNo, char x, char y) const;
+	/* 判断当前棋局是否已经结束，即一方的将/帅已经被吃 */
+	bool isDone() const;
+	/* 定义一个相等运算符，unordered_map要用 */
+	bool operator == (const State state) const;
+	/* 允许KeyHash类访问私有成员 */
+	friend class KeyHash;
+private:
+	/* 使用双向索引，加快两个方向的查询速度 */
+	/* 棋子序号索引的坐标数组：32字节 */
+	Position posList[32];
+	/* 棋盘坐标索引的棋子数组：90字节 */
+	/* 二维数组的每个单元为一个8位整型数，用来表示坐标占用情况 */
+	/* 即与坐标数组通用的棋子序号和一个额外的表示空的序号0xff */
+	unsigned char board[10][9];
+&amp;#125;;
+
+#endif
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 具体方法实现都很简单，就不在这贴代码了。&lt;/p&gt;
+&lt;h2 id=&#34;3-3-走法生成器&#34;&gt;&lt;a href=&#34;#3-3-走法生成器&#34; class=&#34;headerlink&#34; title=&#34;3.3 走法生成器&#34;&gt;&lt;/a&gt;3.3 走法生成器&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这是我认为中国象棋游戏中实现起来最繁琐的一个模块了，这里无法回避中国象棋零散的行棋规则。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 将／帅除了直面对方将／帅时可以飞过去吃掉对方，平时只能在己方的“帅府”九宫格中向没有己方棋子且不超出棋盘的位置做下列４种移动：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;(x, y) -&amp;gt; (x-1, y)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;(x, y) -&amp;gt; (x+1, y)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;(x, y) -&amp;gt; (x, y-1)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;(x, y) -&amp;gt; (x, y+1)&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 士／仕只能在己方“帅府”九宫格中向没有己方棋子且不超出棋盘的位置做下列４种移动：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;(x, y) -&amp;gt; (x-1, y-1)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;(x, y) -&amp;gt; (x+1, y-1)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;(x, y) -&amp;gt; (x-1, y+1)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;(x, y) -&amp;gt; (x+1, y+1)&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 象／相只能在己方阵地的五行内，在不被“遮象眼”的情况下“走田字”，即向没有己方棋子且不超出棋盘的位置做下列４种尝试：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;(x-1, y-1)处无子则&lt;code&gt;(x, y) -&amp;gt; (x-2, y-2)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;(x+1, y-1)处无子则&lt;code&gt;(x, y) -&amp;gt; (x+2, y-2)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;(x-1, y+1)处无子则&lt;code&gt;(x, y) -&amp;gt; (x-2, y+2)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;(x+1, y+1)处无子则&lt;code&gt;(x, y) -&amp;gt; (x+2, y+2)&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 马只能在不被“別马腿”的情况下“走日字”，即向没有己方棋子且不超出棋盘的位置做下列８种尝试：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;(x-1, y)处无子则&lt;code&gt;(x, y) -&amp;gt; (x-2, y-1), (x, y) -&amp;gt; (x-2, y+1)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;(x+1, y)处无子则&lt;code&gt;(x, y) -&amp;gt; (x+2, y-1), (x, y) -&amp;gt; (x+2, y+1)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;(x, y-1)处无子则&lt;code&gt;(x, y) -&amp;gt; (x-1, y-2), (x, y) -&amp;gt; (x+1, y-2)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;(x, y+1)处无子则&lt;code&gt;(x, y) -&amp;gt; (x-1, y+2), (x, y) -&amp;gt; (x+1, y+2)&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 車可以在上、下、左、右四个方向上在不超出棋盘又无棋子阻挡“视线”的前提下尝试移动任意距离，当遇到第一颗阻挡“视线”的棋子，如果棋子归属方不同，还可以吃子，取代那颗棋子的位置。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 炮有两种移动模式，即非吃子或吃子。非吃子模式下，炮可以在上、下、左、右四个方向上在不超出棋盘又无棋子阻挡“视线”的前提下尝试移动任意距离；吃子模式下，炮首先要在上、下、左、右四个方向上找到一颗阻挡“视线”的棋子，然后跳过这颗棋子，继续向前寻找阻挡“视线”的第二颗棋子，如果找到阻挡视线的第一颗和第二颗棋子，且第二颗棋子归属方不同，可以吃掉第二颗棋子，取代它的位置。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 兵／卒有两种行棋情况，在离开己方阵地的五行之前，只能在前方没有己方棋子的情况下向对方阵地移动一格；在离开己方阵地即进入敌方阵地后，向没有己方棋子且不超出棋盘的位置向前一格、向左一格或向右一格移动。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 此外，还要引入局面记录参数，剔除造成重复局面的走法。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 文字描述都这么麻烦，程序就更麻烦了，串行的走法生成器我写了700+行，虽然我的缩进比较“宽松”，注释比较多，还是很长了。并行版本如果用多线程还得管理线程队列、线程池，创建线程、监视线程、管理共享资源、做同步互斥什么的，恐怕会更长。多进程也一样。&lt;/p&gt;
+&lt;h2 id=&#34;3-4-搜索核心&#34;&gt;&lt;a href=&#34;#3-4-搜索核心&#34; class=&#34;headerlink&#34; title=&#34;3.4 搜索核心&#34;&gt;&lt;/a&gt;3.4 搜索核心&lt;/h2&gt;&lt;h3 id=&#34;3-4-1-搜索核心通用接口&#34;&gt;&lt;a href=&#34;#3-4-1-搜索核心通用接口&#34; class=&#34;headerlink&#34; title=&#34;3.4.1 搜索核心通用接口&#34;&gt;&lt;/a&gt;3.4.1 搜索核心通用接口&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 本着引入复杂类型变量时能用引用或指针就不复制变量的原则，搜索核心通用接口定义了许多成员变量。一个局面状态表示部件currentState用来复制当前状态，我复制了整个部件而非引入一个引用，是因为如果使用引用，构造类的时候不太方便，同样要增加开销。我想过使用指针，但是发现遍历State类成员时会一直报错，没能调顺，只得放弃。同样的理由，局面记录也进行了复制，但是我发现只进行浅复制就不会报错，也就没有深究。估值核心我使用了指针，因为估值核心的实例化发生在搜索核心的构造函数中。此外还有当前搜索深度变量、最大搜索深度变量、最佳走法、评估结点数即搜索树的叶结点树和搜索时间。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 搜索核心通用接口定义的方法不多，构造函数中只实例化了评估核心，析构函数负责销毁评估核心，此外只有一个搜索函数和一个获得最佳走法的只读方法。&lt;/p&gt;
+&lt;h3 id=&#34;3-4-2-MTD-f&#34;&gt;&lt;a href=&#34;#3-4-2-MTD-f&#34; class=&#34;headerlink&#34; title=&#34;3.4.2 MTD(f)&#34;&gt;&lt;/a&gt;3.4.2 MTD(f)&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 搜索核心的一个实现是MTD(f)算法。MTD(f)的最外层是一个迭代深化的过程，具体说就是由浅到深的尝试搜索同时计时，一旦超过设定的搜索时间阈值就停止搜索。当搜索过程复杂（搜索树剪枝少）实际搜索深度可能无法很深，当搜索过程简单，实际搜索深度则只受玩家设定的最大搜索深度的影响。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 迭代深化的下一层是MTD(f)的思想核心，在一个无限大的窗口中，在一个有依据的猜测值附近反复进行类似PVS的空窗探测，并不断向真实的最大局面评估值调整猜测值和窗口，直到窗口上下限闭合。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;int MTD_f::mtdf(int firstGuess)
+&amp;#123;
+	/* MTD(f)窗口上下限 */
+	int windowTop = WIN;
+	int windowDown = -WIN;
+	/* 空窗探测评估值，调整MTD(f)窗口的依据 */
+	int g = firstGuess;
+	/* alphaBeta算法的窗口上限 */
+	int beta;
+	/* 不断执行空窗探测直到窗口闭合，有hash置换表不怕重复搜索 */
+	while(windowDown &amp;lt; windowTop)
+	&amp;#123;
+		/* 刚调整过窗口下限，更需要通过向上偏移的空窗探测调整窗口上限 */
+		if (g == windowDown)
+		&amp;#123;
+			/* 在[g, g+1]区间上进行空窗探测 */
+			/* alpha = g */
+			beta = g + 1;
+		&amp;#125;
+		/* 刚调整过窗口上限，更需要通过向下偏移的空窗探测调整窗口下限 */
+		else
+		&amp;#123;
+			/* 在[g-1, g]区间上进行空窗探测 */
+			/* alpha = g - 1 */
+			beta = g;
+		&amp;#125;
+		/* 利用Fail-Soft AlphaBeta算法做空窗探测 */
+		/* alpha = beta - 1 */
+		g = TTFAlphaBeta(beta - 1, beta, 0);
+		/* 根据新评估值做窗口调整 */
+		/* 新评估值小于空窗口，可以认为猜高了，实际评估值应该更低 */
+		if (g &amp;lt; beta)
+		&amp;#123;
+			/* 根据新评估值下调MTD(f)窗口上限 */
+			windowTop = g;
+		&amp;#125;
+		/* 新评估值不小于空窗口，可以认为猜低了，实际评估值应该更高 */
+		else
+		&amp;#123;
+			/* 根据新评估值上调MTD(f)窗口下限 */
+			windowDown = g;
+		&amp;#125;
+	&amp;#125;
+	return g;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 再下一层是一个hash置换表优化的Fail-Soft-AlphaBeta算法，事实上，这个AlphaBeta的窗口大小是０，所以在我看来，MTD(f)的最下层更像一个PVS。&lt;/p&gt;
+&lt;h3 id=&#34;3-4-3-AlphaBeta&#34;&gt;&lt;a href=&#34;#3-4-3-AlphaBeta&#34; class=&#34;headerlink&#34; title=&#34;3.4.3 AlphaBeta&#34;&gt;&lt;/a&gt;3.4.3 AlphaBeta&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 搜索核心的另一个实现是AlphaBeta算法，实际上我只是把MTD(f)最下层的PVS拿出来，去掉置换表，把初始窗口定为无限大而已。这从算法实现方式的侧面印证了Maxmin系算法师出同门的事实。&lt;/p&gt;
+&lt;h2 id=&#34;3-5-局面评估核心&#34;&gt;&lt;a href=&#34;#3-5-局面评估核心&#34; class=&#34;headerlink&#34; title=&#34;3.5 局面评估核心&#34;&gt;&lt;/a&gt;3.5 局面评估核心&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 现在使用的评估方法是统计局面上棋子的自由度、受威胁程度、棋子基本价值、棋盘位置加成、棋子受保护加成，并进行简单累加。使用了很多常数作为评估依据：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#ifndef _EVALUATOR_H_
+#define _EVALUATOR_H_
+
+#include &amp;quot;State.h&amp;quot;
+#include &amp;quot;Move.h&amp;quot;
+#include &amp;lt;vector&amp;gt;
+
+/* 估值器，提供对每一个局面状态的下特定走法的评分 */
+/* 使用先验知识和一些局面评估因素为局面估值 */
+class Evaluator
+&amp;#123;
+public:
+	/* 评估结点计数 */
+	unsigned cnt;
+	/* 估值器构造函数，初始化估值器 */
+	Evaluator();
+	/* 估值函数，对给定的局面状态评分 */
+	int evaluate(State &amp;amp;state);
+private:
+	/* 炮的一些重要坐标的加成 */
+	const int ADD_R_CANNON[10][9] =
+	&amp;#123;
+		&amp;#123;50,	50,	0,	0,	0,	0,	0,	50,	50&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	10,	0,	10,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	10,	0,	0,	0,	0,	0,	10,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;10,	0,	0,	10,	50,	10,	0,	0,	10&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;
+	&amp;#125;;
+	const int ADD_B_CANNON[10][9] =
+	&amp;#123;
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;10,	0,	0,	10,	50,	10,	0,	0,	10&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	10,	0,	0,	0,	0,	0,	10,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	10,	0,	10,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;50,	50,	0,	0,	0,	0,	0,	50,	50&amp;#125;
+	&amp;#125;;
+	/* 马的一些重要坐标的加成 */
+	const int ADD_R_KNIGHT[10][9] =
+	&amp;#123;
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	100,	0,	0,	0,	100,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	100,	0,	100,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	10,	0,	0,	0,	10,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	10,	0,	0,	0,	10,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	-100,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;
+	&amp;#125;;
+	const int ADD_B_KNIGHT[10][9] =
+	&amp;#123;
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	-100,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	10,	0,	0,	0,	10,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	10,	0,	0,	0,	10,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	100,	0,	100,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	100,	0,	0,	0,	100,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;
+	&amp;#125;;
+	/* 兵的一些重要坐标的加成 */
+	const int ADD_R_PAWN[10][9] =
+	&amp;#123;
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;90,	90,	110,	120,	120,	120,	110,	90,	90&amp;#125;,
+		&amp;#123;90,	90,	110,	120,	120,	120,	110,	90,	90&amp;#125;,
+		&amp;#123;70,	90,	110,	120,	120,	120,	110,	90,	70&amp;#125;,
+		&amp;#123;70,	70,	70,	70,	70,	70,	70,	70,	70&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;
+	&amp;#125;;
+	const int ADD_B_PAWN[10][9] =
+	&amp;#123;
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;,
+		&amp;#123;70,	70,	70,	70,	70,	70,	70,	70,	70&amp;#125;,
+		&amp;#123;70,	90,	110,	120,	120,	120,	110,	90,	70&amp;#125;,
+		&amp;#123;90,	90,	110,	120,	120,	120,	110,	90,	90&amp;#125;,
+		&amp;#123;90,	90,	110,	120,	120,	120,	110,	90,	90&amp;#125;,
+		&amp;#123;0,	0,	0,	0,	0,	0,	0,	0,	0&amp;#125;
+	&amp;#125;;
+	/* 先验的定义每种棋子的基本价值 */
+	const int BASE_VAL[32] =
+	&amp;#123;
+		10000, 250, 250, 250, 250, 350, 350, 500, 500, 350, 350, 100, 100, 100, 100, 100,
+		10000, 250, 250, 250, 250, 350, 350, 500, 500, 350, 350, 100, 100, 100, 100, 100
+	&amp;#125;;
+	/* 棋子灵活度单位价值，即每个可走位置对总自由度的贡献 */
+	const int FREE_UNIT[32] =
+	&amp;#123;
+		0, 1, 1, 1, 1, 12, 12, 6, 6, 6, 6, 15, 15, 15, 15, 15,
+		0, 1, 1, 1, 1, 12, 12, 6, 6, 6, 6, 15, 15, 15, 15, 15
+	&amp;#125;;
+	/* 棋子被威胁造成的负分 */
+	bool threatenScore[32];
+	/* 棋子被保护造成的加分 */
+	bool protectScore[32];
+	/* 棋子评分 */
+	int chessScore[32];
+	/* 根据特定的局面状态和当前行动权归属生成所有可能的势力覆盖方式并填充走法容器 */
+	void generate(const State &amp;amp;state);
+	/* 棋子势力覆盖方式容器 */
+	std::vector&amp;lt;Move&amp;gt; coverList;
+&amp;#125;;
+
+#endif
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1 id=&#34;4-手工测试&#34;&gt;&lt;a href=&#34;#4-手工测试&#34; class=&#34;headerlink&#34; title=&#34;4 手工测试&#34;&gt;&lt;/a&gt;4 手工测试&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 搜索深度为１时，分别使用AlphaBeta算法和MTD(f)算法作为搜索核心，评估结点数和搜索时间并没有明显的不同。两种算法下电脑的走法都很蠢。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 搜索深度为２时，使用AlphaBeta算法，绝大多数情况下评估结点数稳定在400&lt;del&gt;700区间内，搜索时间最多达到10^-2秒数量级；使用MTD(f)算法，绝大多数情况下评估结点数稳定在600&lt;/del&gt;1000区间内，搜索时间稳定在0.03秒左右。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 搜索深度为３时，使用AlphaBeta算法，绝大多数情况下评估结点数稳定在10000附近，搜索时间平均在10^-2秒数量级；使用MTD(f)算法，评估结点数平均在10^3数量级上,偶尔上万，搜索时间平均在10^-2秒数量级，偶尔还会非常小。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 搜索深度为４时，使用AlphaBeta算法，评估结点数在10^5数量级上，搜索时间平均在1秒数量级，电脑的走法看起似乎比搜索３层要蠢；使用MTD(f)算法，评估结点数很少再达到10^4数量级以上，搜索时间稳定在1秒数量级，走法也有点蠢。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 搜索深度为５时，使用AlphaBeta算法，评估结点数在10^6数量级上，搜索时间平均在８秒，电脑表现比较出色，开始出现游戏崩溃的现象；使用MTD(f)算法，可能是受迭代深化的限制作用影响，评估结点数和搜索时间与搜索深度为４时很接近，但是电脑的走法比４层时更出色，会出现游戏崩溃的现象。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 搜索深度为６时，使用AlphaBeta算法，评估结点数达到了10^7数量级，搜索时间也增加到10^2秒数量级，电脑走法却不如５层时优秀，有游戏崩溃现象；使用MTD(f)算法，可能是受迭代深化的限制作用影响，评估结点数和搜索时间与搜索深度为４时很接近，电脑的走法没有比５层明显更优秀，有游戏崩溃的现象。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 更深层的搜索时AlphaBeta算法的搜索时间将长到无法忍受，游戏崩溃的现象也将更早出现。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 观察表明，使用偶数作为搜索深度时，电脑的走法性能会相对浅一层的奇数层搜索结果有一定的衰减，迭代深化时的层数步进也许设置为２更好。&lt;/p&gt;
+&lt;h1 id=&#34;5-结论与收获&#34;&gt;&lt;a href=&#34;#5-结论与收获&#34; class=&#34;headerlink&#34; title=&#34;5 结论与收获&#34;&gt;&lt;/a&gt;5 结论与收获&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 过去谈及棋牌游戏的人机博弈我都只能表示佩服，满怀憧憬的感叹一下，表示做起来可能很麻烦。真的动手做过一个粗糙的练习之后才发现，用的无非还是那些简单算法的扩展或变种，简单说起来也不过是有限搜索树而已。不过种种精细的剪枝与优化还是很磨练人的心性的，当然我还没磨练到位，毕竟初版的优化我都没做彻底就来写博文了。&lt;/p&gt;
+&lt;h1 id=&#34;6-不足与展望&#34;&gt;&lt;a href=&#34;#6-不足与展望&#34; class=&#34;headerlink&#34; title=&#34;6 不足与展望&#34;&gt;&lt;/a&gt;6 不足与展望&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不足：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;当前版本的两个搜索核心都是盲目搜索，即搜索中容易导致剪枝或棋局结束的结点没有优先搜索。&lt;/li&gt;
+&lt;li&gt;局面评估核心应该重构，提供一个通用接口，为神经网络优化或其他技术优化的评估核心做准备。&lt;/li&gt;
+&lt;li&gt;搜索树的展开过程中仍然存在动态申请内存空间的动作，当搜索深度到达４，偶尔会出现内存申请失败，游戏崩溃的情况，可以尽量静态的一次性的申请内存。&lt;/li&gt;
+&lt;li&gt;没有足够优秀的查表优化。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 展望：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;通用部件的数据结构还可以进一步细化优化。&lt;/li&gt;
+&lt;li&gt;走法生成器和评估核心的工具函数——棋子影响力覆盖范围生成器都有并行化的优化空间。&lt;/li&gt;
+&lt;li&gt;局面评估核心还可以有更优秀的，基于机器学习的优化。&lt;/li&gt;
+&lt;li&gt;还可以建立适当规模的开局库、残局库。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 最后，挂&lt;a href=&#34;https://github.com/bipedalBit/BipedalBit-Chinese-Chess&#34;&gt;Git项目地址&lt;/a&gt;。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 因为偶尔偷懒，项目代码规范化有些参差不齐，有好的建议欢迎讨论。&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/10/17/C-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%88%9D%E6%8E%A2%E2%80%94%E2%80%94c-11%E7%AF%87/</guid>
+            <title>C++多线程初探——c++11篇</title>
+            <link>https://blog.bipedalbit.net/2015/10/17/C-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%88%9D%E6%8E%A2%E2%80%94%E2%80%94c-11%E7%AF%87/</link>
+            <category>C++</category>
+            <category>c++11</category>
+            <category>多线程</category>
+            <pubDate>Sat, 17 Oct 2015 14:58:22 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 今天被说C++出身的猿不会多线程跟不会C++有什么分别，于是放下刚到手的Go和R的书，痛定思痛准备来给自己补补课。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; C++新标准c++11出现之前（虽然“新”标准已经发布好几年了），大家用C++写多线程通常有两种方式：Unix&amp;#x2F;Linux下通常使用POSIX标准的pthread.h库，pthread并不是语言本身提供的内置库，gcc编译带pthread的程序时需要加上&lt;code&gt;-lpthread&lt;/code&gt;标识参数；Windows下，win系列系统提供了一些线程API，但是由于gcc&amp;#x2F;g++等编译器的跨平台性，其实也可以在win下使用pthread。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 然而2011年夏天，c++11标准发布了，新C++有了许多方便的新特性，其中就包括内置的，对多线程的支持。gcc 4.6及以前的版本编译c++11标准的多线程程序时还要加&lt;code&gt;-pthread&lt;/code&gt;标识参数（注意与pthread库的&lt;code&gt;-lpthread&lt;/code&gt;参数的区别）。后来也默认的支持新C++的内置多线程了，实测gcc 4.8.4除了&lt;code&gt;-std=c++11&lt;/code&gt;不加别的参数，能够顺利编译运行c++11的多线程程序。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 铺垫了这么多，下面就先来试试c++11的多线程吧。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; helloWorld.cpp：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;/* c++11线程类的所在，下面的std::thread和std::this_thread都在其中 */
+#include &amp;lt;thread&amp;gt;
+#include &amp;lt;iostream&amp;gt;
+using namespace std;
+
+void thread_task()
+&amp;#123;
+	cout &amp;lt;&amp;lt; &amp;quot;Hello world! My thread ID is &amp;quot; &amp;lt;&amp;lt; this_thread::get_id() &amp;lt;&amp;lt; endl;
+&amp;#125;
+
+int main(int argc, char const *argv[])
+&amp;#123;
+	// 主线程测试
+	/* get_id函数是thread类和this_thread类的成员，获取线程ID */
+	cout &amp;lt;&amp;lt; &amp;quot;I&amp;#39;m the main thread. My thread ID is &amp;quot; &amp;lt;&amp;lt; this_thread::get_id() &amp;lt;&amp;lt; endl;
+	// 子线程测试
+	/* 构造子线程时指派线程任务函数指针 */
+	thread t1(thread_task);
+	thread t2(thread_task);
+	thread t3(thread_task);
+	/* 主线程创建子线程 */
+	t1.join();
+	t2.join();
+	t3.join();
+
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 最简单的多线程测试看起来运行的很顺利。下面我们稍微详细一点研究下std::thread的&lt;a href=&#34;http://www.cplusplus.com/reference/thread/thread/&#34;&gt;官方文档&lt;/a&gt;。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;thread::id：thread下面有个子类型thread::id，表示线程ID。是thread::get_id和this_thread::get_id的返回值。thread::id的构造函数返回一个non-joinable（不代表任何一个线程，即不与任何一个未终止的线程对应的ID相等）的线程ID。一个活跃的线程的ID会在线程终止后变成non-joinable线程ID。&lt;/li&gt;
+&lt;li&gt;thread类的构造有4种形式：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;thread::thread()：默认构造函数，即不带参数的构造函数。构造一个非活跃（不可执行）的线程对象。&lt;/li&gt;
+&lt;li&gt;thread::thread (Fn&amp;amp;&amp;amp; fn, Args&amp;amp;&amp;amp;… args)：初始化构造函数，即带足够多参数，足以初始化一个线程的构造函数。初始化构造函数的参数列表包括一个函数指针和这个函数的参数列表。利用迟邦定技术，构造过程与对函数副本的请求同步完成。&lt;/li&gt;
+&lt;li&gt;复制构造函数，即从一个线程对象复制而得到一个新的线程对象。实际上，线程对象不允许被复制。&lt;/li&gt;
+&lt;li&gt;thread::thread (thread&amp;amp;&amp;amp; x)：移动构造函数，即重新给指定线程分配一个对象（句柄），并释放原来的线程对象（句柄）。注意这并不影响原线程的执行，因为只是释放了对象（句柄），而没有分离原进程、释放资源。参数只有原线程对象。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;thread::~thread()：如果一个活跃线程被释放，首先会调用terminal()方法停止线程的执行。&lt;/li&gt;
+&lt;li&gt;thread::operator&amp;#x3D;(thread&amp;amp;&amp;amp; rhs)：作用相当于移动构造函数，原线程句柄被释放，返回一个更换句柄的线程对象。&lt;/li&gt;
+&lt;li&gt;thread::get_id()：如果方法的目标线程对象是活跃的，生成一个唯一的ID并返回；如果调用方法的线程对象非活跃，先调用线程的默认构造函数生成一个non-joinable线程对象，然后生成一个唯一的ID并返回。&lt;/li&gt;
+&lt;li&gt;thread::joinable()：joinable方法的唯一参数为一个线程ID，它的bool型返回值代表这个线程ID是否对应一个活跃的线程。this_thread下并没有这个方法，因为当前线程如果不为活跃线程，它将不能完成任何线程任务，即不能调用任何方法。&lt;/li&gt;
+&lt;li&gt;thread::join()：这个方法将阻塞调用方法的线程（主线程），直到目标线程中的操作全部完成。这个方法返回之后，目标线程对象的状态就变为非活跃并可以被安全的释放了。换句话说，这个方法定义了一组线程同步关系。&lt;/li&gt;
+&lt;li&gt;thread::detach()：应该有读者注意到了，detach是join的反义词，该方法的作用是从调用线程（主线程）中分离目标线程，让目标线程可以独立并行执行。调用detach方法后两个线程（调用线程和目标线程）都不会被阻塞或者被同步，而是会并行执行直到各自完成所有操作，谁完成执行谁就释放自己的资源，互不影响。（不是我啰嗦，文档原文就是这么说的）这个方法返回之后，目标线程对象的状态就变为非活跃并可以被安全的释放了。换句话说，这个方法定义了一组线程异步关系。&lt;/li&gt;
+&lt;li&gt;thread::swap(thread&amp;amp; x)：文档原文说是交换两个线程对象的&lt;strong&gt;状态&lt;/strong&gt;，我表示不明白状态是指什么。实验表明应该是交换了线程与对象（句柄）的映射关系。thread类还重载了一个面向过程风格的swap方法版本：&lt;code&gt;void swap (thread&amp;amp; x, thread&amp;amp; y)&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;thread::hardware_concurrency()：这是个静态成员函数，返回一个无符号整型，返回一个大概的（不一定准确，因为系统可以支持或限制每个进程创建的线程数）基于硬件的最大并行线程数。如果这个试图返回的值没有被系统很好的定义，返回0。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; thread头文件中还有一个与thread并列的&lt;a href=&#34;http://www.cplusplus.com/reference/thread/this_thread/&#34;&gt;this_thread类&lt;/a&gt;，this_thread类非常简单，除了get_id方法只有另外三个方法：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;this_thread::yield()：顾名思义，使当前线程退让，从执行状态变为就绪状态，使同优先级的线程有机会被重新调度进入执行状态。如果当前进程没什么毛病那么使它退让并没有太大意义，甚至可能不会造成事实上的线程执行顺序变化。yield方法应该在当前线程忙等别的线程而又没有被阻塞时执行。&lt;/li&gt;
+&lt;li&gt;this_thread::sleep_until(const chrono::time_point&amp;lt;Clock,Duration&amp;gt;&amp;amp; abs_time)：阻塞当前线程直到特定时间点，使当前线程至少等待到特定时间点后继续执行，参数是一种特定格式的时间点数据。&lt;/li&gt;
+&lt;li&gt;this_thread::sleep_for(const chrono::duration&amp;lt;Rep,Period&amp;gt;&amp;amp; rel_time)：阻塞当前线程一段时间，使当前线程至少等待特定时长后继续执行，参数是一种特定格式的时间段数据。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 其实c++11标准下，除了thread，还有其他四个用来支持多线程的辅助头文件：&lt;a href=&#34;http://www.cplusplus.com/reference/atomic/&#34;&gt;atomic&lt;/a&gt;、&lt;a href=&#34;http://www.cplusplus.com/reference/mutex/&#34;&gt;mutex&lt;/a&gt;、&lt;a href=&#34;http://www.cplusplus.com/reference/condition_variable/&#34;&gt;condition_variable&lt;/a&gt;、&lt;a href=&#34;http://www.cplusplus.com/reference/future/&#34;&gt;future&lt;/a&gt;。前三个很好理解，分别提供封装好的原子数据类型、互斥锁设备和条件值，future头文件里提供的是一些对分享的数据资源进行竞争的必须设备（我很迷茫头文件为什么不干脆叫share而是叫future这个让人摸不着头脑的名字）。如果读者熟悉操作系统或者进程调度，一定不会对前面这些东西感到陌生。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我们不难管中窥豹猜测多线程的实质，操作系统实现了完善的进程调度，而同样的事情我们要自己对线程再做一遍。线程的调度（包括同步异步、资源调配等等）也就是多线程编程具体要做的事。（还一片茫然的读者请去看任意一本操作系统课本前两三章的样子补补课）&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这篇文主要是科普，入门，建立概念，复杂的多线程实现练习之后再慢慢做，当然也会发文的。下一篇文我准备再科普一下POSIX标准的多线程编程，即pthread库的多线程编程。是的，我不打算研究win下的多线程API了，直言不讳的说，我对Windows有偏见。&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/10/11/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84C-%E5%AE%9E%E7%8E%B0/</guid>
+            <title>BP神经网络的C++实现</title>
+            <link>https://blog.bipedalbit.net/2015/10/11/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84C-%E5%AE%9E%E7%8E%B0/</link>
+            <category>C++</category>
+            <category>BP神经网络</category>
+            <category>机器学习</category>
+            <pubDate>Sun, 11 Oct 2015 00:28:00 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前说了组里的任务是手写BP神经网络，上一篇文总结了一下BP神经网络的概念，老实说，总结概念前的一个C++实现版本在总结概念之后重新审视时觉得实在是惨不忍睹，于是今晚回炉重写了。这篇文就来挂我的BP神经网络C++实现。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 老师提出的具体问题是平面对点集的二分类。ACM战过这么多场，写板子早成了习惯，就把通用的BP认真封装了一下：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 头文件里的Data结构体是输入数据的数据结构，可自定义，这里用的是点分类问题的模型，BP.h：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#ifndef _BP_H_
+#define _BP_H_
+
+#include &amp;lt;vector&amp;gt;
+#include &amp;lt;string&amp;gt;
+using namespace std;
+
+/* 数据样本类 */
+struct Data
+&amp;#123;
+	/* 输入参数，包括： */
+	/* 三维直角坐标系点的坐标(x, y, z) */
+	/* 三维直角坐标系平面a*x + b*y + c*z + d = 0的4个系数 */
+	double x[7];
+	/* 期望输出即监督值 */
+	/* 拟合 */
+	// double d[1];
+	/* 分类 */
+	double d[2];
+	/* 数据构造函数 */
+	Data();
+&amp;#125;;
+
+class BP
+&amp;#123;
+private:
+	/* ========== 常数 ========== */
+	/* 输入层节点数 */
+	int I;
+	/* 隐含层神经元数 */
+	int H;
+	/* 输出层神经元数 */
+	int O;
+	/* 权重学习速率 */
+	double LR;
+	/* 偏置学习速率 */
+	double LR2;
+	/* 学习速率衰减率（每次衰减与当前LR相乘） */
+	double LRDecay;
+	/* 误差函数收敛阈值 */
+	double C;
+	/* ========== 容器 ========== */
+	/* 训练用数据样本集 */
+	vector&amp;lt;Data&amp;gt; trainDS;
+	/* 测使用数据集 */
+	vector&amp;lt;Data&amp;gt; testDS;
+	/* 输入层与隐含层间的全连接权重：w[I(包含一个偏置值)][H] */
+	double **w;
+	/* w修正值 */
+	double *dw;
+	/* 隐含层阈值 */
+	double *th;
+	/* 隐含层输入积累即净激活，也存放之后的激活输出值：u[H] */
+	double *u;
+	/* 隐含层与输出层间的全连接权重：v[H][O] */
+	double **v;
+	/* v修正值 */
+	double *dv;
+	/* 输出层阈值 */
+	double *to;
+	/* 输出层输入积累即净激活，也存放之后的激活输出值：y[O] */
+	double *y;
+	/* 拟合标识 */
+	bool regression;
+	/* ========== 方法 ========== */
+	/* 填充训练用数据样本集 */
+	void fillTrainDS(int sampleCnt);
+	/* 清空训练用数据样本集 */
+	void clearTrainDS();
+	/* 填充测试使用数据集 */
+	void fillTestDS(int sampleCnt);
+	/* 清空测试使用数据集 */
+	void clearTestDS();
+	/* 预测 */
+	void forward(int index, bool test = false);
+	/* 调整 */
+	void backward(int index);
+public:
+	/* ========== 接口 ========== */
+	/*
+	 * 类构造函数，初始化BP神经网络结构和训练参数
+	 * int _I：		输入参数数目。
+	 * int _O：		输出值数目。
+	 * int A：		隐含层调整因子（1~10）。
+	 * double _LR：		权重学习速率（0.01~0.8）。
+	 * double _LR2：	偏置学习速率（0.01~0.8）。
+	 * double _LRDecay：	学习速率衰减率（每次衰减与当前LR相乘）。
+	 * double _C：		误差函数收敛阈值。
+	 * bool regression：	拟合标识。
+	 */
+	BP(int _I, int _O, int A = 1, double _LR = 0.01, double _LR2 = 0.035, double _LRDecay = 1.0, double _C = 0.01, bool regression = false);
+	/* 类析构函数，释放容器分配的堆空间 */
+	~BP();
+	/* 使用指定数目的样本训练指定数目次循环，返回最后的误差函数值 */
+	double train(int sampleCnt = 1000, int trainCnt = 100);
+	/*
+	 * 使用指定数目的样本循环训练。
+	 * 误差函数值进入可接受范围判定收敛并停止训练；
+	 * 到达最大训练次数时停止训练。
+	 * 返回是否收敛。
+	 */
+	bool trainTillConvergent(int sampleCnt = 1000, int maxEpoch = 1000);
+	/* 生成指定数目组数据测试当前神经网络 */
+	void testNetwork(int testCnt = 1000);
+	/* 保存当前神经网络，即两个权重数组 */
+	void saveNetwork(string wPath = &amp;quot;wNetwork&amp;quot;, string vPath = &amp;quot;vNetwork&amp;quot;);
+	/* 载入两个权重数组，还原神经网络 */
+	void loadNetwork(string wPath = &amp;quot;wNetwork&amp;quot;, string vPath = &amp;quot;vNetwork&amp;quot;);
+	/* 使用指定数据预测输出值并返回输出值 */
+	vector&amp;lt;double&amp;gt; runNetwork(vector&amp;lt;double&amp;gt; x);
+&amp;#125;;
+
+#endif
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 类实现源码里的Data结构体的构造函数是输入数据的处理和问题模型的建立，可自定义，这里用的是点分类问题的数据处理，BP.cpp：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;quot;BP.h&amp;quot;
+#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;cstdlib&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;cmath&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+using namespace std;
+
+/* 数据构造函数 */
+Data::Data()
+&amp;#123;
+	/* 归一参数 */
+	for(int i = 1 ; i &amp;lt; 8 ; i++)
+	&amp;#123;
+		x[i] = rand()/(double)RAND_MAX;
+	&amp;#125;
+	/* 实际参数 */
+	double _x = x[1]*20 - 10;
+	double y = x[2]*20 - 10;
+	double z = x[3]*20 - 10;
+	double a = x[4]*20 - 10;
+	double b = x[5]*20 - 10;
+	double c = x[6]*20 - 10;
+	double _d = x[7]*20 - 10;
+	/* 拟合 */
+	// d[0] = z - (a*_x + b*y + _d)/(-1*c);
+	/* 分类 */
+	d[0] = z &amp;gt; (a*_x + b*y + _d)/(-1*c) ? 1 : 0;
+	d[1] = d[0] ? 0 : 1;
+&amp;#125;
+
+/* 填充训练用数据样本集 */
+void BP::fillTrainDS(int sampleCnt)
+&amp;#123;
+	while(sampleCnt--)
+	&amp;#123;
+		trainDS.push_back(Data());
+	&amp;#125;
+&amp;#125;
+
+/* 清空训练用数据样本集 */
+void BP::clearTrainDS()
+&amp;#123;
+	vector&amp;lt;Data&amp;gt; v;
+	trainDS.swap(v);
+&amp;#125;
+
+/* 填充测试使用数据集 */
+void BP::fillTestDS(int sampleCnt)
+&amp;#123;
+	while(sampleCnt--)
+	&amp;#123;
+		testDS.push_back(Data());
+	&amp;#125;
+&amp;#125;
+
+/* 清空测试使用数据集 */
+void BP::clearTestDS()
+&amp;#123;
+	vector&amp;lt;Data&amp;gt; v;
+	testDS.swap(v);
+&amp;#125;
+
+/* 预测 */
+void BP::forward(int index, bool test)
+&amp;#123;
+	/* 隐含层 */
+	for(int i = 0 ; i &amp;lt; H ; i++)
+	&amp;#123;
+		u[i] = 0;
+		for(int j = 0 ; j &amp;lt; I ; j++)
+		&amp;#123;
+			double x = test ? testDS[index].x[j] : trainDS[index].x[j];
+			/* 积累输入 */
+			u[i] += w[j][i]*x;
+		&amp;#125;
+		u[i] += th[i];
+		/* Sigmoid函数作为激活函数 */
+		u[i] = 1 / (1 + exp(-1*u[i]));
+	&amp;#125;
+	/* 输出层 */
+	for(int i = 0 ; i &amp;lt; O ; i++)
+	&amp;#123;
+		y[i] = 0;
+		for(int j = 0 ; j &amp;lt; H ; j++)
+		&amp;#123;
+			/* 积累输入 */
+			y[i] += v[j][i]*u[j];
+		&amp;#125;
+		y[i] += to[i];
+		/* 分类：Sigmoid函数作为激活函数 */
+		if (!regression)
+		&amp;#123;
+			y[i] = 1 / (1 + exp(-1*y[i]));
+		&amp;#125;
+	&amp;#125;
+&amp;#125;
+
+/* 调整 */
+void BP::backward(int index)
+&amp;#123;
+	/* 计算隐含层与输出层间权重调整值 */
+	for(int i = 0 ; i &amp;lt; O ; i++)
+	&amp;#123;
+		/* 拟合：计算输出层学习误差 */
+		if (regression)
+		&amp;#123;
+			dv[i] = y[i] - trainDS[index].d[i];
+		&amp;#125;
+		/* 分类：计算输出层学习误差 */
+		else
+		&amp;#123;
+			dv[i] = (y[i] - trainDS[index].d[i])*y[i]*(1 - y[i]);
+		&amp;#125;
+	&amp;#125;
+	/* 计算输入层与隐含层间权重调整值 */
+	double t;
+	for(int i = 0 ; i &amp;lt; H ; i++)
+	&amp;#123;
+		t = 0;
+		for(int j = 0 ; j &amp;lt; O ; j++)
+		&amp;#123;
+			t += dv[j]*v[i][j];
+		&amp;#125;
+		dw[i] = t*u[i]*(1 - u[i]);
+	&amp;#125;
+	/* 调整隐含层与输出层间权重 */
+	for(int i = 0 ; i &amp;lt; H ; i++)
+	&amp;#123;
+		for(int j = 0 ; j &amp;lt; O ; j++)
+		&amp;#123;
+			v[i][j] -= LR*dv[j]*u[i];
+		&amp;#125;
+	&amp;#125;
+	/* 调整输出层偏置 */
+	for(int i = 0 ; i &amp;lt; O ; i++)
+	&amp;#123;
+		to[i] -= LR2*dv[i];
+	&amp;#125;
+	/* 调整输入层与隐含层间权重 */
+	for(int i = 0 ; i &amp;lt; I ; i++)
+	&amp;#123;
+		for(int j = 0 ; j &amp;lt; H ; j++)
+		&amp;#123;
+			w[i][j] -= LR*dw[j]*trainDS[index].x[i];
+		&amp;#125;
+	&amp;#125;
+	/* 调整隐含层偏置 */
+	for(int i = 0 ; i &amp;lt; H ; i++)
+	&amp;#123;
+		th[i] -= LR2*dw[i];
+	&amp;#125;
+&amp;#125;
+
+/*
+ * 类构造函数，初始化BP神经网络结构和训练参数
+ * int _I：		输入参数数目，包括偏置值对应的参数-1。
+ * int _O：		输出值数目。
+ * int A：		隐含层调整因子（1~10）。
+ * double _LR：		权重学习速率（0.01~0.8）。
+ * double _LR2：	偏置学习速率（0.01~0.8）。
+ * double _LRDecay：	学习速率衰减率（每次衰减与当前LR相乘）。
+ * double _C：		误差函数收敛阈值。
+ * bool regression：	拟合标识。
+ */
+BP::BP(int _I, int _O, int A, double _LR, double _LR2, double _LRDecay, double _C, bool _regression)
+&amp;#123;
+	/* ========== 初始化常数 ========== */
+	I = _I;
+	H = ceil(sqrt(_I + _O)) + A;
+	O = _O;
+	LR = _LR;
+	LR2 = _LR2;
+	LRDecay = _LRDecay;
+	C = _C;
+	regression = _regression;
+	/* ========== 初始化容器 ========== */
+	srand((unsigned)time(NULL));
+	/* 初始化w */
+	w = new double*[I];
+	for(int i = 0 ; i &amp;lt; I ; i++)
+	&amp;#123;
+		w[i] = new double[H];
+		for(int j = 0 ; j &amp;lt; H ; j++)
+		&amp;#123;
+			w[i][j] = rand()/(double)RAND_MAX;
+		&amp;#125;
+	&amp;#125;
+	/* 初始化dw */
+	dw = new double[H];
+	/* 初始化th */
+	th = new double[H];
+	for(int i = 0 ; i &amp;lt; H ; i++)
+	&amp;#123;
+		th[i] = rand()/(double)RAND_MAX;
+	&amp;#125;
+	/* 初始化u */
+	u = new double[H];
+	/* 初始化v */
+	v = new double*[H];
+	for(int i = 0 ; i &amp;lt; H ; i++)
+	&amp;#123;
+		v[i] = new double[O];
+		for(int j = 0 ; j &amp;lt; O ; j++)
+		&amp;#123;
+			v[i][j] = rand()/(double)RAND_MAX;
+		&amp;#125;
+	&amp;#125;
+	/* 初始化dv */
+	dv = new double[O];
+	/* 初始化to */
+	to = new double[O];
+	for(int i = 0 ; i &amp;lt; O ; i++)
+	&amp;#123;
+		to[i] = rand()/(double)RAND_MAX;
+	&amp;#125;
+	/* 初始化y */
+	y = new double[O];
+&amp;#125;
+
+/* 类析构函数，释放容器分配的堆空间 */
+BP::~BP()
+&amp;#123;
+	/* 释放w */
+	for(int i = 0 ; i &amp;lt; I ; i++)
+	&amp;#123;
+		delete []w[i];
+	&amp;#125;
+	delete []w;
+	/* 释放dw */
+	delete []dw;
+	/* 释放th */
+	delete []th;
+	/* 释放u */
+	delete []u;
+	/* 释放v */
+	for(int i = 0 ; i &amp;lt; H ; i++)
+	&amp;#123;
+		delete []v[i];
+	&amp;#125;
+	delete []v;
+	/* 释放dv */
+	delete []dv;
+	/* 释放to */
+	delete []to;
+	/* 释放y */
+	delete []y;
+&amp;#125;
+
+/* 使用指定数目的样本训练指定数目次循环，返回最后的误差函数值 */
+double BP::train(int sampleCnt, int trainCnt)
+&amp;#123;
+	fillTrainDS(sampleCnt);
+	double e;
+	while(trainCnt--)
+	&amp;#123;
+		e = 0;
+		for(int i = 0 ; i &amp;lt; trainDS.size() ; i++)
+		&amp;#123;
+			/* 预测 */
+			forward(i);
+			/* 误差积累 */
+			for(int j = 0 ; j &amp;lt; O ; j++)
+			&amp;#123;
+				e += pow(y[j] - trainDS[i].d[j], 2.0);
+			&amp;#125;
+			/* 调整 */
+			backward(i);
+		&amp;#125;
+		e /= 2*sampleCnt;
+		/* 学习速率衰减 */
+		if (LR &amp;gt; 0.01)
+		&amp;#123;
+			LR *= LRDecay;
+		&amp;#125;
+	&amp;#125;
+	clearTrainDS();
+	return e;
+&amp;#125;
+
+/*
+ * 使用指定数目的样本循环训练。
+ * 误差函数值进入可接受范围判定收敛并停止训练；
+ * 到达最大训练次数时停止训练。
+ * 返回是否收敛。
+ */
+bool BP::trainTillConvergent(int sampleCnt, int maxEpoch)
+&amp;#123;
+	fillTrainDS(sampleCnt);
+	double e;
+	for(;;)
+	&amp;#123;
+		e = 0;
+		for(int i = 0 ; i &amp;lt; trainDS.size() ; i++, maxEpoch--)
+		&amp;#123;
+			if (!maxEpoch)
+			&amp;#123;
+				clearTrainDS();
+				return false;
+			&amp;#125;
+			/* 预测 */
+			forward(i);
+			/* 误差积累 */
+			for(int j = 0 ; j &amp;lt; O ; j++)
+			&amp;#123;
+				e += pow(y[j] - trainDS[i].d[j], 2.0);
+			&amp;#125;
+			/* 调整 */
+			backward(i);
+		&amp;#125;
+		/* 判定收敛，中止训练 */
+		if (e/(2*sampleCnt) &amp;lt; C)
+		&amp;#123;
+			clearTrainDS();
+			return true;
+		&amp;#125;
+		/* 学习速率衰减 */
+		if (LR &amp;gt; 0.01)
+		&amp;#123;
+			LR *= LRDecay;
+		&amp;#125;
+	&amp;#125;
+	clearTrainDS();
+	return false;
+&amp;#125;
+
+/* 生成指定数目组数据测试当前神经网络 */
+void BP::testNetwork(int testCnt)
+&amp;#123;
+	fillTestDS(testCnt);
+	double e = 0;
+	for(int i = 0 ; i &amp;lt; testCnt ; i++)
+	&amp;#123;
+		forward(i, true);
+		for(int j = 0 ; j &amp;lt; O ; j++)
+		&amp;#123;
+			e += pow(y[j] - testDS[i].d[j], 2.0);
+		&amp;#125;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; testCnt &amp;lt;&amp;lt; &amp;quot;组数据测试预测值相对期望值方差为：&amp;quot; &amp;lt;&amp;lt; e/(2*testCnt) &amp;lt;&amp;lt; endl;
+	clearTestDS();
+&amp;#125;
+
+/* 保存当前神经网络，即两个权重数组 */
+void BP::saveNetwork(string wPath, string vPath)
+&amp;#123;
+	ofstream fout_w(wPath);
+	if(fout_w == NULL)
+	&amp;#123;
+		cout &amp;lt;&amp;lt; &amp;quot;打开文件失败&amp;quot; &amp;lt;&amp;lt; endl;
+		return;
+	&amp;#125;
+	for(int i = 0 ; i &amp;lt; I ; i++)
+	&amp;#123;
+		for(int j = 0 ; j &amp;lt; H ; j++)
+		&amp;#123;
+			fout_w &amp;lt;&amp;lt; w[i][j] &amp;lt;&amp;lt; &amp;#39;\t&amp;#39;;
+		&amp;#125;
+		fout_w &amp;lt;&amp;lt; &amp;#39;\n&amp;#39;;
+	&amp;#125;
+	fout_w.close();
+	ofstream fout_v(vPath);
+	if(fout_v == NULL)
+	&amp;#123;
+		cout &amp;lt;&amp;lt; &amp;quot;打开文件失败&amp;quot; &amp;lt;&amp;lt; endl;
+		return;
+	&amp;#125;
+	for(int i = 0 ; i &amp;lt; H ; i++)
+	&amp;#123;
+		for(int j = 0 ; j &amp;lt; O ; j++)
+		&amp;#123;
+			fout_v &amp;lt;&amp;lt; v[i][j] &amp;lt;&amp;lt; &amp;#39;\t&amp;#39;;
+		&amp;#125;
+		fout_v &amp;lt;&amp;lt; &amp;#39;\n&amp;#39;;
+	&amp;#125;
+	fout_v.close();
+&amp;#125;
+
+/* 载入两个权重数组，还原神经网络 */
+void BP::loadNetwork(string wPath, string vPath)
+&amp;#123;
+	ifstream fin_w(wPath);
+	if(fin_w == NULL)
+	&amp;#123;
+		cout &amp;lt;&amp;lt; &amp;quot;打开文件失败&amp;quot; &amp;lt;&amp;lt; endl;
+		return;
+	&amp;#125;
+	for(int i = 0 ; i &amp;lt; I ; i++)
+	&amp;#123;
+		for(int j = 0 ; j &amp;lt; H ; j++)
+		&amp;#123;
+			fin_w &amp;gt;&amp;gt; w[i][j];
+		&amp;#125;
+	&amp;#125;
+	fin_w.close();
+	ifstream fin_v(vPath);
+	if(fin_v == NULL)
+	&amp;#123;
+		cout &amp;lt;&amp;lt; &amp;quot;打开文件失败&amp;quot; &amp;lt;&amp;lt; endl;
+		return;
+	&amp;#125;
+	for(int i = 0 ; i &amp;lt; H ; i++)
+	&amp;#123;
+		for(int j = 0 ; j &amp;lt; O ; j++)
+		&amp;#123;
+			fin_v &amp;gt;&amp;gt; v[i][j];
+		&amp;#125;
+	&amp;#125;
+	fin_v.close();
+&amp;#125;
+
+/* 使用指定数据预测输出值并返回输出值 */
+vector&amp;lt;double&amp;gt; BP::runNetwork(vector&amp;lt;double&amp;gt; x)
+&amp;#123;
+	/* 隐含层 */
+	for(int i = 0 ; i &amp;lt; H ; i++)
+	&amp;#123;
+		u[i] = 0;
+		for(int j = 0 ; j &amp;lt; x.size() ; j++)
+		&amp;#123;
+			/* 积累输入 */
+			u[i] += w[j][i]*x[j];
+		&amp;#125;
+		u[i] += th[i];
+		/* Sigmoid函数作为激活函数 */
+		u[i] = 1 / (1 + exp(-1*u[i]));
+	&amp;#125;
+	vector&amp;lt;double&amp;gt; o;
+	double y;
+	/* 输出层 */
+	for(int i = 0 ; i &amp;lt; O ; i++)
+	&amp;#123;
+		y = 0;
+		for(int j = 0 ; j &amp;lt; H ; j++)
+		&amp;#123;
+			/* 积累输入 */
+			y += v[j][i]*u[j];
+		&amp;#125;
+		y += to[i];
+		/* 分类：Sigmoid函数作为激活函数 */
+		if (!regression)
+		&amp;#123;
+			y = 1 / (1 + exp(-1*y));
+		&amp;#125;
+		o.push_back(y);
+	&amp;#125;
+	return o;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 类的测试方法里无非是根据实际问题初始化类，做一系列的训练，调整参数，慢慢提高预测精度，test.cpp：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;quot;BP.h&amp;quot;
+#include &amp;lt;iostream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	/*
+	 * 类构造函数，初始化BP神经网络结构和训练参数
+	 * int _I：		输入参数数目，包括偏置值对应的参数-1。
+	 * int _O：		输出值数目。
+	 * int A：		隐含层调整因子（1~10）。
+	 * double _LR：		学习速率（0.01~0.8）。
+	 * double _LR2：	偏置学习速率（0.01~0.8）。
+	 * double _LRDecay：	学习速率衰减率（每次衰减与当前LR相乘）。
+	 * double _C：		误差函数收敛阈值。
+	 * bool regression：	拟合标识。
+	 */
+	BP o(7, 2, 8, 0.2, 0.02, 0.99, 3.2e-2, false);
+
+	// o.loadNetwork();
+
+	/* 使用指定数目的样本训练指定数目次循环，返回最后的误差函数值 */
+	for(int i = 0 ; i &amp;lt; 20 ; i++)
+	&amp;#123;
+		cout &amp;lt;&amp;lt; &amp;quot;误差函数值：&amp;quot; &amp;lt;&amp;lt; o.train(1000, 2e3) &amp;lt;&amp;lt; endl;
+	&amp;#125;
+
+	/*
+	 * 使用指定数目的样本循环训练。
+	 * 误差函数值进入可接受范围判定收敛并停止训练；
+	 * 到达最大训练次数时停止训练。
+	 * 返回是否收敛。
+	 */
+	// bool success = o.trainTillConvergent(1000, 1e5*1000);
+	// cout &amp;lt;&amp;lt; &amp;quot;收敛：&amp;quot; &amp;lt;&amp;lt; (success ? &amp;quot;success&amp;quot; : &amp;quot;fail&amp;quot;) &amp;lt;&amp;lt; endl;
+
+	o.testNetwork(1000);
+
+	o.saveNetwork();
+
+	vector&amp;lt;double&amp;gt; X;
+	double x = 0.1;
+	double y = 0.1;
+	double z = 0.1;
+	double a = 1;
+	double b = 1;
+	double c = 1;
+	double d = -1;
+	X.push_back((x + 10)/20.0);
+	X.push_back((y + 10)/20.0);
+	X.push_back((z + 10)/20.0);
+	X.push_back((a + 10)/20.0);
+	X.push_back((b + 10)/20.0);
+	X.push_back((c + 10)/20.0);
+	X.push_back((d + 10)/20.0);
+	vector&amp;lt;double&amp;gt; Y = o.runNetwork(X);
+	/* 拟合 */
+	// cout &amp;lt;&amp;lt; &amp;quot;期望值：&amp;quot; &amp;lt;&amp;lt; z - (a*x + b*y + d)/(-c) &amp;lt;&amp;lt; endl;
+	// cout &amp;lt;&amp;lt; &amp;quot;输出值：&amp;quot; &amp;lt;&amp;lt; Y[0] &amp;lt;&amp;lt; endl;
+	/* 分类 */
+	cout &amp;lt;&amp;lt; &amp;quot;期望值：&amp;quot; &amp;lt;&amp;lt; (z &amp;gt; (a*x + b*y + d)/(-c) ? &amp;quot;1\t0&amp;quot; : &amp;quot;0\t1&amp;quot;) &amp;lt;&amp;lt; endl;
+	cout &amp;lt;&amp;lt; &amp;quot;输出值：&amp;quot; &amp;lt;&amp;lt; Y[0] &amp;lt;&amp;lt; &amp;#39;\t&amp;#39; &amp;lt;&amp;lt; Y[1] &amp;lt;&amp;lt; endl;
+
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 点分类问题我先尝试了函数拟合方式，训练情况很糟糕，动辄上十万的方差。后来改用分类方式，降低训练要求，方差立马降下来了。下午例会就要做报告了，我没有训练到充分收敛，但是离平面比较远的点判断正确率已经很高了。下面提供平面分类点集问题当前训练进度下，输入层与隐含层间权重数组、隐含层与输出层间权重数组的保存文件。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 输入层与隐含层间权重数组wNetwork：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;0.15513	0.56829	0.461073	0.27552	0.44408	0.144657	0.95798	0.335522	0.325092	0.254423	0.79217
+-1.06417	-0.0241895	3.99915	0.228275	-0.483658	6.68402	-1.61574	0.753689	4.14272	-4.58112	-3.09481
+3.70442	-3.7423	0.0852013	-0.564758	-4.99619	1.29436	-4.19077	-1.75579	-0.568722	-2.57748	1.20149
+-0.311858	2.12485	0.494471	-3.32854	-0.393046	1.12112	-0.585242	-3.45739	-0.687711	-1.37346	-0.860532
+1.29214	0.74987	4.41025	-1.37666	0.268284	6.72309	2.0978	-1.8259	4.20105	-6.15165	5.04569
+-3.76331	-3.22432	-0.450262	1.77063	-5.89358	3.40051	3.64122	1.30879	-0.98291	-0.931413	-1.72719
+9.53636	9.64562	9.82743	13.4779	-12.3668	12.5147	8.37658	6.32437	-10.263	-13.8476	-5.31933
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 隐含层与输出层间权重数组vNetwork：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;31.4711	-31.5094
+27.536	-27.5713
+-25.7692	25.7999
+-27.4329	27.467
+-17.6709	17.6933
+-18.464	17.5204
+25.8167	-25.8471
+-23.2151	23.2434
+27.3533	-27.387
+26.9126	-26.9519
+-24.7905	24.8209
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这个类我还做过a+b问题的函数拟合，收敛非常顺利，精度很高。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;strong&gt;后来，例会上提任务的博士说他明明是要我们寻找分割点集的平面，我把问题泛化成寻找点与平面位置关系规则的问题了，能用泛化能力不太强的BP整的差不多收敛也是不容易。我表示生无可恋……&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;strong&gt;读者注意一下，上一篇BP网络的理论介绍中，隐层与输入层之间的权重调整值的推导有一些问题，少乘了一个wij。推导已经改过来了，但是比较忙没空改代码，有需要的同学请自己参照上一篇博文修改一下代码。OTZ&lt;/strong&gt;&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/10/08/C-%E4%BA%8C%E8%BF%9B%E5%88%B6-%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2%E5%99%A8/</guid>
+            <title>C++二进制-十进制转换器</title>
+            <link>https://blog.bipedalbit.net/2015/10/08/C-%E4%BA%8C%E8%BF%9B%E5%88%B6-%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2%E5%99%A8/</link>
+            <category>C++</category>
+            <category>进制转换</category>
+            <pubDate>Thu, 08 Oct 2015 22:05:52 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 布置了二进制-十进制转换器的小作业，本来还要求顺手扩展一下大数的四则运算，我嫌麻烦没做扩展，就只是写来玩玩。也算熟悉一下底层的二进制-十进制转换机制，顺便复习下C++源码规范。注释写了很多，就不多做解释了，只贴代码。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; converter.h:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;/*
+ * Copyright (C) Bipedal Bit
+ * Verson 1.0.0.1
+ */
+
+#ifndef _CONVERTER_H_
+#define _CONVERTER_H_
+
+#include &amp;lt;string&amp;gt;
+
+/*
+ * This is a class to offer operations converting radix of number in string.
+ */
+class Converter
+&amp;#123;
+private:
+	/* to store the binary form of picked up number string */
+	std::string binVal;
+	/* to store the decimal form of picked up number string */
+	std::string decVal;
+	/* to sign the number by marking wether it is negtive */
+	bool negtive;
+	/* to mark wether the number has a dot */
+	bool hasDot;
+	/* to store the index of dot in binary number string */
+	int binDotIndex;
+	/* to store the index of dot in decimal number string */
+	int decDotIndex;
+	/* max reserved digits sum when float converted from decimal to binary */
+	int binFloatPrecision;
+	/*
+	 * Convert the binary number to decimal form then fill this-&amp;gt;decVal.
+	 */
+	void bin2Dec();
+	/*
+	 * Convert the decimal number to binary form then fill this-&amp;gt;binVal.
+	 */
+	void dec2Bin();
+public:
+	/*
+	 * Constructor of the class to pick up number in string and fill both this-&amp;gt;binVal and this-&amp;gt;decVal.
+	 */
+	Converter(std::string str, int radix, int binFloatPrecision = 20);
+	/*
+	 * Get the the number string with specified radix.
+	 */
+	std::string getNum(int radix);
+&amp;#125;;
+
+#endif
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; converter.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;/*
+ * Copyright (C) Bipedal Bit
+ * Verson 1.0.0.1
+ */
+
+ #include &amp;quot;converter.h&amp;quot;
+ #include &amp;lt;iostream&amp;gt;
+ #include &amp;lt;stdexcept&amp;gt;
+
+/*
+ * name: Converter
+ * args:
+ *	string str: the original string containing target number
+ *	int radix: the radix of the number to pick up form str
+ *	int binFloatPrecision: max reserved digits sum when float converted from decimal to binary
+ *		whose default value is 20
+ * Constructor of the class to pick up number in string and fill both this-&amp;gt;binVal and this-&amp;gt;decVal.
+ */
+ Converter::Converter(std::string str, int radix, int binFloatPrecision)
+&amp;#123;
+	/* check radix */
+	if (radix != 2 &amp;amp;&amp;amp; radix != 10)
+	&amp;#123;
+		std::cerr &amp;lt;&amp;lt; &amp;quot;Invalid argument: Do not support radixes beyond binary and decimal yet.\n&amp;quot;;
+		return;
+	&amp;#125;
+	/* check binFloatPrecision */
+	if (binFloatPrecision &amp;lt; 1)
+	&amp;#123;
+		std::cerr &amp;lt;&amp;lt; &amp;quot;Invalid argument: binFloatPrecision should be greater than 0.\n&amp;quot;;
+		return;
+	&amp;#125;
+	/* fill this-&amp;gt;binFloatPrecision */
+	this-&amp;gt;binFloatPrecision = binFloatPrecision;
+	/* assistant variables for traversing the original string */
+	int len = str.size();
+	int i = 0;
+	/* mark wether there&amp;#39;s a dot in the number */
+	bool hasDot = false;
+	/* store number string temporarily */
+	std::string tmp = &amp;quot;&amp;quot;;
+	if (len &amp;gt; 0)
+	&amp;#123;
+		/* handle binary radix */
+		if (radix == 2)
+		&amp;#123;
+			/* remove useless characters */
+			while(str[i] != &amp;#39;-&amp;#39; &amp;amp;&amp;amp; str[i] != &amp;#39;0&amp;#39; &amp;amp;&amp;amp; str[i] != &amp;#39;1&amp;#39;)
+			&amp;#123;
+				i++;
+			&amp;#125;
+			/* pick up &amp;#39;-&amp;#39; */
+			if(str[i] == &amp;#39;-&amp;#39;)
+			&amp;#123;
+				this-&amp;gt;negtive = true;
+				i++;
+			&amp;#125;
+			else
+			&amp;#123;
+				this-&amp;gt;negtive = false;
+			&amp;#125;
+			/* remove spare &amp;#39;0&amp;#39;s */
+			while(str[i] == &amp;#39;0&amp;#39;)
+			&amp;#123;
+				i++;
+			&amp;#125;
+			/* get numbers */
+			for(; i &amp;lt; len ; i++)
+			&amp;#123;
+				/* get first dot only */
+				if (!hasDot &amp;amp;&amp;amp; str[i] == &amp;#39;.&amp;#39;)
+				&amp;#123;
+					hasDot = true;
+					tmp += &amp;#39;.&amp;#39;;
+					continue;
+				&amp;#125;
+				/* get &amp;#39;0&amp;#39;s and &amp;#39;1&amp;#39;s only */
+				if (str[i] != &amp;#39;0&amp;#39; &amp;amp;&amp;amp; str[i] != &amp;#39;1&amp;#39;)
+				&amp;#123;
+					break;
+				&amp;#125;
+				tmp += str[i];
+			&amp;#125;
+		&amp;#125;
+		/* handle decimal radix */
+		else
+		&amp;#123;
+			/* remove useless characters */
+			while(str[i] != &amp;#39;-&amp;#39; &amp;amp;&amp;amp; !(str[i] &amp;gt;= &amp;#39;0&amp;#39; &amp;amp;&amp;amp; str[i] &amp;lt;= &amp;#39;9&amp;#39;))
+			&amp;#123;
+				i++;
+			&amp;#125;
+			/* pick up &amp;#39;-&amp;#39; */
+			if(str[i] == &amp;#39;-&amp;#39;)
+			&amp;#123;
+				this-&amp;gt;negtive = true;
+				i++;
+			&amp;#125;
+			else
+			&amp;#123;
+				this-&amp;gt;negtive = false;
+			&amp;#125;
+			/* remove spare &amp;#39;0&amp;#39;s */
+			while(str[i] == &amp;#39;0&amp;#39;)
+			&amp;#123;
+				i++;
+			&amp;#125;
+			/* get numbers */
+			for(; i &amp;lt; len ; i++)
+			&amp;#123;
+				/* get first dot only */
+				if (!hasDot &amp;amp;&amp;amp; str[i] == &amp;#39;.&amp;#39;)
+				&amp;#123;
+					hasDot = true;
+					tmp += &amp;#39;.&amp;#39;;
+					continue;
+				&amp;#125;
+				/* get all arabic numerals */
+				if(!(str[i] &amp;gt;= &amp;#39;0&amp;#39; &amp;amp;&amp;amp; str[i] &amp;lt;= &amp;#39;9&amp;#39;))
+				&amp;#123;
+					break;
+				&amp;#125;
+				tmp += str[i];
+			&amp;#125;
+		&amp;#125;
+	&amp;#125;
+	/* if no number picked up set 0 */
+	if(tmp == &amp;quot;&amp;quot;)
+	&amp;#123;
+		tmp = &amp;quot;0&amp;quot;;
+	&amp;#125;
+	/* add &amp;#39;0&amp;#39; if necessary */
+	if (tmp[0] == &amp;#39;.&amp;#39;)
+	&amp;#123;
+		tmp = &amp;#39;0&amp;#39; + tmp;
+	&amp;#125;
+	/* mark wether the number has a dot */
+	this-&amp;gt;hasDot = hasDot;
+	/* fill corresponding number form */
+	if (radix == 2)
+	&amp;#123;
+		this-&amp;gt;binVal = tmp;
+		if (hasDot)
+		&amp;#123;
+			/* store dot&amp;#39;s index in the number string of binary form */
+			this-&amp;gt;binDotIndex = tmp.find(&amp;#39;.&amp;#39;);
+		&amp;#125;
+		bin2Dec();
+	&amp;#125;
+	else
+	&amp;#123;
+		this-&amp;gt;decVal = tmp;
+		if (hasDot)
+		&amp;#123;
+			/* store dot&amp;#39;s index in the number string of decimal form */
+			this-&amp;gt;decDotIndex = tmp.find(&amp;#39;.&amp;#39;);
+		&amp;#125;
+		dec2Bin();
+	&amp;#125;
+	/* have a test */
+/*
+	std::cout &amp;lt;&amp;lt; &amp;quot;radix: 2&amp;quot; &amp;lt;&amp;lt; std::endl;
+	if(this-&amp;gt;negtive)
+	&amp;#123;
+		std::cout &amp;lt;&amp;lt; &amp;#39;-&amp;#39;;
+	&amp;#125;
+	std::cout &amp;lt;&amp;lt; this-&amp;gt;binVal &amp;lt;&amp;lt; std::endl;
+	std::cout &amp;lt;&amp;lt; &amp;quot;radix: 10&amp;quot; &amp;lt;&amp;lt; std::endl;
+	if(this-&amp;gt;negtive)
+	&amp;#123;
+		std::cout &amp;lt;&amp;lt; &amp;#39;-&amp;#39;;
+	&amp;#125;
+	std::cout &amp;lt;&amp;lt; this-&amp;gt;decVal &amp;lt;&amp;lt; std::endl;
+*/
+&amp;#125;
+
+/*
+ * name: getNum
+ * arguments:
+ *	int radix: spedify a radix to find which form number is to got
+ * return: the number string with specified form
+ * access: public
+ * Get the the number string with specified radix.
+ */
+ std::string Converter::getNum(int radix)
+ &amp;#123;
+ 	/* check radix */
+	if (radix != 2 &amp;amp;&amp;amp; radix != 10)
+	&amp;#123;
+		std::cerr &amp;lt;&amp;lt; &amp;quot;Invalid argument: Do not support radixes beyond binary and decimal yet.\n&amp;quot;;
+		return NULL;
+	&amp;#125;
+ 	std::string tmp = &amp;quot;&amp;quot;;
+ 	/* add the &amp;#39;-&amp;#39; character if necessary */
+ 	if (this-&amp;gt;negtive)
+ 	&amp;#123;
+ 		tmp += &amp;#39;-&amp;#39;;
+ 	&amp;#125;
+ 	/* add the binary form number */
+ 	if (radix == 2)
+ 	&amp;#123;
+ 		tmp += this-&amp;gt;binVal;
+ 	&amp;#125;
+ 	/* add the decimal form number */
+ 	else
+ 	&amp;#123;
+ 		tmp += this-&amp;gt;decVal;
+ 	&amp;#125;
+ 	return tmp;
+ &amp;#125;
+
+/*
+ * name: bin2Dec
+ * access: private
+ * Convert the binary number to decimal form then fill this-&amp;gt;decVal.
+ */
+ void Converter::bin2Dec()
+ &amp;#123;
+ 	/* store number string temporarily */
+ 	std::string tmp = &amp;quot;&amp;quot;;
+ 	/* ============== int part ============== */
+ 	/* to get the int range of the binary number string */
+ 	int intLen;
+ 	if (this-&amp;gt;hasDot)
+ 	&amp;#123;
+ 		intLen = this-&amp;gt;binDotIndex;
+ 	&amp;#125;
+ 	else
+ 	&amp;#123;
+ 		intLen = this-&amp;gt;binVal.size();
+ 	&amp;#125;
+ 	/* may need carry while traversing digits */
+ 	char carry = 0;
+ 	/* to store tmp&amp;#39;s length */
+ 	int decLen;
+ 	/* convert radix digit by digit while traversing the int part of the binary number string */
+ 	for(int i = 0 ; i &amp;lt; intLen ; i++)
+ 	&amp;#123;
+ 		/* add new binary digit into carry */
+ 		carry += this-&amp;gt;binVal[i]-&amp;#39;0&amp;#39;;
+ 		/* update tmp&amp;#39;s length */
+ 		decLen = tmp.size();
+ 		/* traverse tmp to multiply each digit by 2 and add carries */
+ 		for(int j = decLen-1 ; j &amp;gt;= 0 ; j--)
+ 		&amp;#123;
+ 			tmp[j] = tmp[j]*2+carry;
+ 			if (tmp[j] &amp;gt; 9)
+ 			&amp;#123;
+ 				/* update carry */
+ 				carry = tmp[j]/10;
+ 				/* limit digit within 10 */
+ 				tmp[j] %= 10;
+ 			&amp;#125;
+ 			else
+ 			&amp;#123;
+				carry = 0;
+ 			&amp;#125;
+ 		&amp;#125;
+ 		/* expand digits if necessary */
+ 		while(carry)
+ 		&amp;#123;
+ 			tmp = char(carry%10)+tmp;
+ 			carry /= 10;
+ 		&amp;#125;
+ 	&amp;#125;
+ 	/* ============= part end ============== */
+ 	/* add &amp;#39;0&amp;#39; if need */
+ 	if (tmp == &amp;quot;&amp;quot;)
+ 	&amp;#123;
+ 		tmp += (char)0;
+ 	&amp;#125;
+ 	/* ============= float part ============== */
+ 	/* if there is a float part */
+ 	if (this-&amp;gt;hasDot)
+ 	&amp;#123;
+ 		/* add the dot to the number string */
+ 		tmp += &amp;#39;.&amp;#39;;
+ 		/* get the length except the float part */
+ 		int decIntLen = tmp.size();
+ 		/* get the length of the whole binary number string */
+ 		int binLen = this-&amp;gt;binVal.size();
+ 		/* convert radix digit by digit while traversing the float part of the binary number string */
+ 		for(int i = binLen-1 ; i &amp;gt; intLen ; i--)
+ 		&amp;#123;
+ 			/* carry to first float digit if occur a &amp;#39;1&amp;#39; */
+ 			carry = (this-&amp;gt;binVal[i] == &amp;#39;1&amp;#39; ? 5 : 0);
+ 			/* update tmp&amp;#39;s length */
+ 			decLen = tmp.size();
+ 			/* traverse tmp to divide each digit by 2 and add carries */
+ 			for(int j = decIntLen ; j &amp;lt; decLen ; j++)
+ 			&amp;#123;
+ 				if (tmp[j] &amp;amp; 1)
+ 				&amp;#123;
+ 					tmp[j] = tmp[j]/2 + carry;
+ 					carry = 5;
+ 				&amp;#125;
+ 				else
+ 				&amp;#123;
+ 					tmp[j] = tmp[j]/2 + carry;
+ 					carry = 0;
+ 				&amp;#125;
+ 			&amp;#125;
+ 			/* expand digit if necessary */
+ 			if (carry)
+ 			&amp;#123;
+ 				tmp += carry;
+ 			&amp;#125;
+ 		&amp;#125;
+ 	&amp;#125;
+ 	/* ============== part end =============== */
+ 	/* adjust string and fill this-&amp;gt;decVal and this-&amp;gt;decDotIndex */
+ 	for(int i = 0 ; i &amp;lt; tmp.size() ; i++)
+ 	&amp;#123;
+ 		if (tmp[i] == &amp;#39;.&amp;#39;)
+ 		&amp;#123;
+ 			continue;
+ 		&amp;#125;
+ 		tmp[i] += &amp;#39;0&amp;#39;;
+ 	&amp;#125;
+ 	this-&amp;gt;decVal = tmp;
+ 	this-&amp;gt;decDotIndex = tmp.find(&amp;#39;.&amp;#39;);
+ &amp;#125;
+
+/*
+ * name: dec2Bin
+ * access: private
+ * Convert the decimal number to binary form then fill this-&amp;gt;binVal.
+ */
+ void Converter::dec2Bin()
+ &amp;#123;
+ 	/* store number string temporarily */
+ 	std::string tmp = &amp;quot;&amp;quot;;
+ 	/* ============== int part ============== */
+ 	/* to get the int range of the decimal number string */
+ 	int intLen;
+ 	if (this-&amp;gt;hasDot)
+ 	&amp;#123;
+ 		intLen = this-&amp;gt;decDotIndex;
+ 	&amp;#125;
+ 	else
+ 	&amp;#123;
+ 		intLen = this-&amp;gt;decVal.size();
+ 	&amp;#125;
+ 	/* may need carry while traversing digits */
+ 	char carry = 0;
+ 	/* to store tmp&amp;#39;s length */
+ 	int binLen;
+ 	/* convert radix digit by digit while traversing the int part of the decimal number string */
+ 	for(int i = 0 ; i &amp;lt; intLen ; i++)
+ 	&amp;#123;
+ 		/* add new decimal digit into carry */
+ 		carry += this-&amp;gt;decVal[i]-&amp;#39;0&amp;#39;;
+ 		/* update tmp&amp;#39;s length */
+ 		binLen = tmp.size();
+ 		/* traverse tmp to multiply each digit by 10 and add carries */
+ 		for(int j = binLen-1 ; j &amp;gt;= 0 ; j--)
+ 		&amp;#123;
+ 			/*
+ 			 * Type of tmp[] is char[] and MAX_CHAR = 127 &amp;gt; 99.
+ 			 * So the assignment statement below will work safely.
+ 			 */
+ 			tmp[j] = tmp[j]*10+carry;
+ 			if (tmp[j] &amp;gt; 1)
+ 			&amp;#123;
+ 				/* update carry */
+ 				carry = tmp[j]/2;
+ 				/* limit digit within 2 */
+ 				tmp[j] &amp;amp;= 1;
+ 			&amp;#125;
+ 			else
+ 			&amp;#123;
+				carry = 0;
+ 			&amp;#125;
+ 		&amp;#125;
+ 		/* expand digits if necessary */
+ 		while(carry)
+ 		&amp;#123;
+ 			tmp = char(carry%2)+tmp;
+ 			carry /= 2;
+ 		&amp;#125;
+ 	&amp;#125;
+ 	/* ============= part end ============== */
+ 	/* add &amp;#39;0&amp;#39; if need */
+ 	if (tmp == &amp;quot;&amp;quot;)
+ 	&amp;#123;
+ 		tmp += (char)0;
+ 	&amp;#125;
+ 	/* ============= float part ============== */
+ 	/* if there is a float part */
+	if (this-&amp;gt;hasDot)
+ 	&amp;#123;
+ 		/* add the dot to the number string */
+ 		tmp += &amp;#39;.&amp;#39;;
+ 		/* may need carry while traversing digits */
+ 		carry = 0;
+ 		/* get the length of the whole decimal number string */
+ 		int decLen = this-&amp;gt;decVal.size();
+ 		/* get the length of the float part of the decimal number string */
+ 		int floatLen = decLen-intLen-1;
+ 		/* get a copy of the float part of the decimal number string */
+ 		std::string tmp2 = this-&amp;gt;decVal.substr(intLen+1, floatLen);
+ 		/* adjust tmp2 to prepare for algorithm below */
+ 		for(int i = 0 ; i &amp;lt; floatLen ; i++)
+ 		&amp;#123;
+ 			tmp2[i] -= &amp;#39;0&amp;#39;;
+ 		&amp;#125;
+ 		/*
+ 		 * asume:   B = b1*2^-1 + b2*2^-2 + b3*2^-3 + ...
+ 		 *            2*B = b1 + b2*2^-1 + b3*2^-2 + ... 	// take b1 as first digit
+ 		 * 2*(2*B-b1) = b2 + b3*2^-1 + ... 		// take b2 as second digit
+ 		 * 		...
+ 		 * so the binary float will got digit by digit in order
+ 		 */
+ 		for(int i = 0 ; i &amp;lt; this-&amp;gt;binFloatPrecision ; i++)
+ 		&amp;#123;
+ 			/* traverse tmp2 to multiply each digit by 2 and add carries */
+ 			for(int j = floatLen-1 ; j &amp;gt;= 0 ; j--)
+ 			&amp;#123;
+ 				tmp2[j] = tmp2[j]*2+carry;
+ 				if (tmp2[j] &amp;gt; 9)
+ 				&amp;#123;
+ 					/* update carry */
+ 					carry = tmp2[j]/10;
+ 					/* limit digit within 10 */
+ 					tmp2[j] %= 10;
+ 				&amp;#125;
+ 				else
+ 				&amp;#123;
+ 					carry = 0;
+ 				&amp;#125;
+ 			&amp;#125;
+ 			/* get the last carry as new digit of binary float */
+ 			tmp += carry;
+ 			/* reset carry */
+ 			carry = 0;
+ 		&amp;#125;
+ 	&amp;#125;
+ 	/* ============== part end =============== */
+ 	/* adjust string and fill this-&amp;gt;binVal and this-&amp;gt;binDotIndex */
+ 	for(int i = 0 ; i &amp;lt; tmp.size() ; i++)
+ 	&amp;#123;
+ 		if (tmp[i] == &amp;#39;.&amp;#39;)
+ 		&amp;#123;
+ 			continue;
+ 		&amp;#125;
+ 		tmp[i] += &amp;#39;0&amp;#39;;
+ 	&amp;#125;
+ 	this-&amp;gt;binVal = tmp;
+ 	this-&amp;gt;binDotIndex = tmp.find(&amp;#39;.&amp;#39;);
+ &amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; test.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;quot;converter.h&amp;quot;
+#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;climits&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	//Converter c(&amp;quot;0.625&amp;quot;, 10);
+	Converter c(&amp;quot;ujsgdfksagrua0.10100000000000000000&amp;quot;, 2);
+	cout &amp;lt;&amp;lt; c.getNum(10) &amp;lt;&amp;lt; endl;
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 都过500行了，会不会写得有点啰嗦？&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/10/08/C-cin%E3%80%81cout%E7%9A%84%E4%BC%98%E5%8C%96%E5%8F%8A%E6%B5%8B%E8%AF%84/</guid>
+            <title>C++ cin、cout的优化及测评</title>
+            <link>https://blog.bipedalbit.net/2015/10/08/C-cin%E3%80%81cout%E7%9A%84%E4%BC%98%E5%8C%96%E5%8F%8A%E6%B5%8B%E8%AF%84/</link>
+            <category>C++</category>
+            <category>cin</category>
+            <category>cout</category>
+            <category>scanf</category>
+            <category>printf</category>
+            <pubDate>Thu, 08 Oct 2015 19:56:46 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降低了执行效率。那么可能挽回这种效率损失吗？答案是可以。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; C++中提供了解除指针同步的方法：&lt;code&gt;ios::sync_with_stdio(false)&lt;/code&gt;。如字面意思，这个方法用来设置输入输出流是否与C的stdio同步。那么解除同步之后能有多大效果呢？毕竟C++确实因为封装程度比C高多多少少损失了一些执行效率。我动手进行了一系列测评，下面是源码。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这里我统一对输入输出做了重定向，不论是输入数据来源还是输入数据目标都是“data”文件。所有的输入&amp;#x2F;输出测试都是读或写10^7次字符串与整型数的组合数据，每种输入&amp;#x2F;输出测试都进行10次并取平均耗时作为评估值。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先是C的输入输出。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; scanf.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;cstdio&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	freopen(&amp;quot;data&amp;quot;, &amp;quot;r&amp;quot;, stdin);
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		char s[20];
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			scanf(&amp;quot;%s&amp;quot;, s);
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	printf(&amp;quot;average cost: %lfs\n&amp;quot;, t_sum/testCnt);
+	fclose(stdin);
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; printf.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;cstdio&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	freopen(&amp;quot;data&amp;quot;, &amp;quot;w&amp;quot;, stdout);
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			printf(&amp;quot;string%d\n&amp;quot;, i);
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	printf(&amp;quot;average cost: %lfs\n&amp;quot;, t_sum/testCnt);
+	fclose(stdout);
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 然后是不解锁同步的cin、cout方法。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; cin.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;cstdio&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ifstream fin(&amp;quot;data&amp;quot;);
+	streambuf *_cin =  cin.rdbuf(fin.rdbuf());
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		string s;
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			cin &amp;gt;&amp;gt; s;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	cin.rdbuf(_cin);
+	fin.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; cout.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ofstream fout(&amp;quot;data&amp;quot;);
+	streambuf *_cout =  cout.rdbuf(fout.rdbuf());
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			cout &amp;lt;&amp;lt; &amp;quot;string&amp;quot; &amp;lt;&amp;lt; i &amp;lt;&amp;lt; &amp;#39;\n&amp;#39;;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	cout.rdbuf(_cout);
+	fout.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 接下来是解锁同步的cin、cout方法。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; optimized_cin.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;cstdio&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ios::sync_with_stdio(false);
+	ifstream fin(&amp;quot;data&amp;quot;);
+	streambuf *_cin =  cin.rdbuf(fin.rdbuf());
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		string s;
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			cin &amp;gt;&amp;gt; s;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	cin.rdbuf(_cin);
+	fin.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; optimized_cout.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ios::sync_with_stdio(false);
+	ofstream fout(&amp;quot;data&amp;quot;);
+	streambuf *_cout =  cout.rdbuf(fout.rdbuf());
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			cout &amp;lt;&amp;lt; &amp;quot;string&amp;quot; &amp;lt;&amp;lt; i &amp;lt;&amp;lt; &amp;#39;\n&amp;#39;;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	cout.rdbuf(_cout);
+	fout.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 同时测试C++直接读写文件的方法。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; fin.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;cstdio&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ifstream fin(&amp;quot;data&amp;quot;);
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		string s;
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			fin &amp;gt;&amp;gt; s;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	fin.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; fout.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ofstream fout(&amp;quot;data&amp;quot;);
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			fout &amp;lt;&amp;lt; &amp;quot;string&amp;quot; &amp;lt;&amp;lt; i &amp;lt;&amp;lt; &amp;#39;\n&amp;#39;;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	fout.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 下面是测试结果：&lt;/p&gt;
+&lt;table&gt;&lt;tr&gt;&lt;th&gt;&lt;/th&gt;&lt;th&gt;scanf与printf&lt;/th&gt;&lt;th&gt;cin与cout&lt;/th&gt;&lt;th&gt;优化的cin与cout&lt;/th&gt;	&lt;th&gt;fin与fout&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;输入&lt;/td&gt;&lt;td&gt;1.125694s&lt;/td&gt;&lt;td&gt;2.46949s&lt;/td&gt;&lt;td&gt;0.950055s&lt;/td&gt;&lt;td&gt;0.834976s&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;输出&lt;/td&gt;&lt;td&gt;1.304706s&lt;/td&gt;&lt;td&gt;1.46059s&lt;/td&gt;&lt;td&gt;1.41783s&lt;/td&gt;&lt;td&gt;1.41298s&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 可以看到，事实上，解开同步之前，cin耗时是scanf的两倍还多，cout则比printf略慢。解开枷锁的cin执行效率与直接读文件接近，甚至比C的scanf还要快。至于输出，解开同步的cout执行效率略有提高，同样接近直接写文件，但是确实还是比C的printf略慢一点。&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/</guid>
+            <title>Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置</title>
+            <link>https://blog.bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/</link>
+            <category>C</category>
+            <category>sublime</category>
+            <category>C++</category>
+            <category>makefile</category>
+            <pubDate>Sun, 16 Aug 2015 22:45:46 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不自己动手为Sublime配个C&amp;#x2F;C++的通用Makefile脚本吗？不能自动编译链接多文件的编辑器不是好IDE。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先我们需要了解几个事实：&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 1.Sublime自带的C&amp;#x2F;C++编译+执行配置使用的是g++编译器，此外这套配置只针对单文件程序。如果要编译多文件，只能采用入口函数所在文件包含需要的源文件而非头文件的方式。比起我们熟悉的几种IDE，这显然无法令人接受。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 2.Linux下的C&amp;#x2F;C++程序员应该熟悉Makefile，Makefile可以算是一种脚本，执行关键字是一般是make，它可以设计多文件程序的编译+链接过程，生成.o文件和可执行文件。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 3.Sublime也有默认的Make配置，但是第一，Sublime没有提供通用的C&amp;#x2F;C++的Makefile脚本（自动组织而非每次手动重写），第二点是个小瑕疵，Sublime提供的Make配置只有编译、链接、清理功能，执行程序需要手动。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前重写红黑树最重要的副产品就是一个通用的C&amp;#x2F;C++的Makefile脚本。每次使用基本只需要改改输出的可执行文件名，或者干脆想个默认文件名以后都不改了，gcc&amp;#x2F;g++编译器的选择是自动的，当然也可以手动配置一些编译选项，这个自己看脚本注释就好。上干货：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#############################################################
+# Generic Makefile for C/C++ Program
+#
+# License: GPL (General Public License)
+# Author:  whyglinux &amp;lt;whyglinux AT gmail DOT com&amp;gt;
+# Date:    2006/03/04 (version 0.1)
+#          2007/03/24 (version 0.2)
+#          2007/04/09 (version 0.3)
+#          2007/06/26 (version 0.4)
+#          2008/04/05 (version 0.5)
+#
+# Description:
+# ------------
+# This is an easily customizable makefile template. The purpose is to
+# provide an instant building environment for C/C++ programs.
+#
+# It searches all the C/C++ source files in the specified directories,
+# makes dependencies, compiles and links to form an executable.
+#
+# Besides its default ability to build C/C++ programs which use only
+# standard C/C++ libraries, you can customize the Makefile to build
+# those using other libraries. Once done, without any changes you can
+# then build programs using the same or less libraries, even if source
+# files are renamed, added or removed. Therefore, it is particularly
+# convenient to use it to build codes for experimental or study use.
+#
+# GNU make is expected to use the Makefile. Other versions of makes
+# may or may not work.
+#
+# Usage:
+# ------
+# 1. Copy the Makefile to your program directory.
+# 2. Customize in the &amp;quot;Customizable Section&amp;quot; only if necessary:
+#    * to use non-standard C/C++ libraries, set pre-processor or compiler
+#      options to &amp;lt;MY_CFLAGS&amp;gt; and linker ones to &amp;lt;MY_LIBS&amp;gt;
+#      (See Makefile.gtk+-2.0 for an example)
+#    * to search sources in more directories, set to &amp;lt;SRCDIRS&amp;gt;
+#    * to specify your favorite program name, set to &amp;lt;PROGRAM&amp;gt;
+# 3. Type make to start building your program.
+#
+# Make Target:
+# ------------
+# The Makefile provides the following targets to make:
+#   $ make           compile and link
+#   $ make NODEP=yes compile and link without generating dependencies
+#   $ make objs      compile only (no linking)
+#   $ make tags      create tags for Emacs editor
+#   $ make ctags     create ctags for VI editor
+#   $ make clean     clean objects and the executable file
+#   $ make distclean clean objects, the executable and dependencies
+#   $ make help      get the usage of the makefile
+#
+#===========================================================================
+
+## Customizable Section: adapt those variables to suit your program.
+##==========================================================================
+
+# The pre-processor and compiler options.
+MY_CFLAGS =
+
+# The linker options.
+MY_LIBS   =
+
+# The pre-processor options used by the cpp (man cpp for more).
+# CPPFLAGS  = -Wall
+
+# The options used in linking as well as in any direct use of ld.
+LDFLAGS   =
+
+# The directories in which source files reside.
+# If not specified, only the current directory will be serached.
+SRCDIRS   =
+
+# The executable file name.
+# If not specified, current directory name or `a.out&amp;#39; will be used.
+PROGRAM   = test
+
+## Implicit Section: change the following only when necessary.
+##==========================================================================
+
+# The source file types (headers excluded).
+# .c indicates C source files, and others C++ ones.
+SRCEXTS = .c .C .cc .cpp .CPP .c++ .cxx .cp
+
+# The header file types.
+HDREXTS = .h .H .hh .hpp .HPP .h++ .hxx .hp
+
+# The pre-processor and compiler options.
+# Users can override those variables from the command line.
+# CFLAGS  = -g -O2
+# CXXFLAGS= -g -O2
+
+# The C program compiler.
+# CC     = gcc
+
+# The C++ program compiler.
+#CXX    = g++
+
+# Un-comment the following line to compile C programs as C++ ones.
+#CC     = $(CXX)
+
+# The command used to delete file.
+#RM     = rm -f
+
+ETAGS = etags
+ETAGSFLAGS =
+
+CTAGS = ctags
+CTAGSFLAGS =
+
+## Stable Section: usually no need to be changed. But you can add more.
+##==========================================================================
+SHELL   = /bin/sh
+EMPTY   =
+SPACE   = $(EMPTY) $(EMPTY)
+ifeq ($(PROGRAM),)
+  CUR_PATH_NAMES = $(subst /,$(SPACE),$(subst $(SPACE),_,$(CURDIR)))
+  PROGRAM = $(word $(words $(CUR_PATH_NAMES)),$(CUR_PATH_NAMES))
+  ifeq ($(PROGRAM),)
+    PROGRAM = a.out
+  endif
+endif
+ifeq ($(SRCDIRS),)
+  SRCDIRS = .
+endif
+SOURCES = $(foreach d,$(SRCDIRS),$(wildcard $(addprefix $(d)/*,$(SRCEXTS))))
+HEADERS = $(foreach d,$(SRCDIRS),$(wildcard $(addprefix $(d)/*,$(HDREXTS))))
+SRC_CXX = $(filter-out %.c,$(SOURCES))
+OBJS    = $(addsuffix .o, $(basename $(SOURCES)))
+DEPS    = $(OBJS:.o=.d)
+
+## Define some useful variables.
+DEP_OPT = $(shell if `$(CC) --version | grep &amp;quot;GCC&amp;quot; &amp;gt;/dev/null`; then \
+                  echo &amp;quot;-MM -MP&amp;quot;; else echo &amp;quot;-M&amp;quot;; fi )
+DEPEND      = $(CC)  $(DEP_OPT)  $(MY_CFLAGS) $(CFLAGS) $(CPPFLAGS)
+DEPEND.d    = $(subst -g ,,$(DEPEND))
+COMPILE.c   = $(CC)  $(MY_CFLAGS) $(CFLAGS)   $(CPPFLAGS) -c
+COMPILE.cxx = $(CXX) $(MY_CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -c
+LINK.c      = $(CC)  $(MY_CFLAGS) $(CFLAGS)   $(CPPFLAGS) $(LDFLAGS)
+LINK.cxx    = $(CXX) $(MY_CFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
+
+.PHONY: all objs tags ctags clean distclean help show
+
+# Delete the default suffixes
+.SUFFIXES:
+
+all: $(PROGRAM)
+
+# Rules for creating dependency files (.d).
+#------------------------------------------
+
+%.d:%.c
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+%.d:%.C
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+%.d:%.cc
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+%.d:%.cpp
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+%.d:%.CPP
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+%.d:%.c++
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+%.d:%.cp
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+%.d:%.cxx
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+# Rules for generating object files (.o).
+#----------------------------------------
+objs:$(OBJS)
+
+%.o:%.c
+    $(COMPILE.c) $&amp;lt; -o $@
+
+%.o:%.C
+    $(COMPILE.cxx) $&amp;lt; -o $@
+
+%.o:%.cc
+    $(COMPILE.cxx) $&amp;lt; -o $@
+
+%.o:%.cpp
+    $(COMPILE.cxx) $&amp;lt; -o $@
+
+%.o:%.CPP
+    $(COMPILE.cxx) $&amp;lt; -o $@
+
+%.o:%.c++
+    $(COMPILE.cxx) $&amp;lt; -o $@
+
+%.o:%.cp
+    $(COMPILE.cxx) $&amp;lt; -o $@
+
+%.o:%.cxx
+    $(COMPILE.cxx) $&amp;lt; -o $@
+
+# Rules for generating the tags.
+#-------------------------------------
+tags: $(HEADERS) $(SOURCES)
+    $(ETAGS) $(ETAGSFLAGS) $(HEADERS) $(SOURCES)
+
+ctags: $(HEADERS) $(SOURCES)
+    $(CTAGS) $(CTAGSFLAGS) $(HEADERS) $(SOURCES)
+
+# Rules for generating the executable.
+#-------------------------------------
+$(PROGRAM):$(OBJS)
+ifeq ($(SRC_CXX),)              # C program
+    $(LINK.c)   $(OBJS) $(MY_LIBS) -o $@
+    @echo Type ./$@ to execute the program.
+else                            # C++ program
+    $(LINK.cxx) $(OBJS) $(MY_LIBS) -o $@
+    @echo Type ./$@ to execute the program.
+endif
+
+ifndef NODEP
+ifneq ($(DEPS),)
+  sinclude $(DEPS)
+endif
+endif
+
+clean:
+    $(RM) $(OBJS) $(PROGRAM) $(PROGRAM).exe
+
+distclean: clean
+    $(RM) $(DEPS) TAGS
+
+# Show help.
+help:
+    @echo &amp;#39;Generic Makefile for C/C++ Programs (gcmakefile) version 0.5&amp;#39;
+    @echo &amp;#39;Copyright (C) 2007, 2008 whyglinux &amp;lt;whyglinux@hotmail.com&amp;gt;&amp;#39;
+    @echo
+    @echo &amp;#39;Usage: make [TARGET]&amp;#39;
+    @echo &amp;#39;TARGETS:&amp;#39;
+    @echo &amp;#39;  all       (=make) compile and link.&amp;#39;
+    @echo &amp;#39;  NODEP=yes make without generating dependencies.&amp;#39;
+    @echo &amp;#39;  objs      compile only (no linking).&amp;#39;
+    @echo &amp;#39;  tags      create tags for Emacs editor.&amp;#39;
+    @echo &amp;#39;  ctags     create ctags for VI editor.&amp;#39;
+    @echo &amp;#39;  clean     clean objects and the executable file.&amp;#39;
+    @echo &amp;#39;  distclean clean objects, the executable and dependencies.&amp;#39;
+    @echo &amp;#39;  show      show variables (for debug use only).&amp;#39;
+    @echo &amp;#39;  help      print this message.&amp;#39;
+    @echo
+    @echo &amp;#39;Report bugs to &amp;lt;whyglinux AT gmail DOT com&amp;gt;.&amp;#39;
+
+# Show variables (for debug use only.)
+show:
+    @echo &amp;#39;PROGRAM     :&amp;#39; $(PROGRAM)
+    @echo &amp;#39;SRCDIRS     :&amp;#39; $(SRCDIRS)
+    @echo &amp;#39;HEADERS     :&amp;#39; $(HEADERS)
+    @echo &amp;#39;SOURCES     :&amp;#39; $(SOURCES)
+    @echo &amp;#39;SRC_CXX     :&amp;#39; $(SRC_CXX)
+    @echo &amp;#39;OBJS        :&amp;#39; $(OBJS)
+    @echo &amp;#39;DEPS        :&amp;#39; $(DEPS)
+    @echo &amp;#39;DEPEND      :&amp;#39; $(DEPEND)
+    @echo &amp;#39;COMPILE.c   :&amp;#39; $(COMPILE.c)
+    @echo &amp;#39;COMPILE.cxx :&amp;#39; $(COMPILE.cxx)
+    @echo &amp;#39;link.c      :&amp;#39; $(LINK.c)
+    @echo &amp;#39;link.cxx    :&amp;#39; $(LINK.cxx)
+
+## End of the Makefile ##  Suggestions are welcome  ## All rights reserved ##
+##############################################################
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 感谢whyglinux大大！然后上Sublime的配置C C++ Multiple Files.sublime-build：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;&amp;#123;
+    &amp;quot;shell_cmd&amp;quot;: &amp;quot;make&amp;quot;,
+    &amp;quot;file_regex&amp;quot;: &amp;quot;^(..[^:\n]*):([0-9]+):?([0-9]+)?:? (.*)$&amp;quot;,
+    &amp;quot;working_dir&amp;quot;: &amp;quot;$&amp;#123;folder:$&amp;#123;project_path:$&amp;#123;file_path&amp;#125;&amp;#125;&amp;#125;&amp;quot;,
+    &amp;quot;selector&amp;quot;: &amp;quot;source.c, source.cpp&amp;quot;,
+    &amp;quot;syntax&amp;quot;: &amp;quot;Packages/Makefile/Make.build-language&amp;quot;,
+    &amp;quot;keyfiles&amp;quot;: [&amp;quot;Makefile&amp;quot;, &amp;quot;makefile&amp;quot;],
+
+    &amp;quot;variants&amp;quot;:
+    [
+        &amp;#123;
+            &amp;quot;name&amp;quot;: &amp;quot;Clean&amp;quot;,
+            &amp;quot;shell_cmd&amp;quot;: &amp;quot;make clean&amp;quot;
+        &amp;#125;,
+        &amp;#123;
+            &amp;quot;name&amp;quot;: &amp;quot;Run&amp;quot;,
+            &amp;quot;shell_cmd&amp;quot;: &amp;quot;$&amp;#123;file_path&amp;#125;/$&amp;#123;file_base_name&amp;#125;&amp;quot;
+        &amp;#125;
+    ]
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 你们大可以配成执行时自动弹出终端，这样还能交互。我为了解决Sublime里中文输入法的问题用了gtk2，但是gnome-terminal用的是gtk3，不兼容了。写写控制台程序也不用那么多交互，懒得折腾了，你们随意。&lt;/p&gt;
+ ]]></description>
+        </item>
+    </channel>
+</rss>

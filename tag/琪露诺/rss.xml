@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+    <channel>
+        <title>Hacking to the gate! • Posts by &#34;琪露诺&#34; tag</title>
+        <link>https://blog.bipedalbit.net</link>
+        <description>Bipedal Bit&#39;s blog</description>
+        <language>zh-CN</language>
+        <pubDate>Thu, 23 Jun 2016 20:58:21 +0800</pubDate>
+        <lastBuildDate>Thu, 23 Jun 2016 20:58:21 +0800</lastBuildDate>
+        <category>Qt</category>
+        <category>signal-slot</category>
+        <category>Q_OBJECT</category>
+        <category>nginx</category>
+        <category>select/poll</category>
+        <category>epoll</category>
+        <category>ngx_int_t</category>
+        <category>rbtree</category>
+        <category>C</category>
+        <category>static</category>
+        <category>内存分布</category>
+        <category>sublime</category>
+        <category>C++</category>
+        <category>makefile</category>
+        <category>node.js</category>
+        <category>github</category>
+        <category>socket.io</category>
+        <category>Web请求处理机制</category>
+        <category>同步/异步</category>
+        <category>阻塞/非阻塞</category>
+        <category>事件驱动模型</category>
+        <category>BP神经网络</category>
+        <category>机器学习</category>
+        <category>python</category>
+        <category>pybrain</category>
+        <category>c++11</category>
+        <category>多线程</category>
+        <category>ubuntu</category>
+        <category>debian</category>
+        <category>apt-file</category>
+        <category>cin</category>
+        <category>cout</category>
+        <category>scanf</category>
+        <category>printf</category>
+        <category>进制转换</category>
+        <category>人工神经网络</category>
+        <category>人机博弈</category>
+        <category>Maxmin</category>
+        <category>AlphaBeta</category>
+        <category>PVS</category>
+        <category>MTD(f)</category>
+        <category>位域</category>
+        <category>bitset</category>
+        <category>vector&amp;lt;bool&amp;gt;</category>
+        <category>网络爬虫</category>
+        <category>类脑</category>
+        <category>codeigniter</category>
+        <category>php</category>
+        <category>IIS7</category>
+        <category>apache</category>
+        <category>模拟登录</category>
+        <category>proxy</category>
+        <category>domain</category>
+        <category>DNS</category>
+        <category>hexo</category>
+        <category>vps</category>
+        <category>dropbox</category>
+        <category>ffmpeg</category>
+        <category>板绘</category>
+        <category>sai</category>
+        <category>琪露诺</category>
+        <category>LLM</category>
+        <category>ollama</category>
+        <category>open-webui</category>
+        <category>oneapi</category>
+        <category>mcpserver</category>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2016/06/23/sai%E6%9D%BF%E7%BB%98%E5%88%9D%E4%BD%93%E9%AA%8C/</guid>
+            <title>sai板绘初体验</title>
+            <link>https://blog.bipedalbit.net/2016/06/23/sai%E6%9D%BF%E7%BB%98%E5%88%9D%E4%BD%93%E9%AA%8C/</link>
+            <category>板绘</category>
+            <category>sai</category>
+            <category>琪露诺</category>
+            <pubDate>Thu, 23 Jun 2016 20:58:21 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; CS小硕的生活还是挺乏味压抑的，尤其是手头一堆活的时候。于是我买了个数位板，wacom CTL-671，400+软妹币的入门板。拿到板子第一天还没贴膜就拿来画了一堆表情包，新手不知轻重还在板子上留了痕迹。前两天刚画完个⑨，背景大概一时半会都不会有动力画了，于是这篇文先简单记录一下我的板绘初体验。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 要学板绘先要有个板子，wacom的高端板口碑挺好的，想来入门板也不会太差。wacom的驱动只有win和mac的，企图在Ubuntu下画小人，于是开了个虚拟机，很遗憾开虚拟机就算装了驱动板子也会丢压感，于是转战win。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 选完板子装完驱动还需要选择一个画图软件，因为是我是要学画漫画，所以只从这个方面考量各种软件。PS和sai是大多数人的选择，PS更有泛用性，而sai对画漫画来说更加有针对性更方便一些。我的话虽然也装过PS给小程序修图用，还是选择了更轻便的sai。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 选择用sai就需要掌握一些sai的常用快捷操作：&lt;/p&gt;
+&lt;figure class=&#34;highlight mathematica&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;26&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;27&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;28&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;29&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;30&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;31&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;32&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;33&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;34&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;35&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;36&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;37&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;38&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;39&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;40&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs mathematica&#34;&gt;【一般】&lt;br&gt;&lt;span class=&#34;hljs-built_in&#34;&gt;E&lt;/span&gt;：长按&lt;span class=&#34;hljs-built_in&#34;&gt;E&lt;/span&gt;，笔会变成橡皮，松开变回笔，按一下则维持橡皮状态&lt;br&gt;&lt;span class=&#34;hljs-built_in&#34;&gt;N&lt;/span&gt;：铅笔&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;V&lt;/span&gt;：画笔（基本上最常用）&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;B&lt;/span&gt;：喷枪&lt;br&gt;&lt;span class=&#34;hljs-built_in&#34;&gt;C&lt;/span&gt;：水彩笔 &lt;br&gt;&lt;span class=&#34;hljs-built_in&#34;&gt;D&lt;/span&gt;：清除&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;A&lt;/span&gt;：选区笔&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;H&lt;/span&gt;：翻转画布&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;S&lt;/span&gt;：选区擦&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;X&lt;/span&gt;：背景颜色和前景颜色转换&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;F&lt;/span&gt;：将选区的图转写到下一图层，&lt;span class=&#34;hljs-variable&#34;&gt;ctrl&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;hljs-built_in&#34;&gt;E&lt;/span&gt;是向下合并&lt;br&gt;&lt;span class=&#34;hljs-built_in&#34;&gt;Delete&lt;/span&gt;：左旋转画布（逆时针） &lt;br&gt;&lt;span class=&#34;hljs-built_in&#34;&gt;End&lt;/span&gt;：右旋转画布（顺时针） &lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Alt&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;空格&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;鼠标左键：旋转画布 &lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Alt&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;空格&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;鼠标右键&lt;span class=&#34;hljs-operator&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Home&lt;/span&gt;：恢复旋转画布&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Ctrl&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;++&lt;/span&gt;：放大画布&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Ctrl&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+-&lt;/span&gt;：缩小画布&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Ctrl&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;hljs-number&#34;&gt;0&lt;/span&gt;：恢复视图视窗大小&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Ctrl&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;空格&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;鼠标左键：鼠标位置局部放大 &lt;br&gt;空格&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;鼠标左键：拖动画布&lt;br&gt;&lt;span class=&#34;hljs-punctuation&#34;&gt;]&lt;/span&gt;：大一号的笔刷 &lt;br&gt;&lt;span class=&#34;hljs-punctuation&#34;&gt;[&lt;/span&gt;：小一号的笔刷 &lt;br&gt;&lt;span class=&#34;hljs-number&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;~&lt;/span&gt;&lt;span class=&#34;hljs-number&#34;&gt;9&lt;/span&gt;：选择笔刷浓度 &lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Ctrl&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Alt&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;鼠标左键：&lt;span class=&#34;hljs-punctuation&#34;&gt;(&lt;/span&gt;左右拖动&lt;span class=&#34;hljs-punctuation&#34;&gt;)&lt;/span&gt;调整笔刷大小&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Alt&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;鼠标左键：取色&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Ctrl&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;左键拖拽 ：移动图层、移动选择部分&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Ctrl&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Z&lt;/span&gt;：状态回退&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Ctrl&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Y&lt;/span&gt;：状态前进&lt;br&gt;【选区时】&lt;br&gt;按住&lt;span class=&#34;hljs-variable&#34;&gt;Ctrl&lt;/span&gt;是移动，按住&lt;span class=&#34;hljs-variable&#34;&gt;Alt&lt;/span&gt;是减区域，按住&lt;span class=&#34;hljs-variable&#34;&gt;Shift&lt;/span&gt;是加区域。&lt;br&gt;【画直线】&lt;br&gt;用笔点一个点，按住&lt;span class=&#34;hljs-variable&#34;&gt;Shift&lt;/span&gt;，再点一个点，两个点之间就会形成一条直线。&lt;br&gt;【钢笔】&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Ctrl&lt;/span&gt;：在钢笔图层中激活锚点状态，以加锚点的方式调整线条的曲线&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Shift&lt;/span&gt;：不加锚点的调整曲线&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Ctrl&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;拖拉锚点：锚点移动&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Ctrl&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Shift&lt;/span&gt;：复制并移动整个线条的所有锚点；如点击的两个锚点分别属于两条线条，则自动连接&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Alt&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Shift&lt;/span&gt;：移动整个线条的所有锚点&lt;br&gt;&lt;span class=&#34;hljs-variable&#34;&gt;Alt&lt;/span&gt;：删除锚点&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 画漫画要先打草稿，这时一般是用铅笔，跟手绘时一样。&lt;br&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E6%9D%BF%E7%BB%98/%E6%92%B8%E5%8F%AA%E7%90%AA%E9%9C%B2%E8%AF%BA/%E6%91%B8%E9%B1%BC%E7%9C%9Ftm%E5%BC%80%E5%BF%83%E5%95%8A.PNG&#34; title=&#34;头部草稿&#34;&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 现学现卖，漫画人物的头部新手最好打上十字再画，讲道理，我不打十字形状根本画不对。然后是眼睛的位置，通常在头部的水平中轴线附近，不要想当然的把眼睛画太高。当然也有大大做人设时故意把一些人物的眼睛放的比较高，但是人家是大大，有自己的想法。&lt;br&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E6%9D%BF%E7%BB%98/%E6%92%B8%E5%8F%AA%E7%90%AA%E9%9C%B2%E8%AF%BA/%E7%90%AA%E9%9C%B2%E8%AF%BA%E8%8D%89%E7%A8%BF.PNG&#34; title=&#34;全身草稿&#34;&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 身体比例这个就不一定了，我画的这张是Q版，差不多二头身就OK，可以看到我草稿上除了比例边界线也画了一些透视线和身体骨架线。&lt;br&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E6%9D%BF%E7%BB%98/%E6%92%B8%E5%8F%AA%E7%90%AA%E9%9C%B2%E8%AF%BA/%E8%9B%A4%EF%BC%9F.PNG&#34; title=&#34;线稿&#34;&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 后来草稿又加了一只蛙，毕竟雾之湖的青蛙是⑨的爱嘛。草稿画完记得新建一个图层描线稿，线稿其实很好画的，有人爱用画笔，我图省事直接用钢笔描曲线了，反正钢笔浓度画完也可以调的。&lt;br&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E6%9D%BF%E7%BB%98/%E6%92%B8%E5%8F%AA%E7%90%AA%E9%9C%B2%E8%AF%BA/%E4%B8%8A%E8%89%B2%E7%9C%9F%E6%9C%89%E8%B6%A3%EF%BC%81.PNG&#34; title=&#34;上色&#34;&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 上色据说fiodo流是一个图层用魔棒搞定，我看的入门教程是一个颜色一个图层。先把线稿设成选区来源、正片叠底，然后再建图层上色就不会上到不该上的区域了。皮肤选区，皮肤图层组：底色、阴影、阴影2，按这个节奏来的。上色我主要用的油漆桶和画笔，嘛看个人爱好和需要，随意就好。&lt;br&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E6%9D%BF%E7%BB%98/%E6%92%B8%E5%8F%AA%E7%90%AA%E9%9C%B2%E8%AF%BA/%E9%AB%98%E5%85%89%E5%A5%BD%E9%9A%BE%E5%95%8A.PNG&#34; title=&#34;高光&#34;&gt;&lt;br&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E6%9D%BF%E7%BB%98/%E6%92%B8%E5%8F%AA%E7%90%AA%E9%9C%B2%E8%AF%BA/%E4%B8%8D%E4%BC%9A%E4%B8%8A%E9%98%B4%E5%BD%B1%E6%80%AA%E6%88%91%E5%92%AF.PNG&#34; title=&#34;褶皱&#34;&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 高光和褶皱嘛，观察+脑补+加参考大大的作品。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 以上，收工。&lt;a href=&#34;http://www.pixiv.net/member_illust.php?mode=medium&amp;illust_id=57615551&#34;&gt;p站请戳&lt;/a&gt;&lt;/p&gt;
+ ]]></description>
+        </item>
+    </channel>
+</rss>

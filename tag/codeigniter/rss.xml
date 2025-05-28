@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+    <channel>
+        <title>Hacking to the gate! • Posts by &#34;codeigniter&#34; tag</title>
+        <link>https://blog.bipedalbit.net</link>
+        <description>Bipedal Bit&#39;s blog</description>
+        <language>zh-CN</language>
+        <pubDate>Sun, 03 May 2015 12:31:20 +0800</pubDate>
+        <lastBuildDate>Sun, 03 May 2015 12:31:20 +0800</lastBuildDate>
+        <category>Qt</category>
+        <category>signal-slot</category>
+        <category>Q_OBJECT</category>
+        <category>nginx</category>
+        <category>select/poll</category>
+        <category>epoll</category>
+        <category>ngx_int_t</category>
+        <category>rbtree</category>
+        <category>C</category>
+        <category>static</category>
+        <category>内存分布</category>
+        <category>sublime</category>
+        <category>C++</category>
+        <category>makefile</category>
+        <category>node.js</category>
+        <category>github</category>
+        <category>socket.io</category>
+        <category>Web请求处理机制</category>
+        <category>同步/异步</category>
+        <category>阻塞/非阻塞</category>
+        <category>事件驱动模型</category>
+        <category>BP神经网络</category>
+        <category>机器学习</category>
+        <category>python</category>
+        <category>pybrain</category>
+        <category>c++11</category>
+        <category>多线程</category>
+        <category>ubuntu</category>
+        <category>debian</category>
+        <category>apt-file</category>
+        <category>cin</category>
+        <category>cout</category>
+        <category>scanf</category>
+        <category>printf</category>
+        <category>进制转换</category>
+        <category>人工神经网络</category>
+        <category>人机博弈</category>
+        <category>Maxmin</category>
+        <category>AlphaBeta</category>
+        <category>PVS</category>
+        <category>MTD(f)</category>
+        <category>位域</category>
+        <category>bitset</category>
+        <category>vector&amp;lt;bool&amp;gt;</category>
+        <category>网络爬虫</category>
+        <category>类脑</category>
+        <category>codeigniter</category>
+        <category>php</category>
+        <category>IIS7</category>
+        <category>apache</category>
+        <category>模拟登录</category>
+        <category>proxy</category>
+        <category>domain</category>
+        <category>DNS</category>
+        <category>hexo</category>
+        <category>vps</category>
+        <category>dropbox</category>
+        <category>ffmpeg</category>
+        <category>板绘</category>
+        <category>sai</category>
+        <category>琪露诺</category>
+        <category>LLM</category>
+        <category>ollama</category>
+        <category>open-webui</category>
+        <category>oneapi</category>
+        <category>mcpserver</category>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/05/03/win-Linux%E4%B8%8B%E5%8E%BB%E6%8E%89codeigniter%E6%A1%86%E6%9E%B6%E7%BD%91%E7%AB%99URL%E4%B8%AD%E7%9A%84index-php/</guid>
+            <title>win/Linux下去掉codeigniter框架网站URL中的index.php</title>
+            <link>https://blog.bipedalbit.net/2015/05/03/win-Linux%E4%B8%8B%E5%8E%BB%E6%8E%89codeigniter%E6%A1%86%E6%9E%B6%E7%BD%91%E7%AB%99URL%E4%B8%AD%E7%9A%84index-php/</link>
+            <category>nginx</category>
+            <category>codeigniter</category>
+            <category>php</category>
+            <category>IIS7</category>
+            <category>apache</category>
+            <pubDate>Sun, 03 May 2015 12:31:20 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 使用PHP的codeigniter框架后在试验阶段遇到的第一个问题就是，无法隐藏地址栏中的index.php，这让我浑身难受。多方调查之后有了一套解决方案。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;h1 id=&#34;Linux&#34;&gt;&lt;a href=&#34;#Linux&#34; class=&#34;headerlink&#34; title=&#34;Linux:&#34;&gt;&lt;/a&gt;Linux:&lt;/h1&gt;&lt;h2 id=&#34;一-Apache&#34;&gt;&lt;a href=&#34;#一-Apache&#34; class=&#34;headerlink&#34; title=&#34;一.Apache&#34;&gt;&lt;/a&gt;一.Apache&lt;/h2&gt;&lt;h3 id=&#34;1-启用rewrite模块&#34;&gt;&lt;a href=&#34;#1-启用rewrite模块&#34; class=&#34;headerlink&#34; title=&#34;1.启用rewrite模块&#34;&gt;&lt;/a&gt;1.启用rewrite模块&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 手动启用是在Apache配置文件里把“LoadModule rewrite_module modules&amp;#x2F;mod_rewrite.so”解注释。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 一些LAMP套件也提供更方便的模块管理。&lt;/p&gt;
+&lt;h3 id=&#34;2-rewrite规则设置&#34;&gt;&lt;a href=&#34;#2-rewrite规则设置&#34; class=&#34;headerlink&#34; title=&#34;2.rewrite规则设置&#34;&gt;&lt;/a&gt;2.rewrite规则设置&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 在 CI 的根目录下，即在 index.php ，system的同级目录下，建立.htaccess，直接建立该文件名不会成功，可以从application或system文件夹里复制一个过来，再修改内容。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 内容如下（ CI 手册上也有介绍）：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;RewriteEngine On
+RewriteCond %&amp;#123;REQUEST_FILENAME&amp;#125; !-f
+RewriteCond %&amp;#123;REQUEST_FILENAME&amp;#125; !-d
+RewriteRule ^(.*)$ index.php/$1 [L]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;strong&gt;如果.htaccess文件不是在www的根目录下，例如是： &lt;a href=&#34;http://localhost/123/&#34;&gt;http://localhost/123/&lt;/a&gt; index.php ，第三行需要改写为&lt;/strong&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;code&gt;RewriteRule ^(.*)$ /123/ index.php /$1 [L]&lt;/code&gt;&lt;/p&gt;
+&lt;h3 id=&#34;3-配置codeigniter&#34;&gt;&lt;a href=&#34;#3-配置codeigniter&#34; class=&#34;headerlink&#34; title=&#34;3.配置codeigniter&#34;&gt;&lt;/a&gt;3.配置codeigniter&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 找到CI文件夹&amp;#x2F;application&amp;#x2F;config&amp;#x2F;config.php。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;code&gt;$config[&amp;#39;index_page&amp;#39;] =&amp;quot; index.php &amp;quot;;&lt;/code&gt;改写成&lt;code&gt;$config[&amp;#39;index_page&amp;#39;] = &amp;quot;&amp;quot;; &lt;/code&gt;&lt;/p&gt;
+&lt;h3 id=&#34;4-重启Apache&#34;&gt;&lt;a href=&#34;#4-重启Apache&#34; class=&#34;headerlink&#34; title=&#34;4.重启Apache&#34;&gt;&lt;/a&gt;4.重启Apache&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这个各显神通，不累述，如Ubuntu的&lt;code&gt; $ sudo /etc/init.d/apache2 restart&lt;/code&gt;&lt;/p&gt;
+&lt;h2 id=&#34;二-nginx&#34;&gt;&lt;a href=&#34;#二-nginx&#34; class=&#34;headerlink&#34; title=&#34;二.nginx&#34;&gt;&lt;/a&gt;二.nginx&lt;/h2&gt;&lt;h3 id=&#34;1-rewrite规则设置&#34;&gt;&lt;a href=&#34;#1-rewrite规则设置&#34; class=&#34;headerlink&#34; title=&#34;1.rewrite规则设置&#34;&gt;&lt;/a&gt;1.rewrite规则设置&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 修改nginx配置文件，在nginx.conf的SERVER段中添加如下代码：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;location /&amp;#123;
+   if (-f $request_filename) &amp;#123;
+       expires max;
+       break;
+   &amp;#125;
+   if (!-e $request_filename) &amp;#123;
+       rewrite ^/(.*)$ /index.php/$1 last;
+   &amp;#125;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;2-3同上&#34;&gt;&lt;a href=&#34;#2-3同上&#34; class=&#34;headerlink&#34; title=&#34;2.3同上&#34;&gt;&lt;/a&gt;2.3同上&lt;/h3&gt;&lt;h3 id=&#34;4-重启nginx&#34;&gt;&lt;a href=&#34;#4-重启nginx&#34; class=&#34;headerlink&#34; title=&#34;4.重启nginx&#34;&gt;&lt;/a&gt;4.重启nginx&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;code&gt;/usr/local/nginx/sbin/nginx -s reload&lt;/code&gt;&lt;/p&gt;
+&lt;h1 id=&#34;Windows：&#34;&gt;&lt;a href=&#34;#Windows：&#34; class=&#34;headerlink&#34; title=&#34;Windows：&#34;&gt;&lt;/a&gt;Windows：&lt;/h1&gt;&lt;h2 id=&#34;一-IIS7&#34;&gt;&lt;a href=&#34;#一-IIS7&#34; class=&#34;headerlink&#34; title=&#34;一.IIS7&#34;&gt;&lt;/a&gt;一.IIS7&lt;/h2&gt;&lt;h3 id=&#34;1-配置web-config&#34;&gt;&lt;a href=&#34;#1-配置web-config&#34; class=&#34;headerlink&#34; title=&#34;1.配置web.config&#34;&gt;&lt;/a&gt;1.配置web.config&lt;/h3&gt;&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot;?&amp;gt;
+&amp;lt;configuration&amp;gt;
+    &amp;lt;system.webServer&amp;gt;
+        &amp;lt;rewrite&amp;gt;
+            &amp;lt;rules&amp;gt;
+                &amp;lt;rule name=&amp;quot;OrgPage&amp;quot; stopProcessing=&amp;quot;true&amp;quot;&amp;gt;
+                    &amp;lt;match url=&amp;quot;^(.*)$&amp;quot; /&amp;gt;
+                    &amp;lt;conditions logicalGrouping=&amp;quot;MatchAll&amp;quot;&amp;gt;
+                    &amp;lt;add input=&amp;quot;&amp;#123;HTTP_HOST&amp;#125;&amp;quot; pattern=&amp;quot;^(.*)$&amp;quot; /&amp;gt;
+                    &amp;lt;add input=&amp;quot;&amp;#123;REQUEST_FILENAME&amp;#125;&amp;quot; matchType=&amp;quot;IsFile&amp;quot; negate=&amp;quot;true&amp;quot; /&amp;gt;
+                    &amp;lt;add input=&amp;quot;&amp;#123;REQUEST_FILENAME&amp;#125;&amp;quot; matchType=&amp;quot;IsDirectory&amp;quot; negate=&amp;quot;true&amp;quot; /&amp;gt;
+                    &amp;lt;/conditions&amp;gt;
+                    &amp;lt;action type=&amp;quot;Rewrite&amp;quot; url=&amp;quot;index.php/&amp;#123;R:1&amp;#125;&amp;quot; /&amp;gt;
+                &amp;lt;/rule&amp;gt;
+            &amp;lt;/rules&amp;gt;
+        &amp;lt;/rewrite&amp;gt;
+    &amp;lt;/system.webServer&amp;gt;
+&amp;lt;/configuration&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;2-配置codeigniter&#34;&gt;&lt;a href=&#34;#2-配置codeigniter&#34; class=&#34;headerlink&#34; title=&#34;2.配置codeigniter&#34;&gt;&lt;/a&gt;2.配置codeigniter&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 找到CI文件夹&amp;#x2F;application&amp;#x2F;config&amp;#x2F;config.php。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;code&gt;$config[&amp;#39;index_page&amp;#39;] =&amp;quot; index.php &amp;quot;;&lt;/code&gt;改写成&lt;code&gt;$config[&amp;#39;index_page&amp;#39;] = &amp;quot;&amp;quot;; &lt;/code&gt;&lt;/p&gt;
+&lt;h2 id=&#34;二-Apache&#34;&gt;&lt;a href=&#34;#二-Apache&#34; class=&#34;headerlink&#34; title=&#34;二.Apache&#34;&gt;&lt;/a&gt;二.Apache&lt;/h2&gt;&lt;h3 id=&#34;1-启用rewrite模块-1&#34;&gt;&lt;a href=&#34;#1-启用rewrite模块-1&#34; class=&#34;headerlink&#34; title=&#34;1.启用rewrite模块&#34;&gt;&lt;/a&gt;1.启用rewrite模块&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 手动启用是在Apache配置文件里把“LoadModule rewrite_module modules&amp;#x2F;mod_rewrite.so”解注释。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 一些WAMP套件也提供更方便的模块管理。&lt;/p&gt;
+&lt;h3 id=&#34;2-rewrite规则设置-1&#34;&gt;&lt;a href=&#34;#2-rewrite规则设置-1&#34; class=&#34;headerlink&#34; title=&#34;2.rewrite规则设置&#34;&gt;&lt;/a&gt;2.rewrite规则设置&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 找到Apache的虚拟主机配置文件，如Apache-20\conf\extra\httpd-vhosts.conf。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 修改要配置的虚拟主机的Directory标签，如：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;&amp;lt;Directory G:/PHP/123&amp;gt;
+    #隐藏index.php相关
+    RewriteEngine On
+    RewriteCond %&amp;#123;REQUEST_FILENAME&amp;#125; !-f
+    RewriteCond %&amp;#123;REQUEST_FILENAME&amp;#125; !-d
+    RewriteRule ^(.*)$ index.php/$1 [L]
+    Options FollowSymLinks
+    #访问权限设置
+    #不允许别人修改页面
+    AllowOverride None
+    #依次考察允许和拒绝ip访问的设置情况
+    order allow,deny
+    #允许来自所有ip的访问
+    Allow from all
+    #deny from 202.18 即拒绝来自202.18打头的ip的访问
+&amp;lt;/Directory&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;3-配置codeigniter-1&#34;&gt;&lt;a href=&#34;#3-配置codeigniter-1&#34; class=&#34;headerlink&#34; title=&#34;3.配置codeigniter&#34;&gt;&lt;/a&gt;3.配置codeigniter&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 找到CI文件夹&amp;#x2F;application&amp;#x2F;config&amp;#x2F;config.php。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;code&gt;$config[&amp;#39;index_page&amp;#39;] =&amp;quot; index.php &amp;quot;;&lt;/code&gt;改写成&lt;code&gt;$config[&amp;#39;index_page&amp;#39;] = &amp;quot;&amp;quot;; &lt;/code&gt;&lt;/p&gt;
+&lt;h3 id=&#34;4-重启Apache-1&#34;&gt;&lt;a href=&#34;#4-重启Apache-1&#34; class=&#34;headerlink&#34; title=&#34;4.重启Apache&#34;&gt;&lt;/a&gt;4.重启Apache&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; win下Apache有图形界面，很方便。&lt;/p&gt;
+ ]]></description>
+        </item>
+    </channel>
+</rss>

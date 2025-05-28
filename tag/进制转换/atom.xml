@@ -1,0 +1,604 @@
+<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://blog.bipedalbit.net</id>
+    <title>Hacking to the gate! • Posts by &#34;进制转换&#34; tag</title>
+    <link href="https://blog.bipedalbit.net" />
+    <updated>2015-10-08T14:05:52.000Z</updated>
+    <category term="Qt" />
+    <category term="signal-slot" />
+    <category term="Q_OBJECT" />
+    <category term="nginx" />
+    <category term="select/poll" />
+    <category term="epoll" />
+    <category term="ngx_int_t" />
+    <category term="rbtree" />
+    <category term="C" />
+    <category term="static" />
+    <category term="内存分布" />
+    <category term="sublime" />
+    <category term="C++" />
+    <category term="makefile" />
+    <category term="node.js" />
+    <category term="github" />
+    <category term="socket.io" />
+    <category term="Web请求处理机制" />
+    <category term="同步/异步" />
+    <category term="阻塞/非阻塞" />
+    <category term="事件驱动模型" />
+    <category term="BP神经网络" />
+    <category term="机器学习" />
+    <category term="python" />
+    <category term="pybrain" />
+    <category term="c++11" />
+    <category term="多线程" />
+    <category term="ubuntu" />
+    <category term="debian" />
+    <category term="apt-file" />
+    <category term="cin" />
+    <category term="cout" />
+    <category term="scanf" />
+    <category term="printf" />
+    <category term="进制转换" />
+    <category term="人工神经网络" />
+    <category term="人机博弈" />
+    <category term="Maxmin" />
+    <category term="AlphaBeta" />
+    <category term="PVS" />
+    <category term="MTD(f)" />
+    <category term="位域" />
+    <category term="bitset" />
+    <category term="vector&amp;lt;bool&amp;gt;" />
+    <category term="网络爬虫" />
+    <category term="类脑" />
+    <category term="codeigniter" />
+    <category term="php" />
+    <category term="IIS7" />
+    <category term="apache" />
+    <category term="模拟登录" />
+    <category term="proxy" />
+    <category term="domain" />
+    <category term="DNS" />
+    <category term="hexo" />
+    <category term="vps" />
+    <category term="dropbox" />
+    <category term="ffmpeg" />
+    <category term="板绘" />
+    <category term="sai" />
+    <category term="琪露诺" />
+    <category term="LLM" />
+    <category term="ollama" />
+    <category term="open-webui" />
+    <category term="oneapi" />
+    <category term="mcpserver" />
+    <entry>
+        <id>https://blog.bipedalbit.net/2015/10/08/C-%E4%BA%8C%E8%BF%9B%E5%88%B6-%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2%E5%99%A8/</id>
+        <title>C++二进制-十进制转换器</title>
+        <link rel="alternate" href="https://blog.bipedalbit.net/2015/10/08/C-%E4%BA%8C%E8%BF%9B%E5%88%B6-%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2%E5%99%A8/"/>
+        <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 布置了二进制-十进制转换器的小作业，本来还要求顺手扩展一下大数的四则运算，我嫌麻烦没做扩展，就只是写来玩玩。也算熟悉一下底层的二进制-十进制转换机制，顺便复习下C++源码规范。注释写了很多，就不多做解释了，只贴代码。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; converter.h:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;/*
+ * Copyright (C) Bipedal Bit
+ * Verson 1.0.0.1
+ */
+
+#ifndef _CONVERTER_H_
+#define _CONVERTER_H_
+
+#include &amp;lt;string&amp;gt;
+
+/*
+ * This is a class to offer operations converting radix of number in string.
+ */
+class Converter
+&amp;#123;
+private:
+	/* to store the binary form of picked up number string */
+	std::string binVal;
+	/* to store the decimal form of picked up number string */
+	std::string decVal;
+	/* to sign the number by marking wether it is negtive */
+	bool negtive;
+	/* to mark wether the number has a dot */
+	bool hasDot;
+	/* to store the index of dot in binary number string */
+	int binDotIndex;
+	/* to store the index of dot in decimal number string */
+	int decDotIndex;
+	/* max reserved digits sum when float converted from decimal to binary */
+	int binFloatPrecision;
+	/*
+	 * Convert the binary number to decimal form then fill this-&amp;gt;decVal.
+	 */
+	void bin2Dec();
+	/*
+	 * Convert the decimal number to binary form then fill this-&amp;gt;binVal.
+	 */
+	void dec2Bin();
+public:
+	/*
+	 * Constructor of the class to pick up number in string and fill both this-&amp;gt;binVal and this-&amp;gt;decVal.
+	 */
+	Converter(std::string str, int radix, int binFloatPrecision = 20);
+	/*
+	 * Get the the number string with specified radix.
+	 */
+	std::string getNum(int radix);
+&amp;#125;;
+
+#endif
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; converter.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;/*
+ * Copyright (C) Bipedal Bit
+ * Verson 1.0.0.1
+ */
+
+ #include &amp;quot;converter.h&amp;quot;
+ #include &amp;lt;iostream&amp;gt;
+ #include &amp;lt;stdexcept&amp;gt;
+
+/*
+ * name: Converter
+ * args:
+ *	string str: the original string containing target number
+ *	int radix: the radix of the number to pick up form str
+ *	int binFloatPrecision: max reserved digits sum when float converted from decimal to binary
+ *		whose default value is 20
+ * Constructor of the class to pick up number in string and fill both this-&amp;gt;binVal and this-&amp;gt;decVal.
+ */
+ Converter::Converter(std::string str, int radix, int binFloatPrecision)
+&amp;#123;
+	/* check radix */
+	if (radix != 2 &amp;amp;&amp;amp; radix != 10)
+	&amp;#123;
+		std::cerr &amp;lt;&amp;lt; &amp;quot;Invalid argument: Do not support radixes beyond binary and decimal yet.\n&amp;quot;;
+		return;
+	&amp;#125;
+	/* check binFloatPrecision */
+	if (binFloatPrecision &amp;lt; 1)
+	&amp;#123;
+		std::cerr &amp;lt;&amp;lt; &amp;quot;Invalid argument: binFloatPrecision should be greater than 0.\n&amp;quot;;
+		return;
+	&amp;#125;
+	/* fill this-&amp;gt;binFloatPrecision */
+	this-&amp;gt;binFloatPrecision = binFloatPrecision;
+	/* assistant variables for traversing the original string */
+	int len = str.size();
+	int i = 0;
+	/* mark wether there&amp;#39;s a dot in the number */
+	bool hasDot = false;
+	/* store number string temporarily */
+	std::string tmp = &amp;quot;&amp;quot;;
+	if (len &amp;gt; 0)
+	&amp;#123;
+		/* handle binary radix */
+		if (radix == 2)
+		&amp;#123;
+			/* remove useless characters */
+			while(str[i] != &amp;#39;-&amp;#39; &amp;amp;&amp;amp; str[i] != &amp;#39;0&amp;#39; &amp;amp;&amp;amp; str[i] != &amp;#39;1&amp;#39;)
+			&amp;#123;
+				i++;
+			&amp;#125;
+			/* pick up &amp;#39;-&amp;#39; */
+			if(str[i] == &amp;#39;-&amp;#39;)
+			&amp;#123;
+				this-&amp;gt;negtive = true;
+				i++;
+			&amp;#125;
+			else
+			&amp;#123;
+				this-&amp;gt;negtive = false;
+			&amp;#125;
+			/* remove spare &amp;#39;0&amp;#39;s */
+			while(str[i] == &amp;#39;0&amp;#39;)
+			&amp;#123;
+				i++;
+			&amp;#125;
+			/* get numbers */
+			for(; i &amp;lt; len ; i++)
+			&amp;#123;
+				/* get first dot only */
+				if (!hasDot &amp;amp;&amp;amp; str[i] == &amp;#39;.&amp;#39;)
+				&amp;#123;
+					hasDot = true;
+					tmp += &amp;#39;.&amp;#39;;
+					continue;
+				&amp;#125;
+				/* get &amp;#39;0&amp;#39;s and &amp;#39;1&amp;#39;s only */
+				if (str[i] != &amp;#39;0&amp;#39; &amp;amp;&amp;amp; str[i] != &amp;#39;1&amp;#39;)
+				&amp;#123;
+					break;
+				&amp;#125;
+				tmp += str[i];
+			&amp;#125;
+		&amp;#125;
+		/* handle decimal radix */
+		else
+		&amp;#123;
+			/* remove useless characters */
+			while(str[i] != &amp;#39;-&amp;#39; &amp;amp;&amp;amp; !(str[i] &amp;gt;= &amp;#39;0&amp;#39; &amp;amp;&amp;amp; str[i] &amp;lt;= &amp;#39;9&amp;#39;))
+			&amp;#123;
+				i++;
+			&amp;#125;
+			/* pick up &amp;#39;-&amp;#39; */
+			if(str[i] == &amp;#39;-&amp;#39;)
+			&amp;#123;
+				this-&amp;gt;negtive = true;
+				i++;
+			&amp;#125;
+			else
+			&amp;#123;
+				this-&amp;gt;negtive = false;
+			&amp;#125;
+			/* remove spare &amp;#39;0&amp;#39;s */
+			while(str[i] == &amp;#39;0&amp;#39;)
+			&amp;#123;
+				i++;
+			&amp;#125;
+			/* get numbers */
+			for(; i &amp;lt; len ; i++)
+			&amp;#123;
+				/* get first dot only */
+				if (!hasDot &amp;amp;&amp;amp; str[i] == &amp;#39;.&amp;#39;)
+				&amp;#123;
+					hasDot = true;
+					tmp += &amp;#39;.&amp;#39;;
+					continue;
+				&amp;#125;
+				/* get all arabic numerals */
+				if(!(str[i] &amp;gt;= &amp;#39;0&amp;#39; &amp;amp;&amp;amp; str[i] &amp;lt;= &amp;#39;9&amp;#39;))
+				&amp;#123;
+					break;
+				&amp;#125;
+				tmp += str[i];
+			&amp;#125;
+		&amp;#125;
+	&amp;#125;
+	/* if no number picked up set 0 */
+	if(tmp == &amp;quot;&amp;quot;)
+	&amp;#123;
+		tmp = &amp;quot;0&amp;quot;;
+	&amp;#125;
+	/* add &amp;#39;0&amp;#39; if necessary */
+	if (tmp[0] == &amp;#39;.&amp;#39;)
+	&amp;#123;
+		tmp = &amp;#39;0&amp;#39; + tmp;
+	&amp;#125;
+	/* mark wether the number has a dot */
+	this-&amp;gt;hasDot = hasDot;
+	/* fill corresponding number form */
+	if (radix == 2)
+	&amp;#123;
+		this-&amp;gt;binVal = tmp;
+		if (hasDot)
+		&amp;#123;
+			/* store dot&amp;#39;s index in the number string of binary form */
+			this-&amp;gt;binDotIndex = tmp.find(&amp;#39;.&amp;#39;);
+		&amp;#125;
+		bin2Dec();
+	&amp;#125;
+	else
+	&amp;#123;
+		this-&amp;gt;decVal = tmp;
+		if (hasDot)
+		&amp;#123;
+			/* store dot&amp;#39;s index in the number string of decimal form */
+			this-&amp;gt;decDotIndex = tmp.find(&amp;#39;.&amp;#39;);
+		&amp;#125;
+		dec2Bin();
+	&amp;#125;
+	/* have a test */
+/*
+	std::cout &amp;lt;&amp;lt; &amp;quot;radix: 2&amp;quot; &amp;lt;&amp;lt; std::endl;
+	if(this-&amp;gt;negtive)
+	&amp;#123;
+		std::cout &amp;lt;&amp;lt; &amp;#39;-&amp;#39;;
+	&amp;#125;
+	std::cout &amp;lt;&amp;lt; this-&amp;gt;binVal &amp;lt;&amp;lt; std::endl;
+	std::cout &amp;lt;&amp;lt; &amp;quot;radix: 10&amp;quot; &amp;lt;&amp;lt; std::endl;
+	if(this-&amp;gt;negtive)
+	&amp;#123;
+		std::cout &amp;lt;&amp;lt; &amp;#39;-&amp;#39;;
+	&amp;#125;
+	std::cout &amp;lt;&amp;lt; this-&amp;gt;decVal &amp;lt;&amp;lt; std::endl;
+*/
+&amp;#125;
+
+/*
+ * name: getNum
+ * arguments:
+ *	int radix: spedify a radix to find which form number is to got
+ * return: the number string with specified form
+ * access: public
+ * Get the the number string with specified radix.
+ */
+ std::string Converter::getNum(int radix)
+ &amp;#123;
+ 	/* check radix */
+	if (radix != 2 &amp;amp;&amp;amp; radix != 10)
+	&amp;#123;
+		std::cerr &amp;lt;&amp;lt; &amp;quot;Invalid argument: Do not support radixes beyond binary and decimal yet.\n&amp;quot;;
+		return NULL;
+	&amp;#125;
+ 	std::string tmp = &amp;quot;&amp;quot;;
+ 	/* add the &amp;#39;-&amp;#39; character if necessary */
+ 	if (this-&amp;gt;negtive)
+ 	&amp;#123;
+ 		tmp += &amp;#39;-&amp;#39;;
+ 	&amp;#125;
+ 	/* add the binary form number */
+ 	if (radix == 2)
+ 	&amp;#123;
+ 		tmp += this-&amp;gt;binVal;
+ 	&amp;#125;
+ 	/* add the decimal form number */
+ 	else
+ 	&amp;#123;
+ 		tmp += this-&amp;gt;decVal;
+ 	&amp;#125;
+ 	return tmp;
+ &amp;#125;
+
+/*
+ * name: bin2Dec
+ * access: private
+ * Convert the binary number to decimal form then fill this-&amp;gt;decVal.
+ */
+ void Converter::bin2Dec()
+ &amp;#123;
+ 	/* store number string temporarily */
+ 	std::string tmp = &amp;quot;&amp;quot;;
+ 	/* ============== int part ============== */
+ 	/* to get the int range of the binary number string */
+ 	int intLen;
+ 	if (this-&amp;gt;hasDot)
+ 	&amp;#123;
+ 		intLen = this-&amp;gt;binDotIndex;
+ 	&amp;#125;
+ 	else
+ 	&amp;#123;
+ 		intLen = this-&amp;gt;binVal.size();
+ 	&amp;#125;
+ 	/* may need carry while traversing digits */
+ 	char carry = 0;
+ 	/* to store tmp&amp;#39;s length */
+ 	int decLen;
+ 	/* convert radix digit by digit while traversing the int part of the binary number string */
+ 	for(int i = 0 ; i &amp;lt; intLen ; i++)
+ 	&amp;#123;
+ 		/* add new binary digit into carry */
+ 		carry += this-&amp;gt;binVal[i]-&amp;#39;0&amp;#39;;
+ 		/* update tmp&amp;#39;s length */
+ 		decLen = tmp.size();
+ 		/* traverse tmp to multiply each digit by 2 and add carries */
+ 		for(int j = decLen-1 ; j &amp;gt;= 0 ; j--)
+ 		&amp;#123;
+ 			tmp[j] = tmp[j]*2+carry;
+ 			if (tmp[j] &amp;gt; 9)
+ 			&amp;#123;
+ 				/* update carry */
+ 				carry = tmp[j]/10;
+ 				/* limit digit within 10 */
+ 				tmp[j] %= 10;
+ 			&amp;#125;
+ 			else
+ 			&amp;#123;
+				carry = 0;
+ 			&amp;#125;
+ 		&amp;#125;
+ 		/* expand digits if necessary */
+ 		while(carry)
+ 		&amp;#123;
+ 			tmp = char(carry%10)+tmp;
+ 			carry /= 10;
+ 		&amp;#125;
+ 	&amp;#125;
+ 	/* ============= part end ============== */
+ 	/* add &amp;#39;0&amp;#39; if need */
+ 	if (tmp == &amp;quot;&amp;quot;)
+ 	&amp;#123;
+ 		tmp += (char)0;
+ 	&amp;#125;
+ 	/* ============= float part ============== */
+ 	/* if there is a float part */
+ 	if (this-&amp;gt;hasDot)
+ 	&amp;#123;
+ 		/* add the dot to the number string */
+ 		tmp += &amp;#39;.&amp;#39;;
+ 		/* get the length except the float part */
+ 		int decIntLen = tmp.size();
+ 		/* get the length of the whole binary number string */
+ 		int binLen = this-&amp;gt;binVal.size();
+ 		/* convert radix digit by digit while traversing the float part of the binary number string */
+ 		for(int i = binLen-1 ; i &amp;gt; intLen ; i--)
+ 		&amp;#123;
+ 			/* carry to first float digit if occur a &amp;#39;1&amp;#39; */
+ 			carry = (this-&amp;gt;binVal[i] == &amp;#39;1&amp;#39; ? 5 : 0);
+ 			/* update tmp&amp;#39;s length */
+ 			decLen = tmp.size();
+ 			/* traverse tmp to divide each digit by 2 and add carries */
+ 			for(int j = decIntLen ; j &amp;lt; decLen ; j++)
+ 			&amp;#123;
+ 				if (tmp[j] &amp;amp; 1)
+ 				&amp;#123;
+ 					tmp[j] = tmp[j]/2 + carry;
+ 					carry = 5;
+ 				&amp;#125;
+ 				else
+ 				&amp;#123;
+ 					tmp[j] = tmp[j]/2 + carry;
+ 					carry = 0;
+ 				&amp;#125;
+ 			&amp;#125;
+ 			/* expand digit if necessary */
+ 			if (carry)
+ 			&amp;#123;
+ 				tmp += carry;
+ 			&amp;#125;
+ 		&amp;#125;
+ 	&amp;#125;
+ 	/* ============== part end =============== */
+ 	/* adjust string and fill this-&amp;gt;decVal and this-&amp;gt;decDotIndex */
+ 	for(int i = 0 ; i &amp;lt; tmp.size() ; i++)
+ 	&amp;#123;
+ 		if (tmp[i] == &amp;#39;.&amp;#39;)
+ 		&amp;#123;
+ 			continue;
+ 		&amp;#125;
+ 		tmp[i] += &amp;#39;0&amp;#39;;
+ 	&amp;#125;
+ 	this-&amp;gt;decVal = tmp;
+ 	this-&amp;gt;decDotIndex = tmp.find(&amp;#39;.&amp;#39;);
+ &amp;#125;
+
+/*
+ * name: dec2Bin
+ * access: private
+ * Convert the decimal number to binary form then fill this-&amp;gt;binVal.
+ */
+ void Converter::dec2Bin()
+ &amp;#123;
+ 	/* store number string temporarily */
+ 	std::string tmp = &amp;quot;&amp;quot;;
+ 	/* ============== int part ============== */
+ 	/* to get the int range of the decimal number string */
+ 	int intLen;
+ 	if (this-&amp;gt;hasDot)
+ 	&amp;#123;
+ 		intLen = this-&amp;gt;decDotIndex;
+ 	&amp;#125;
+ 	else
+ 	&amp;#123;
+ 		intLen = this-&amp;gt;decVal.size();
+ 	&amp;#125;
+ 	/* may need carry while traversing digits */
+ 	char carry = 0;
+ 	/* to store tmp&amp;#39;s length */
+ 	int binLen;
+ 	/* convert radix digit by digit while traversing the int part of the decimal number string */
+ 	for(int i = 0 ; i &amp;lt; intLen ; i++)
+ 	&amp;#123;
+ 		/* add new decimal digit into carry */
+ 		carry += this-&amp;gt;decVal[i]-&amp;#39;0&amp;#39;;
+ 		/* update tmp&amp;#39;s length */
+ 		binLen = tmp.size();
+ 		/* traverse tmp to multiply each digit by 10 and add carries */
+ 		for(int j = binLen-1 ; j &amp;gt;= 0 ; j--)
+ 		&amp;#123;
+ 			/*
+ 			 * Type of tmp[] is char[] and MAX_CHAR = 127 &amp;gt; 99.
+ 			 * So the assignment statement below will work safely.
+ 			 */
+ 			tmp[j] = tmp[j]*10+carry;
+ 			if (tmp[j] &amp;gt; 1)
+ 			&amp;#123;
+ 				/* update carry */
+ 				carry = tmp[j]/2;
+ 				/* limit digit within 2 */
+ 				tmp[j] &amp;amp;= 1;
+ 			&amp;#125;
+ 			else
+ 			&amp;#123;
+				carry = 0;
+ 			&amp;#125;
+ 		&amp;#125;
+ 		/* expand digits if necessary */
+ 		while(carry)
+ 		&amp;#123;
+ 			tmp = char(carry%2)+tmp;
+ 			carry /= 2;
+ 		&amp;#125;
+ 	&amp;#125;
+ 	/* ============= part end ============== */
+ 	/* add &amp;#39;0&amp;#39; if need */
+ 	if (tmp == &amp;quot;&amp;quot;)
+ 	&amp;#123;
+ 		tmp += (char)0;
+ 	&amp;#125;
+ 	/* ============= float part ============== */
+ 	/* if there is a float part */
+	if (this-&amp;gt;hasDot)
+ 	&amp;#123;
+ 		/* add the dot to the number string */
+ 		tmp += &amp;#39;.&amp;#39;;
+ 		/* may need carry while traversing digits */
+ 		carry = 0;
+ 		/* get the length of the whole decimal number string */
+ 		int decLen = this-&amp;gt;decVal.size();
+ 		/* get the length of the float part of the decimal number string */
+ 		int floatLen = decLen-intLen-1;
+ 		/* get a copy of the float part of the decimal number string */
+ 		std::string tmp2 = this-&amp;gt;decVal.substr(intLen+1, floatLen);
+ 		/* adjust tmp2 to prepare for algorithm below */
+ 		for(int i = 0 ; i &amp;lt; floatLen ; i++)
+ 		&amp;#123;
+ 			tmp2[i] -= &amp;#39;0&amp;#39;;
+ 		&amp;#125;
+ 		/*
+ 		 * asume:   B = b1*2^-1 + b2*2^-2 + b3*2^-3 + ...
+ 		 *            2*B = b1 + b2*2^-1 + b3*2^-2 + ... 	// take b1 as first digit
+ 		 * 2*(2*B-b1) = b2 + b3*2^-1 + ... 		// take b2 as second digit
+ 		 * 		...
+ 		 * so the binary float will got digit by digit in order
+ 		 */
+ 		for(int i = 0 ; i &amp;lt; this-&amp;gt;binFloatPrecision ; i++)
+ 		&amp;#123;
+ 			/* traverse tmp2 to multiply each digit by 2 and add carries */
+ 			for(int j = floatLen-1 ; j &amp;gt;= 0 ; j--)
+ 			&amp;#123;
+ 				tmp2[j] = tmp2[j]*2+carry;
+ 				if (tmp2[j] &amp;gt; 9)
+ 				&amp;#123;
+ 					/* update carry */
+ 					carry = tmp2[j]/10;
+ 					/* limit digit within 10 */
+ 					tmp2[j] %= 10;
+ 				&amp;#125;
+ 				else
+ 				&amp;#123;
+ 					carry = 0;
+ 				&amp;#125;
+ 			&amp;#125;
+ 			/* get the last carry as new digit of binary float */
+ 			tmp += carry;
+ 			/* reset carry */
+ 			carry = 0;
+ 		&amp;#125;
+ 	&amp;#125;
+ 	/* ============== part end =============== */
+ 	/* adjust string and fill this-&amp;gt;binVal and this-&amp;gt;binDotIndex */
+ 	for(int i = 0 ; i &amp;lt; tmp.size() ; i++)
+ 	&amp;#123;
+ 		if (tmp[i] == &amp;#39;.&amp;#39;)
+ 		&amp;#123;
+ 			continue;
+ 		&amp;#125;
+ 		tmp[i] += &amp;#39;0&amp;#39;;
+ 	&amp;#125;
+ 	this-&amp;gt;binVal = tmp;
+ 	this-&amp;gt;binDotIndex = tmp.find(&amp;#39;.&amp;#39;);
+ &amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; test.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;quot;converter.h&amp;quot;
+#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;climits&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	//Converter c(&amp;quot;0.625&amp;quot;, 10);
+	Converter c(&amp;quot;ujsgdfksagrua0.10100000000000000000&amp;quot;, 2);
+	cout &amp;lt;&amp;lt; c.getNum(10) &amp;lt;&amp;lt; endl;
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 都过500行了，会不会写得有点啰嗦？&lt;/p&gt;
+</content>
+        <category term="C++" />
+        <category term="进制转换" />
+        <updated>2015-10-08T14:05:52.000Z</updated>
+    </entry>
+</feed>

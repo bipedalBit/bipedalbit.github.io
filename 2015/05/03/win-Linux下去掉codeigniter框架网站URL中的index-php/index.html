@@ -1,0 +1,792 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Bipedal Bit">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="&nbsp;&nbsp;&nbsp; 使用PHP的codeigniter框架后在试验阶段遇到的第一个问题就是，无法隐藏地址栏中的index.php，这让我浑身难受。多方调查之后有了一套解决方案。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="win&#x2F;Linux下去掉codeigniter框架网站URL中的index.php">
+<meta property="og:url" content="https://blog.bipedalbit.net/2015/05/03/win-Linux%E4%B8%8B%E5%8E%BB%E6%8E%89codeigniter%E6%A1%86%E6%9E%B6%E7%BD%91%E7%AB%99URL%E4%B8%AD%E7%9A%84index-php/index.html">
+<meta property="og:site_name" content="Hacking to the gate!">
+<meta property="og:description" content="&nbsp;&nbsp;&nbsp; 使用PHP的codeigniter框架后在试验阶段遇到的第一个问题就是，无法隐藏地址栏中的index.php，这让我浑身难受。多方调查之后有了一套解决方案。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-05-03T04:31:20.000Z">
+<meta property="article:modified_time" content="2025-05-21T15:42:53.541Z">
+<meta property="article:author" content="Bipedal Bit">
+<meta property="article:tag" content="nginx">
+<meta property="article:tag" content="codeigniter">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="IIS7">
+<meta property="article:tag" content="apache">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>win/Linux下去掉codeigniter框架网站URL中的index.php - Hacking to the gate!</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.bipedalbit.net","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":100,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Hacking to the gate!</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://cdn.minio.bipedalbit.net/bipedalbit-net-images/banner/125633249_p0_resize.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="win/Linux下去掉codeigniter框架网站URL中的index.php"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2015-05-03 12:31" pubdate>
+          2015年5月3日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          773 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          7 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">win/Linux下去掉codeigniter框架网站URL中的index.php</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>&nbsp;&nbsp;&nbsp; 使用PHP的codeigniter框架后在试验阶段遇到的第一个问题就是，无法隐藏地址栏中的index.php，这让我浑身难受。多方调查之后有了一套解决方案。</p>
+<span id="more"></span>
+<h1 id="Linux"><a href="#Linux" class="headerlink" title="Linux:"></a>Linux:</h1><h2 id="一-Apache"><a href="#一-Apache" class="headerlink" title="一.Apache"></a>一.Apache</h2><h3 id="1-启用rewrite模块"><a href="#1-启用rewrite模块" class="headerlink" title="1.启用rewrite模块"></a>1.启用rewrite模块</h3><p>&nbsp;&nbsp;&nbsp; 手动启用是在Apache配置文件里把“LoadModule rewrite_module modules&#x2F;mod_rewrite.so”解注释。<br>&nbsp;&nbsp;&nbsp; 一些LAMP套件也提供更方便的模块管理。</p>
+<h3 id="2-rewrite规则设置"><a href="#2-rewrite规则设置" class="headerlink" title="2.rewrite规则设置"></a>2.rewrite规则设置</h3><p>&nbsp;&nbsp;&nbsp; 在 CI 的根目录下，即在 index.php ，system的同级目录下，建立.htaccess，直接建立该文件名不会成功，可以从application或system文件夹里复制一个过来，再修改内容。<br>&nbsp;&nbsp;&nbsp; 内容如下（ CI 手册上也有介绍）：</p>
+<pre><code class="hljs">RewriteEngine On
+RewriteCond %&#123;REQUEST_FILENAME&#125; !-f
+RewriteCond %&#123;REQUEST_FILENAME&#125; !-d
+RewriteRule ^(.*)$ index.php/$1 [L]
+</code></pre>
+<p>&nbsp;&nbsp;&nbsp; <strong>如果.htaccess文件不是在www的根目录下，例如是： <a target="_blank" rel="noopener" href="http://localhost/123/">http://localhost/123/</a> index.php ，第三行需要改写为</strong><br>&nbsp;&nbsp;&nbsp; <code>RewriteRule ^(.*)$ /123/ index.php /$1 [L]</code></p>
+<h3 id="3-配置codeigniter"><a href="#3-配置codeigniter" class="headerlink" title="3.配置codeigniter"></a>3.配置codeigniter</h3><p>&nbsp;&nbsp;&nbsp; 找到CI文件夹&#x2F;application&#x2F;config&#x2F;config.php。<br>&nbsp;&nbsp;&nbsp; <code>$config[&#39;index_page&#39;] =&quot; index.php &quot;;</code>改写成<code>$config[&#39;index_page&#39;] = &quot;&quot;; </code></p>
+<h3 id="4-重启Apache"><a href="#4-重启Apache" class="headerlink" title="4.重启Apache"></a>4.重启Apache</h3><p>&nbsp;&nbsp;&nbsp; 这个各显神通，不累述，如Ubuntu的<code> $ sudo /etc/init.d/apache2 restart</code></p>
+<h2 id="二-nginx"><a href="#二-nginx" class="headerlink" title="二.nginx"></a>二.nginx</h2><h3 id="1-rewrite规则设置"><a href="#1-rewrite规则设置" class="headerlink" title="1.rewrite规则设置"></a>1.rewrite规则设置</h3><p>&nbsp;&nbsp;&nbsp; 修改nginx配置文件，在nginx.conf的SERVER段中添加如下代码：</p>
+<pre><code class="hljs">location /&#123;
+   if (-f $request_filename) &#123;
+       expires max;
+       break;
+   &#125;
+   if (!-e $request_filename) &#123;
+       rewrite ^/(.*)$ /index.php/$1 last;
+   &#125;
+&#125;
+</code></pre>
+<h3 id="2-3同上"><a href="#2-3同上" class="headerlink" title="2.3同上"></a>2.3同上</h3><h3 id="4-重启nginx"><a href="#4-重启nginx" class="headerlink" title="4.重启nginx"></a>4.重启nginx</h3><p>&nbsp;&nbsp;&nbsp; <code>/usr/local/nginx/sbin/nginx -s reload</code></p>
+<h1 id="Windows："><a href="#Windows：" class="headerlink" title="Windows："></a>Windows：</h1><h2 id="一-IIS7"><a href="#一-IIS7" class="headerlink" title="一.IIS7"></a>一.IIS7</h2><h3 id="1-配置web-config"><a href="#1-配置web-config" class="headerlink" title="1.配置web.config"></a>1.配置web.config</h3><pre><code class="hljs">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;configuration&gt;
+    &lt;system.webServer&gt;
+        &lt;rewrite&gt;
+            &lt;rules&gt;
+                &lt;rule name=&quot;OrgPage&quot; stopProcessing=&quot;true&quot;&gt;
+                    &lt;match url=&quot;^(.*)$&quot; /&gt;
+                    &lt;conditions logicalGrouping=&quot;MatchAll&quot;&gt;
+                    &lt;add input=&quot;&#123;HTTP_HOST&#125;&quot; pattern=&quot;^(.*)$&quot; /&gt;
+                    &lt;add input=&quot;&#123;REQUEST_FILENAME&#125;&quot; matchType=&quot;IsFile&quot; negate=&quot;true&quot; /&gt;
+                    &lt;add input=&quot;&#123;REQUEST_FILENAME&#125;&quot; matchType=&quot;IsDirectory&quot; negate=&quot;true&quot; /&gt;
+                    &lt;/conditions&gt;
+                    &lt;action type=&quot;Rewrite&quot; url=&quot;index.php/&#123;R:1&#125;&quot; /&gt;
+                &lt;/rule&gt;
+            &lt;/rules&gt;
+        &lt;/rewrite&gt;
+    &lt;/system.webServer&gt;
+&lt;/configuration&gt;
+</code></pre>
+<h3 id="2-配置codeigniter"><a href="#2-配置codeigniter" class="headerlink" title="2.配置codeigniter"></a>2.配置codeigniter</h3><p>&nbsp;&nbsp;&nbsp; 找到CI文件夹&#x2F;application&#x2F;config&#x2F;config.php。<br>&nbsp;&nbsp;&nbsp; <code>$config[&#39;index_page&#39;] =&quot; index.php &quot;;</code>改写成<code>$config[&#39;index_page&#39;] = &quot;&quot;; </code></p>
+<h2 id="二-Apache"><a href="#二-Apache" class="headerlink" title="二.Apache"></a>二.Apache</h2><h3 id="1-启用rewrite模块-1"><a href="#1-启用rewrite模块-1" class="headerlink" title="1.启用rewrite模块"></a>1.启用rewrite模块</h3><p>&nbsp;&nbsp;&nbsp; 手动启用是在Apache配置文件里把“LoadModule rewrite_module modules&#x2F;mod_rewrite.so”解注释。<br>&nbsp;&nbsp;&nbsp; 一些WAMP套件也提供更方便的模块管理。</p>
+<h3 id="2-rewrite规则设置-1"><a href="#2-rewrite规则设置-1" class="headerlink" title="2.rewrite规则设置"></a>2.rewrite规则设置</h3><p>&nbsp;&nbsp;&nbsp; 找到Apache的虚拟主机配置文件，如Apache-20\conf\extra\httpd-vhosts.conf。<br>&nbsp;&nbsp;&nbsp; 修改要配置的虚拟主机的Directory标签，如：</p>
+<pre><code class="hljs">&lt;Directory G:/PHP/123&gt;
+    #隐藏index.php相关
+    RewriteEngine On
+    RewriteCond %&#123;REQUEST_FILENAME&#125; !-f
+    RewriteCond %&#123;REQUEST_FILENAME&#125; !-d
+    RewriteRule ^(.*)$ index.php/$1 [L]
+    Options FollowSymLinks
+    #访问权限设置
+    #不允许别人修改页面
+    AllowOverride None
+    #依次考察允许和拒绝ip访问的设置情况
+    order allow,deny
+    #允许来自所有ip的访问
+    Allow from all
+    #deny from 202.18 即拒绝来自202.18打头的ip的访问
+&lt;/Directory&gt;
+</code></pre>
+<h3 id="3-配置codeigniter-1"><a href="#3-配置codeigniter-1" class="headerlink" title="3.配置codeigniter"></a>3.配置codeigniter</h3><p>&nbsp;&nbsp;&nbsp; 找到CI文件夹&#x2F;application&#x2F;config&#x2F;config.php。<br>&nbsp;&nbsp;&nbsp; <code>$config[&#39;index_page&#39;] =&quot; index.php &quot;;</code>改写成<code>$config[&#39;index_page&#39;] = &quot;&quot;; </code></p>
+<h3 id="4-重启Apache-1"><a href="#4-重启Apache-1" class="headerlink" title="4.重启Apache"></a>4.重启Apache</h3><p>&nbsp;&nbsp;&nbsp; win下Apache有图形界面，很方便。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/codeigniter/" class="category-chain-item">codeigniter</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/nginx/" class="print-no-link">#nginx</a>
+      
+        <a href="/tags/codeigniter/" class="print-no-link">#codeigniter</a>
+      
+        <a href="/tags/php/" class="print-no-link">#php</a>
+      
+        <a href="/tags/IIS7/" class="print-no-link">#IIS7</a>
+      
+        <a href="/tags/apache/" class="print-no-link">#apache</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>win/Linux下去掉codeigniter框架网站URL中的index.php</div>
+      <div>https://blog.bipedalbit.net/2015/05/03/win-Linux下去掉codeigniter框架网站URL中的index-php/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Bipedal Bit</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2015年5月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2015/06/09/Qt%E5%87%BA%E7%8E%B0%E9%94%99%E8%AF%AFundefined-reference-to-vtable-for-XXXXX-XXX/" title="Qt出现错误undefined reference to &#39;vtable for XXXXX.XXX&#39;">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Qt出现错误undefined reference to &#39;vtable for XXXXX.XXX&#39;</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://registry.npmmirror.com/@waline/client/2.15.8/files/dist/waline.css')
+      Fluid.utils.createScript('https://registry.npmmirror.com/@waline/client/2.15.8/files/dist/waline.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://waline.bipedalbit.net","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+          <div style="text-align: center;">
+  当前页面浏览量: <span class="waline-pageview-count"></span>
+</div>
+<script type="module">
+  import { pageviewCount } from 'https://unpkg.com/@waline/client@v3/dist/pageview.js';
+
+  pageviewCount({
+    serverURL: 'https://waline.bipedalbit.net/',
+    path: window.location.pathname,
+    // 可选配置项
+    // selector: 'waline-pageview-count',
+    // update: true,
+  });
+
+  // 等待数据加载完成，检查 span 内容是否为空
+  setTimeout(() => {
+    const span = document.querySelector('.waline-pageview-count');
+    if (!span.textContent.trim()) {
+      span.textContent = '1';
+    }
+  }, 1000); // 1秒后执行，确保数据加载完成
+</script>
+
+        </div>
+      </div>
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

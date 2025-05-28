@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+    <channel>
+        <title>Hacking to the gate! • Posts by &#34;vps&#34; tag</title>
+        <link>https://blog.bipedalbit.net</link>
+        <description>Bipedal Bit&#39;s blog</description>
+        <language>zh-CN</language>
+        <pubDate>Mon, 25 Apr 2016 14:05:09 +0800</pubDate>
+        <lastBuildDate>Mon, 25 Apr 2016 14:05:09 +0800</lastBuildDate>
+        <category>Qt</category>
+        <category>signal-slot</category>
+        <category>Q_OBJECT</category>
+        <category>nginx</category>
+        <category>select/poll</category>
+        <category>epoll</category>
+        <category>ngx_int_t</category>
+        <category>rbtree</category>
+        <category>C</category>
+        <category>static</category>
+        <category>内存分布</category>
+        <category>sublime</category>
+        <category>C++</category>
+        <category>makefile</category>
+        <category>node.js</category>
+        <category>github</category>
+        <category>socket.io</category>
+        <category>Web请求处理机制</category>
+        <category>同步/异步</category>
+        <category>阻塞/非阻塞</category>
+        <category>事件驱动模型</category>
+        <category>BP神经网络</category>
+        <category>机器学习</category>
+        <category>python</category>
+        <category>pybrain</category>
+        <category>c++11</category>
+        <category>多线程</category>
+        <category>ubuntu</category>
+        <category>debian</category>
+        <category>apt-file</category>
+        <category>cin</category>
+        <category>cout</category>
+        <category>scanf</category>
+        <category>printf</category>
+        <category>进制转换</category>
+        <category>人工神经网络</category>
+        <category>人机博弈</category>
+        <category>Maxmin</category>
+        <category>AlphaBeta</category>
+        <category>PVS</category>
+        <category>MTD(f)</category>
+        <category>位域</category>
+        <category>bitset</category>
+        <category>vector&amp;lt;bool&amp;gt;</category>
+        <category>网络爬虫</category>
+        <category>类脑</category>
+        <category>codeigniter</category>
+        <category>php</category>
+        <category>IIS7</category>
+        <category>apache</category>
+        <category>模拟登录</category>
+        <category>proxy</category>
+        <category>domain</category>
+        <category>DNS</category>
+        <category>hexo</category>
+        <category>vps</category>
+        <category>dropbox</category>
+        <category>ffmpeg</category>
+        <category>板绘</category>
+        <category>sai</category>
+        <category>琪露诺</category>
+        <category>LLM</category>
+        <category>ollama</category>
+        <category>open-webui</category>
+        <category>oneapi</category>
+        <category>mcpserver</category>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2016/04/25/%E5%88%A9%E7%94%A8Dropbox%E5%AE%9E%E7%8E%B0%E5%AE%9E%E6%97%B6%E5%90%8C%E6%AD%A5%E7%9A%84%E9%9D%99%E6%80%81%E7%AB%99/</guid>
+            <title>利用Dropbox实现实时同步的静态站</title>
+            <link>https://blog.bipedalbit.net/2016/04/25/%E5%88%A9%E7%94%A8Dropbox%E5%AE%9E%E7%8E%B0%E5%AE%9E%E6%97%B6%E5%90%8C%E6%AD%A5%E7%9A%84%E9%9D%99%E6%80%81%E7%AB%99/</link>
+            <category>nginx</category>
+            <category>hexo</category>
+            <category>vps</category>
+            <category>dropbox</category>
+            <pubDate>Mon, 25 Apr 2016 14:05:09 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 上个周末正在练习nginx静态站服务器功能的基本配置，忽然想到一个点子。既然我有现成的VPS可以用，而且只是用来搭ShadowSocks服务器科学上网用，不拿来做建站练习实在有点浪费。之前早就把VPS和手头各个平台上的ShadowSocks+Dropbox环境配好了，那为什么不干脆在VPS的Dropbox文件夹里建站呢？自动同步，多终端随处修改，应该会比Github Pages更方便。试了一下，结果亦可赛艇。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;h3 id=&#34;VPS&#34;&gt;&lt;a href=&#34;#VPS&#34; class=&#34;headerlink&#34; title=&#34;VPS&#34;&gt;&lt;/a&gt;VPS&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; VPS的选择主要看需要，论国内访问速度当然还是BAT和新浪之类的国产云主机最好，但是如果你想顺便用来科学上网，那么就得选国外VPS服务商了。一般来说，提起国外的网络服务运营商，总是想起欧美的，尤其是美国的，然而事实上，日本的VPS产业也很发达。大名鼎鼎的&lt;a href=&#34;https://www.linode.com/&#34;&gt;Linode&lt;/a&gt;、&lt;a href=&#34;https://www.conoha.jp/zh/&#34;&gt;Conoha&lt;/a&gt;等服务商，因为机房离国内近，相对美国的VPS有了速度优势。最近可能意识到墙内市场的潜力，有的日本VPS服务明显做的很贴咱的心了，比如我选的&lt;a href=&#34;https://www.z.com/&#34;&gt;z.com&lt;/a&gt;，它就是Conoha重新套了个壳，900日元每月的开销不算便宜也不很贵，但是它能用支付宝结帐！&lt;/p&gt;
+&lt;h3 id=&#34;系统环境&#34;&gt;&lt;a href=&#34;#系统环境&#34; class=&#34;headerlink&#34; title=&#34;系统环境&#34;&gt;&lt;/a&gt;系统环境&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 要搭服务器，不论什么功能，稳定性是很重要的，虽然巨硬和IBM也分别有server产品，但是咱用不起，挑个Linux系统比较合适，至于Mac OS，你是要搭服务器，又不是要去星巴克。我Linux入门时选择的是最流行的发行版Ubuntu，于是VPS也挑了Ubuntu 14.04LTS的镜像，使用和练习都比较方便，上手快，国内大家爱用的还有CentOS和RedHat。就别选什么Desktop镜像了，DE占空间又浪费资源，就算有远程桌面，也没有必要用，SSH连接足矣。把公钥放Github，wget到服务器~&amp;#x2F;.ssh目录，改个名叫authorized_keys就行，多个公钥可以都放authorized_keys里面，一个一行就好。&lt;/p&gt;
+&lt;h3 id=&#34;Dropbox&#34;&gt;&lt;a href=&#34;#Dropbox&#34; class=&#34;headerlink&#34; title=&#34;Dropbox&#34;&gt;&lt;/a&gt;Dropbox&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; Dropbox是个云盘，跟国内遍地都是的云盘有几个不同点，首先是资历老，然后给的免费空间少（XDDDD），2GB，跨平台做得好，几乎所有系统平台都有客户端，最重要的是有一个文件实时同步功能（也许正是这个功能限制了免费空间的大小），最后，是的，国外的好东西一般是要被墙的，Dropbox也不例外。会科学上网的同学们可以各显神通去&lt;a href=&#34;https://www.dropbox.com/&#34;&gt;官网&lt;/a&gt;注册，下客户端试用一下。在VPS上装个Dropbox用来传文件简直方便，VPS网快，墙内下不动的东西也可以VPS下完从Dropbox拖回来。据说国内的金山快盘可以作为Dropbox的替代品，改天做个评测再发博文介绍下。别跟我提百度云，且不论它没有官方Linux客户端且免费空间太大，我对百度有偏见。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这篇文用到的就是Dropbox的自动同步功能，在各个终端的Dropbox文件夹内，内容都与云端进行实时同步。既然是个文件夹，那么里面放一个静态站也没有什么不可以了，2GB绰绰有余。&lt;/p&gt;
+&lt;h3 id=&#34;Nginx&#34;&gt;&lt;a href=&#34;#Nginx&#34; class=&#34;headerlink&#34; title=&#34;Nginx&#34;&gt;&lt;/a&gt;Nginx&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;a href=&#34;http://nginx.org/&#34;&gt;Nginx&lt;/a&gt;读作engine X，是由Igor Sysoev（俄罗斯籍）为俄罗斯访问量第二的Rambler.ru站点开发的，第一个公开版本0.1.0发布于2004年10月4日。其将源代码以类BSD许可证的形式发布，因它的稳定性、丰富的功能集、示例配置文件和低系统资源的消耗而闻名。主要功能为静态网站的服务器、多服务端的负载均衡服务器即反向代理服务器。配置简单、高效、轻。既然是做静态站，我首选了Nginx作为服务器，Apache有点笨重，不做动态站就先不装了。&lt;/p&gt;
+&lt;h3 id=&#34;Hexo&#34;&gt;&lt;a href=&#34;#Hexo&#34; class=&#34;headerlink&#34; title=&#34;Hexo&#34;&gt;&lt;/a&gt;Hexo&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 做什么样的静态站呢？这次直接把我的Hexo博客拿来做实验。&lt;a href=&#34;https://bipedalbit.net/2016/4/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/&#34;&gt;上篇文&lt;/a&gt;提到过，Hexo是个静态博客站生成器，&lt;code&gt;hexo g&lt;/code&gt;命令执行后，Hexo项目目录的public子目录下就是静态站的确切内容了。可以干脆把Hexo项目目录放在Dropbox文件夹中，每次&lt;code&gt;hexo g&lt;/code&gt;之后，自动更新静态站内容，同时Dropbox自动把静态站同步到VPS，VPS的Nginx不需要更改配置因为地址映射没有变化。于是我们现在可以在本地修改Hexo博客后自动发布更新到直连外网的VPS，还可以在任意一个向Github分发过SSH公钥的终端向Github Pages发布新的静态站内容。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不知到你们想到了什么，我觉得这个套路可以使VPS上维护一个经常预更新的静态站alpha版，Github Pages上维护一个比较稳定的静态站beta版。&lt;/p&gt;
+ ]]></description>
+        </item>
+    </channel>
+</rss>

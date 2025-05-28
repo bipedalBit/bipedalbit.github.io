@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+    <channel>
+        <title>Hacking to the gate! • Posts by &#34;类脑&#34; tag</title>
+        <link>https://blog.bipedalbit.net</link>
+        <description>Bipedal Bit&#39;s blog</description>
+        <language>zh-CN</language>
+        <pubDate>Sat, 05 Dec 2015 22:07:40 +0800</pubDate>
+        <lastBuildDate>Sat, 05 Dec 2015 22:07:40 +0800</lastBuildDate>
+        <category>Qt</category>
+        <category>signal-slot</category>
+        <category>Q_OBJECT</category>
+        <category>nginx</category>
+        <category>select/poll</category>
+        <category>epoll</category>
+        <category>ngx_int_t</category>
+        <category>rbtree</category>
+        <category>C</category>
+        <category>static</category>
+        <category>内存分布</category>
+        <category>sublime</category>
+        <category>C++</category>
+        <category>makefile</category>
+        <category>node.js</category>
+        <category>github</category>
+        <category>socket.io</category>
+        <category>Web请求处理机制</category>
+        <category>同步/异步</category>
+        <category>阻塞/非阻塞</category>
+        <category>事件驱动模型</category>
+        <category>BP神经网络</category>
+        <category>机器学习</category>
+        <category>python</category>
+        <category>pybrain</category>
+        <category>c++11</category>
+        <category>多线程</category>
+        <category>ubuntu</category>
+        <category>debian</category>
+        <category>apt-file</category>
+        <category>cin</category>
+        <category>cout</category>
+        <category>scanf</category>
+        <category>printf</category>
+        <category>进制转换</category>
+        <category>人工神经网络</category>
+        <category>人机博弈</category>
+        <category>Maxmin</category>
+        <category>AlphaBeta</category>
+        <category>PVS</category>
+        <category>MTD(f)</category>
+        <category>位域</category>
+        <category>bitset</category>
+        <category>vector&amp;lt;bool&amp;gt;</category>
+        <category>网络爬虫</category>
+        <category>类脑</category>
+        <category>codeigniter</category>
+        <category>php</category>
+        <category>IIS7</category>
+        <category>apache</category>
+        <category>模拟登录</category>
+        <category>proxy</category>
+        <category>domain</category>
+        <category>DNS</category>
+        <category>hexo</category>
+        <category>vps</category>
+        <category>dropbox</category>
+        <category>ffmpeg</category>
+        <category>板绘</category>
+        <category>sai</category>
+        <category>琪露诺</category>
+        <category>LLM</category>
+        <category>ollama</category>
+        <category>open-webui</category>
+        <category>oneapi</category>
+        <category>mcpserver</category>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/12/05/%E7%94%B1%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%92%8C%E7%B1%BB%E8%84%91%E7%8E%B0%E7%8A%B6%E5%B1%95%E5%BC%80/</guid>
+            <title>由人工神经网络和类脑现状展开</title>
+            <link>https://blog.bipedalbit.net/2015/12/05/%E7%94%B1%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%92%8C%E7%B1%BB%E8%84%91%E7%8E%B0%E7%8A%B6%E5%B1%95%E5%BC%80/</link>
+            <category>机器学习</category>
+            <category>人工神经网络</category>
+            <category>类脑</category>
+            <pubDate>Sat, 05 Dec 2015 22:07:40 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 今天听了个讲座，是一位鹅厂智库，是个博士，讲的关于互联网、人工智能与大脑的一些遐想。简单地说，就是认为互联网与大脑在形式上已经很相似了，可以借鉴脑神经科学来发展互联网，也可以用互联网的发展来反观大脑得到脑科学方面的启发。讲座期间提了一下人工智能，尤其是人工神经网络和类脑对大脑的仿生。讲座上我对ANN和类脑的技术现状有了一些思考，对互联网与脑神经科学的联系也有了一些自己的看法。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;h1 id=&#34;1-人工神经网络现状&#34;&gt;&lt;a href=&#34;#1-人工神经网络现状&#34; class=&#34;headerlink&#34; title=&#34;1 人工神经网络现状&#34;&gt;&lt;/a&gt;1 人工神经网络现状&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前&lt;a href=&#34;http://blog.bipedalbit.net/2015/10/9/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/&#34;&gt;自科普BP神经网络&lt;/a&gt;的时候提到过人工神经网络的仿生模型，看起来好像很有道理很靠谱，但是这个研究方向上出现过瓶颈。从前的单纯“神经网络”如BP，远远无法与人脑甚至小白鼠的大脑相提并论，几十几百个神经元，顶多也就模拟一下应激性或简单的反射行为，别说逻辑思考，就连动物本能的模拟都做不到。原因很简单，ANN的结构太简单了，真正的人的神经网络由上亿量级的神经元组成，其中包括了上百万个互相联系的与ANN同量级的反射组件。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 2006年之后，Deep Learning兴起，老实说我实在不太看得惯学界一些炒概念的行为，DL其实是提出了一些层数更多的ANN的可行解。比如CNN，在普通BP网络的前面加了若干曾卷积层，特化了BP的图像处理功能，做的事情类似于为简单反射添加了视网膜对图像的前期处理过程，可是由于BP的单一的简单的结构，仍然只能称作是复杂一点的反射模拟；又比如DBN，一节一节的增益、传递BP的前馈效应，节与节之间通过置信过程进行了信息的提纯，在我看来虽然真正有了模拟多层反射组件的趋势，结构仍然单一而简单，做的事情类似于手脚到大脑的长程简单反射行为。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我不觉得DL真的突破了ANN的瓶颈。然而到了DL的程度，计算机的优势——硬件效率已经捉襟见肘。因为分布式集群难以达到能模拟上亿神经元或者说上百万反射组件&lt;strong&gt;并行交互&lt;/strong&gt;的规模。这里就涉及了赛博世界的壁垒：宇宙中任何简单的过程都是在各种规则的限制下并行发生，各自独立进行的。而计算机一次却只能模拟一个简单物理过程，仅凭当前的技术再怎么并行化计算，并行量相对于一颗宇宙砂砾——生物的量级仍然嫌少。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 此外，即使假设我们已经拥有支持超大并发量的量子计算机，我们仍然需要组织更复杂的神经网络结构。在各种科幻作品中，AI之所以强大到令人类恐惧，是它们具备了自行学习，自组织自身结构的能力。也许你会说ANN不是已经能自行学习了吗？但是ANN乃至DL的学习结果被AI掌握了吗？不，连AI本身都还不存在，学习结果只能呈现给人类。那么这里我要说，AI更加重要，或许最重要的一项素质其实是结构自组织的能力。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 你可能会问，人类的脑神经似乎也没有怎么调整结构啊，怎么具有如此高的智能程度？我要驳斥两点，首先，现在看到的每一个人类个体的脑神经结构都是不是凭空产生的，亿万年的生物史中人类这条智慧生物演化线上调整自身的脑神经结构的过程从来没有停止过；其次，即使是一个固定人类个体，他的脑神经网络结构也是在进行自调整的，神经细胞的生长、萎缩、换代在人的一生中一直在进行，这不能单纯的映射为ANN中神经元间连接权重的调整，神经元的层次结构也在发生变化。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 谈及自适应的自结构调整我们要打住，我还得引入一下类脑的设想与技术现状。&lt;/p&gt;
+&lt;h1 id=&#34;2-类脑现状&#34;&gt;&lt;a href=&#34;#2-类脑现状&#34; class=&#34;headerlink&#34; title=&#34;2 类脑现状&#34;&gt;&lt;/a&gt;2 类脑现状&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 类脑是近两年炒起来的新概念，在我看来真正的类脑科技的前置科技还没有准备好，类脑这个概念来的太早了。我的根据有两点。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先，且不说具备自适应调整物理结构能力的类脑，即使要模拟一个静态的人脑物理结构，我们都很难做到，我们做不到那么大的并行量；我们没有量子计算机技术；我们能支撑的的分布式计算规模远不够大；我们不知道如何设计、组装各种反射部件（现在的ANN）成为一个成体系的具有综合思维能力和抽象逻辑能力的真正的神经网络。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 那么让人造物自适应的调整结构自己模拟一个优秀的脑神经网络呢？这是个好主意，通过现有经验的优化，人造物的演化速度可以比自然界中的生物快得多，且更有方向性。但是我们没有能够自行组合甚至仅仅是互相交互的纳米机器人技术，我们连会合体组合变形的机器人小组都都没有。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我要这么说，要在硬件层面搞脑神经结构仿生，如果不抛弃纯机械处理单元，我们走不了多远。也许有读者注意到我隐约指出了硅基计算机之外的另一条技术道路。没错，除了量子计算机，我们还可以选择生物计算机，如果赛博世界无法创造出来，我们就用生化技术制造大量生物的处理单元完成巨量并行计算。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 更有甚者，我们可以直接把现有的哺乳动物个体乃至人类个体人道的接入高效通信的硅基网络，走人工蜂巢思维的路子。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 但不管怎么说，在我看来，现在所谓的带记忆的计算机计算部件的思路，实在是太保守也太天真了。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 但是要注意，我没有说非硬件的类脑不可实现，我们的专用分布式集群或许规模有限，但是互联网中终端的规模还是在不断扩大的。如果把互联网看做一个包含海量资源的物理世界，那么互联网中的每一个线程，都可以对应物理世界中的一个简单物理过程。一个程序虽然无法动态自适应的改变自身，但是如果把一个程序看成是一个生物个体呢？生物个体是可以死的，但是生物会在繁衍的过程中微调遗传因子，完成本种族的物理结构自调整，这种调整甚至可以是多版本、有分支的。是的，程序可以根据特定外部信息有方向的修改扩充自己的源码（毕竟程序一经编译就脱离与源码的联系了，就算是解释型语言的程序，执行完当前语句时，改动之前的语句也不会对程序的整体执行过程造成影响），然后命令编译新版本的源码，并运行新的可执行程序。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 简单而实际的说，我们可以把只会单纯复制自身的病毒程序，变成朝生夕死的蝼蚁。但是这些蝼蚁在繁衍（复制）的过程中可以根据我们赋予它们的经验迅速的、有方向的自适应微调自己的遗传因子（源码），甚至我们可以在每次繁衍（复制）的过程中让病毒程序“龙生九子各不同”。而外部信息，我们可以从互联网中获取，我们可以让病毒程序存活在每一台服务器，每一台终端机的冗余时空中。当然考虑到人类对未知和不可控事物的天然恐惧，我们也可以建立一个封闭的系统，但是我们仍然需要通过互联网获取信息不断更新（更新而不是扩充，因为独立系统空间有限）独立系统的知识库，让进化树在独立系统中自行生长。需要注意的是，如果我们指望病毒能迅速从蝼蚁变成具有更复杂结构的赛博生物，我们需要提醒病毒尽量与同类产生交互，这有助于共生生物群的产生。（毕竟我觉得每个人类个体其实也是一个巨大的共生生物群，其中的每个生物个体则是高度特化分工的细胞）&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; As far as I am concerned，赛博世界可以有人工智能，但是不要妄想只凭程序员自己，在&lt;strong&gt;一段源码&lt;/strong&gt;中，封闭的完成AI的创造。智能个体必须是自适应调整的，不彻底放手让它演化，创造者将会成为它的进化瓶颈。&lt;/p&gt;
+&lt;h1 id=&#34;3-互联网与脑&#34;&gt;&lt;a href=&#34;#3-互联网与脑&#34; class=&#34;headerlink&#34; title=&#34;3 互联网与脑&#34;&gt;&lt;/a&gt;3 互联网与脑&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这里我也顺便谈谈我对互联网与脑之间概念映射的看法。人们常常觉得互联网的基本单元应该是终端机或服务器，其实我觉得这是不对的，至少现在的互联网不应该这么看待。如果互联网是一个脑神经网络，那么互联网中的信息传递过程可以对应神经网络中的生物电信号传递，那互联网中的什么可以看成神经网络中的神经元呢？我觉得这一点上找不到物理的一一对应关系了，每一个被互联网连接起来的人类作为核心，供养人类的外部条件作为胶质细胞，人类使用的接入互联网的终端机设备作为突触，通信设备，包括光缆、交换机、路由器、服务器等等作为轴突和树突，这形成了一种互联网和神经网络间的扭曲的映射关系。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 值的注意的是，绝不应该把人类从互联网中割离开，离开了人类，互联网是死的。如果说互联网作为一个神经网络也指导行为，那么它是通过人类社会来行动的，人类社会是互联网特化分工的身体的一部分。互联网通过人类社会的行为，来优化调整自身的结构，来与物质世界交互。有读者可能会问，那么互联网就像一个生命了吧，它有意识吗？我们能跟它交流吗？我用一个问题来回答这种问题，你觉得我们人类要怎么跟自己的细胞来交流？&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这涉及一个有趣的观点，《左手疯子，右手天才》中提到过一种生命观，一个蚂蚁族群为什么要被看做许多生命个体？虽然蚂蚁之间被物理的隔离开，凭什么一个蚂蚁族群就不能看成是一个完整的生命体？蚂蚁不通过接触就不能连接在一个整体中了吗？为什么所有生命体都得跟人类似的，由一堆细胞生命抱成一团组成一个大的生命个体呢？&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我们可以这么看，如果细胞器是最小的生命体，那么细胞作为细胞器的社会，成了第二层的生命体，人类或其他多细胞生物就成了第三层的生命体，蚂蚁族群、人类社会或互联网难道不可以是第四层的生命体吗？&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这是我第一次写这种信马由缰的非技术博文，只是我自己的小范围头脑风暴，有唐突冒失的地方读者多包含。&lt;/p&gt;
+ ]]></description>
+        </item>
+    </channel>
+</rss>

@@ -1,0 +1,1856 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+    <channel>
+        <title>Hacking to the gate! • Posts by &#34;c&#34; tag</title>
+        <link>https://blog.bipedalbit.net</link>
+        <description>Bipedal Bit&#39;s blog</description>
+        <language>zh-CN</language>
+        <pubDate>Tue, 18 Aug 2015 02:04:43 +0800</pubDate>
+        <lastBuildDate>Tue, 18 Aug 2015 02:04:43 +0800</lastBuildDate>
+        <category>Qt</category>
+        <category>signal-slot</category>
+        <category>Q_OBJECT</category>
+        <category>nginx</category>
+        <category>select/poll</category>
+        <category>epoll</category>
+        <category>ngx_int_t</category>
+        <category>rbtree</category>
+        <category>C</category>
+        <category>static</category>
+        <category>内存分布</category>
+        <category>sublime</category>
+        <category>C++</category>
+        <category>makefile</category>
+        <category>node.js</category>
+        <category>github</category>
+        <category>socket.io</category>
+        <category>Web请求处理机制</category>
+        <category>同步/异步</category>
+        <category>阻塞/非阻塞</category>
+        <category>事件驱动模型</category>
+        <category>BP神经网络</category>
+        <category>机器学习</category>
+        <category>python</category>
+        <category>pybrain</category>
+        <category>c++11</category>
+        <category>多线程</category>
+        <category>ubuntu</category>
+        <category>debian</category>
+        <category>apt-file</category>
+        <category>cin</category>
+        <category>cout</category>
+        <category>scanf</category>
+        <category>printf</category>
+        <category>进制转换</category>
+        <category>人工神经网络</category>
+        <category>人机博弈</category>
+        <category>Maxmin</category>
+        <category>AlphaBeta</category>
+        <category>PVS</category>
+        <category>MTD(f)</category>
+        <category>位域</category>
+        <category>bitset</category>
+        <category>vector&amp;lt;bool&amp;gt;</category>
+        <category>网络爬虫</category>
+        <category>类脑</category>
+        <category>codeigniter</category>
+        <category>php</category>
+        <category>IIS7</category>
+        <category>apache</category>
+        <category>模拟登录</category>
+        <category>proxy</category>
+        <category>domain</category>
+        <category>DNS</category>
+        <category>hexo</category>
+        <category>vps</category>
+        <category>dropbox</category>
+        <category>ffmpeg</category>
+        <category>板绘</category>
+        <category>sai</category>
+        <category>琪露诺</category>
+        <category>LLM</category>
+        <category>ollama</category>
+        <category>open-webui</category>
+        <category>oneapi</category>
+        <category>mcpserver</category>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/08/18/%E3%80%90%E4%BA%94%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-3-%E2%80%94%E2%80%94%E6%89%A9%E5%B1%95%E7%BA%A2%E9%BB%91%E6%A0%91/</guid>
+            <title>【五】nginx的数据结构(3)——扩展红黑树</title>
+            <link>https://blog.bipedalbit.net/2015/08/18/%E3%80%90%E4%BA%94%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-3-%E2%80%94%E2%80%94%E6%89%A9%E5%B1%95%E7%BA%A2%E9%BB%91%E6%A0%91/</link>
+            <category>nginx</category>
+            <category>rbtree</category>
+            <category>C</category>
+            <pubDate>Tue, 18 Aug 2015 02:04:43 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 基础版的红黑树写完之后总觉得有些辅助功能不补充一下就难以体现红黑树在统计方面的优越性，于是我又写了红黑树扩展版。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 发扬我一贯的支线任务狂魔的作风，一晚上就完成了之前设想的红黑树扩展版本。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; rbtree.h：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;/*
+ * Copyright (C) Bipedal Bit
+ * Verson 1.0.0.2
+ */
+
+#ifndef _RBTREE_H_INCLUDED_
+#define _RBTREE_H_INCLUDED_
+
+/* the node structure of the red-black tree */
+typedef struct rbtree_node_s rbtree_node_t;
+/* Using type int means its range is -0x7fffffff-1~0x7fffffff. */
+typedef int rbtree_key_t;
+/* Abstract type is complicated to achieve with C so I use char* instead. */
+typedef char* rbtree_data_t;
+
+struct rbtree_node_s
+&amp;#123;
+    /* key of the node */
+    rbtree_key_t    key;
+    /* pointer of the parent of the node */
+    rbtree_node_t*  parent;
+    /* pointer of the left kid of the node */
+    rbtree_node_t*  left;
+    /* pointer of the right kid of the node */
+    rbtree_node_t*  right;
+    /* color of the node */
+    unsigned char   color;
+    /* pointer of the value of the node corresponding to the key */
+    rbtree_data_t   value;
+    /* count of nodes in the subtree whose root is the current node */
+    int node_cnt;
+&amp;#125;;
+
+/* the tree object stucture of the red-black tree */
+typedef struct rbtree_s rbtree_t;
+/* foundational insert function pointer */
+typedef void (*rbtree_insert_p) (rbtree_t* root, rbtree_node_t* node);
+/* foundational visit function pointer */
+typedef void (*rbtree_visit_p) (rbtree_node_t* node);
+
+struct rbtree_s
+&amp;#123;
+    /* the pointer of the root node of the tree */
+    rbtree_node_t* root;
+    /* black leaf nodes as sentinel */
+    rbtree_node_t* sentinel;
+    /* the polymorphic insert function pointer */
+    rbtree_insert_p insert;
+&amp;#125;;
+
+/* macros */
+#define rbtree_init(tree, s, i)     \
+rbtree_sentinel_init(s);            \
+(tree)-&amp;gt;root = s;               \
+(tree)-&amp;gt;sentinel = s;           \
+(tree)-&amp;gt;insert = i
+
+#define rbtree_red(node)    ((node)-&amp;gt;color = 1)
+#define rbtree_black(node)  ((node)-&amp;gt;color = 0)
+#define rbtree_is_red(node) ((node)-&amp;gt;color)
+#define rbtree_is_black(node)   (!rbtree_is_red(node))
+ /* copy n2&amp;#39;s color to n1 */
+#define rbtree_copy_color(n1, n2)   (n1-&amp;gt;color = n2-&amp;gt;color)
+/* sentinel must be black cuz it&amp;#39;s leaf node */
+#define rbtree_sentinel_init(node)  \
+rbtree_black(node);         \
+(node)-&amp;gt;node_cnt = 0
+
+/* statements of public methods */
+void rbtree_insert_value(rbtree_t* tree, rbtree_node_t* node);
+void rbtree_insert(rbtree_t* tree, rbtree_node_t* node);
+void rbtree_delete(rbtree_t* tree, rbtree_node_t* node);
+/* get node by key */
+rbtree_node_t* rbtree_find(rbtree_t* tree, rbtree_key_t key);
+/* get node by order number */
+rbtree_node_t* rbtree_index(rbtree_t* tree, int index);
+int rbtree_height(rbtree_t* tree, rbtree_node_t* node);
+int rbtree_count(rbtree_t* tree);
+void rbtree_visit(rbtree_node_t* node);
+void rbtree_traversal(rbtree_t* tree, rbtree_node_t* node, rbtree_visit_p);
+
+#endif  /* _RBTREE_H_INCLUDED_ */
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 可以看到，我增加了按序号查找结点、求树高、求结点数、可重写访问节点方法的遍历，这么几个功能。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 为了提高按序号查找结点的效率，我增加了一个结点项node_cnt，代表当前结点为根的子树上的结点总数。这样按序号查找结点的过程将是一个二分查找，时间效率与按key查找相同，都是O(log2n)。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 遍历方法使用递归的中序遍历，默认的结点访问方法是个空方法，用户可以自行重写。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; rbtree.c：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;/*
+ * Copyright (C) Bipedal Bit
+ * Verson 1.0.0.2
+ */
+
+#include &amp;lt;stddef.h&amp;gt;
+#include &amp;quot;rbtree.h&amp;quot;
+
+/* inline methods */
+/* get the node with the minimum key in a subtree of the red-black tree */
+static inline rbtree_node_t*
+rbtree_subtree_min(rbtree_node_t* node, rbtree_node_t* sentinel)
+&amp;#123;
+    while(node-&amp;gt;left != sentinel)
+    &amp;#123;
+        node = node-&amp;gt;left;
+    &amp;#125;
+
+    return node;
+&amp;#125;
+
+/* replace the node &amp;quot;node&amp;quot; in the tree with node &amp;quot;tmp&amp;quot; */
+static inline void rbtree_replace(rbtree_t* tree,
+    rbtree_node_t* node, rbtree_node_t* tmp)
+&amp;#123;
+    /* upward: p[node] &amp;lt;- p[tmp] */
+    tmp-&amp;gt;parent = node-&amp;gt;parent;
+
+    if (node == tree-&amp;gt;root)
+    &amp;#123;
+        tree-&amp;gt;root = tmp;
+    &amp;#125;
+    else if (node == node-&amp;gt;parent-&amp;gt;left)
+    &amp;#123;
+        /* downward: left[p[node]] &amp;lt;- tmp */
+        node-&amp;gt;parent-&amp;gt;left = tmp;
+    &amp;#125;
+    else
+    &amp;#123;
+        /* downward: right[p[node]] &amp;lt;- tmp */
+        node-&amp;gt;parent-&amp;gt;right = tmp;
+    &amp;#125;
+
+    node-&amp;gt;parent = tmp;
+&amp;#125;
+
+/* change the topologic structure of the tree keeping the order of the nodes */
+static inline void rbtree_left_rotate(rbtree_t* tree, rbtree_node_t* node)
+&amp;#123;
+    /* node as the var x in CLRS while tmp as the var y */
+    rbtree_node_t* tmp = node-&amp;gt;right;
+
+    /* fix node_cnt */
+    node-&amp;gt;node_cnt = node-&amp;gt;left-&amp;gt;node_cnt + tmp-&amp;gt;left-&amp;gt;node_cnt + 1;
+    tmp-&amp;gt;node_cnt = node-&amp;gt;node_cnt + tmp-&amp;gt;right-&amp;gt;node_cnt + 1;
+
+    /* replace y with left[y] */
+    /* downward: right[x] &amp;lt;- left[y] */
+    node-&amp;gt;right = tmp-&amp;gt;left;
+    /* if left[[y] is not NIL it has a parent */
+    if (tmp-&amp;gt;left != tree-&amp;gt;sentinel)
+    &amp;#123;
+        /* upward: p[left[y]] &amp;lt;- x */
+        tmp-&amp;gt;left-&amp;gt;parent = node;
+    &amp;#125;
+
+    /* replace x with y */
+    rbtree_replace(tree, node, tmp);
+    tmp-&amp;gt;left = node;
+&amp;#125;
+
+static inline void rbtree_right_rotate(rbtree_t* tree, rbtree_node_t* node)
+&amp;#123;
+    rbtree_node_t* tmp = node-&amp;gt;left;
+
+    /* fix node_cnt */
+    node-&amp;gt;node_cnt = node-&amp;gt;right-&amp;gt;node_cnt + tmp-&amp;gt;right-&amp;gt;node_cnt + 1;
+    tmp-&amp;gt;node_cnt = node-&amp;gt;node_cnt + tmp-&amp;gt;left-&amp;gt;node_cnt + 1;
+
+    /* replace y with right[y] */
+    node-&amp;gt;left = tmp-&amp;gt;right;
+    if (tmp-&amp;gt;right != tree-&amp;gt;sentinel)
+    &amp;#123;
+        tmp-&amp;gt;right-&amp;gt;parent = node;
+    &amp;#125;
+
+    /* replace x with y */
+    rbtree_replace(tree, node, tmp);
+    tmp-&amp;gt;right = node;
+&amp;#125;
+
+/* static methods */
+/* fix the red-black tree after the new node inserted */
+static void rbtree_insert_fixup(rbtree_t* tree, rbtree_node_t* node)
+&amp;#123;
+    while(rbtree_is_red(node-&amp;gt;parent))
+    &amp;#123;
+        if (node-&amp;gt;parent == node-&amp;gt;parent-&amp;gt;parent-&amp;gt;left)
+        &amp;#123;
+            /* case 1: node&amp;#39;s uncle is red */
+            if (rbtree_is_red(node-&amp;gt;parent-&amp;gt;parent-&amp;gt;right))
+            &amp;#123;
+                rbtree_black(node-&amp;gt;parent);
+                rbtree_black(node-&amp;gt;parent-&amp;gt;parent-&amp;gt;right);
+                rbtree_red(node-&amp;gt;parent-&amp;gt;parent);
+                node = node-&amp;gt;parent-&amp;gt;parent;
+                /* Then we can consider the whole subtree */
+                /* which is represented by the new &amp;quot;node&amp;quot; as the &amp;quot;node&amp;quot; before */
+                /* and keep looping till &amp;quot;node&amp;quot; become the root. */
+            &amp;#125;
+            /* case 2: node&amp;#39;s uncle is black */
+            else
+            &amp;#123;
+                /* ensure node is the left kid of its parent */
+                if (node == node-&amp;gt;parent-&amp;gt;right)
+                &amp;#123;
+                    node = node-&amp;gt;parent;
+                    rbtree_left_rotate(tree, node);
+                &amp;#125;
+                /* case 2 -&amp;gt; case 1 */
+                rbtree_black(node-&amp;gt;parent);
+                rbtree_red(node-&amp;gt;parent-&amp;gt;parent);
+                rbtree_right_rotate(tree, node-&amp;gt;parent-&amp;gt;parent);
+            &amp;#125;
+        &amp;#125;
+        /* same as the &amp;quot;if&amp;quot; clause before with &amp;quot;left&amp;quot; and &amp;quot;right&amp;quot; exchanged */
+        else
+        &amp;#123;
+            if (rbtree_is_red(node-&amp;gt;parent-&amp;gt;parent-&amp;gt;left))
+            &amp;#123;
+                rbtree_black(node-&amp;gt;parent);
+                rbtree_black(node-&amp;gt;parent-&amp;gt;parent-&amp;gt;left);
+                rbtree_red(node-&amp;gt;parent-&amp;gt;parent);
+                node = node-&amp;gt;parent-&amp;gt;parent;
+            &amp;#125;
+            else
+            &amp;#123;
+                if (node == node-&amp;gt;parent-&amp;gt;left)
+                &amp;#123;
+                    node = node-&amp;gt;parent;
+                    rbtree_right_rotate(tree, node);
+                &amp;#125;
+                rbtree_black(node-&amp;gt;parent);
+                rbtree_red(node-&amp;gt;parent-&amp;gt;parent);
+                rbtree_left_rotate(tree, node-&amp;gt;parent-&amp;gt;parent);
+            &amp;#125;
+        &amp;#125;
+    &amp;#125;
+    /* ensure the root node being black */
+    rbtree_black(tree-&amp;gt;root);
+&amp;#125;
+
+static void rbtree_delete_fixup(rbtree_t* tree, rbtree_node_t* node)
+&amp;#123;
+    rbtree_node_t* brother = NULL;
+
+    while(node != tree-&amp;gt;root &amp;amp;&amp;amp; rbtree_is_black(node))
+    &amp;#123;
+        if (node == node-&amp;gt;parent-&amp;gt;left)
+        &amp;#123;
+            brother = node-&amp;gt;parent-&amp;gt;right;
+            if (rbtree_is_red(brother))
+            &amp;#123;
+                rbtree_black(brother);
+                rbtree_red(node-&amp;gt;parent);
+                rbtree_left_rotate(tree, node-&amp;gt;parent);
+                /* update brother after topologic change of the tree */
+                brother = node-&amp;gt;parent-&amp;gt;right;
+            &amp;#125;
+
+            if (rbtree_is_black(brother-&amp;gt;left) &amp;amp;&amp;amp; rbtree_is_black(brother-&amp;gt;right))
+            &amp;#123;
+                rbtree_red(brother);
+                /* go upward and keep on fixing color */
+                node = node-&amp;gt;parent;
+            &amp;#125;
+            else
+            &amp;#123;
+                if (rbtree_is_black(brother-&amp;gt;right))
+                &amp;#123;
+                    rbtree_black(brother-&amp;gt;left);
+                    rbtree_red(brother);
+                    rbtree_right_rotate(tree, brother);
+                    /* update brother after topologic change of the tree */
+                    brother = node-&amp;gt;parent-&amp;gt;right;
+                &amp;#125;
+                rbtree_copy_color(brother, node-&amp;gt;parent);
+                rbtree_black(node-&amp;gt;parent);
+                rbtree_black(brother-&amp;gt;right);
+                rbtree_left_rotate(tree, node-&amp;gt;parent);
+                /* end the loop and ensure root is black */
+                node = tree-&amp;gt;root;
+            &amp;#125;
+        &amp;#125;
+        /* same as the &amp;quot;if&amp;quot; clause before with &amp;quot;left&amp;quot; and &amp;quot;right&amp;quot; exchanged */
+        else
+        &amp;#123;
+            brother = node-&amp;gt;parent-&amp;gt;left;
+            if (rbtree_is_red(brother))
+            &amp;#123;
+                rbtree_black(brother);
+                rbtree_red(node-&amp;gt;parent);
+                rbtree_left_rotate(tree, node-&amp;gt;parent);
+                brother = node-&amp;gt;parent-&amp;gt;left;
+            &amp;#125;
+
+            if (rbtree_is_black(brother-&amp;gt;left) &amp;amp;&amp;amp; rbtree_is_black(brother-&amp;gt;right))
+            &amp;#123;
+                rbtree_red(brother);
+                node = node-&amp;gt;parent;
+            &amp;#125;
+            else
+            &amp;#123;
+                if (rbtree_is_black(brother-&amp;gt;left))
+                &amp;#123;
+                    rbtree_black(brother-&amp;gt;right);
+                    rbtree_red(brother);
+                    rbtree_right_rotate(tree, brother);
+                    brother = node-&amp;gt;parent-&amp;gt;left;
+                &amp;#125;
+                rbtree_copy_color(brother, node-&amp;gt;parent);
+                rbtree_black(node-&amp;gt;parent);
+                rbtree_black(brother-&amp;gt;left);
+                rbtree_left_rotate(tree, node-&amp;gt;parent);
+                node = tree-&amp;gt;root;
+            &amp;#125;
+        &amp;#125;
+    &amp;#125;
+
+    rbtree_black(node);
+&amp;#125;
+
+/* public methods */
+void rbtree_insert_value(rbtree_t* tree, rbtree_node_t* node)
+&amp;#123;
+    /* Using ** to know wether the new node will be a left kid */
+    /* or a right kid of its parent node. */
+    rbtree_node_t** tmp = &amp;amp;tree-&amp;gt;root;
+    rbtree_node_t* parent;
+
+    while(*tmp != tree-&amp;gt;sentinel)
+    &amp;#123;
+        parent = *tmp;
+
+        /* update node_cnt */
+        (parent-&amp;gt;node_cnt)++;
+
+        tmp = (node-&amp;gt;key &amp;lt; parent-&amp;gt;key) ? &amp;amp;parent-&amp;gt;left : &amp;amp;parent-&amp;gt;right;
+    &amp;#125;
+
+    /* The pointer knows wether the node should be on the left side */
+    /* or on the right one. */
+    *tmp = node;
+    node-&amp;gt;parent = parent;
+    node-&amp;gt;left = tree-&amp;gt;sentinel;
+    node-&amp;gt;right = tree-&amp;gt;sentinel;
+    rbtree_red(node);
+&amp;#125;
+
+void rbtree_visit(rbtree_node_t* node)
+&amp;#123;
+    /* visiting the current node */
+&amp;#125;
+
+void rbtree_insert(rbtree_t* tree, rbtree_node_t* node)
+&amp;#123;
+    rbtree_node_t* sentinel = tree-&amp;gt;sentinel;
+
+    /* if the tree is empty */
+    if (tree-&amp;gt;root == sentinel)
+    &amp;#123;
+        tree-&amp;gt;root = node;
+        node-&amp;gt;parent = sentinel;
+        node-&amp;gt;left = sentinel;
+        node-&amp;gt;right = sentinel;
+        rbtree_black(node);
+
+        return;
+    &amp;#125;
+
+    /* generally */
+    tree-&amp;gt;insert(tree, node);
+    rbtree_insert_fixup(tree, node);
+&amp;#125;
+
+void rbtree_delete(rbtree_t* tree, rbtree_node_t* node)
+&amp;#123;
+    rbtree_node_t* sentinel = tree-&amp;gt;sentinel;
+    /* wether &amp;quot;node&amp;quot; is on the left side or the right one */
+    rbtree_node_t** ptr_to_node = NULL;
+    /* &amp;quot;cover&amp;quot; is the node which is going to cover &amp;quot;node&amp;quot; */
+    rbtree_node_t* cover = NULL;
+    /* wether we lossing a red node on the edge of the tree */
+    int loss_red = rbtree_is_red(node);
+    int is_root = (node == tree-&amp;gt;root);
+
+    /* get &amp;quot;cover&amp;quot; &amp;amp; &amp;quot;loss_red&amp;quot;  */
+    /* sentinel in &amp;quot;node&amp;quot;&amp;#39;s kids */
+    if (node-&amp;gt;left == sentinel)
+    &amp;#123;
+        cover = node-&amp;gt;right;
+    &amp;#125;
+    else if (node-&amp;gt;right == sentinel)
+    &amp;#123;
+        cover = node-&amp;gt;left;
+    &amp;#125;
+    /* &amp;quot;node&amp;quot;&amp;#39;s kids are both non-sentinel */
+    else
+    &amp;#123;
+        /* update &amp;quot;node&amp;quot; &amp;amp; &amp;quot;loss_red&amp;quot; &amp;amp; &amp;quot;is_root&amp;quot; &amp;amp; &amp;quot;cover&amp;quot; */
+        cover = rbtree_subtree_min(node-&amp;gt;right, sentinel);
+        node-&amp;gt;key = cover-&amp;gt;key;
+        node-&amp;gt;value = cover-&amp;gt;value;
+        node = cover;
+        loss_red = rbtree_is_red(node);
+        is_root = 0;
+        /* move &amp;quot;cover&amp;quot;&amp;#39;s kids */
+        /* &amp;quot;cover&amp;quot; can only be a left kid */
+        /* and can only have a right non-sentinel kid */
+        /* because of function &amp;quot;rbtree_subtree_min&amp;quot; */
+        cover = node-&amp;gt;right;
+    &amp;#125;
+
+    if (is_root)
+    &amp;#123;
+        /* update root */
+        tree-&amp;gt;root = cover;
+    &amp;#125;
+    else
+    &amp;#123;
+        /* downward link */
+        if (node == node-&amp;gt;parent-&amp;gt;left)
+        &amp;#123;
+            node-&amp;gt;parent-&amp;gt;left = cover;
+        &amp;#125;
+        else
+        &amp;#123;
+            node-&amp;gt;parent-&amp;gt;right = cover;
+        &amp;#125;
+    &amp;#125;
+    /* upward link */
+    cover-&amp;gt;parent = node-&amp;gt;parent;
+    /* &amp;quot;cover&amp;quot; may be a sentinel */
+    if (cover != sentinel)
+    &amp;#123;
+        /* set &amp;quot;cover&amp;quot; */
+        cover-&amp;gt;left = node-&amp;gt;left;
+        cover-&amp;gt;right = node-&amp;gt;right;
+        rbtree_copy_color(cover, node);
+    &amp;#125;
+
+    /* clear &amp;quot;node&amp;quot; since it&amp;#39;s useless */
+    node-&amp;gt;key = -1;
+    node-&amp;gt;parent = NULL;
+    node-&amp;gt;left = NULL;
+    node-&amp;gt;right = NULL;
+    node-&amp;gt;value = NULL;
+
+    /* update node_cnt */
+    rbtree_node_t* tmp = cover-&amp;gt;parent;
+    while(tmp != sentinel)
+    &amp;#123;
+        (tmp-&amp;gt;node_cnt)--;
+        tmp = tmp-&amp;gt;parent;
+    &amp;#125;
+
+    if (loss_red)
+    &amp;#123;
+        return;
+    &amp;#125;
+
+    /* When lossing a black node on edge */
+    /* the fifth rule of red-black tree will be broke. */
+    /* So the tree need to be fixed. */
+    rbtree_delete_fixup(tree, cover);
+&amp;#125;
+
+/* find the node in the tree corresponding to the given key value */
+rbtree_node_t* rbtree_find(rbtree_t* tree, rbtree_key_t key)
+&amp;#123;
+    rbtree_node_t* tmp = tree-&amp;gt;root;
+    /* next line is just fot test */
+    // int step_cnt = 0;
+
+    /* search the binary tree */
+    while(tmp != tree-&amp;gt;sentinel)
+    &amp;#123;
+        /* next line is just fot test */
+        // step_cnt++;
+        if(key == tmp-&amp;gt;key)
+        &amp;#123;
+            /* next line is just for test */
+            // printf(&amp;quot;step count: %d, color: %s, &amp;quot;, step_cnt, rbtree_is_red(tmp) ? &amp;quot;red&amp;quot; : &amp;quot;black&amp;quot;);
+            return tmp;
+        &amp;#125;
+
+        tmp = (key &amp;lt; tmp-&amp;gt;key) ? tmp-&amp;gt;left : tmp-&amp;gt;right;
+    &amp;#125;
+
+    return NULL;
+&amp;#125;
+
+/* find the node in the tree corresponding to the given order number */
+rbtree_node_t* rbtree_index(rbtree_t* tree, int index)
+&amp;#123;
+    if (index &amp;lt; 0 || index &amp;gt;= rbtree_count(tree))
+    &amp;#123;
+        return NULL;
+    &amp;#125;
+
+    rbtree_node_t* tmp = tree-&amp;gt;root;
+    int left_cnt = 0;
+    int sub_left_cnt;
+
+    while(tmp-&amp;gt;node_cnt &amp;gt; 0)
+    &amp;#123;
+        sub_left_cnt = tmp-&amp;gt;left-&amp;gt;node_cnt;
+        if (left_cnt + sub_left_cnt == index)
+        &amp;#123;
+            return tmp;
+        &amp;#125;
+
+        if (left_cnt + sub_left_cnt &amp;lt; index)
+        &amp;#123;
+            left_cnt += sub_left_cnt + 1;
+            tmp = tmp-&amp;gt;right;
+        &amp;#125;
+        else
+        &amp;#123;
+            tmp = tmp-&amp;gt;left;
+        &amp;#125;
+    &amp;#125;
+&amp;#125;
+
+/* get the height of the subtree */
+int rbtree_height(rbtree_t* tree, rbtree_node_t* node)
+&amp;#123;
+    if (node == tree-&amp;gt;sentinel)
+    &amp;#123;
+        return 0;
+    &amp;#125;
+
+    int left_height = rbtree_height(tree, node-&amp;gt;left);
+    int right_height = rbtree_height(tree, node-&amp;gt;right);
+    int sub_height = (left_height &amp;gt; right_height) ? left_height : right_height;
+    return sub_height+1;
+&amp;#125;
+
+/* get the count of nodes in the tree */
+int rbtree_count(rbtree_t* tree)
+&amp;#123;
+    return tree-&amp;gt;root-&amp;gt;node_cnt;
+&amp;#125;
+
+/* visit every node of the subtree whose root is given in order */
+void rbtree_traversal(rbtree_t* tree, rbtree_node_t* node, rbtree_visit_p visit)
+&amp;#123;
+    if (node != tree-&amp;gt;sentinel)
+    &amp;#123;
+        rbtree_traversal(tree, node-&amp;gt;left, visit);
+        visit(node);
+        rbtree_traversal(tree, node-&amp;gt;right, visit);
+    &amp;#125;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 还是做个压力测试。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; test.c：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;stdlib.h&amp;gt;
+#include &amp;lt;time.h&amp;gt;
+#include &amp;quot;rbtree.h&amp;quot;
+
+int main(int argc, char const *argv[])
+&amp;#123;
+    double duration;
+    double room;
+
+    rbtree_t t = &amp;#123;&amp;#125;;
+    rbtree_node_t s = &amp;#123;&amp;#125;;
+    rbtree_init(&amp;amp;t, &amp;amp;s, rbtree_insert_value);
+
+    const int cnt = 1&amp;lt;&amp;lt;20;
+    const int max_len = 15;
+
+#define TEST_VALUES &amp;#123;&amp;quot;apple&amp;quot;, &amp;quot;banana&amp;quot;, &amp;quot;cherry&amp;quot;, &amp;quot;grape&amp;quot;, &amp;quot;lemon&amp;quot;, &amp;quot;mango&amp;quot;, &amp;quot;pear&amp;quot;, &amp;quot;pineapple&amp;quot;, &amp;quot;strawberry&amp;quot;, &amp;quot;watermelon&amp;quot;&amp;#125;
+
+    /* for gcc */
+    char* v[] = TEST_VALUES;
+    /* for g++ */
+    // char v[][max_len] = TEST_VALUES;
+
+    /* Default stack size in Ubuntu Kylin 14.04 is 8MB. */
+    /* It&amp;#39;s not enough. So I use memory in heap which offers a lot larger room. */
+    rbtree_node_t* n = (rbtree_node_t*)calloc(cnt, sizeof(rbtree_node_t));
+    int i;
+
+    long time1 = clock();
+
+    for (i = 0; i &amp;lt; cnt; i++)
+    &amp;#123;
+        n[i].key = i+1;
+        n[i].value = v[i%10];
+        n[i].node_cnt = 1;
+        rbtree_insert(&amp;amp;t, &amp;amp;n[i]);
+    &amp;#125;
+
+    srand( (unsigned int)time(0) );
+    int no = rand()%cnt;
+    printf(&amp;quot;n[%d]-&amp;gt;key = %d\n&amp;quot;, no, rbtree_index(&amp;amp;t, no)-&amp;gt;key);
+
+    long time2 = clock();
+    room = 48.0*cnt/(1&amp;lt;&amp;lt;20);
+    duration = (double)(time2 - time1) / CLOCKS_PER_SEC;
+    printf(&amp;quot;Inserting %d nodes costs %.2fMB and spends %f seconds.\n&amp;quot;, cnt, room, duration);
+
+    const int search_cnt = 1&amp;lt;&amp;lt;10;
+    for( i = 0 ; i &amp;lt; search_cnt ; i++ )
+    &amp;#123;
+        rbtree_find(&amp;amp;t, (rand()%cnt)+1);
+    &amp;#125;
+
+    long time3 = clock();
+    duration = (double)(time3 - time2) / CLOCKS_PER_SEC;
+    printf(&amp;quot;Searching %d nodes among %d spends %f seconds.\n&amp;quot;, search_cnt, cnt, duration);
+
+    const int index_cnt = 1&amp;lt;&amp;lt;10;
+    for( i = 0 ; i &amp;lt; index_cnt ; i++ )
+    &amp;#123;
+        rbtree_index(&amp;amp;t, (rand()%cnt));
+    &amp;#125;
+
+    long time4 = clock();
+    duration = (double)(time4 - time3) / CLOCKS_PER_SEC;
+    printf(&amp;quot;Indexing %d nodes among %d spends %f seconds.\n&amp;quot;, index_cnt, cnt, duration);
+
+    const int delete_cnt = 1&amp;lt;&amp;lt;10;
+    int nums[delete_cnt];
+    int num;
+    /* Let&amp;#39;s hash! */
+    char* mark = (char*)calloc(cnt, sizeof(char));
+    memset(mark, 0, cnt*sizeof(char));
+    for(i = 0; i &amp;lt; delete_cnt; i++)
+    &amp;#123;
+        for(;;)
+        &amp;#123;
+            num = rand()%cnt;
+            if (mark[num] == 0)
+            &amp;#123;
+                mark[num] = 1;
+                nums[i] = num;
+                break;
+            &amp;#125;
+        &amp;#125;
+    &amp;#125;
+
+    long time5 = clock();
+    duration = (double)(time5 - time4) / CLOCKS_PER_SEC;
+    printf(&amp;quot;Hash %d times spends %f seconds.\n&amp;quot;, delete_cnt, duration);
+
+    for(i = 0; i &amp;lt; delete_cnt; i++)
+    &amp;#123;
+        rbtree_delete(&amp;amp;t, &amp;amp;n[nums[i]]);
+    &amp;#125;
+
+    long time6 = clock();
+    duration = (double)(time6 - time5) / CLOCKS_PER_SEC;
+    printf(&amp;quot;Deleting %d nodes among %d spends %f seconds.\n&amp;quot;, delete_cnt, cnt, duration);
+    free(mark);
+
+    int h = rbtree_height(&amp;amp;t, t.root);
+    long time7 = clock();
+    duration = (double)(time7 - time6) / CLOCKS_PER_SEC;
+    printf(&amp;quot;The height of the tree is %d. Getting it spends %f seconds.\n&amp;quot;, h, duration);
+
+    rbtree_traversal(&amp;amp;t, t.root, rbtree_visit);
+    long time8 = clock();
+    duration = (double)(time8 - time7) / CLOCKS_PER_SEC;
+    printf(&amp;quot;Traversal the tree spends %f seconds.\n&amp;quot;, duration);
+
+    printf(&amp;quot;Count of nodes in the tree is %d.\n&amp;quot;, rbtree_count(&amp;amp;t));
+
+    free(n);
+
+    return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 上一个版本的压力测试结果：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;Inserting 1048576 nodes costs 48.00MB and spends 0.425416 seconds.
+Searching 1024 nodes among 1048576 spends 0.001140 seconds.
+Hash 1024 times spends 0.000334 seconds.
+Deleting 1024 nodes among 1048576 spends 0.000783 seconds.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 扩展版本的压力测试结果：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;Inserting 1048576 nodes costs 48.00MB and spends 0.467859 seconds.
+Searching 1024 nodes among 1048576 spends 0.001188 seconds.
+Indexing 1024 nodes among 1048576 spends 0.001484 seconds.
+Hash 1024 times spends 0.000355 seconds.
+Deleting 1024 nodes among 1048576 spends 0.001417 seconds.
+The height of the tree is 28. Getting it spends 0.021669 seconds.
+Traversal the tree spends 0.023913 seconds.
+Count of nodes in the tree is 1047552.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 比较一下可以发现：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 1.插入结点略慢了一点，因为插入时多维护了一个node_cnt项。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 2.按key查找结点速度没有变化。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 3.哈希查找速度没有变化。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 4.删除结点花的时间几乎是原来的两倍，因为每次删除后都要一路向上更新node_cnt，几乎相当于包含了一次按key查询。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 5.按序号查询比按key查询略慢，因为每次进入右子树需要多做一次加法。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 6.遍历花的时间与求树高相同，因为它们的实质都是遍历树，时间效率O(n)数量级，具体点为2n次结点访问，分别为结点入栈和出栈时。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 别问我max、min、mid在哪，能按序号查询了这些还是问题吗？&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/</guid>
+            <title>Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置</title>
+            <link>https://blog.bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/</link>
+            <category>C</category>
+            <category>sublime</category>
+            <category>C++</category>
+            <category>makefile</category>
+            <pubDate>Sun, 16 Aug 2015 22:45:46 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不自己动手为Sublime配个C&amp;#x2F;C++的通用Makefile脚本吗？不能自动编译链接多文件的编辑器不是好IDE。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先我们需要了解几个事实：&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 1.Sublime自带的C&amp;#x2F;C++编译+执行配置使用的是g++编译器，此外这套配置只针对单文件程序。如果要编译多文件，只能采用入口函数所在文件包含需要的源文件而非头文件的方式。比起我们熟悉的几种IDE，这显然无法令人接受。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 2.Linux下的C&amp;#x2F;C++程序员应该熟悉Makefile，Makefile可以算是一种脚本，执行关键字是一般是make，它可以设计多文件程序的编译+链接过程，生成.o文件和可执行文件。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 3.Sublime也有默认的Make配置，但是第一，Sublime没有提供通用的C&amp;#x2F;C++的Makefile脚本（自动组织而非每次手动重写），第二点是个小瑕疵，Sublime提供的Make配置只有编译、链接、清理功能，执行程序需要手动。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前重写红黑树最重要的副产品就是一个通用的C&amp;#x2F;C++的Makefile脚本。每次使用基本只需要改改输出的可执行文件名，或者干脆想个默认文件名以后都不改了，gcc&amp;#x2F;g++编译器的选择是自动的，当然也可以手动配置一些编译选项，这个自己看脚本注释就好。上干货：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#############################################################
+# Generic Makefile for C/C++ Program
+#
+# License: GPL (General Public License)
+# Author:  whyglinux &amp;lt;whyglinux AT gmail DOT com&amp;gt;
+# Date:    2006/03/04 (version 0.1)
+#          2007/03/24 (version 0.2)
+#          2007/04/09 (version 0.3)
+#          2007/06/26 (version 0.4)
+#          2008/04/05 (version 0.5)
+#
+# Description:
+# ------------
+# This is an easily customizable makefile template. The purpose is to
+# provide an instant building environment for C/C++ programs.
+#
+# It searches all the C/C++ source files in the specified directories,
+# makes dependencies, compiles and links to form an executable.
+#
+# Besides its default ability to build C/C++ programs which use only
+# standard C/C++ libraries, you can customize the Makefile to build
+# those using other libraries. Once done, without any changes you can
+# then build programs using the same or less libraries, even if source
+# files are renamed, added or removed. Therefore, it is particularly
+# convenient to use it to build codes for experimental or study use.
+#
+# GNU make is expected to use the Makefile. Other versions of makes
+# may or may not work.
+#
+# Usage:
+# ------
+# 1. Copy the Makefile to your program directory.
+# 2. Customize in the &amp;quot;Customizable Section&amp;quot; only if necessary:
+#    * to use non-standard C/C++ libraries, set pre-processor or compiler
+#      options to &amp;lt;MY_CFLAGS&amp;gt; and linker ones to &amp;lt;MY_LIBS&amp;gt;
+#      (See Makefile.gtk+-2.0 for an example)
+#    * to search sources in more directories, set to &amp;lt;SRCDIRS&amp;gt;
+#    * to specify your favorite program name, set to &amp;lt;PROGRAM&amp;gt;
+# 3. Type make to start building your program.
+#
+# Make Target:
+# ------------
+# The Makefile provides the following targets to make:
+#   $ make           compile and link
+#   $ make NODEP=yes compile and link without generating dependencies
+#   $ make objs      compile only (no linking)
+#   $ make tags      create tags for Emacs editor
+#   $ make ctags     create ctags for VI editor
+#   $ make clean     clean objects and the executable file
+#   $ make distclean clean objects, the executable and dependencies
+#   $ make help      get the usage of the makefile
+#
+#===========================================================================
+
+## Customizable Section: adapt those variables to suit your program.
+##==========================================================================
+
+# The pre-processor and compiler options.
+MY_CFLAGS =
+
+# The linker options.
+MY_LIBS   =
+
+# The pre-processor options used by the cpp (man cpp for more).
+# CPPFLAGS  = -Wall
+
+# The options used in linking as well as in any direct use of ld.
+LDFLAGS   =
+
+# The directories in which source files reside.
+# If not specified, only the current directory will be serached.
+SRCDIRS   =
+
+# The executable file name.
+# If not specified, current directory name or `a.out&amp;#39; will be used.
+PROGRAM   = test
+
+## Implicit Section: change the following only when necessary.
+##==========================================================================
+
+# The source file types (headers excluded).
+# .c indicates C source files, and others C++ ones.
+SRCEXTS = .c .C .cc .cpp .CPP .c++ .cxx .cp
+
+# The header file types.
+HDREXTS = .h .H .hh .hpp .HPP .h++ .hxx .hp
+
+# The pre-processor and compiler options.
+# Users can override those variables from the command line.
+# CFLAGS  = -g -O2
+# CXXFLAGS= -g -O2
+
+# The C program compiler.
+# CC     = gcc
+
+# The C++ program compiler.
+#CXX    = g++
+
+# Un-comment the following line to compile C programs as C++ ones.
+#CC     = $(CXX)
+
+# The command used to delete file.
+#RM     = rm -f
+
+ETAGS = etags
+ETAGSFLAGS =
+
+CTAGS = ctags
+CTAGSFLAGS =
+
+## Stable Section: usually no need to be changed. But you can add more.
+##==========================================================================
+SHELL   = /bin/sh
+EMPTY   =
+SPACE   = $(EMPTY) $(EMPTY)
+ifeq ($(PROGRAM),)
+  CUR_PATH_NAMES = $(subst /,$(SPACE),$(subst $(SPACE),_,$(CURDIR)))
+  PROGRAM = $(word $(words $(CUR_PATH_NAMES)),$(CUR_PATH_NAMES))
+  ifeq ($(PROGRAM),)
+    PROGRAM = a.out
+  endif
+endif
+ifeq ($(SRCDIRS),)
+  SRCDIRS = .
+endif
+SOURCES = $(foreach d,$(SRCDIRS),$(wildcard $(addprefix $(d)/*,$(SRCEXTS))))
+HEADERS = $(foreach d,$(SRCDIRS),$(wildcard $(addprefix $(d)/*,$(HDREXTS))))
+SRC_CXX = $(filter-out %.c,$(SOURCES))
+OBJS    = $(addsuffix .o, $(basename $(SOURCES)))
+DEPS    = $(OBJS:.o=.d)
+
+## Define some useful variables.
+DEP_OPT = $(shell if `$(CC) --version | grep &amp;quot;GCC&amp;quot; &amp;gt;/dev/null`; then \
+                  echo &amp;quot;-MM -MP&amp;quot;; else echo &amp;quot;-M&amp;quot;; fi )
+DEPEND      = $(CC)  $(DEP_OPT)  $(MY_CFLAGS) $(CFLAGS) $(CPPFLAGS)
+DEPEND.d    = $(subst -g ,,$(DEPEND))
+COMPILE.c   = $(CC)  $(MY_CFLAGS) $(CFLAGS)   $(CPPFLAGS) -c
+COMPILE.cxx = $(CXX) $(MY_CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -c
+LINK.c      = $(CC)  $(MY_CFLAGS) $(CFLAGS)   $(CPPFLAGS) $(LDFLAGS)
+LINK.cxx    = $(CXX) $(MY_CFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
+
+.PHONY: all objs tags ctags clean distclean help show
+
+# Delete the default suffixes
+.SUFFIXES:
+
+all: $(PROGRAM)
+
+# Rules for creating dependency files (.d).
+#------------------------------------------
+
+%.d:%.c
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+%.d:%.C
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+%.d:%.cc
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+%.d:%.cpp
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+%.d:%.CPP
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+%.d:%.c++
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+%.d:%.cp
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+%.d:%.cxx
+    @echo -n $(dir $&amp;lt;) &amp;gt; $@
+    @$(DEPEND.d) $&amp;lt; &amp;gt;&amp;gt; $@
+
+# Rules for generating object files (.o).
+#----------------------------------------
+objs:$(OBJS)
+
+%.o:%.c
+    $(COMPILE.c) $&amp;lt; -o $@
+
+%.o:%.C
+    $(COMPILE.cxx) $&amp;lt; -o $@
+
+%.o:%.cc
+    $(COMPILE.cxx) $&amp;lt; -o $@
+
+%.o:%.cpp
+    $(COMPILE.cxx) $&amp;lt; -o $@
+
+%.o:%.CPP
+    $(COMPILE.cxx) $&amp;lt; -o $@
+
+%.o:%.c++
+    $(COMPILE.cxx) $&amp;lt; -o $@
+
+%.o:%.cp
+    $(COMPILE.cxx) $&amp;lt; -o $@
+
+%.o:%.cxx
+    $(COMPILE.cxx) $&amp;lt; -o $@
+
+# Rules for generating the tags.
+#-------------------------------------
+tags: $(HEADERS) $(SOURCES)
+    $(ETAGS) $(ETAGSFLAGS) $(HEADERS) $(SOURCES)
+
+ctags: $(HEADERS) $(SOURCES)
+    $(CTAGS) $(CTAGSFLAGS) $(HEADERS) $(SOURCES)
+
+# Rules for generating the executable.
+#-------------------------------------
+$(PROGRAM):$(OBJS)
+ifeq ($(SRC_CXX),)              # C program
+    $(LINK.c)   $(OBJS) $(MY_LIBS) -o $@
+    @echo Type ./$@ to execute the program.
+else                            # C++ program
+    $(LINK.cxx) $(OBJS) $(MY_LIBS) -o $@
+    @echo Type ./$@ to execute the program.
+endif
+
+ifndef NODEP
+ifneq ($(DEPS),)
+  sinclude $(DEPS)
+endif
+endif
+
+clean:
+    $(RM) $(OBJS) $(PROGRAM) $(PROGRAM).exe
+
+distclean: clean
+    $(RM) $(DEPS) TAGS
+
+# Show help.
+help:
+    @echo &amp;#39;Generic Makefile for C/C++ Programs (gcmakefile) version 0.5&amp;#39;
+    @echo &amp;#39;Copyright (C) 2007, 2008 whyglinux &amp;lt;whyglinux@hotmail.com&amp;gt;&amp;#39;
+    @echo
+    @echo &amp;#39;Usage: make [TARGET]&amp;#39;
+    @echo &amp;#39;TARGETS:&amp;#39;
+    @echo &amp;#39;  all       (=make) compile and link.&amp;#39;
+    @echo &amp;#39;  NODEP=yes make without generating dependencies.&amp;#39;
+    @echo &amp;#39;  objs      compile only (no linking).&amp;#39;
+    @echo &amp;#39;  tags      create tags for Emacs editor.&amp;#39;
+    @echo &amp;#39;  ctags     create ctags for VI editor.&amp;#39;
+    @echo &amp;#39;  clean     clean objects and the executable file.&amp;#39;
+    @echo &amp;#39;  distclean clean objects, the executable and dependencies.&amp;#39;
+    @echo &amp;#39;  show      show variables (for debug use only).&amp;#39;
+    @echo &amp;#39;  help      print this message.&amp;#39;
+    @echo
+    @echo &amp;#39;Report bugs to &amp;lt;whyglinux AT gmail DOT com&amp;gt;.&amp;#39;
+
+# Show variables (for debug use only.)
+show:
+    @echo &amp;#39;PROGRAM     :&amp;#39; $(PROGRAM)
+    @echo &amp;#39;SRCDIRS     :&amp;#39; $(SRCDIRS)
+    @echo &amp;#39;HEADERS     :&amp;#39; $(HEADERS)
+    @echo &amp;#39;SOURCES     :&amp;#39; $(SOURCES)
+    @echo &amp;#39;SRC_CXX     :&amp;#39; $(SRC_CXX)
+    @echo &amp;#39;OBJS        :&amp;#39; $(OBJS)
+    @echo &amp;#39;DEPS        :&amp;#39; $(DEPS)
+    @echo &amp;#39;DEPEND      :&amp;#39; $(DEPEND)
+    @echo &amp;#39;COMPILE.c   :&amp;#39; $(COMPILE.c)
+    @echo &amp;#39;COMPILE.cxx :&amp;#39; $(COMPILE.cxx)
+    @echo &amp;#39;link.c      :&amp;#39; $(LINK.c)
+    @echo &amp;#39;link.cxx    :&amp;#39; $(LINK.cxx)
+
+## End of the Makefile ##  Suggestions are welcome  ## All rights reserved ##
+##############################################################
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 感谢whyglinux大大！然后上Sublime的配置C C++ Multiple Files.sublime-build：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;&amp;#123;
+    &amp;quot;shell_cmd&amp;quot;: &amp;quot;make&amp;quot;,
+    &amp;quot;file_regex&amp;quot;: &amp;quot;^(..[^:\n]*):([0-9]+):?([0-9]+)?:? (.*)$&amp;quot;,
+    &amp;quot;working_dir&amp;quot;: &amp;quot;$&amp;#123;folder:$&amp;#123;project_path:$&amp;#123;file_path&amp;#125;&amp;#125;&amp;#125;&amp;quot;,
+    &amp;quot;selector&amp;quot;: &amp;quot;source.c, source.cpp&amp;quot;,
+    &amp;quot;syntax&amp;quot;: &amp;quot;Packages/Makefile/Make.build-language&amp;quot;,
+    &amp;quot;keyfiles&amp;quot;: [&amp;quot;Makefile&amp;quot;, &amp;quot;makefile&amp;quot;],
+
+    &amp;quot;variants&amp;quot;:
+    [
+        &amp;#123;
+            &amp;quot;name&amp;quot;: &amp;quot;Clean&amp;quot;,
+            &amp;quot;shell_cmd&amp;quot;: &amp;quot;make clean&amp;quot;
+        &amp;#125;,
+        &amp;#123;
+            &amp;quot;name&amp;quot;: &amp;quot;Run&amp;quot;,
+            &amp;quot;shell_cmd&amp;quot;: &amp;quot;$&amp;#123;file_path&amp;#125;/$&amp;#123;file_base_name&amp;#125;&amp;quot;
+        &amp;#125;
+    ]
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 你们大可以配成执行时自动弹出终端，这样还能交互。我为了解决Sublime里中文输入法的问题用了gtk2，但是gnome-terminal用的是gtk3，不兼容了。写写控制台程序也不用那么多交互，懒得折腾了，你们随意。&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/08/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/</guid>
+            <title>【四】nginx的数据结构(2)——自己动手重写红黑树</title>
+            <link>https://blog.bipedalbit.net/2015/08/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/</link>
+            <category>nginx</category>
+            <category>rbtree</category>
+            <category>C</category>
+            <pubDate>Sun, 16 Aug 2015 22:06:30 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不管看了多少遍有多滚瓜烂熟，数据结构或者算法的代码如果不亲自码一遍，我总是不敢说自己懂了。这次就来自己动手重写红黑树。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 费话不多说，上重写代码，这次姑且用英语写的注释当复习英语了。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; rbtree.h：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;/*
+ * Copyright (C) Bipedal Bit
+ * Verson 1.0.0.1
+ */
+
+#ifndef _RBTREE_H_INCLUDED_
+#define _RBTREE_H_INCLUDED_
+
+/* the node structure of the red-black tree */
+typedef struct rbtree_node_s rbtree_node_t;
+/* Using type int means its range is -0x7fffffff-1~0x7fffffff. */
+typedef int rbtree_key_t;
+/* Abstract type is complicated to achieve with C so I use char* instead. */
+typedef char* rbtree_data_t;
+
+struct rbtree_node_s
+&amp;#123;
+    /* key of the node */
+    rbtree_key_t    key;
+    /* pointer of the parent of the node */
+    rbtree_node_t*  parent;
+    /* pointer of the left kid of the node */
+    rbtree_node_t*  left;
+    /* pointer of the right kid of the node */
+    rbtree_node_t*  right;
+    /* color of the node */
+    unsigned char   color;
+    /* pointer of the value of the node corresponding to the key */
+    rbtree_data_t   value;
+&amp;#125;;
+
+/* the tree object stucture of the red-black tree */
+typedef struct rbtree_s rbtree_t;
+/* foundational insert function pointer*/
+typedef void (*rbtree_insert_p) (rbtree_t* root, rbtree_node_t* node);
+
+struct rbtree_s
+&amp;#123;
+    /* the pointer of the root node of the tree */
+    rbtree_node_t* root;
+    /* black leaf nodes as sentinel */
+    rbtree_node_t* sentinel;
+    /* the polymorphic insert function pointer */
+    rbtree_insert_p insert;
+&amp;#125;;
+
+/* macros */
+#define rbtree_init(tree, s, i)     \
+rbtree_sentinel_init(s);            \
+(tree)-&amp;gt;root = s;               \
+(tree)-&amp;gt;sentinel = s;           \
+(tree)-&amp;gt;insert = i
+
+#define rbtree_red(node)    ((node)-&amp;gt;color = 1)
+#define rbtree_black(node)  ((node)-&amp;gt;color = 0)
+#define rbtree_is_red(node) ((node)-&amp;gt;color)
+#define rbtree_is_black(node)   (!rbtree_is_red(node))
+ /* copy n2&amp;#39;s color to n1 */
+#define rbtree_copy_color(n1, n2)   (n1-&amp;gt;color = n2-&amp;gt;color)
+/* sentinel must be black cuz it&amp;#39;s leaf node */
+#define rbtree_sentinel_init(node)  rbtree_black(node)
+
+/* statements of public methods */
+void rbtree_insert_value(rbtree_t* tree, rbtree_node_t* node);
+void rbtree_insert(rbtree_t* tree, rbtree_node_t* node);
+void rbtree_delete(rbtree_t* tree, rbtree_node_t* node);
+rbtree_node_t* rbtree_find(rbtree_t* tree, rbtree_key_t key);
+
+#endif  /* _RBTREE_H_INCLUDED_ */
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 看过nginx源码的有心人会发现，我的头文件相对于ngx_rbree.h改动不大，非常像。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 关键的rbtree.c：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;/*
+ * Copyright (C) Bipedal Bit
+ * Verson 1.0.0.1
+ */
+
+#include &amp;lt;stddef.h&amp;gt;
+#include &amp;quot;rbtree.h&amp;quot;
+
+/* inline methods */
+/* get the node with the minimum key in a subtree of the red-black tree */
+static inline rbtree_node_t*
+rbtree_subtree_min(rbtree_node_t* node, rbtree_node_t* sentinel)
+&amp;#123;
+    while(node-&amp;gt;left != sentinel)
+    &amp;#123;
+        node = node-&amp;gt;left;
+    &amp;#125;
+
+    return node;
+&amp;#125;
+
+/* replace the node &amp;quot;node&amp;quot; in the tree with node &amp;quot;tmp&amp;quot; */
+static inline void rbtree_replace(rbtree_t* tree,
+    rbtree_node_t* node, rbtree_node_t* tmp)
+&amp;#123;
+    /* upward: p[node] &amp;lt;- p[tmp] */
+    tmp-&amp;gt;parent = node-&amp;gt;parent;
+
+    if (node == tree-&amp;gt;root)
+    &amp;#123;
+        tree-&amp;gt;root = tmp;
+    &amp;#125;
+    else if (node == node-&amp;gt;parent-&amp;gt;left)
+    &amp;#123;
+        /* downward: left[p[node]] &amp;lt;- tmp */
+        node-&amp;gt;parent-&amp;gt;left = tmp;
+    &amp;#125;
+    else
+    &amp;#123;
+        /* downward: right[p[node]] &amp;lt;- tmp */
+        node-&amp;gt;parent-&amp;gt;right = tmp;
+    &amp;#125;
+
+    node-&amp;gt;parent = tmp;
+&amp;#125;
+
+/* change the topologic structure of the tree keeping the order of the nodes */
+static inline void rbtree_left_rotate(rbtree_t* tree, rbtree_node_t* node)
+&amp;#123;
+    /* node as the var x in CLRS while tmp as the var y */
+    rbtree_node_t* tmp = node-&amp;gt;right;
+
+    /* replace y with left[y] */
+    /* downward: right[x] &amp;lt;- left[y] */
+    node-&amp;gt;right = tmp-&amp;gt;left;
+    /* if left[[y] is not NIL it has a parent */
+    if (tmp-&amp;gt;left != tree-&amp;gt;sentinel)
+    &amp;#123;
+        /* upward: p[left[y]] &amp;lt;- x */
+        tmp-&amp;gt;left-&amp;gt;parent = node;
+    &amp;#125;
+
+    /* replace x with y */
+    rbtree_replace(tree, node, tmp);
+    tmp-&amp;gt;left = node;
+&amp;#125;
+
+static inline void rbtree_right_rotate(rbtree_t* tree, rbtree_node_t* node)
+&amp;#123;
+    rbtree_node_t* tmp = node-&amp;gt;left;
+
+    /* replace y with right[y] */
+    node-&amp;gt;left = tmp-&amp;gt;right;
+    if (tmp-&amp;gt;right != tree-&amp;gt;sentinel)
+    &amp;#123;
+        tmp-&amp;gt;right-&amp;gt;parent = node;
+    &amp;#125;
+
+    /* replace x with y */
+    rbtree_replace(tree, node, tmp);
+    tmp-&amp;gt;right = node;
+&amp;#125;
+
+/* static methods */
+/* fix the red-black tree after the new node inserted */
+static void rbtree_insert_fixup(rbtree_t* tree, rbtree_node_t* node)
+&amp;#123;
+    while(rbtree_is_red(node-&amp;gt;parent))
+    &amp;#123;
+        if (node-&amp;gt;parent == node-&amp;gt;parent-&amp;gt;parent-&amp;gt;left)
+        &amp;#123;
+            /* case 1: node&amp;#39;s uncle is red */
+            if (rbtree_is_red(node-&amp;gt;parent-&amp;gt;parent-&amp;gt;right))
+            &amp;#123;
+                rbtree_black(node-&amp;gt;parent);
+                rbtree_black(node-&amp;gt;parent-&amp;gt;parent-&amp;gt;right);
+                rbtree_red(node-&amp;gt;parent-&amp;gt;parent);
+                node = node-&amp;gt;parent-&amp;gt;parent;
+                /* Then we can consider the whole subtree */
+                /* which is represented by the new &amp;quot;node&amp;quot; as the &amp;quot;node&amp;quot; before */
+                /* and keep looping till &amp;quot;node&amp;quot; become the root. */
+            &amp;#125;
+            /* case 2: node&amp;#39;s uncle is black */
+            else
+            &amp;#123;
+                /* ensure node is the left kid of its parent */
+                if (node == node-&amp;gt;parent-&amp;gt;right)
+                &amp;#123;
+                    node = node-&amp;gt;parent;
+                    rbtree_left_rotate(tree, node);
+                &amp;#125;
+                /* case 2 -&amp;gt; case 1 */
+                rbtree_black(node-&amp;gt;parent);
+                rbtree_red(node-&amp;gt;parent-&amp;gt;parent);
+                rbtree_right_rotate(tree, node-&amp;gt;parent-&amp;gt;parent);
+            &amp;#125;
+        &amp;#125;
+        /* same as the &amp;quot;if&amp;quot; clause before with &amp;quot;left&amp;quot; and &amp;quot;right&amp;quot; exchanged */
+        else
+        &amp;#123;
+            if (rbtree_is_red(node-&amp;gt;parent-&amp;gt;parent-&amp;gt;left))
+            &amp;#123;
+                rbtree_black(node-&amp;gt;parent);
+                rbtree_black(node-&amp;gt;parent-&amp;gt;parent-&amp;gt;left);
+                rbtree_red(node-&amp;gt;parent-&amp;gt;parent);
+                node = node-&amp;gt;parent-&amp;gt;parent;
+            &amp;#125;
+            else
+            &amp;#123;
+                if (node == node-&amp;gt;parent-&amp;gt;left)
+                &amp;#123;
+                    node = node-&amp;gt;parent;
+                    rbtree_right_rotate(tree, node);
+                &amp;#125;
+                rbtree_black(node-&amp;gt;parent);
+                rbtree_red(node-&amp;gt;parent-&amp;gt;parent);
+                rbtree_left_rotate(tree, node-&amp;gt;parent-&amp;gt;parent);
+            &amp;#125;
+        &amp;#125;
+    &amp;#125;
+    /* ensure the root node being black */
+    rbtree_black(tree-&amp;gt;root);
+&amp;#125;
+
+static void rbtree_delete_fixup(rbtree_t* tree, rbtree_node_t* node)
+&amp;#123;
+    rbtree_node_t* brother = NULL;
+
+    while(node != tree-&amp;gt;root &amp;amp;&amp;amp; rbtree_is_black(node))
+    &amp;#123;
+        if (node == node-&amp;gt;parent-&amp;gt;left)
+        &amp;#123;
+            brother = node-&amp;gt;parent-&amp;gt;right;
+            if (rbtree_is_red(brother))
+            &amp;#123;
+                rbtree_black(brother);
+                rbtree_red(node-&amp;gt;parent);
+                rbtree_left_rotate(tree, node-&amp;gt;parent);
+                /* update brother after topologic change of the tree */
+                brother = node-&amp;gt;parent-&amp;gt;right;
+            &amp;#125;
+
+            if (rbtree_is_black(brother-&amp;gt;left) &amp;amp;&amp;amp; rbtree_is_black(brother-&amp;gt;right))
+            &amp;#123;
+                rbtree_red(brother);
+                /* go upward and keep on fixing color */
+                node = node-&amp;gt;parent;
+            &amp;#125;
+            else
+            &amp;#123;
+                if (rbtree_is_black(brother-&amp;gt;right))
+                &amp;#123;
+                    rbtree_black(brother-&amp;gt;left);
+                    rbtree_red(brother);
+                    rbtree_right_rotate(tree, brother);
+                    /* update brother after topologic change of the tree */
+                    brother = node-&amp;gt;parent-&amp;gt;right;
+                &amp;#125;
+                rbtree_copy_color(brother, node-&amp;gt;parent);
+                rbtree_black(node-&amp;gt;parent);
+                rbtree_black(brother-&amp;gt;right);
+                rbtree_left_rotate(tree, node-&amp;gt;parent);
+                /* end the loop and ensure root is black */
+                node = tree-&amp;gt;root;
+            &amp;#125;
+        &amp;#125;
+        /* same as the &amp;quot;if&amp;quot; clause before with &amp;quot;left&amp;quot; and &amp;quot;right&amp;quot; exchanged */
+        else
+        &amp;#123;
+            brother = node-&amp;gt;parent-&amp;gt;left;
+            if (rbtree_is_red(brother))
+            &amp;#123;
+                rbtree_black(brother);
+                rbtree_red(node-&amp;gt;parent);
+                rbtree_left_rotate(tree, node-&amp;gt;parent);
+                brother = node-&amp;gt;parent-&amp;gt;left;
+            &amp;#125;
+
+            if (rbtree_is_black(brother-&amp;gt;left) &amp;amp;&amp;amp; rbtree_is_black(brother-&amp;gt;right))
+            &amp;#123;
+                rbtree_red(brother);
+                node = node-&amp;gt;parent;
+            &amp;#125;
+            else
+            &amp;#123;
+                if (rbtree_is_black(brother-&amp;gt;left))
+                &amp;#123;
+                    rbtree_black(brother-&amp;gt;right);
+                    rbtree_red(brother);
+                    rbtree_right_rotate(tree, brother);
+                    brother = node-&amp;gt;parent-&amp;gt;left;
+                &amp;#125;
+                rbtree_copy_color(brother, node-&amp;gt;parent);
+                rbtree_black(node-&amp;gt;parent);
+                rbtree_black(brother-&amp;gt;left);
+                rbtree_left_rotate(tree, node-&amp;gt;parent);
+                node = tree-&amp;gt;root;
+            &amp;#125;
+        &amp;#125;
+    &amp;#125;
+
+    rbtree_black(node);
+&amp;#125;
+
+/* public methods */
+void rbtree_insert_value(rbtree_t* tree, rbtree_node_t* node)
+&amp;#123;
+    /* Using ** to know wether the new node will be a left kid */
+    /* or a right kid of its parent node. */
+    rbtree_node_t** tmp = &amp;amp;tree-&amp;gt;root;
+    rbtree_node_t* parent;
+
+    while(*tmp != tree-&amp;gt;sentinel)
+    &amp;#123;
+        parent = *tmp;
+        tmp = (node-&amp;gt;key &amp;lt; parent-&amp;gt;key) ? &amp;amp;parent-&amp;gt;left : &amp;amp;parent-&amp;gt;right;
+    &amp;#125;
+
+    /* The pointer knows wether the node should be on the left side */
+    /* or on the right one. */
+    *tmp = node;
+    node-&amp;gt;parent = parent;
+    node-&amp;gt;left = tree-&amp;gt;sentinel;
+    node-&amp;gt;right = tree-&amp;gt;sentinel;
+    rbtree_red(node);
+&amp;#125;
+
+void rbtree_insert(rbtree_t* tree, rbtree_node_t* node)
+&amp;#123;
+    rbtree_node_t* sentinel = tree-&amp;gt;sentinel;
+
+    /* if the tree is empty */
+    if (tree-&amp;gt;root == sentinel)
+    &amp;#123;
+        tree-&amp;gt;root = node;
+        node-&amp;gt;parent = sentinel;
+        node-&amp;gt;left = sentinel;
+        node-&amp;gt;right = sentinel;
+        rbtree_black(node);
+
+        return;
+    &amp;#125;
+
+    /* generally */
+    tree-&amp;gt;insert(tree, node);
+    rbtree_insert_fixup(tree, node);
+&amp;#125;
+
+void rbtree_delete(rbtree_t* tree, rbtree_node_t* node)
+&amp;#123;
+    rbtree_node_t* sentinel = tree-&amp;gt;sentinel;
+    /* wether &amp;quot;node&amp;quot; is on the left side or the right one */
+    rbtree_node_t** ptr_to_node = NULL;
+    /* &amp;quot;cover&amp;quot; is the node which is going to cover &amp;quot;node&amp;quot; */
+    rbtree_node_t* cover = NULL;
+    /* wether we lossing a red node on the edge of the tree */
+    int loss_red = rbtree_is_red(node);
+    int is_root = (node == tree-&amp;gt;root);
+
+    /* get &amp;quot;cover&amp;quot; &amp;amp; &amp;quot;loss_red&amp;quot;  */
+    /* sentinel in &amp;quot;node&amp;quot;&amp;#39;s kids */
+    if (node-&amp;gt;left == sentinel)
+    &amp;#123;
+        cover = node-&amp;gt;right;
+    &amp;#125;
+    else if (node-&amp;gt;right == sentinel)
+    &amp;#123;
+        cover = node-&amp;gt;left;
+    &amp;#125;
+    /* &amp;quot;node&amp;quot;&amp;#39;s kids are both non-sentinel */
+    else
+    &amp;#123;
+        /* update &amp;quot;node&amp;quot; &amp;amp; &amp;quot;loss_red&amp;quot; &amp;amp; &amp;quot;is_root&amp;quot; &amp;amp; &amp;quot;cover&amp;quot; */
+        cover = rbtree_subtree_min(node-&amp;gt;right, sentinel);
+        node-&amp;gt;key = cover-&amp;gt;key;
+        node-&amp;gt;value = cover-&amp;gt;value;
+        node = cover;
+        loss_red = rbtree_is_red(node);
+        is_root = 0;
+        /* move &amp;quot;cover&amp;quot;&amp;#39;s kids */
+        /* &amp;quot;cover&amp;quot; can only be a left kid */
+        /* and can only have a right non-sentinel kid */
+        /* because of function &amp;quot;rbtree_subtree_min&amp;quot; */
+        cover = node-&amp;gt;right;
+    &amp;#125;
+
+    if (is_root)
+    &amp;#123;
+        /* update root */
+        tree-&amp;gt;root = cover;
+    &amp;#125;
+    else
+    &amp;#123;
+        /* downward link */
+        if (node == node-&amp;gt;parent-&amp;gt;left)
+        &amp;#123;
+            node-&amp;gt;parent-&amp;gt;left = cover;
+        &amp;#125;
+        else
+        &amp;#123;
+            node-&amp;gt;parent-&amp;gt;right = cover;
+        &amp;#125;
+    &amp;#125;
+    /* upward link */
+    cover-&amp;gt;parent = node-&amp;gt;parent;
+    /* &amp;quot;cover&amp;quot; may be a sentinel */
+    if (cover != sentinel)
+    &amp;#123;
+        /* set &amp;quot;cover&amp;quot; */
+        cover-&amp;gt;left = node-&amp;gt;left;
+        cover-&amp;gt;right = node-&amp;gt;right;
+        rbtree_copy_color(cover, node);
+    &amp;#125;
+
+    /* clear &amp;quot;node&amp;quot; since it&amp;#39;s useless */
+    node-&amp;gt;key = -1;
+    node-&amp;gt;parent = NULL;
+    node-&amp;gt;left = NULL;
+    node-&amp;gt;right = NULL;
+    node-&amp;gt;value = NULL;
+
+    if (loss_red)
+    &amp;#123;
+        return;
+    &amp;#125;
+
+    /* When lossing a black node on edge */
+    /* the fifth rule of red-black tree will be broke. */
+    /* So the tree need to be fixed. */
+    rbtree_delete_fixup(tree, cover);
+&amp;#125;
+
+/* find the node in the tree corresponding to the given key value */
+rbtree_node_t* rbtree_find(rbtree_t* tree, rbtree_key_t key)
+&amp;#123;
+    rbtree_node_t* tmp = tree-&amp;gt;root;
+    int step_cnt = 0;
+
+    /* search the binary tree */
+    while(tmp != tree-&amp;gt;sentinel)
+    &amp;#123;
+        /* next line is just fot test */
+        // step_cnt++;
+        if(key == tmp-&amp;gt;key)
+        &amp;#123;
+            /* next line is just for test */
+            // printf(&amp;quot;step count: %d, color: %s, &amp;quot;, step_cnt, rbtree_is_red(tmp) ? &amp;quot;red&amp;quot; : &amp;quot;black&amp;quot;);
+            return tmp;
+        &amp;#125;
+
+        tmp = (key &amp;lt; tmp-&amp;gt;key) ? tmp-&amp;gt;left : tmp-&amp;gt;right;
+    &amp;#125;
+
+    return NULL;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;  虽然明白nginx源码中100+行的长函数体也是一种避免太多函数调用增加时间空间开销的优化，我还是把所有函数都分类分割成100行以下。增加可读性是一方面，可能也是有点强迫症吧。之后会扩展几个统计方法，像max、min和mid，还会扩展一个遍历方法。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 下面是调用测试，test.c：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;quot;rbtree.h&amp;quot;
+
+int main(int argc, char const *argv[])
+&amp;#123;
+    rbtree_t t = &amp;#123;&amp;#125;;
+    rbtree_node_t s = &amp;#123;&amp;#125;;
+    rbtree_init(&amp;amp;t, &amp;amp;s, rbtree_insert_value);
+
+    const int cnt = 10;
+    const int max_len = 15;
+
+#define TEST_VALUES &amp;#123;&amp;quot;apple&amp;quot;, &amp;quot;banana&amp;quot;, &amp;quot;cherry&amp;quot;, &amp;quot;grape&amp;quot;, &amp;quot;lemon&amp;quot;, &amp;quot;mango&amp;quot;, &amp;quot;pear&amp;quot;, &amp;quot;pineapple&amp;quot;, &amp;quot;strawberry&amp;quot;, &amp;quot;watermelon&amp;quot;&amp;#125;
+
+    /* for gcc */
+    char* v[] = TEST_VALUES;
+    /* for g++ */
+    // char v[][max_len] = TEST_VALUES;
+
+    rbtree_node_t n[cnt];
+    int i;
+    for (i = 0; i &amp;lt; cnt; i++)
+    &amp;#123;
+        n[i].key = i+1;
+        n[i].value = v[i];
+        rbtree_insert(&amp;amp;t, &amp;amp;n[i]);
+    &amp;#125;
+
+    rbtree_node_t* p[cnt];
+
+    for (i = 1; i &amp;lt;= cnt; i++)
+    &amp;#123;
+        printf(&amp;quot;key: %d\n&amp;quot;, i);
+        p[i] = rbtree_find(&amp;amp;t, i);
+        printf(&amp;quot;value: %s\n&amp;quot;, (p[i] != NULL) ? p[i]-&amp;gt;value : &amp;quot;?&amp;quot;);
+    &amp;#125;
+
+    rbtree_delete(&amp;amp;t, &amp;amp;n[5]);
+
+    printf(&amp;quot;\nafter delete 6-&amp;gt;mango:\n\n&amp;quot;);
+
+    for (i = 1; i &amp;lt;= cnt; i++)
+    &amp;#123;
+        printf(&amp;quot;key: %d\n&amp;quot;, i);
+        p[i] = rbtree_find(&amp;amp;t, i);
+        printf(&amp;quot;value: %s\n&amp;quot;, (p[i] != NULL) ? p[i]-&amp;gt;value : &amp;quot;?&amp;quot;);
+    &amp;#125;
+
+    return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 解开rbtree_find方法里的测试行注释，顺利执行：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;key: 1
+step count: 3, color: black, value: apple
+key: 2
+step count: 2, color: black, value: banana
+key: 3
+step count: 3, color: black, value: cherry
+key: 4
+step count: 1, color: black, value: grape
+key: 5
+step count: 3, color: black, value: lemon
+key: 6
+step count: 2, color: black, value: mango
+key: 7
+step count: 4, color: black, value: pear
+key: 8
+step count: 3, color: red, value: pineapple
+key: 9
+step count: 4, color: black, value: strawberry
+key: 10
+step count: 5, color: red, value: watermelon
+
+after delete 6-&amp;gt;mango:
+
+key: 1
+step count: 3, color: black, value: apple
+key: 2
+step count: 2, color: black, value: banana
+key: 3
+step count: 3, color: black, value: cherry
+key: 4
+step count: 1, color: black, value: grape
+key: 5
+step count: 3, color: black, value: lemon
+key: 6
+value: ?
+key: 7
+step count: 2, color: black, value: pear
+key: 8
+step count: 4, color: black, value: pineapple
+key: 9
+step count: 3, color: red, value: strawberry
+key: 10
+step count: 4, color: black, value: watermelon
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 下面分别是删除6-&amp;gt;mango前的红黑树和删除后的红黑树示意图：&lt;br&gt;&lt;img src=&#34;http://img.blog.csdn.net/20150816200143108&#34; alt=&#34;&#34; height=&#34;422&#34; width=&#34;400&#34; /&gt;&lt;br&gt;&lt;img src=&#34;http://img.blog.csdn.net/20150816200200052&#34; alt=&#34;&#34; height=&#34;331&#34; width=&#34;400&#34; /&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 下面我们来做个大量数据的压力测试，注意把rbtree_find方法里的测试行注释掉，不然后果恐怕会比较吓人：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;stdlib.h&amp;gt;
+#include &amp;lt;time.h&amp;gt;
+#include &amp;quot;rbtree.h&amp;quot;
+
+int main(int argc, char const *argv[])
+&amp;#123;
+    double duration;
+    double room;
+
+    rbtree_t t = &amp;#123;&amp;#125;;
+    rbtree_node_t s = &amp;#123;&amp;#125;;
+    rbtree_init(&amp;amp;t, &amp;amp;s, rbtree_insert_value);
+
+    const int cnt = 1&amp;lt;&amp;lt;20;
+    const int max_len = 15;
+
+#define TEST_VALUES &amp;#123;&amp;quot;apple&amp;quot;, &amp;quot;banana&amp;quot;, &amp;quot;cherry&amp;quot;, &amp;quot;grape&amp;quot;, &amp;quot;lemon&amp;quot;, &amp;quot;mango&amp;quot;, &amp;quot;pear&amp;quot;, &amp;quot;pineapple&amp;quot;, &amp;quot;strawberry&amp;quot;, &amp;quot;watermelon&amp;quot;&amp;#125;
+
+    /* for gcc */
+    char* v[] = TEST_VALUES;
+    /* for g++ */
+    // char v[][max_len] = TEST_VALUES;
+
+    /* Default stack size in Ubuntu Kylin 14.04 is 8MB. */
+    /* It&amp;#39;s not enough. So I use memory in heap which offers a lot larger room. */
+    rbtree_node_t* n = (rbtree_node_t*)calloc(cnt, sizeof(rbtree_node_t));
+    int i;
+
+    long time1 = clock();
+
+    for (i = 0; i &amp;lt; cnt; i++)
+    &amp;#123;
+        n[i].key = i+1;
+        n[i].value = v[i%10];
+        rbtree_insert(&amp;amp;t, &amp;amp;n[i]);
+    &amp;#125;
+
+    long time2 = clock();
+    room = 48.0*cnt/(1&amp;lt;&amp;lt;20);
+    duration = (double)(time2 - time1) / CLOCKS_PER_SEC;
+    printf(&amp;quot;Inserting %d nodes costs %.2fMB and spends %f seconds.\n&amp;quot;, cnt, room, duration);
+
+    const int search_cnt = 1&amp;lt;&amp;lt;10;
+    srand( (unsigned int)time(0) );
+    for( i = 0 ; i &amp;lt; search_cnt ; i++ )
+    &amp;#123;
+        rbtree_find(&amp;amp;t, (rand()%cnt)+1);
+    &amp;#125;
+
+    long time3 = clock();
+    duration = (double)(time3 - time2) / CLOCKS_PER_SEC;
+    printf(&amp;quot;Searching %d nodes among %d spends %f seconds.\n&amp;quot;, search_cnt, cnt, duration);
+
+    const int delete_cnt = 1&amp;lt;&amp;lt;10;
+    int nums[delete_cnt];
+    int num;
+    /* Let&amp;#39;s hash! */
+    char* mark = (char*)calloc(cnt, sizeof(char));
+    memset(mark, 0, cnt*sizeof(char));
+    for(i = 0; i &amp;lt; delete_cnt; i++)
+    &amp;#123;
+        for(;;)
+        &amp;#123;
+            num = rand()%cnt;
+            if (mark[num] == 0)
+            &amp;#123;
+                mark[num] = 1;
+                nums[i] = num;
+                break;
+            &amp;#125;
+        &amp;#125;
+    &amp;#125;
+
+    long time4 = clock();
+    duration = (double)(time4 - time3) / CLOCKS_PER_SEC;
+    printf(&amp;quot;Hash %d times spends %f seconds.\n&amp;quot;, delete_cnt, duration);
+
+    for(i = 0; i &amp;lt; delete_cnt; i++)
+    &amp;#123;
+        rbtree_delete(&amp;amp;t, &amp;amp;n[nums[i]]);
+    &amp;#125;
+
+    long time5 = clock();
+    duration = (double)(time5 - time4) / CLOCKS_PER_SEC;
+    printf(&amp;quot;Deleting %d nodes among %d spends %f seconds.\n&amp;quot;, delete_cnt, cnt, duration);
+    free(mark);
+    free(n);
+
+    return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 来看看结果：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;Inserting 1048576 nodes costs 48.00MB and spends 0.425416 seconds.
+Searching 1024 nodes among 1048576 spends 0.001140 seconds.
+Hash 1024 times spends 0.000334 seconds.
+Deleting 1024 nodes among 1048576 spends 0.000783 seconds.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 删除比查找还快，耗时只有哈希查找的两倍多点，上百万的插入也耗时不足半秒，嗯我还挺满意的。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 写统计和遍历方法去了。&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/08/11/C%E8%AF%AD%E8%A8%80%E7%9A%84static%E5%85%B3%E9%94%AE%E5%AD%97/</guid>
+            <title>C语言的static关键字</title>
+            <link>https://blog.bipedalbit.net/2015/08/11/C%E8%AF%AD%E8%A8%80%E7%9A%84static%E5%85%B3%E9%94%AE%E5%AD%97/</link>
+            <category>C</category>
+            <category>static</category>
+            <category>内存分布</category>
+            <pubDate>Tue, 11 Aug 2015 20:09:08 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; static这个关键字可谓熟悉又陌生，要比较系统地理解它，更好地使用它，需要对它有更加深入的了解。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; C程序一直由下列部分组成：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 1）正文段——CPU执行的机器指令部分；一个程序只有一个副本；只读，防止程序由于意外事故而修改自身指令。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 2）初始化数据段（数据段）——在程序中所有赋了初值的全局变量，存放在这里。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 3）非初始化数据段（bss段）——在程序中没有初始化的全局变量；内核将此段初始化为0。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 4）栈——增长方向：自顶向下增长；自动变量以及每次函数调用时所需要保存的信息（返回地址、环境信息）。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 5）堆——动态存储分配的内存。&lt;/p&gt;
+&lt;p&gt;&lt;span style=&#34;color:#FF0000;&#34;&gt;&lt;span style=&#34;color:#000000;&#34;&gt;1.&lt;/span&gt;全局静态变量&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 在全局变量之前加上关键字static，全局变量就被定义成为一个全局静态变量。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 1）内存中的位置：静态存储区。（静态存储区在整个程序运行期间都存在）&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 2）初始化：未经初始化的全局静态变量会被程序自动初始化为0。（自动对象的值是任意的，除非他被显示初始化）&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 3）作用域：全局静态变量在声明他的文件之外是不可见的。准确地讲从定义之处开始到文件结尾。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 定义全局静态变量的好处：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 1）不会被其他文件所访问，修改。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 2）其他文件中可以使用相同名字的变量，不会发生冲突。&lt;/p&gt;
+&lt;p&gt;&lt;span style=&#34;color:#FF0000;&#34;&gt;&lt;span style=&#34;color:#000000;&#34;&gt;2.&lt;/span&gt;局部静态变量&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 在局部变量之前加上关键字static，局部变量就被定义成为一个局部静态变量。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 1）内存中的位置：静态存储区。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 2）初始化：未经初始化的全局静态变量会被程序自动初始化为0。（自动对象的值是任意的，除非他被显示初始化）&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 3）作用域：作用域仍为局部作用域，当定义它的函数或者语句块结束的时候，作用域随之结束。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;span style=&#34;color:#FF0000;&#34;&gt;注：当static用来修饰局部变量的时候，它就改变了局部变量的存储位置，从原来的栈中存放改为静态存储区。但是局部静态变量在离开作用域之后，并没有被销毁，而是仍然驻留在内存当中，直到程序结束，只不过我们不能再对他进行访问。&lt;/span&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 当static用来修饰全局变量的时候，它就改变了全局变量的作用域（在声明他的文件之外是不可见的），但是没有改变它的存放位置，还是在静态存储区中。&lt;/p&gt;
+&lt;p&gt;3.&lt;span style=&#34;color:#FF0000;&#34;&gt;静态函数&lt;/span&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 在函数的返回类型前加上关键字static，函数就被定义成为静态函数。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 函数的定义和声明默认情况下是extern的，但静态函数只是在声明他的文件当中可见，不能被其他文件所用。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 定义静态函数的好处：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 1）其他文件中可以定义相同名字的函数，不会发生冲突&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 2）静态函数不能被其他文件所用。存储说明符auto，register，extern，static，对应两种存储期：自动存储期和静态存储期。auto和register对应自动存储期。具有自动存储期的变量在进入声明该变量的程序块时被建立，它在该程序块活动时存在，退出该程序块时撤销。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 关键字extern和static用来说明具有静态存储期的变量和函数。用static声明的局部变量具有静态存储持续期（static storage duration），或静态范围（static extent）。虽然他的值在函数调用之间保持有效，但是其名字的可视性仍限制在其局部域内。静态局部对象在程序执行到该对象的声明处时被首次初始化。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 由于static变量的以上特性，可实现一些特定功能。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 统计次数功能：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 声明函数的一个局部变量，并设为static类型，作为一个计数器，这样函数每次被调用的时候就可以进行计数。这是统计函数被调用次数的最好的办法，因为这个变量是和函数息息相关的，而函数可能在多个不同的地方被调用，所以从调用者的角度来统计比较困难。&lt;/p&gt;
+&lt;p&gt;&lt;span style=&#34;color:#FF0000;&#34;&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 使用静态函数的好处：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 静态函数会被自动分配在一个一直使用的存储区，直到退出应用程序实例，避免了调用函数时压栈出栈，速度快很多。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 关键字“static”，译成中文就是“静态的”，所以内部函数又称静态函数。但此处“static”的含义不是指存储方式，而是指对函数的作用域仅局限于本文件。使用内部函数的好处是：不同的人编写不同的函数时，不用担心自己定义的函数，是否会与其它文件中的函数同名，因为同名也没有关系。&lt;/span&gt;&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/</guid>
+            <title>【三】nginx的数据结构(1)——ngx_int_t与ngx_rbtree_t</title>
+            <link>https://blog.bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/</link>
+            <category>nginx</category>
+            <category>ngx_int_t</category>
+            <category>rbtree</category>
+            <category>C</category>
+            <pubDate>Thu, 06 Aug 2015 07:18:00 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 就来挑两个特别的数据结构ngx_int_t、ngx_rbtree_t作为研读nginx源码的开始吧。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 面对&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;.&amp;#x2F;src&amp;#x2F;core&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;子目录中&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;71&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;个源文件，有点无从下手。浏览包含主函数的&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx.c&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;文件，发现&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;使用了很多自行封装的数据结构，不弄清楚这是些什么样的数据结构就很难理解主函数中操作的意义。于是我们挑看起来基础的数据结构开始研究。组织&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;所有数据结构的是&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_core.h&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;文件。它首先包含了&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_config.h&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;，我们在&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_config.h&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;中发现了三个类型定义。&lt;/span&gt;&lt;/p&gt;
+&lt;h1 id=&#34;1-ngx-int-t、ngx-uint-t、ngx-flag-t&#34;&gt;&lt;a href=&#34;#1-ngx-int-t、ngx-uint-t、ngx-flag-t&#34; class=&#34;headerlink&#34; title=&#34;1. ngx_int_t、ngx_uint_t、ngx_flag_t&#34;&gt;&lt;/a&gt;1. ngx_int_t&lt;span style=&#34;font-family:宋体;&#34;&gt;、&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_uint_t&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;、&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_flag_t&lt;/span&gt;&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; nginx.c&lt;span style=&#34;font-family:宋体;&#34;&gt;中看到的第一个陌生数据类型是&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_int_t&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;，在&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx_config.h&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;中找到了它的定义。&lt;/span&gt;&lt;/p&gt;
+&lt;figure class=&#34;highlight c&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs c&#34;&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;intptr_t&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;ngx_int_t&lt;/span&gt;;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;uintptr_t&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;ngx_uint_t&lt;/span&gt;;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;intptr_t&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;ngx_flag_t&lt;/span&gt;;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 顺藤摸瓜找到了三个数据类型的定义。本科&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;c&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;入门教学中并没有对&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;intptr_t&amp;#x2F;uintptr_t&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;的介绍，我在&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;c&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;的&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;stdint.h&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;头文件中发现了它们的定义。&lt;/span&gt;&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-comment&#34;&gt;/* Types for `void *&amp;#x27; pointers.  */&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; __WORDSIZE == 64&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;# &lt;span class=&#34;hljs-keyword&#34;&gt;ifndef&lt;/span&gt; __intptr_t_defined&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;int&lt;/span&gt;    &lt;span class=&#34;hljs-type&#34;&gt;intptr_t&lt;/span&gt;;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#  &lt;span class=&#34;hljs-keyword&#34;&gt;define&lt;/span&gt; __intptr_t_defined&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;# &lt;span class=&#34;hljs-keyword&#34;&gt;endif&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;int&lt;/span&gt;   &lt;span class=&#34;hljs-type&#34;&gt;uintptr_t&lt;/span&gt;;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;# &lt;span class=&#34;hljs-keyword&#34;&gt;ifndef&lt;/span&gt; __intptr_t_defined&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;intptr_t&lt;/span&gt;;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#  &lt;span class=&#34;hljs-keyword&#34;&gt;define&lt;/span&gt; __intptr_t_defined&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;# &lt;span class=&#34;hljs-keyword&#34;&gt;endif&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;int&lt;/span&gt;    &lt;span class=&#34;hljs-type&#34;&gt;uintptr_t&lt;/span&gt;;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;endif&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先注释说这两种类型是&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;“void&amp;nbsp;*”&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;的指针类型，尽管字面上看，&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;intptr_t&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;和&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;uintptr_t&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;确实是整型指针类型和无符号整型指针类型，但是让人摸不着头脑，为什么要使用整型作为整型的指针类型呢？先放一放，看后面的宏，机器是&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;64&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;位字长则&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;intptr_t&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;为&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;long&amp;nbsp;int&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;，&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;uintptr_t&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;为&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;unsigned&amp;nbsp;long&amp;nbsp;int&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;，正好我机器上是&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;64&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;位编译器，&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;sizeof()&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;了一下，是&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;8&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;个字节&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;64&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;位，小于&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;64&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;位字长的&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;intptr_t&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;为&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;，&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;uintptr_t&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;为&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;unsigned&amp;nbsp;int&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;，查表得知&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;32&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;位编译器下&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;和&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;unsigned&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;为&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;4&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;个字节，&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;16&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;位编译器下为&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;个字节。那么&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;intptr_t&amp;#x2F;uintptr_t&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;应该是会随着平台字长变化而发生对应变化的整型类型。经过了解，发现《深入分析&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;Linux&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;内核源码》中对此的解释是，系统内核在操作内存时，将内存当做一个大数组，而指针就是数组索引&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;&amp;#x2F;&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;下标，内核程序员使用这种特殊的整型来接受内存地址值、操作内存相比使用指针更加直观，不容易犯错。看起来，&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;中，只是单纯的想要使用一些平台相关的&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;、&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;unsigned&amp;nbsp;int&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;类型变量而已。&lt;/span&gt;&lt;/p&gt;
+&lt;h1 id=&#34;2-ngx-rbtree-t&#34;&gt;&lt;a href=&#34;#2-ngx-rbtree-t&#34; class=&#34;headerlink&#34; title=&#34;2. ngx_rbtree_t&#34;&gt;&lt;/a&gt;2. ngx_rbtree_t&lt;/h1&gt;&lt;h2 id=&#34;2-1-什么是红黑树&#34;&gt;&lt;a href=&#34;#2-1-什么是红黑树&#34; class=&#34;headerlink&#34; title=&#34;2.1 什么是红黑树&#34;&gt;&lt;/a&gt;2.1 &lt;span style=&#34;font-family:宋体;&#34;&gt;什么是红黑树&lt;/span&gt;&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 作为一个曾经常年在&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ACM&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;比赛里划水的退役队员，对红黑树这样的有名数据结构还是比较敏感的。红黑树是一种特殊约束形式下的平衡二叉查找树实现。学过数据结构课的同学应该知道，课本上的最早的自平衡二叉树&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;AVL&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;树严格的要求子树的高度差不超过&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;，以获得根结点到所有叶结点距离基本相同（平衡）的特性。&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 红黑树不追求严格的平衡，而是通过&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;个约束实现基本平衡：&lt;/span&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ①结点是红色或黑色；&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ②根是黑色；&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ③叶结点是黑色；&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ④红色结点的子结点都是黑色；&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ⑤任一结点到其叶结点的简单路径中黑色结点数相同。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; AVL树根到叶结点最长距离与最短距离的比不超过2。红黑树的约束也保证了这一特性（最长路径是红黑相间，最短路径是全黑，这种情况下最长路径刚好是最短路径的2倍长）。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 既然是平衡二叉查找树的一种实现，那么红黑树自然是内部有序的，同时跟AVL树一样支持O(log2n)时间复杂度的查找、插入和删除。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 相比AVL树，红黑可以保证在每次插入或删除操作之后的重平衡过程中，全树拓扑结构的更新仅涉及常数个结点。尽管最坏情况下需对O(log2n)个结点重染色，但就分摊意义（平均效率）而言，仅为O(1)个。但是因为没有严格约束树的平衡特性，红黑树的左右子树高度差比AVL树要大。&lt;/p&gt;
+&lt;h2 id=&#34;2-2-ngx-rbtree-h&#34;&gt;&lt;a href=&#34;#2-2-ngx-rbtree-h&#34; class=&#34;headerlink&#34; title=&#34;2.2 ngx_rbtree.h&#34;&gt;&lt;/a&gt;2.2 ngx_rbtree.h&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 机会难得，我们就把nginx的源码作为素材来深入了解一下红黑树的实现。首先是结点的结构：&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;ngx_uint_t&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_key_t&lt;/span&gt;;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;ngx_int_t&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_key_int_t&lt;/span&gt;;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;hljs-keyword&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;hljs-title class_&#34;&gt;ngx_rbtree_node_s&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt;;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;hljs-title class_&#34;&gt;ngx_rbtree_node_s&lt;/span&gt; &amp;#123;&lt;br&gt;    &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_key_t&lt;/span&gt;    key;&lt;span class=&#34;hljs-comment&#34;&gt;//平台相关的无符号整型关键字&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt;   *left;&lt;span class=&#34;hljs-comment&#34;&gt;//左子结点指针&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt;   *right;&lt;span class=&#34;hljs-comment&#34;&gt;//&amp;lt;span style=&amp;amp;quot;font-family:宋体;&amp;amp;quot;&amp;gt;右&amp;lt;/span&amp;gt;子结点指针&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt;   *parent;&lt;span class=&#34;hljs-comment&#34;&gt;//父结点指针&lt;/span&gt;&lt;br&gt;    u_char          color;&lt;span class=&#34;hljs-comment&#34;&gt;//结点颜色&lt;/span&gt;&lt;br&gt;    u_char          data;&lt;span class=&#34;hljs-comment&#34;&gt;//结点数据&lt;/span&gt;&lt;br&gt;&amp;#125;;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 然后是红黑树的结构定义：&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;hljs-keyword&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;hljs-title class_&#34;&gt;ngx_rbtree_s&lt;/span&gt;  &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_t&lt;/span&gt;;  &lt;span class=&#34;hljs-comment&#34;&gt;//“_s”是结构体“_t”是类型&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-comment&#34;&gt;//下面是一个函数指针变量类型的定义，是红黑树插入函数的指针&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-comment&#34;&gt;//参数有树根结点、插入结点和哨兵结点的指针&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-function&#34;&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;hljs-title&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;hljs-params&#34;&gt;(*ngx_rbtree_insert_pt)&lt;/span&gt; &lt;span class=&#34;hljs-params&#34;&gt;(&lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; *root,&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-params&#34;&gt;&lt;span class=&#34;hljs-function&#34;&gt;    &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; *node, &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; *sentinel)&lt;/span&gt;&lt;/span&gt;;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;hljs-title class_&#34;&gt;ngx_rbtree_s&lt;/span&gt; &amp;#123;&lt;br&gt;    &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; *root;    &lt;span class=&#34;hljs-comment&#34;&gt;//根节点指针&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; *sentinel;    &lt;span class=&#34;hljs-comment&#34;&gt;//哨兵结点指针&lt;/span&gt;&lt;br&gt;    ngx_rbtree_insert_pt   insert;  &lt;span class=&#34;hljs-comment&#34;&gt;//插入函数指针&lt;/span&gt;&lt;br&gt;&amp;#125;;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 将函数指针变量作为结构体成员变量以达成可以把结构体当做类来使用（既有成员变量又有成员方法）的效果，这种手法在&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;的源码中相当普遍。关于函数，&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;还有一种更神奇的手段&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;——&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;宏：&lt;/span&gt;&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;define&lt;/span&gt; ngx_rbtree_init(tree, s, i)                 \&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;    ngx_rbtree_sentinel_init(s);                \&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;    (tree)-&amp;gt;root = s;                       \&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;    (tree)-&amp;gt;sentinel = s;                   \&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;    (tree)-&amp;gt;insert = i&lt;span class=&#34;hljs-comment&#34;&gt;//这里insert函数指针的赋值实现了多态&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 借助宏来达成内联函数的效果（函数实现如果比较简单，就干脆把实现过程整个搬到类中），令人费解的是，&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;C&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;不是没有内联关键字，甚至同一个头文件中就有一个内联函数的定义。研究内联函数之前，下面还有几个宏要看一看：&lt;/span&gt;&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;define&lt;/span&gt; ngx_rbt_red(node)           ((node)-&amp;gt;color = 1)&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;define&lt;/span&gt; ngx_rbt_black(node)         ((node)-&amp;gt;color = 0)&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;define&lt;/span&gt; ngx_rbt_is_red(node)            ((node)-&amp;gt;color)&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;define&lt;/span&gt; ngx_rbt_is_black(node)          (!ngx_rbt_is_red(node))&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;define&lt;/span&gt; ngx_rbt_copy_color(n1, n2)      (n1-&amp;gt;color = n2-&amp;gt;color)&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-comment&#34;&gt;/* a sentinel must be black */&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;define&lt;/span&gt; ngx_rbtree_sentinel_init(node)  ngx_rbt_black(node)&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; nginx&lt;span style=&#34;font-family:宋体;&#34;&gt;源码中的变量都很容易看懂以至于我们不怎么需要查资料或找注释。&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;color&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;置&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;染红置&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;0&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;染黑，&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;color&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;为&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;则结点为红色，不为红色的则为黑色，复制结点颜色即复制&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;color&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;值，哨兵结点一定要染成黑色。&lt;/span&gt;&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-function&#34;&gt;&lt;span class=&#34;hljs-type&#34;&gt;static&lt;/span&gt; ngx_inline &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; *&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-function&#34;&gt;&lt;span class=&#34;hljs-title&#34;&gt;ngx_rbtree_min&lt;/span&gt;&lt;span class=&#34;hljs-params&#34;&gt;(&lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; *node, &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; *sentinel)&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-function&#34;&gt;&lt;/span&gt;&amp;#123;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;while&lt;/span&gt; (node-&amp;gt;left != sentinel) &amp;#123;&lt;br&gt;        node = node-&amp;gt;left;&lt;br&gt;    &amp;#125;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;return&lt;/span&gt; node;&lt;br&gt;&amp;#125;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ngx_inline是一个宏，实际值就是关键字inline。这个内联函数非常好懂，目的看起来是寻找以任意结点为根结点的子树中结点值最小的结点。实现方法是找到红黑树子树最边缘的左子结点。那么我们有理由猜测，哨兵结点是空结点或边缘标识。&lt;/p&gt;
+&lt;h2 id=&#34;2-3-红黑树的结点插入&#34;&gt;&lt;a href=&#34;#2-3-红黑树的结点插入&#34; class=&#34;headerlink&#34; title=&#34;2.3 红黑树的结点插入&#34;&gt;&lt;/a&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;2.3 红黑树的结点插入&lt;/span&gt;&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 接下来我们来深入&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_rbtree.c&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;看看&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;如何实现几个关键的红黑树方法。&lt;/span&gt;&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;26&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;27&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;28&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;29&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;30&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;31&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;32&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;33&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;34&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;35&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;36&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;37&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;38&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;39&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;40&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;41&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;42&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;43&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;44&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;45&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;46&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;47&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;48&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;49&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;50&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;51&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;52&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;53&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;54&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;55&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;56&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;57&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;58&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;59&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;60&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;61&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;62&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;63&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;64&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;65&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;66&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;67&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;68&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;69&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;70&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;71&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;72&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;73&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;74&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;75&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;76&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;77&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;78&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;79&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;80&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;81&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;82&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;83&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-function&#34;&gt;&lt;span class=&#34;hljs-type&#34;&gt;void&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-function&#34;&gt;&lt;span class=&#34;hljs-title&#34;&gt;ngx_rbtree_insert&lt;/span&gt;&lt;span class=&#34;hljs-params&#34;&gt;(&lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_t&lt;/span&gt; *tree, &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; *node)&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-function&#34;&gt;&lt;/span&gt;&amp;#123;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;//根结点指针的指针，或者根结点指针数组，会有多个根结点吗，令人费解&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;//临时结点指针&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;//哨兵结点指针，推测哨兵在每次查询时可能都不一样，也许指待插位置&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;//变量不分行，我写注释都很不方便&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt;  **root, *temp, *sentinel;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;/* a binary tree insert */&lt;/span&gt;&lt;br&gt;&lt;br&gt;    root = (&lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; **) &amp;amp;tree-&amp;gt;root;&lt;span class=&#34;hljs-comment&#34;&gt;//树根指针的指针赋给了root&lt;/span&gt;&lt;br&gt;    sentinel = tree-&amp;gt;sentinel;&lt;span class=&#34;hljs-comment&#34;&gt;//哨兵指针赋给了哨兵指针&lt;/span&gt;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (*root == sentinel) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//特判，如果根是哨兵，即树是空的&lt;/span&gt;&lt;br&gt;        node-&amp;gt;parent = &lt;span class=&#34;hljs-literal&#34;&gt;NULL&lt;/span&gt;;&lt;span class=&#34;hljs-comment&#34;&gt;//新插入的结点变成了根&lt;/span&gt;&lt;br&gt;        node-&amp;gt;left = sentinel;&lt;span class=&#34;hljs-comment&#34;&gt;//新结点的左子结点是哨兵&lt;/span&gt;&lt;br&gt;        node-&amp;gt;right = sentinel;&lt;span class=&#34;hljs-comment&#34;&gt;//新结点的右子结点也是哨兵&lt;/span&gt;&lt;br&gt;        &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(node);&lt;span class=&#34;hljs-comment&#34;&gt;//新根染黑&lt;/span&gt;&lt;br&gt;        *root = node;&lt;span class=&#34;hljs-comment&#34;&gt;//确认新结点为新根&lt;/span&gt;&lt;br&gt;&lt;br&gt;        &lt;span class=&#34;hljs-keyword&#34;&gt;return&lt;/span&gt;;&lt;span class=&#34;hljs-comment&#34;&gt;//插入结束&lt;/span&gt;&lt;br&gt;    &amp;#125;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;//树初始化时给了insert指针一个函数地址&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;//查看前面的宏ngx_rbtree_init(tree, s, i)&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;//发现只是把指定结点染黑，同时赋为根和哨兵，给insert指针指定一个函数&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;//ngx_rbtree.c中有两个参数表符合的可选函数：插入值、插入计时器值&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;//稍后来看两种插入分别如何实现又有什么区别&lt;/span&gt;&lt;br&gt;    tree-&amp;gt;&lt;span class=&#34;hljs-built_in&#34;&gt;insert&lt;/span&gt;(*root, node, sentinel);&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;/* re-balance tree */&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;//如果新结点不是根且其父结点是红的，循环&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;while&lt;/span&gt; (node != *root &amp;amp;&amp;amp; &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_is_red&lt;/span&gt;(node-&amp;gt;parent)) &amp;#123;&lt;br&gt;        &lt;span class=&#34;hljs-comment&#34;&gt;//如果父结点是左子结点，获得父结点的右兄弟&lt;/span&gt;&lt;br&gt;        &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (node-&amp;gt;parent == node-&amp;gt;parent-&amp;gt;parent-&amp;gt;left) &amp;#123;&lt;br&gt;            temp = node-&amp;gt;parent-&amp;gt;parent-&amp;gt;right;&lt;br&gt;            &lt;span class=&#34;hljs-comment&#34;&gt;//如果父结点的右兄弟是红的&lt;/span&gt;&lt;br&gt;            &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (&lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_is_red&lt;/span&gt;(temp)) &amp;#123;&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(node-&amp;gt;parent);&lt;span class=&#34;hljs-comment&#34;&gt;//父结点染黑&lt;/span&gt;&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(temp);&lt;span class=&#34;hljs-comment&#34;&gt;//父结点的右兄弟染黑&lt;/span&gt;&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_red&lt;/span&gt;(node-&amp;gt;parent-&amp;gt;parent);&lt;span class=&#34;hljs-comment&#34;&gt;//父结点的父结点染红&lt;/span&gt;&lt;br&gt;                node = node-&amp;gt;parent-&amp;gt;parent;&lt;span class=&#34;hljs-comment&#34;&gt;//父结点的父结点成为当前结点&lt;/span&gt;&lt;br&gt;&lt;br&gt;            &amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果父结点的右兄弟是黑的&lt;/span&gt;&lt;br&gt;                &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (node == node-&amp;gt;parent-&amp;gt;right) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果新结点是右子结点&lt;/span&gt;&lt;br&gt;                    node = node-&amp;gt;parent;&lt;span class=&#34;hljs-comment&#34;&gt;//父结点成为新node&lt;/span&gt;&lt;br&gt;                    &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbtree_left_rotate&lt;/span&gt;(root, sentinel, node);&lt;span class=&#34;hljs-comment&#34;&gt;//node左旋&lt;/span&gt;&lt;br&gt;&lt;br&gt;                &amp;#125;&lt;br&gt;&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(node-&amp;gt;parent);&lt;span class=&#34;hljs-comment&#34;&gt;//node的父结点染黑&lt;/span&gt;&lt;br&gt;                &lt;span class=&#34;hljs-comment&#34;&gt;//node的父结点的父结点染红&lt;/span&gt;&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_red&lt;/span&gt;(node-&amp;gt;parent-&amp;gt;parent);&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbtree_right_rotate&lt;/span&gt;(root, sentinel, node-&amp;gt;parent-&amp;gt;parent);&lt;span class=&#34;hljs-comment&#34;&gt;//node的父结点的父结点右旋&lt;/span&gt;&lt;br&gt;            &amp;#125;&lt;br&gt;&lt;br&gt;        &amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果父结点是右子结点，获得父结点的左兄弟&lt;/span&gt;&lt;br&gt;            temp = node-&amp;gt;parent-&amp;gt;parent-&amp;gt;left;&lt;br&gt;            &lt;span class=&#34;hljs-comment&#34;&gt;//如果父结点的左兄弟是红的&lt;/span&gt;&lt;br&gt;            &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (&lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_is_red&lt;/span&gt;(temp)) &amp;#123;&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(node-&amp;gt;parent);&lt;span class=&#34;hljs-comment&#34;&gt;//父结点染黑&lt;/span&gt;&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(temp);&lt;span class=&#34;hljs-comment&#34;&gt;//父结点的左兄弟染黑&lt;/span&gt;&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_red&lt;/span&gt;(node-&amp;gt;parent-&amp;gt;parent);&lt;span class=&#34;hljs-comment&#34;&gt;//父结点的父结点染红&lt;/span&gt;&lt;br&gt;                node = node-&amp;gt;parent-&amp;gt;parent;&lt;br&gt;&lt;br&gt;            &amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果父结点的左兄弟是黑的&lt;/span&gt;&lt;br&gt;                &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (node == node-&amp;gt;parent-&amp;gt;left) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果新结点是左子结点&lt;/span&gt;&lt;br&gt;                    node = node-&amp;gt;parent;&lt;span class=&#34;hljs-comment&#34;&gt;//父结点成为当前结点&lt;/span&gt;&lt;br&gt;                    &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbtree_right_rotate&lt;/span&gt;(root, sentinel, node);&lt;br&gt;                    &lt;span class=&#34;hljs-comment&#34;&gt;//当前结点右旋&lt;/span&gt;&lt;br&gt;                &amp;#125;&lt;br&gt;&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(node-&amp;gt;parent);&lt;span class=&#34;hljs-comment&#34;&gt;//当前结点染黑&lt;/span&gt;&lt;br&gt;                &lt;span class=&#34;hljs-comment&#34;&gt;//当前结点父结点的父结点染红&lt;/span&gt;&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_red&lt;/span&gt;(node-&amp;gt;parent-&amp;gt;parent);&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbtree_left_rotate&lt;/span&gt;(root, sentinel, node-&amp;gt;parent-&amp;gt;parent);&lt;span class=&#34;hljs-comment&#34;&gt;//当前结点的父结点的父结点左旋&lt;/span&gt;&lt;br&gt;            &amp;#125;&lt;br&gt;        &amp;#125;&lt;br&gt;    &amp;#125;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(*root);&lt;span class=&#34;hljs-comment&#34;&gt;//根结点染黑&lt;/span&gt;&lt;br&gt;&amp;#125;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 然后是对应ngx_rbtree_insert_pt指针的基础的结点插入函数：&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;23&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-function&#34;&gt;&lt;span class=&#34;hljs-type&#34;&gt;void&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-function&#34;&gt;&lt;span class=&#34;hljs-title&#34;&gt;ngx_rbtree_insert_value&lt;/span&gt;&lt;span class=&#34;hljs-params&#34;&gt;(&lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; *temp, &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; *node,&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-params&#34;&gt;&lt;span class=&#34;hljs-function&#34;&gt;    &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; *sentinel)&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-function&#34;&gt;&lt;/span&gt;&amp;#123;&lt;br&gt;    &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt;  **p;&lt;span class=&#34;hljs-comment&#34;&gt;//虽然无关紧要，但两层指针令人费解&lt;/span&gt;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;for&lt;/span&gt; ( ;; ) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//无条件循环或者说死循环，等同于while(1)但节省了一个字符&lt;/span&gt;&lt;br&gt;&lt;br&gt;        p = (node-&amp;gt;key &amp;lt; temp-&amp;gt;key) ? &amp;amp;temp-&amp;gt;left : &amp;amp;temp-&amp;gt;right;&lt;br&gt;&lt;br&gt;        &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (*p == sentinel) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//在二叉树中查找新结点合适的叶结点位置&lt;/span&gt;&lt;br&gt;            &lt;span class=&#34;hljs-keyword&#34;&gt;break&lt;/span&gt;;&lt;br&gt;        &amp;#125;&lt;br&gt;&lt;br&gt;        temp = *p;&lt;br&gt;    &amp;#125;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;//令新结点占据合适的哨兵位置成为新的叶结点，染红，产生新哨兵&lt;/span&gt;&lt;br&gt;    *p = node;&lt;br&gt;    node-&amp;gt;parent = temp;&lt;br&gt;    node-&amp;gt;left = sentinel;&lt;br&gt;    node-&amp;gt;right = sentinel;&lt;br&gt;    &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_red&lt;/span&gt;(node);&lt;br&gt;&amp;#125;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ngx_rbtree_insert_timer_value&lt;span style=&#34;font-family:宋体;&#34;&gt;函数跟&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_rbtree_insert_value&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;函数唯一区别就是判断大小时，采用了两个值相减，避免溢出。&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 以上是插入结点涉及的函数，老实说我不太喜欢这么长的函数实现，换我自己写肯定分块了。分支操作太多，看代码逻辑已经乱了，我们需要画几个图。首先，如果树为空：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://img.blog.csdn.net/20150806074055339&#34; alt=&#34;&#34; /&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 如果树中只有一个根结点：&lt;/p&gt;
+&lt;img src=&#34;http://img.blog.csdn.net/20150806074132691&#34; alt=&#34;&#34; /&gt;
+
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 如果&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;C&amp;gt;A&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;：&lt;/span&gt;&lt;/p&gt;
+&lt;img src=&#34;http://img.blog.csdn.net/20150806074207378&#34; alt=&#34;&#34; /&gt;
+
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 如果&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;C&amp;lt;B&amp;lt;A&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;，&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;C&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;染红，&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;B&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;染黑&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;A&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;染红，&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;A&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;右旋。右旋函数如下：&lt;/span&gt;&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;26&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;27&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;28&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-function&#34;&gt;&lt;span class=&#34;hljs-type&#34;&gt;static&lt;/span&gt; ngx_inline &lt;span class=&#34;hljs-type&#34;&gt;void&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-function&#34;&gt;&lt;span class=&#34;hljs-title&#34;&gt;ngx_rbtree_right_rotate&lt;/span&gt;&lt;span class=&#34;hljs-params&#34;&gt;(&lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; **root, &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; *sentinel,&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-params&#34;&gt;&lt;span class=&#34;hljs-function&#34;&gt;    &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt; *node)&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-function&#34;&gt;&lt;/span&gt;&amp;#123;&lt;br&gt;    &lt;span class=&#34;hljs-type&#34;&gt;ngx_rbtree_node_t&lt;/span&gt;  *temp;&lt;br&gt;&lt;br&gt;    temp = node-&amp;gt;left;&lt;br&gt;    node-&amp;gt;left = temp-&amp;gt;right;&lt;span class=&#34;hljs-comment&#34;&gt;//左子结点指向原左子结点的右结点&lt;/span&gt;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (temp-&amp;gt;right != sentinel) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果左子结点的右结点不为哨兵&lt;/span&gt;&lt;br&gt;        temp-&amp;gt;right-&amp;gt;parent = node;&lt;span class=&#34;hljs-comment&#34;&gt;//左子结点的右子结点挂在右旋结点上&lt;/span&gt;&lt;br&gt;    &amp;#125;&lt;br&gt;&lt;br&gt;    temp-&amp;gt;parent = node-&amp;gt;parent;&lt;span class=&#34;hljs-comment&#34;&gt;//左子结点挂在右旋结点的父结点上&lt;/span&gt;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (node == *root) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果右旋结点为根节点&lt;/span&gt;&lt;br&gt;        *root = temp;&lt;span class=&#34;hljs-comment&#34;&gt;//根节点赋为左子结点&lt;/span&gt;&lt;br&gt;&lt;br&gt;    &amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (node == node-&amp;gt;parent-&amp;gt;right) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果右旋结点为右子结点&lt;/span&gt;&lt;br&gt;        node-&amp;gt;parent-&amp;gt;right = temp;&lt;span class=&#34;hljs-comment&#34;&gt;//左子结点挂父结点右边&lt;/span&gt;&lt;br&gt;&lt;br&gt;    &amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//否则左子结点挂父结点左边&lt;/span&gt;&lt;br&gt;        node-&amp;gt;parent-&amp;gt;left = temp;&lt;br&gt;    &amp;#125;&lt;br&gt;&lt;br&gt;    temp-&amp;gt;right = node;&lt;span class=&#34;hljs-comment&#34;&gt;//右旋结点挂左子结点右边&lt;/span&gt;&lt;br&gt;    node-&amp;gt;parent = temp;&lt;br&gt;&amp;#125;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 显然&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;B&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;将成为新的根，左&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;C&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;右&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;A&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;：&lt;/span&gt;&lt;/p&gt;
+&lt;img src=&#34;http://img.blog.csdn.net/20150806074443292&#34; alt=&#34;&#34; /&gt;
+
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 如果&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;B&amp;lt;C&amp;lt;A&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;，会先做一次左旋再做一次右旋，其实除开染色过程，我觉得这跟&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;AVL&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;树的插入过程没有什么区别：&lt;/span&gt;&lt;/p&gt;
+&lt;img src=&#34;http://img.blog.csdn.net/20150806074520668&#34; alt=&#34;&#34; /&gt;
+
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 其他的插入情景要么与以上几个对称，要么发生在树的其他子树中，实际过程完全一样。LL&lt;span style=&#34;font-family:宋体;&#34;&gt;型右旋，&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;RR&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;型左旋，&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;LR&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;型先右旋后左旋，&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;RL&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;型先左旋后右旋。&lt;/span&gt;与&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;AVL&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;树不同的是，插入结点时红黑树左旋或右旋的判定条件明确为附近一两个结点的颜色，其他过程没有任何区别。&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&#34;2-4-红黑树的结点删除&#34;&gt;&lt;a href=&#34;#2-4-红黑树的结点删除&#34; class=&#34;headerlink&#34; title=&#34;2.4 红黑树的结点删除&#34;&gt;&lt;/a&gt;2.4 红黑树的结点删除&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 据说红黑树和&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;AVL&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;树的区别主要体现在删除节点时，我们就来看一看。&lt;/span&gt;我刚说什么来着，删除结点的函数体更长了，足足&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;165&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;行，我决定分段研究，&lt;/span&gt;先看第一部分：&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (node-&amp;gt;left == sentinel) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果左子结点是哨兵或左右子结点都是哨兵&lt;/span&gt;&lt;br&gt;    temp = node-&amp;gt;right;&lt;span class=&#34;hljs-comment&#34;&gt;//获得右子结点，后面让它接替node位置&lt;/span&gt;&lt;br&gt;    subst = node;&lt;span class=&#34;hljs-comment&#34;&gt;//node赋给subst&lt;/span&gt;&lt;br&gt;&lt;br&gt;&amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (node-&amp;gt;right == sentinel) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果右子结点是哨兵&lt;/span&gt;&lt;br&gt;    temp = node-&amp;gt;left;&lt;span class=&#34;hljs-comment&#34;&gt;//获得左子结点，后面让它接替node位置&lt;/span&gt;&lt;br&gt;    subst = node;&lt;span class=&#34;hljs-comment&#34;&gt;//node赋给subst&lt;/span&gt;&lt;br&gt;&lt;br&gt;&amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果左右子结点都不是哨兵&lt;/span&gt;&lt;br&gt;    subst = &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbtree_min&lt;/span&gt;(node-&amp;gt;right, sentinel);&lt;span class=&#34;hljs-comment&#34;&gt;//获得右子树中最小的结点&lt;/span&gt;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (subst-&amp;gt;left != sentinel) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果右子树的最小结点的左子结点不是哨兵&lt;/span&gt;&lt;br&gt;        temp = subst-&amp;gt;left;&lt;span class=&#34;hljs-comment&#34;&gt;//获得右子树的最小结点的左子结点&lt;/span&gt;&lt;br&gt;    &amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//否则获得右子树最小结点的右子结点&lt;/span&gt;&lt;br&gt;        temp = subst-&amp;gt;right;&lt;br&gt;    &amp;#125;&lt;span class=&#34;hljs-comment&#34;&gt;//看起来subst将被从原位置删掉然后接替node的位置&lt;/span&gt;&lt;br&gt;&amp;#125;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 下面我们来看看&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;temp&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;和&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;subst&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;要干什么用：&lt;/span&gt;&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (subst == *root) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果subst是根&lt;/span&gt;&lt;br&gt;    *root = temp;&lt;span class=&#34;hljs-comment&#34;&gt;//temp接替根&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(temp);&lt;span class=&#34;hljs-comment&#34;&gt;//染黑temp&lt;/span&gt;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;/* DEBUG stuff */&lt;/span&gt;&lt;br&gt;    node-&amp;gt;left = &lt;span class=&#34;hljs-literal&#34;&gt;NULL&lt;/span&gt;;&lt;span class=&#34;hljs-comment&#34;&gt;//清空了待删结点&lt;/span&gt;&lt;br&gt;    node-&amp;gt;right = &lt;span class=&#34;hljs-literal&#34;&gt;NULL&lt;/span&gt;;&lt;br&gt;    node-&amp;gt;parent = &lt;span class=&#34;hljs-literal&#34;&gt;NULL&lt;/span&gt;;&lt;br&gt;    node-&amp;gt;key = &lt;span class=&#34;hljs-number&#34;&gt;0&lt;/span&gt;;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;return&lt;/span&gt;;&lt;br&gt;&amp;#125;&lt;br&gt;&lt;br&gt;red = &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_is_red&lt;/span&gt;(subst);&lt;span class=&#34;hljs-comment&#34;&gt;//获得subst是否是红色&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (subst == subst-&amp;gt;parent-&amp;gt;left) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果subst是左子结点&lt;/span&gt;&lt;br&gt;    subst-&amp;gt;parent-&amp;gt;left = temp;&lt;span class=&#34;hljs-comment&#34;&gt;//把接替结点挂到subst位置&lt;/span&gt;&lt;br&gt;&lt;br&gt;&amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果subst是右子结点&lt;/span&gt;&lt;br&gt;    subst-&amp;gt;parent-&amp;gt;right = temp;&lt;span class=&#34;hljs-comment&#34;&gt;//把接替结点挂到subst位置&lt;/span&gt;&lt;br&gt;&amp;#125;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 下一段：&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;26&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;27&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;28&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;29&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;30&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;31&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;32&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;33&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;34&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;35&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;36&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;37&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;38&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;39&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;40&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;41&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;42&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;43&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (subst == node) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果subst是待删结点&lt;/span&gt;&lt;br&gt;    temp-&amp;gt;parent = subst-&amp;gt;parent;&lt;span class=&#34;hljs-comment&#34;&gt;//接替结点直接接替，删除完成&lt;/span&gt;&lt;br&gt;&lt;br&gt;&amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果subst不是待删结点&lt;/span&gt;&lt;br&gt;     &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (subst-&amp;gt;parent == node) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果subst的父结点就是待删结点&lt;/span&gt;&lt;br&gt;        temp-&amp;gt;parent = subst;&lt;span class=&#34;hljs-comment&#34;&gt;//接替结点挂在subst上&lt;/span&gt;&lt;br&gt;     &amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果待删结点比subst的父结点更高&lt;/span&gt;&lt;br&gt;        temp-&amp;gt;parent = subst-&amp;gt;parent;&lt;span class=&#34;hljs-comment&#34;&gt;//把接替结点挂在subst的父结点上&lt;/span&gt;&lt;br&gt;    &amp;#125;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;//subst接替待删结点node的位置，复制待删结点跟周围结点的关系&lt;/span&gt;&lt;br&gt;    subst-&amp;gt;left = node-&amp;gt;left;&lt;br&gt;    subst-&amp;gt;right = node-&amp;gt;right;&lt;br&gt;    subst-&amp;gt;parent = node-&amp;gt;parent;&lt;br&gt;    &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_copy_color&lt;/span&gt;(subst, node);&lt;span class=&#34;hljs-comment&#34;&gt;//复制颜色&lt;/span&gt;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (node == *root) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果待删结点是根&lt;/span&gt;&lt;br&gt;        *root = subst;&lt;span class=&#34;hljs-comment&#34;&gt;//subst接替根&lt;/span&gt;&lt;br&gt;    &amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果待删结点不是根，subst接替它&lt;/span&gt;&lt;br&gt;        &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (node == node-&amp;gt;parent-&amp;gt;left) &amp;#123;&lt;br&gt;            node-&amp;gt;parent-&amp;gt;left = subst;&lt;br&gt;        &amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &amp;#123;&lt;br&gt;            node-&amp;gt;parent-&amp;gt;right = subst;&lt;br&gt;        &amp;#125;&lt;br&gt;    &amp;#125;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (subst-&amp;gt;left != sentinel) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果subst左子结点不是哨兵&lt;/span&gt;&lt;br&gt;        subst-&amp;gt;left-&amp;gt;parent = subst;&lt;span class=&#34;hljs-comment&#34;&gt;//subst的左子结点放弃node，挂上来&lt;/span&gt;&lt;br&gt;    &amp;#125;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (subst-&amp;gt;right != sentinel) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果subst右子结点不是哨兵&lt;/span&gt;&lt;br&gt;        subst-&amp;gt;right-&amp;gt;parent = subst;&lt;span class=&#34;hljs-comment&#34;&gt;//subst右子结点放弃node，挂上来&lt;/span&gt;&lt;br&gt;    &amp;#125;&lt;br&gt;&amp;#125;&lt;br&gt;&lt;span class=&#34;hljs-comment&#34;&gt;//清空待删结点node&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-comment&#34;&gt;/* DEBUG stuff */&lt;/span&gt;&lt;br&gt;node-&amp;gt;left = &lt;span class=&#34;hljs-literal&#34;&gt;NULL&lt;/span&gt;;&lt;br&gt;node-&amp;gt;right = &lt;span class=&#34;hljs-literal&#34;&gt;NULL&lt;/span&gt;;&lt;br&gt;node-&amp;gt;parent = &lt;span class=&#34;hljs-literal&#34;&gt;NULL&lt;/span&gt;;&lt;br&gt;node-&amp;gt;key = &lt;span class=&#34;hljs-number&#34;&gt;0&lt;/span&gt;;&lt;br&gt;&lt;span class=&#34;hljs-comment&#34;&gt;//如果subst是红色，红黑树约束依然被遵守，删除工作就可以结束了&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (red) &amp;#123;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;return&lt;/span&gt;;&lt;br&gt;&amp;#125;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 看起来结点的删除过程已经顺利完成了，但是如果&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;subst&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;是黑色，我们需要修复红黑树的约束。下面这一段代码的主角是接替&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;subst&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;位置的&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;temp&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;结点：&lt;/span&gt;&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;26&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;27&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;28&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;29&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;30&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;31&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;32&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;33&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;34&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;35&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;36&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;37&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;38&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;39&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;40&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;41&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;42&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;43&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;44&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;45&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;46&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;47&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;48&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;49&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;50&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;51&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;52&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;53&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;54&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;55&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;56&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;57&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;58&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;59&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;60&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;61&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;62&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;63&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;64&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-comment&#34;&gt;//当subst的接替结点不是根且为黑色，循环&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;while&lt;/span&gt; (temp != *root &amp;amp;&amp;amp; &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_is_black&lt;/span&gt;(temp)) &amp;#123;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (temp == temp-&amp;gt;parent-&amp;gt;left) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果temp是左子结点&lt;/span&gt;&lt;br&gt;        w = temp-&amp;gt;parent-&amp;gt;right;&lt;span class=&#34;hljs-comment&#34;&gt;//获得其右兄弟&lt;/span&gt;&lt;br&gt;&lt;br&gt;        &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (&lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_is_red&lt;/span&gt;(w)) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果temp的右兄弟是红色&lt;/span&gt;&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(w);&lt;span class=&#34;hljs-comment&#34;&gt;//染黑temp的右兄弟&lt;/span&gt;&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_red&lt;/span&gt;(temp-&amp;gt;parent);&lt;span class=&#34;hljs-comment&#34;&gt;//染红temp的父结点&lt;/span&gt;&lt;br&gt;            &lt;span class=&#34;hljs-comment&#34;&gt;//temp的父结点左旋&lt;/span&gt;&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbtree_left_rotate&lt;/span&gt;(root, sentinel, temp-&amp;gt;parent);&lt;br&gt;            w = temp-&amp;gt;parent-&amp;gt;right;&lt;span class=&#34;hljs-comment&#34;&gt;//获得temp的新右兄弟&lt;/span&gt;&lt;br&gt;        &amp;#125;&lt;br&gt;        &lt;span class=&#34;hljs-comment&#34;&gt;//如果temp右兄弟的左右子结点都是黑的&lt;/span&gt;&lt;br&gt;        &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (&lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_is_black&lt;/span&gt;(w-&amp;gt;left) &amp;amp;&amp;amp; &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_is_black&lt;/span&gt;(w-&amp;gt;right)) &amp;#123;&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_red&lt;/span&gt;(w);&lt;span class=&#34;hljs-comment&#34;&gt;//染红temp的右兄弟&lt;/span&gt;&lt;br&gt;            temp = temp-&amp;gt;parent;&lt;span class=&#34;hljs-comment&#34;&gt;//获得temp的父结点为新temp&lt;/span&gt;&lt;br&gt;&lt;br&gt;        &amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果temp右兄弟的子结点不全为黑&lt;/span&gt;&lt;br&gt;            &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (&lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_is_black&lt;/span&gt;(w-&amp;gt;right)) &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果其右子结点是黑色&lt;/span&gt;&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(w-&amp;gt;left);&lt;span class=&#34;hljs-comment&#34;&gt;//染黑左子结点&lt;/span&gt;&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_red&lt;/span&gt;(w);&lt;span class=&#34;hljs-comment&#34;&gt;//染红temp的右兄弟&lt;/span&gt;&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbtree_right_rotate&lt;/span&gt;(root, sentinel, w);&lt;span class=&#34;hljs-comment&#34;&gt;//右兄弟右旋&lt;/span&gt;&lt;br&gt;                w = temp-&amp;gt;parent-&amp;gt;right;&lt;span class=&#34;hljs-comment&#34;&gt;//获得temp的新右兄弟&lt;/span&gt;&lt;br&gt;            &amp;#125;&lt;br&gt;            &lt;span class=&#34;hljs-comment&#34;&gt;//temp右兄弟复制temp父结点颜色&lt;/span&gt;&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_copy_color&lt;/span&gt;(w, temp-&amp;gt;parent);&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(temp-&amp;gt;parent);&lt;span class=&#34;hljs-comment&#34;&gt;//染黑temp父结点&lt;/span&gt;&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(w-&amp;gt;right);&lt;span class=&#34;hljs-comment&#34;&gt;//染黑temp右兄弟的右子结点&lt;/span&gt;&lt;br&gt;            &lt;span class=&#34;hljs-comment&#34;&gt;//temp父结点左旋&lt;/span&gt;&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbtree_left_rotate&lt;/span&gt;(root, sentinel, temp-&amp;gt;parent);&lt;br&gt;            temp = *root;&lt;span class=&#34;hljs-comment&#34;&gt;//获得根&lt;/span&gt;&lt;br&gt;        &amp;#125;&lt;br&gt;    &amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &amp;#123;&lt;span class=&#34;hljs-comment&#34;&gt;//如果temp是右子结点，做对称的事&lt;/span&gt;&lt;br&gt;        w = temp-&amp;gt;parent-&amp;gt;left;&lt;br&gt;&lt;br&gt;        &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (&lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_is_red&lt;/span&gt;(w)) &amp;#123;&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(w);&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_red&lt;/span&gt;(temp-&amp;gt;parent);&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbtree_right_rotate&lt;/span&gt;(root, sentinel, temp-&amp;gt;parent);&lt;br&gt;            w = temp-&amp;gt;parent-&amp;gt;left;&lt;br&gt;        &amp;#125;&lt;br&gt;&lt;br&gt;        &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (&lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_is_black&lt;/span&gt;(w-&amp;gt;left) &amp;amp;&amp;amp; &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_is_black&lt;/span&gt;(w-&amp;gt;right)) &amp;#123;&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_red&lt;/span&gt;(w);&lt;br&gt;            temp = temp-&amp;gt;parent;&lt;br&gt;&lt;br&gt;        &amp;#125; &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt; &amp;#123;&lt;br&gt;            &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; (&lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_is_black&lt;/span&gt;(w-&amp;gt;left)) &amp;#123;&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(w-&amp;gt;right);&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_red&lt;/span&gt;(w);&lt;br&gt;                &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbtree_left_rotate&lt;/span&gt;(root, sentinel, w);&lt;br&gt;                w = temp-&amp;gt;parent-&amp;gt;left;&lt;br&gt;            &amp;#125;&lt;br&gt;&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_copy_color&lt;/span&gt;(w, temp-&amp;gt;parent);&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(temp-&amp;gt;parent);&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(w-&amp;gt;left);&lt;br&gt;            &lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbtree_right_rotate&lt;/span&gt;(root, sentinel, temp-&amp;gt;parent);&lt;br&gt;            temp = *root;&lt;br&gt;        &amp;#125;&lt;br&gt;    &amp;#125;&lt;br&gt;&amp;#125;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-built_in&#34;&gt;ngx_rbt_black&lt;/span&gt;(temp);&lt;span class=&#34;hljs-comment&#34;&gt;//染黑当前temp&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 跟插入结点时一样乱，我们梳理一下。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先忽略红黑树的约束进行删除：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ①如果删除的是一个叶结点，即没有后继或后继全为哨兵的结点，直接删除即可；&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ②如果只有一个后继，让其替换待删除结点即可；&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ③如果有两个后继，需要从树的边缘选择一个结点，有两种等价的选择，待删结点左子树的最大结点和右子树的最小结点，&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;选择的是后者，以这个结点的键与值（&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;key&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;与&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;value&amp;#x2F;data&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;）替换待删结点的键与值，然后删除这个替身。&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不论是①、②情景中的待删结点还是③情景中替身，在源码中都是subst。下面要围绕着它来进行讨论。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 以上是不考虑红黑树平衡性的纯拓扑结构变动。下面要考虑是否调整树的拓扑结构使树重新平衡，是否调整结点的颜色使树重新符合红黑树的约束条件。我们知道红黑树有一条关键约束是任意结点到其子树中叶结点的简单路径中黑色结点数相同。那么如果&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;subst&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;是一个红色结点，我们不需要对红黑树做任何调整，它仍是一棵红黑树；如果&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;subst&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;是黑色的，所有经过&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;subst&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;的简单路径上都会少一个黑色结点数，所以需要进行调整。&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 下面来根据不同情景分情况讨论，因为二叉树的情景左右颠倒时调整方式也可以左右颠倒，我们只讨论&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;subst&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;是左子结点的情况。设刚接替&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;subst&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;的&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;temp&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;为&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;X&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;，&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;X&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;的新右兄弟为&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;W&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;。从经过简化的源码来看，关于结点颜色的变化很令人费解，我们不妨先来看一看：&lt;/span&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ①W为红色：将W染黑，将X与W的父结点X-&amp;gt;parent染红，X-&amp;gt;parent左旋，W重设为X的新右兄弟，然后转入情景①、②或③；&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ②W为黑色，W两个后继都是黑色：将W染红，X重设为X-&amp;gt;parent；&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ③W为黑色，W右子结点为黑色：将W左子结点染黑，将W染红，W右旋，W重设为X的新右兄弟，然后将X-&amp;gt;parent的颜色赋给W，将X-&amp;gt;parent染黑，X-&amp;gt;parent左旋，根赋给temp；&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ④W为黑色，W右子结点为红色：将W左子结点染黑，将W染红，W右旋，W重设为X的新右兄弟，然后将X-&amp;gt;parent的颜色赋给W，将X-&amp;gt;parent染黑，将W右子结点染黑，X-&amp;gt;parent左旋，根赋给temp。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 最后还要把temp染黑。我们可以看到情景①中进行了一次左旋，情景②只进行了染色，情景③、④都进行了一次右旋和一次左旋。情景①处理结束时一定还要转入别的情景，情景②、③、④的出现则标志着本次调整的结束。那么，红黑树删除结点后的调整过程中，依情景①循环出现的次数，调整过程中旋转的最多见的次数将是1次、2次、3次，再往上次数越多越罕见（依情景①循环出现的次数），最多旋转次数将可能到达树高即log2n次。生产环境中，删除结点后平均每次调整中旋转的次数就像分析源码之前提到的，将是常数规模的。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 接下来我打算以逐步翻新版本的方式重写红黑树，更精细、直观地了解红黑树这一数据结构。而在重写之前，我们需要了解，nginx的红黑中所有的叶结点，都是哨兵（sentinel），这在调整红黑树时达成了对红黑树的一种优化。通过增加一层全黑的子结点，红黑树中实际有值的子树里，就允许在子结点出现红色结点了。虽然我没有证明，但这常数规模地增加了删除结点时的旋转次数，也促进了插入新结点时进行调整的概率（增加了在红色结点下插入新结点的概率），同样增加了旋转的次数。而旋转将压缩红黑树子树的高度，提高查询效率。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 在由朴素到精致地重写红黑树的过程中，我将由少到多地考虑使用nginx对红黑树的优化，或者加入我自己的优化。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;span style=&#34;color:#FF0000;&#34;&gt;从杭州回来后翻了CLRS（算法导论），发现：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先，nginx的红黑树中，sentinel结点并非独创的优化手段，CLRS的红黑树也是带哨兵的，可以说，一般的，我们令红黑树带哨兵。目的是更直截了当的满足红黑树的叶结点全黑约束，同时更方便标识树的边缘。&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;span style=&#34;color:#FF0000;&#34;&gt;其次，所有的叶结点都是由同一个哨兵结点代表，节省了空间开销，省去了叶结点逐一染色的麻烦。&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;span style=&#34;color:#FF0000;&#34;&gt;另外，之前我感到迷惑的static inline组合用法，在oschina.net获得了解释：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 1.inline函数是不能像传统的函数那样放在.c中然后在.h中给出接口在其余文件中调用的,因为inline函数其实是跟宏定义类似，被调用时尝试在调用处直接展开整个函数体，不存在所谓的函数入口。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 2.因为第一点，会出现一个问题，如果inline函数在两个不同的文件中出现。也就是说一个头文件被两个不同的源文件包含，则会出现重名，链接失败。static inline 的用法就能很好的解决这个问题。使用static修饰符，函数仅在文件内部可见，不会污染命名空间。可以理解为一个inline函数在不同的源文件里面生成了不同的实例，而且名字是完全相同的 。&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;span style=&#34;color:#FF0000;&#34;&gt;总结一下。功能上，我们需要微型函数被大量调用时尝试内联展开以节省压栈弹栈的开销；实践中，为了防止不同文件中函数同名时的链接错误，我们需要加上static关键字的限制。（尽管inline关键字的效果有所不同，c99标准和gcc下static inline组合是兼容的，效果相同）&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;span style=&#34;color:#FF0000;&#34;&gt;之前看到nginx源码中函数参数有双重指针一直很费解，今天研究了一下才发现原因。ngx_rbtree_t中，root经常使用双重结点指针，也就是根结点地址的地址。如果树的修改过程中，根结点地址被别的结点地址替换掉，需要重新设置根的地址&lt;em&gt;root。假设ngx_rbtree_t中的根地址参数是&lt;/em&gt;root单层指针，进入函数体时将是一个值传递，出函数体时无论函数体中如何更改根的地址，都是无效的，只有对根结点内容的修改能保留下来。所以要么使用双重指针作为根地址的参数，要么提供树结构体的地址，变相提供双重指针作为参数，当然可以提供树的结构体对象本身作为参数，但是值传递是要复制整个值对象的，显然当结构体比较大时这样做将明显增加开销。nginx选择双重指针而非结构体指针来避免树结构体内的变量遍历寻址，进一步提高效率。&lt;/span&gt;&lt;/p&gt;
+ ]]></description>
+        </item>
+    </channel>
+</rss>

@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://blog.bipedalbit.net</id>
+    <title>Hacking to the gate! • Posts by &#34;maxmin&#34; tag</title>
+    <link href="https://blog.bipedalbit.net" />
+    <updated>2015-11-14T14:27:47.000Z</updated>
+    <category term="Qt" />
+    <category term="signal-slot" />
+    <category term="Q_OBJECT" />
+    <category term="nginx" />
+    <category term="select/poll" />
+    <category term="epoll" />
+    <category term="ngx_int_t" />
+    <category term="rbtree" />
+    <category term="C" />
+    <category term="static" />
+    <category term="内存分布" />
+    <category term="sublime" />
+    <category term="C++" />
+    <category term="makefile" />
+    <category term="node.js" />
+    <category term="github" />
+    <category term="socket.io" />
+    <category term="Web请求处理机制" />
+    <category term="同步/异步" />
+    <category term="阻塞/非阻塞" />
+    <category term="事件驱动模型" />
+    <category term="BP神经网络" />
+    <category term="机器学习" />
+    <category term="python" />
+    <category term="pybrain" />
+    <category term="c++11" />
+    <category term="多线程" />
+    <category term="ubuntu" />
+    <category term="debian" />
+    <category term="apt-file" />
+    <category term="cin" />
+    <category term="cout" />
+    <category term="scanf" />
+    <category term="printf" />
+    <category term="进制转换" />
+    <category term="人工神经网络" />
+    <category term="人机博弈" />
+    <category term="Maxmin" />
+    <category term="AlphaBeta" />
+    <category term="PVS" />
+    <category term="MTD(f)" />
+    <category term="位域" />
+    <category term="bitset" />
+    <category term="vector&amp;lt;bool&amp;gt;" />
+    <category term="网络爬虫" />
+    <category term="类脑" />
+    <category term="codeigniter" />
+    <category term="php" />
+    <category term="IIS7" />
+    <category term="apache" />
+    <category term="模拟登录" />
+    <category term="proxy" />
+    <category term="domain" />
+    <category term="DNS" />
+    <category term="hexo" />
+    <category term="vps" />
+    <category term="dropbox" />
+    <category term="ffmpeg" />
+    <category term="板绘" />
+    <category term="sai" />
+    <category term="琪露诺" />
+    <category term="LLM" />
+    <category term="ollama" />
+    <category term="open-webui" />
+    <category term="oneapi" />
+    <category term="mcpserver" />
+    <entry>
+        <id>https://blog.bipedalbit.net/2015/11/14/%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%88%9D%E6%8E%A2/</id>
+        <title>人机博弈初探</title>
+        <link rel="alternate" href="https://blog.bipedalbit.net/2015/11/14/%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%88%9D%E6%8E%A2/"/>
+        <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 组里布置任务，要编个中国象棋人机博弈程序练练手，写这篇文时游戏初版已经完成了。开工前导师给了些相关资料，我自己又稍微做了些调查，这篇文就先来对人机博弈，尤其是棋牌游戏的人机博弈思路做一些概念上的科普铺垫。做好了概念铺垫，下一篇再挑重点简单讲解下我的中国象棋游戏实现情况。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 其实人工智能课的大作业也是要写个概念总结，我干脆把那篇改改贴上来。&lt;/p&gt;
+&lt;h1 id=&#34;1-博弈树搜索算法&#34;&gt;&lt;a href=&#34;#1-博弈树搜索算法&#34; class=&#34;headerlink&#34; title=&#34;1 博弈树搜索算法&#34;&gt;&lt;/a&gt;1 博弈树搜索算法&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 人机博弈的过程实质上是对博弈树——一种状态树的搜索，是一种博弈论中的重复博弈过程。博弈树与状态树的不同之处在于，对每一层搜索来说，目标状态会有区别，如果第奇数层搜索的目标是寻找对电脑来说最好的搜索状态，那么第偶数层的搜索中，目标状态则应该是人类行动可能导致的新状态。这种搜索算法不能单纯等同于图论中对状态树的深度或广度优先搜索算法，但是与传统的状态树搜索算法有莫大的渊源。&lt;/p&gt;
+&lt;h2 id=&#34;1-1-极大极小值算法（Minmax-Algorithm）&#34;&gt;&lt;a href=&#34;#1-1-极大极小值算法（Minmax-Algorithm）&#34; class=&#34;headerlink&#34; title=&#34;1.1 极大极小值算法（Minmax Algorithm）&#34;&gt;&lt;/a&gt;1.1 极大极小值算法（Minmax Algorithm）&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 极大极小值算法是一系列改进的博弈树搜索算法的最原始的基础。它的基本思想是，在每层搜索前评估状态结点，在博弈树首层搜索一个评估值最大的状态结点作为电脑选择的最优行动方式，那么下一层就搜索评估值最小的状态结点来模拟人类对手的行动。重复这一博弈过程的博弈树搜索算法就称为极大极小值算法。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 在棋类游戏中，人机博弈搜索算法通常是基于深度优先搜索的。因为如果使用广度优先算法来遍历博弈树，内存中的状态结点将迅速变多，马上耗尽所有可用的内存空间。而深度优先搜索的过程中，向搜索树根结点回溯时会释放原本占用的栈空间。这使得搜索算法的内存开销只与搜索深度线性相关。&lt;/p&gt;
+&lt;h2 id=&#34;1-2-负极大值算法（Negamax-Algorithm）&#34;&gt;&lt;a href=&#34;#1-2-负极大值算法（Negamax-Algorithm）&#34; class=&#34;headerlink&#34; title=&#34;1.2 负极大值算法（Negamax Algorithm）&#34;&gt;&lt;/a&gt;1.2 负极大值算法（Negamax Algorithm）&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 负极大值算法是对极大极小值算法的简单改进。当准备模拟人类行动，不去找评估值最小的状态结点，而是依旧寻找评估值最大的状态结点，只是在向搜索树上一层反馈搜索结果（最大评估值）时，进行一次正负翻转。这样一来可以通过引入带符号的状态评估值，简化最大最小值算法的形式。实际上，这种优化算法与最大最小值算法相比并没有效率上的不同。&lt;/p&gt;
+&lt;h2 id=&#34;1-3-Alpha-Beta搜索&#34;&gt;&lt;a href=&#34;#1-3-Alpha-Beta搜索&#34; class=&#34;headerlink&#34; title=&#34;1.3 Alpha-Beta搜索&#34;&gt;&lt;/a&gt;1.3 Alpha-Beta搜索&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 搜索算法中最常见的优化手段就是对搜索树的剪枝，Alpha-Beta搜索算法就是一种剪枝优化的最大最小值算法。在朴素的极大极小值搜索算法中，每一层对最大最小值的搜索都是盲目而不加限制的。如果子状态结点的搜索返回值可以被利用起来，用来截断后续搜索过程，就可以实现搜索树的剪枝了。负极大值形式的Alpha-Beta搜索算法中只有Beta剪枝这一种剪枝（通过评估值的正负翻转将Alpha剪枝也并入了Beta剪枝）。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 具体来说是事先提供一个无限大的搜索窗口，搜索过程中每反馈一个状态评估值，更新最大评估值记录，并使用-Beta和这个还不大于Beta的最大评估值的翻转值-Alpha分别作为子状态结点的搜索窗口下限和上限。当这个记录值增长到不小于当前搜索状态的搜索窗口上限，也就是Beta值时，判定搜索树已生长至叶结点，立即进行Beta剪枝，终止搜索，返回这个最大值，以供上层状态结点调整搜索窗口。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 自1928年极大极小值算法诞生以来，出现了各种改进算法，而当前最优秀的博弈树搜索算法，绝大多数都以Alpha-Beta算法为基础。可以说，Alpha-Beta算法是现代博弈树搜索算法的基础技术，也是之后各种优化算法最合适的入门铺垫。&lt;/p&gt;
+&lt;h2 id=&#34;1-4-Fail-Soft-Alpha-Beta搜索&#34;&gt;&lt;a href=&#34;#1-4-Fail-Soft-Alpha-Beta搜索&#34; class=&#34;headerlink&#34; title=&#34;1.4 Fail-Soft Alpha-Beta搜索&#34;&gt;&lt;/a&gt;1.4 Fail-Soft Alpha-Beta搜索&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 从算法的名字不难看出，Fail-Soft Alpha-Beta算法是对Alpha-Beta算法的优化。操作系统中，内存调度范畴最意义重大的技术可以说就是缓存。缓存的核心思想——数据访问的空间局部性，也可以引申到博弈树搜索技术中来。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前提到的Alpha-Beta算法中的搜索窗口一开始是无限大的。其实在大部分情况下，这个初始窗口可以更小一些，当然一旦缩小的初始窗口，就存在评估值落在窗口外的危险。那么万一评估值落在窗口外（上方或下方），就只有加入一个无限大或无限小的窗口上／下限，再重新搜索了。&lt;/p&gt;
+&lt;h2 id=&#34;1-5-渴望搜索（Aspiration-Search）&#34;&gt;&lt;a href=&#34;#1-5-渴望搜索（Aspiration-Search）&#34; class=&#34;headerlink&#34; title=&#34;1.5 渴望搜索（Aspiration Search）&#34;&gt;&lt;/a&gt;1.5 渴望搜索（Aspiration Search）&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 鉴于搜索窗口是一个十分优秀的剪枝思路，渴望搜索同样是对搜索窗口的优化。Fail-Soft Alpha-Beta搜索中初始窗口的定义还带有盲目性，而渴望搜索正是针对这一点的优化。实际上，渴望搜索的初始搜索窗口是以一个特定值为中心，以另一个特定值为半径（正负方向偏差值）来定义的。这样一来，这个搜索窗口的中心就显得尤为重要。通常选用上一次搜索的最终状态评估值作为窗口中心是比较有效的，因为相邻的两次最优行动方式通常非常接近。&lt;/p&gt;
+&lt;h2 id=&#34;1-6-极小窗口搜索（Minimal-Window-Search-PVS）&#34;&gt;&lt;a href=&#34;#1-6-极小窗口搜索（Minimal-Window-Search-PVS）&#34; class=&#34;headerlink&#34; title=&#34;1.6 极小窗口搜索（Minimal Window Search&amp;#x2F;PVS）&#34;&gt;&lt;/a&gt;1.6 极小窗口搜索（Minimal Window Search&amp;#x2F;PVS）&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 前面提到过，相邻的两次最优行动方式通常非常接近。PVS正是利用这一事实很极端的将渴望搜索的搜索窗口进一步缩小到了以1为尺寸。更小的初始窗口将印发更多的剪枝，而统计数据证明，大多数情况下PVS的搜索效率确实比渴望搜索更高。&lt;/p&gt;
+&lt;h2 id=&#34;1-7-置换表优化的搜索算法&#34;&gt;&lt;a href=&#34;#1-7-置换表优化的搜索算法&#34; class=&#34;headerlink&#34; title=&#34;1.7 置换表优化的搜索算法&#34;&gt;&lt;/a&gt;1.7 置换表优化的搜索算法&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 状态搜索过程中，有时会遇到曾经搜索过的状态，这时如果重新搜索显然是不划算的。如果把搜索过的状态都结构化的记录下来，就可以在一些特定情况下提前截断搜索过程。这就是置换表的思路。要对搜索算法进行置换表的优化，置换表就必须提供足够快的查表速度，最快的查找技术无非就是哈希查找了。这就组成了一个用置换表优化搜索算法的完整解决方案。&lt;/p&gt;
+&lt;h2 id=&#34;1-8-迭代深化的搜索算法&#34;&gt;&lt;a href=&#34;#1-8-迭代深化的搜索算法&#34; class=&#34;headerlink&#34; title=&#34;1.8 迭代深化的搜索算法&#34;&gt;&lt;/a&gt;1.8 迭代深化的搜索算法&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 实际人类博弈场景中，博弈的外部限制条件往往与思考的深度无关，而与思考的时间有关。那么在搜索博弈树的过程中，可以迭代的逐步加深搜索深度，直到搜索时间超过阈值。显然这种优化将导致搜索深度不稳定，也使得搜索性能的稳定性不能得到保证。但在模拟人类博弈行为的场景下，迭代深化优化的搜索算法能使机器的行为更接近人类。&lt;/p&gt;
+&lt;h2 id=&#34;1-9-启发式搜索策略&#34;&gt;&lt;a href=&#34;#1-9-启发式搜索策略&#34; class=&#34;headerlink&#34; title=&#34;1.9 启发式搜索策略&#34;&gt;&lt;/a&gt;1.9 启发式搜索策略&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 盲目搜索策略是被动的，不管如何调整搜索窗口，总是难以避免一些冗余的搜索项。如果在搜索时增加一些启发因素，将有利搜索快速完成的子状态的搜索过程提前，也许可以提前剪枝或提前结束搜索。如果获取启发因素的场景发生在比较靠前的搜索过程中，这就是历史启发的搜索优化思路。&lt;/p&gt;
+&lt;h2 id=&#34;1-10-MTD-f-搜索&#34;&gt;&lt;a href=&#34;#1-10-MTD-f-搜索&#34; class=&#34;headerlink&#34; title=&#34;1.10 MTD(f)搜索&#34;&gt;&lt;/a&gt;1.10 MTD(f)搜索&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; MTD(f)搜索的全称是Memory-enhanced Test Driver with node n and value f，大意是记忆（置换表）优化、测试（空窗探测）驱动的搜索算法。MTD(f)算法将PVS的极小窗口干脆改成了空窗口，即单个猜测值就是一个窗口。只进行一些浅层的搜索后，就可以得到一个真实的极大评估值。这个评估值一定会落在猜测值的一侧，那么就可以利用这一点来不断进行猜测（空窗探测）并调整猜测值的取值范围，直到猜测值的范围闭合，即是得到了最终评估值。有不少实践者称MTD(f)算法在国际象棋、西洋跳棋等人机博弈应用场景中比PVS更优秀。&lt;/p&gt;
+&lt;h2 id=&#34;1-11-疑惑与思考&#34;&gt;&lt;a href=&#34;#1-11-疑惑与思考&#34; class=&#34;headerlink&#34; title=&#34;1.11 疑惑与思考&#34;&gt;&lt;/a&gt;1.11 疑惑与思考&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 相信有的读者已经发觉，上述搜索算法只在叶结点做局面评估恐怕不太妥当。其实我也是这么认为的。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 上述搜索算法都建立在Maxmin算法中一个大前提的基础上：不论对手还是自己，下棋的人会尝试让棋局在若干步内到达这若干步内可能的最好的一个局面。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 事实上，下棋时，我们在选择下一步时，并不是总是想要逼近某个特定的局面，除非这个局面是一个抛给对手的陷阱。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 在象棋、国际象棋这类棋子数单调减少，局面复杂程度变化小的棋类游戏中确实大部分局面中玩家都在不断互相抛出吃子陷阱。但是在局面复杂程度逐渐增加的棋类游戏如五子棋和围棋的中，我们在大部分局面中思考的往往是更模糊的趋势问题，或者说概率问题。我们需要在海量的局面演变路径中归结出当前走法应该将局面引向的最好的方向而不是某一条具体路径，同时依旧需要立即规避致命的陷阱。各个因素对结论的影响的归结，这显然应该是一个关于结论修正和因素采纳权重的问题。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 在中国象棋、国际象棋中，Minmax的下棋思路应该在大部分情况下是合理而恰当的。然而在五子棋的部分局面中，和围棋的更多局面中，Minmax算法的思路前提根本就是不合理的。也就是说，不是基于Minmax的算法的性能不足以胜任围棋的搜索算法，而是Minmax应用在围棋走法搜索中时会犯很多方向性错误，这些错误的积累造成的不良影响已经大到不能被接受了。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 下面我们将引入的MC-UCT算法，中文描述的算法名称是“树图置信”，“置信”这个概念跟我前面提到的因素归结、因素权重问题不谋而合。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我们对“置信”方法的需求的来源，是局面复杂程度不稳定的情况下局面走向的不明朗和难以把控。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 相反，我们对Minmax思路的需求的前提，是局面明朗的情况下，我们很清楚该把局面引向哪些特定的状态。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 以上思考引发的我的另一个思考是，围棋这种实际问题中，棋盘大小仍然是有限的，也就是说，局面的复杂度终究会稳定在一个区间中。那么当局面稳定下来，我们对正确的“局面变化趋势的引导”的需求就降低了很多。因为我们改变局面变化趋势的发挥空间已经太小，这时问题的性质发生了改变，事实上，这时已经进入了围棋的“收官”阶段。一个局面稳定的围棋残局的处理，已经十分类似象棋类的棋类游戏，甚至比象棋更简单，更好处理。这种情况下放弃UCT，转而使用Minmax的算法思路反而是更恰当的。&lt;/p&gt;
+&lt;h2 id=&#34;1-12-UCT算法&#34;&gt;&lt;a href=&#34;#1-12-UCT算法&#34; class=&#34;headerlink&#34; title=&#34;1.12 UCT算法&#34;&gt;&lt;/a&gt;1.12 UCT算法&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 下面我们来看下UCT的算法执行过程：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;(1) 从博弈树的根点开始向下搜索，执行(2)。&lt;/li&gt;
+&lt;li&gt;(2) 遇到结点a后，若a存在从未评估过的子结点，执行(3)，否则执行(4)。&lt;/li&gt;
+&lt;li&gt;(3) 通过蒙特卡罗方法（这里先按下不表，后面会介绍，但这种评估方法是“置信”的来源）评估该子结点，得到收益值后更新该子结点至根结点路径上所有结点的平均收益值，执行(1)。&lt;/li&gt;
+&lt;li&gt;(4) 计算每个子结点的UCB值（通过特殊结论将从蒙特卡罗方法中获得的收益值转换为新一轮搜索的置信基础值），将UCB值最高的子结点作为结点a，执行(2)。&lt;/li&gt;
+&lt;li&gt;(5) 算法可随时终止，通常达到给定时间或尝试次数后终止。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; UCT算法最让人欣赏的两点是使用置信的蒙特卡罗评估，以及评估值的回溯更新。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;2-评估函数&#34;&gt;&lt;a href=&#34;#2-评估函数&#34; class=&#34;headerlink&#34; title=&#34;2 评估函数&#34;&gt;&lt;/a&gt;2 评估函数&lt;/h1&gt;&lt;h2 id=&#34;2-1-传统评估函数的优化&#34;&gt;&lt;a href=&#34;#2-1-传统评估函数的优化&#34; class=&#34;headerlink&#34; title=&#34;2.1 传统评估函数的优化&#34;&gt;&lt;/a&gt;2.1 传统评估函数的优化&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 在搜索博弈树子状态的过程中，需要对位于博弈树叶结点位置的子状态给出评估值。传统的，可以从已有知识、经验中挖掘出状态评估因素。为各因素加上先验的权值后就可以为博弈树的子状态提供一个评估值。然而这种评估模式还有很大的优化空间。尤其是在调整估值因素的权重方面。&lt;/p&gt;
+&lt;h3 id=&#34;2-1-1-爬山法&#34;&gt;&lt;a href=&#34;#2-1-1-爬山法&#34; class=&#34;headerlink&#34; title=&#34;2.1.1 爬山法&#34;&gt;&lt;/a&gt;2.1.1 爬山法&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 猜测一个较好的初始权重后，逐步微调权重，直到评估效果达到一个极大值，这就是爬山法。显然爬山法非常依赖一个优秀的初始猜测权重，而且寻找最优权重的过程会很缓慢。&lt;/p&gt;
+&lt;h3 id=&#34;2-1-2-蒙特卡罗方法&#34;&gt;&lt;a href=&#34;#2-1-2-蒙特卡罗方法&#34; class=&#34;headerlink&#34; title=&#34;2.1.2 蒙特卡罗方法&#34;&gt;&lt;/a&gt;2.1.2 蒙特卡罗方法&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 既然初始权重或寻找起点是爬山法的短板，那么就进行足够多次的爬山法，使爬山法的起点覆盖足够多的情况，最后汇总寻找结果。这就是蒙特卡罗方法的基本思路。&lt;/p&gt;
+&lt;h3 id=&#34;2-1-3-模拟退火算法&#34;&gt;&lt;a href=&#34;#2-1-3-模拟退火算法&#34; class=&#34;headerlink&#34; title=&#34;2.1.3 模拟退火算法&#34;&gt;&lt;/a&gt;2.1.3 模拟退火算法&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 模拟退火算法是对蒙特卡罗方法的改进，它使用MetroPolis重要性采样的基本思想，在寻优的开始使用较高的概率进行随机突跳,随着寻优过程的深入逐步降低这一接受不佳参数概率。并且随着搜索的深入,可接受的参数的不佳程度也越来越小。通过这样一个由粗到细的过程逐渐逼近最优的参数。由于此算法要求对参数的改变概率逐渐下降及对各种参数值进行充分多次的采样,在实际使用中也比爬山法的速度要慢,但比蒙特卡罗方法要快。&lt;/p&gt;
+&lt;h3 id=&#34;2-1-4-遗传算法&#34;&gt;&lt;a href=&#34;#2-1-4-遗传算法&#34; class=&#34;headerlink&#34; title=&#34;2.1.4 遗传算法&#34;&gt;&lt;/a&gt;2.1.4 遗传算法&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 顾名思义，遗传算法将各个评估因素的权重作为”遗传基因”，在有限大小的变异程度下，尝试并继承更优秀的权重组合。通过模拟进化过程寻找最优权重。&lt;/p&gt;
+&lt;h3 id=&#34;2-1-5-人工神经网络&#34;&gt;&lt;a href=&#34;#2-1-5-人工神经网络&#34; class=&#34;headerlink&#34; title=&#34;2.1.5 人工神经网络&#34;&gt;&lt;/a&gt;2.1.5 人工神经网络&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; BP神经网络模拟了神经系统中神经元的刺激积累和交互网状影响的作用，训练一套合理的神经元间连接的信息采样权重。这与获得最优权重的目的不谋而合。或许为了提高训练性能，还可以用上CNN（卷积神经网络）、BDN（置信深度网络）这样的深度学习神经网络。&lt;/p&gt;
+&lt;h2 id=&#34;2-2-蒙特卡罗方法的评估算法&#34;&gt;&lt;a href=&#34;#2-2-蒙特卡罗方法的评估算法&#34; class=&#34;headerlink&#34; title=&#34;2.2 蒙特卡罗方法的评估算法&#34;&gt;&lt;/a&gt;2.2 蒙特卡罗方法的评估算法&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 计算机围棋博弈问题的一大难点在于难以设计简单有效的局面评估算法。传统的围棋程序主要采用影响函数等专家知识进行局面评估，由于围棋的专家知识难以抽象出来（如厚味，薄味，气合等词），往往评估得不准。那么精确评估似乎只有穷举了。如果黑白双方的接下来每手棋都“正确”，最后黑棋赢了，那么当时的局面一定是黑棋优势。可惜如果没有量子计算机，这种穷举是无法达成的。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 再假设，如果黑白双方棋力不高却相当，来续下这个局面，最后是黑棋赢了，当时的局面是谁优势呢？你大概会说，黑棋优势的可能性更大一些。进一步，同样的局面续下了1000次，有800次是黑棋赢了，那么有理由基本相信，当前局面中黑棋占优。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 那么，如果黑棋和白棋都不会围棋，只会随机落子呢？他们针对这一局面续下了1000次，竟然有800次是黑棋赢了。这时我们也可以断言，当前局面确实黑棋占优。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这就是蒙特卡罗局面评估算法，简单点说，就是用大量迭代的随机的深度优先搜索来代替先验知识对局面做出评估。当然大量彼此没有同步约束的随机迭代过程就很适合且只适合通过并行方式甚至分布式集群计算来解决了。&lt;/p&gt;
+</content>
+        <category term="人机博弈" />
+        <category term="Maxmin" />
+        <category term="AlphaBeta" />
+        <category term="PVS" />
+        <category term="MTD(f)" />
+        <updated>2015-11-14T14:27:47.000Z</updated>
+    </entry>
+</feed>

@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://blog.bipedalbit.net</id>
+    <title>Hacking to the gate! • Posts by &#34;ffmpeg&#34; tag</title>
+    <link href="https://blog.bipedalbit.net" />
+    <updated>2016-05-08T08:29:47.000Z</updated>
+    <category term="Qt" />
+    <category term="signal-slot" />
+    <category term="Q_OBJECT" />
+    <category term="nginx" />
+    <category term="select/poll" />
+    <category term="epoll" />
+    <category term="ngx_int_t" />
+    <category term="rbtree" />
+    <category term="C" />
+    <category term="static" />
+    <category term="内存分布" />
+    <category term="sublime" />
+    <category term="C++" />
+    <category term="makefile" />
+    <category term="node.js" />
+    <category term="github" />
+    <category term="socket.io" />
+    <category term="Web请求处理机制" />
+    <category term="同步/异步" />
+    <category term="阻塞/非阻塞" />
+    <category term="事件驱动模型" />
+    <category term="BP神经网络" />
+    <category term="机器学习" />
+    <category term="python" />
+    <category term="pybrain" />
+    <category term="c++11" />
+    <category term="多线程" />
+    <category term="ubuntu" />
+    <category term="debian" />
+    <category term="apt-file" />
+    <category term="cin" />
+    <category term="cout" />
+    <category term="scanf" />
+    <category term="printf" />
+    <category term="进制转换" />
+    <category term="人工神经网络" />
+    <category term="人机博弈" />
+    <category term="Maxmin" />
+    <category term="AlphaBeta" />
+    <category term="PVS" />
+    <category term="MTD(f)" />
+    <category term="位域" />
+    <category term="bitset" />
+    <category term="vector&amp;lt;bool&amp;gt;" />
+    <category term="网络爬虫" />
+    <category term="类脑" />
+    <category term="codeigniter" />
+    <category term="php" />
+    <category term="IIS7" />
+    <category term="apache" />
+    <category term="模拟登录" />
+    <category term="proxy" />
+    <category term="domain" />
+    <category term="DNS" />
+    <category term="hexo" />
+    <category term="vps" />
+    <category term="dropbox" />
+    <category term="ffmpeg" />
+    <category term="板绘" />
+    <category term="sai" />
+    <category term="琪露诺" />
+    <category term="LLM" />
+    <category term="ollama" />
+    <category term="open-webui" />
+    <category term="oneapi" />
+    <category term="mcpserver" />
+    <entry>
+        <id>https://blog.bipedalbit.net/2016/05/08/FFmpeg%E6%89%B9%E9%87%8F%E6%8A%93%E5%B8%A7%E8%84%9A%E6%9C%AC/</id>
+        <title>FFmpeg批量抓帧脚本</title>
+        <link rel="alternate" href="https://blog.bipedalbit.net/2016/05/08/FFmpeg%E6%89%B9%E9%87%8F%E6%8A%93%E5%B8%A7%E8%84%9A%E6%9C%AC/"/>
+        <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 上周一个学姐问我有没有兴趣毕业去她那做图像处理，抛给我个模式识别问题和一段4000+秒的mp4视频。大周末的我正犯五月病，就跟群里大佬问了下视频抓帧用什么合适，知道神奇的FFmpeg后顺手写了个python脚本做一下批量抓帧。至于为什么要用python不直接写shell，因为FFmpeg自带的批量抓帧命令是针对连续时间序列进行的，执行起来特别慢，用python是要做一下时间序列离散化，然后并行处理。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;h3 id=&#34;FFmpeg&#34;&gt;&lt;a href=&#34;#FFmpeg&#34; class=&#34;headerlink&#34; title=&#34;FFmpeg&#34;&gt;&lt;/a&gt;FFmpeg&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 先引用百度百科简单介绍下FFmpeg：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;FFmpeg是一套可以用来记录、转换数字音频、视频，并能将其转化为流的开源计算机程序。采用LGPL或GPL许可证。它提供了录制、转换以及流化音视频的完整解决方案。它包含了非常先进的音频&amp;#x2F;视频编解码库libavcodec，为了保证高可移植性和编解码质量，libavcodec里很多codec都是从头开发的。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 关于FFmpeg的业界地位，有很多视音频播放器是通过给FFmpeg加壳完成的。它是跨平台的，linux、win、mac os下都有发行版。想要安装，可以去&lt;a href=&#34;http://ffmpeg.org/&#34;&gt;官网&lt;/a&gt;看看。关于文档，我找到的总结、教程、手册都比较零散，官方的英语文档又让新手无从看起，这次我只查到够用的资料就放着了，如果读者找到比较全面的实用手册，欢迎留言。&lt;/p&gt;
+&lt;h3 id=&#34;实现&#34;&gt;&lt;a href=&#34;#实现&#34; class=&#34;headerlink&#34; title=&#34;实现&#34;&gt;&lt;/a&gt;实现&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我试着直接执行FFmpeg的批量抓帧命令时发现特别慢，几乎总要花费目标视频一半的播放时间。但是单张抓帧，不论时间点在哪里，其实都很快。于是我的思路是把视频的总时长拿出来，然后获得一个均匀分布的时间点集合，最后统统扔给gevent的pool并行抓帧。gevent是python一个著名的coroutine（协程）框架，初衷是处理高并发的网络IO，要安装pip一下就好。思路很简单，脚本也很短，life is short, I choose python!&lt;/p&gt;
+&lt;figure class=&#34;highlight python&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;26&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;27&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;28&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;29&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;30&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;31&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;32&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;33&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;34&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;35&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;36&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;37&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;38&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;39&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;40&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;41&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;42&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;43&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;44&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;45&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;46&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;47&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;48&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;49&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;50&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;51&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;52&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;53&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;54&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;55&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;56&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;57&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;58&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;59&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;60&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;61&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;62&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;63&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;64&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs python&#34;&gt;&lt;span class=&#34;hljs-comment&#34;&gt;#!/usr/bin/env python&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-comment&#34;&gt;# -*- coding: utf-8 -*-&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;import&lt;/span&gt; os&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;from&lt;/span&gt; commands &lt;span class=&#34;hljs-keyword&#34;&gt;import&lt;/span&gt; getoutput&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;import&lt;/span&gt; re&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;from&lt;/span&gt; gevent.pool &lt;span class=&#34;hljs-keyword&#34;&gt;import&lt;/span&gt; Pool &lt;span class=&#34;hljs-keyword&#34;&gt;as&lt;/span&gt;  Gpool&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;from&lt;/span&gt; time &lt;span class=&#34;hljs-keyword&#34;&gt;import&lt;/span&gt; time&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-comment&#34;&gt;# get arguments&lt;/span&gt;&lt;br&gt;file_path = &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;&amp;#x27;&lt;/span&gt;&lt;br&gt;ouput_path = &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;&amp;#x27;&lt;/span&gt;&lt;br&gt;interval = &lt;span class=&#34;hljs-number&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;hljs-literal&#34;&gt;True&lt;/span&gt;:&lt;br&gt;    file_path = raw_input(&lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;Vedio path: &amp;#x27;&lt;/span&gt;)&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; os.path.isfile(file_path):&lt;br&gt;        &lt;span class=&#34;hljs-keyword&#34;&gt;break&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt;:&lt;br&gt;        &lt;span class=&#34;hljs-built_in&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;Not a file.&amp;#x27;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;hljs-literal&#34;&gt;True&lt;/span&gt;:&lt;br&gt;    ouput_path = raw_input(&lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;Output path( current directory for default ) : &amp;#x27;&lt;/span&gt;)&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; ouput_path == &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;&amp;#x27;&lt;/span&gt;:&lt;br&gt;        &lt;span class=&#34;hljs-keyword&#34;&gt;break&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; os.path.exists(ouput_path) &lt;span class=&#34;hljs-keyword&#34;&gt;and&lt;/span&gt; &lt;span class=&#34;hljs-keyword&#34;&gt;not&lt;/span&gt; os.path.isfile(ouput_path):&lt;br&gt;        ouput_path += &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;/&amp;#x27;&lt;/span&gt;&lt;br&gt;        &lt;span class=&#34;hljs-keyword&#34;&gt;break&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt;:&lt;br&gt;        &lt;span class=&#34;hljs-built_in&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;Not a directory.&amp;#x27;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;hljs-literal&#34;&gt;True&lt;/span&gt;:&lt;br&gt;    s = raw_input(&lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;Snap interval( 1 second for default ) : &amp;#x27;&lt;/span&gt;)&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; s == &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;&amp;#x27;&lt;/span&gt;:&lt;br&gt;        interval = &lt;span class=&#34;hljs-number&#34;&gt;1&lt;/span&gt;&lt;br&gt;        &lt;span class=&#34;hljs-keyword&#34;&gt;break&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;if&lt;/span&gt; re.&lt;span class=&#34;hljs-keyword&#34;&gt;match&lt;/span&gt;(&lt;span class=&#34;hljs-string&#34;&gt;r&amp;#x27;^[0-9]+(.[0-9]+)&amp;#123;0,1&amp;#125;$&amp;#x27;&lt;/span&gt;, s) &lt;span class=&#34;hljs-keyword&#34;&gt;is&lt;/span&gt; &lt;span class=&#34;hljs-literal&#34;&gt;None&lt;/span&gt;:&lt;br&gt;        &lt;span class=&#34;hljs-built_in&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;Not a number.&amp;#x27;&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-keyword&#34;&gt;else&lt;/span&gt;:&lt;br&gt;        interval = &lt;span class=&#34;hljs-built_in&#34;&gt;float&lt;/span&gt;(s)&lt;br&gt;        &lt;span class=&#34;hljs-keyword&#34;&gt;break&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-comment&#34;&gt;# get vedio duration via os.popen with &amp;quot;ffmpeg -i&amp;quot;&lt;/span&gt;&lt;br&gt;info = getoutput(&lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;ffmpeg -i &amp;#x27;&lt;/span&gt; + file_path)&lt;br&gt;dur = re.search(&lt;span class=&#34;hljs-string&#34;&gt;r&amp;#x27;(?&amp;lt;=Duration: ).*?(?=,)&amp;#x27;&lt;/span&gt;, info).group(&lt;span class=&#34;hljs-number&#34;&gt;0&lt;/span&gt;).split(&lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;:&amp;#x27;&lt;/span&gt;)&lt;br&gt;dur = &lt;span class=&#34;hljs-built_in&#34;&gt;int&lt;/span&gt;(dur[&lt;span class=&#34;hljs-number&#34;&gt;0&lt;/span&gt;])*&lt;span class=&#34;hljs-number&#34;&gt;3600&lt;/span&gt; + &lt;span class=&#34;hljs-built_in&#34;&gt;int&lt;/span&gt;(dur[&lt;span class=&#34;hljs-number&#34;&gt;1&lt;/span&gt;])*&lt;span class=&#34;hljs-number&#34;&gt;60&lt;/span&gt; + &lt;span class=&#34;hljs-built_in&#34;&gt;float&lt;/span&gt;(dur[&lt;span class=&#34;hljs-number&#34;&gt;2&lt;/span&gt;])&lt;br&gt;&lt;span class=&#34;hljs-built_in&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;Vedio duration: %.2f seconds.&amp;#x27;&lt;/span&gt; % dur&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-comment&#34;&gt;# make time stamps pool&lt;/span&gt;&lt;br&gt;time_stamp_pool = []&lt;br&gt;time_stamp = &lt;span class=&#34;hljs-number&#34;&gt;0&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;while&lt;/span&gt; time_stamp &amp;lt; dur:&lt;br&gt;    time_stamp_pool.append(time_stamp)&lt;br&gt;    time_stamp += interval&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-comment&#34;&gt;# os.system + gevent snap by batch&lt;/span&gt;&lt;br&gt;gpool = Gpool()&lt;br&gt;snap_cmd = &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;ffmpeg -ss %f -i %s -nostats -loglevel 0 -q:v 2 -f image2 %s%d.jpg&amp;#x27;&lt;/span&gt; &lt;span class=&#34;hljs-comment&#34;&gt;# execute quietly&lt;/span&gt;&lt;br&gt;n_snap = &lt;span class=&#34;hljs-built_in&#34;&gt;len&lt;/span&gt;(time_stamp_pool)&lt;br&gt;&lt;span class=&#34;hljs-built_in&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;%d frames to be snapped.&amp;#x27;&lt;/span&gt; % n_snap&lt;br&gt;&lt;span class=&#34;hljs-built_in&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;Handling...&amp;#x27;&lt;/span&gt;&lt;br&gt;time0 = time()&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;for&lt;/span&gt; i &lt;span class=&#34;hljs-keyword&#34;&gt;in&lt;/span&gt; xrange(n_snap):&lt;br&gt;    gpool.spawn(os.system, snap_cmd % (time_stamp_pool[i], file_path, ouput_path, i))&lt;br&gt;gpool.join()&lt;br&gt;time_cost = time() - time0&lt;br&gt;&lt;span class=&#34;hljs-built_in&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;Done in %.2f seconds.&amp;#x27;&lt;/span&gt; % time_cost&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;</content>
+        <category term="python" />
+        <category term="ffmpeg" />
+        <updated>2016-05-08T08:29:47.000Z</updated>
+    </entry>
+</feed>

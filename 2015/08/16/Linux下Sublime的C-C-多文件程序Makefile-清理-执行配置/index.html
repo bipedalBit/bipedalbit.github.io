@@ -1,0 +1,1039 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Bipedal Bit">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="&nbsp;&nbsp;&nbsp; 不自己动手为Sublime配个C&#x2F;C++的通用Makefile脚本吗？不能自动编译链接多文件的编辑器不是好IDE。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux下Sublime的C&#x2F;C++多文件程序Makefile+清理+执行配置">
+<meta property="og:url" content="https://blog.bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="Hacking to the gate!">
+<meta property="og:description" content="&nbsp;&nbsp;&nbsp; 不自己动手为Sublime配个C&#x2F;C++的通用Makefile脚本吗？不能自动编译链接多文件的编辑器不是好IDE。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-08-16T14:45:46.000Z">
+<meta property="article:modified_time" content="2025-05-21T15:42:53.509Z">
+<meta property="article:author" content="Bipedal Bit">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content="sublime">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="makefile">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置 - Hacking to the gate!</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.bipedalbit.net","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":100,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Hacking to the gate!</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://cdn.minio.bipedalbit.net/bipedalbit-net-images/banner/125633249_p0_resize.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2015-08-16 22:45" pubdate>
+          2015年8月16日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          11 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>&nbsp;&nbsp;&nbsp; 不自己动手为Sublime配个C&#x2F;C++的通用Makefile脚本吗？不能自动编译链接多文件的编辑器不是好IDE。</p>
+<span id="more"></span>
+<p>&nbsp;&nbsp;&nbsp; 首先我们需要了解几个事实：</p>
+<p>&nbsp;&nbsp;&nbsp; 1.Sublime自带的C&#x2F;C++编译+执行配置使用的是g++编译器，此外这套配置只针对单文件程序。如果要编译多文件，只能采用入口函数所在文件包含需要的源文件而非头文件的方式。比起我们熟悉的几种IDE，这显然无法令人接受。</p>
+<p>&nbsp;&nbsp;&nbsp; 2.Linux下的C&#x2F;C++程序员应该熟悉Makefile，Makefile可以算是一种脚本，执行关键字是一般是make，它可以设计多文件程序的编译+链接过程，生成.o文件和可执行文件。</p>
+<p>&nbsp;&nbsp;&nbsp; 3.Sublime也有默认的Make配置，但是第一，Sublime没有提供通用的C&#x2F;C++的Makefile脚本（自动组织而非每次手动重写），第二点是个小瑕疵，Sublime提供的Make配置只有编译、链接、清理功能，执行程序需要手动。</p>
+<p>&nbsp;&nbsp;&nbsp; 之前重写红黑树最重要的副产品就是一个通用的C&#x2F;C++的Makefile脚本。每次使用基本只需要改改输出的可执行文件名，或者干脆想个默认文件名以后都不改了，gcc&#x2F;g++编译器的选择是自动的，当然也可以手动配置一些编译选项，这个自己看脚本注释就好。上干货：</p>
+<pre><code class="hljs">#############################################################
+# Generic Makefile for C/C++ Program
+#
+# License: GPL (General Public License)
+# Author:  whyglinux &lt;whyglinux AT gmail DOT com&gt;
+# Date:    2006/03/04 (version 0.1)
+#          2007/03/24 (version 0.2)
+#          2007/04/09 (version 0.3)
+#          2007/06/26 (version 0.4)
+#          2008/04/05 (version 0.5)
+#
+# Description:
+# ------------
+# This is an easily customizable makefile template. The purpose is to
+# provide an instant building environment for C/C++ programs.
+#
+# It searches all the C/C++ source files in the specified directories,
+# makes dependencies, compiles and links to form an executable.
+#
+# Besides its default ability to build C/C++ programs which use only
+# standard C/C++ libraries, you can customize the Makefile to build
+# those using other libraries. Once done, without any changes you can
+# then build programs using the same or less libraries, even if source
+# files are renamed, added or removed. Therefore, it is particularly
+# convenient to use it to build codes for experimental or study use.
+#
+# GNU make is expected to use the Makefile. Other versions of makes
+# may or may not work.
+#
+# Usage:
+# ------
+# 1. Copy the Makefile to your program directory.
+# 2. Customize in the &quot;Customizable Section&quot; only if necessary:
+#    * to use non-standard C/C++ libraries, set pre-processor or compiler
+#      options to &lt;MY_CFLAGS&gt; and linker ones to &lt;MY_LIBS&gt;
+#      (See Makefile.gtk+-2.0 for an example)
+#    * to search sources in more directories, set to &lt;SRCDIRS&gt;
+#    * to specify your favorite program name, set to &lt;PROGRAM&gt;
+# 3. Type make to start building your program.
+#
+# Make Target:
+# ------------
+# The Makefile provides the following targets to make:
+#   $ make           compile and link
+#   $ make NODEP=yes compile and link without generating dependencies
+#   $ make objs      compile only (no linking)
+#   $ make tags      create tags for Emacs editor
+#   $ make ctags     create ctags for VI editor
+#   $ make clean     clean objects and the executable file
+#   $ make distclean clean objects, the executable and dependencies
+#   $ make help      get the usage of the makefile
+#
+#===========================================================================
+
+## Customizable Section: adapt those variables to suit your program.
+##==========================================================================
+
+# The pre-processor and compiler options.
+MY_CFLAGS =
+
+# The linker options.
+MY_LIBS   =
+
+# The pre-processor options used by the cpp (man cpp for more).
+# CPPFLAGS  = -Wall
+
+# The options used in linking as well as in any direct use of ld.
+LDFLAGS   =
+
+# The directories in which source files reside.
+# If not specified, only the current directory will be serached.
+SRCDIRS   =
+
+# The executable file name.
+# If not specified, current directory name or `a.out&#39; will be used.
+PROGRAM   = test
+
+## Implicit Section: change the following only when necessary.
+##==========================================================================
+
+# The source file types (headers excluded).
+# .c indicates C source files, and others C++ ones.
+SRCEXTS = .c .C .cc .cpp .CPP .c++ .cxx .cp
+
+# The header file types.
+HDREXTS = .h .H .hh .hpp .HPP .h++ .hxx .hp
+
+# The pre-processor and compiler options.
+# Users can override those variables from the command line.
+# CFLAGS  = -g -O2
+# CXXFLAGS= -g -O2
+
+# The C program compiler.
+# CC     = gcc
+
+# The C++ program compiler.
+#CXX    = g++
+
+# Un-comment the following line to compile C programs as C++ ones.
+#CC     = $(CXX)
+
+# The command used to delete file.
+#RM     = rm -f
+
+ETAGS = etags
+ETAGSFLAGS =
+
+CTAGS = ctags
+CTAGSFLAGS =
+
+## Stable Section: usually no need to be changed. But you can add more.
+##==========================================================================
+SHELL   = /bin/sh
+EMPTY   =
+SPACE   = $(EMPTY) $(EMPTY)
+ifeq ($(PROGRAM),)
+  CUR_PATH_NAMES = $(subst /,$(SPACE),$(subst $(SPACE),_,$(CURDIR)))
+  PROGRAM = $(word $(words $(CUR_PATH_NAMES)),$(CUR_PATH_NAMES))
+  ifeq ($(PROGRAM),)
+    PROGRAM = a.out
+  endif
+endif
+ifeq ($(SRCDIRS),)
+  SRCDIRS = .
+endif
+SOURCES = $(foreach d,$(SRCDIRS),$(wildcard $(addprefix $(d)/*,$(SRCEXTS))))
+HEADERS = $(foreach d,$(SRCDIRS),$(wildcard $(addprefix $(d)/*,$(HDREXTS))))
+SRC_CXX = $(filter-out %.c,$(SOURCES))
+OBJS    = $(addsuffix .o, $(basename $(SOURCES)))
+DEPS    = $(OBJS:.o=.d)
+
+## Define some useful variables.
+DEP_OPT = $(shell if `$(CC) --version | grep &quot;GCC&quot; &gt;/dev/null`; then \
+                  echo &quot;-MM -MP&quot;; else echo &quot;-M&quot;; fi )
+DEPEND      = $(CC)  $(DEP_OPT)  $(MY_CFLAGS) $(CFLAGS) $(CPPFLAGS)
+DEPEND.d    = $(subst -g ,,$(DEPEND))
+COMPILE.c   = $(CC)  $(MY_CFLAGS) $(CFLAGS)   $(CPPFLAGS) -c
+COMPILE.cxx = $(CXX) $(MY_CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -c
+LINK.c      = $(CC)  $(MY_CFLAGS) $(CFLAGS)   $(CPPFLAGS) $(LDFLAGS)
+LINK.cxx    = $(CXX) $(MY_CFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
+
+.PHONY: all objs tags ctags clean distclean help show
+
+# Delete the default suffixes
+.SUFFIXES:
+
+all: $(PROGRAM)
+
+# Rules for creating dependency files (.d).
+#------------------------------------------
+
+%.d:%.c
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+%.d:%.C
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+%.d:%.cc
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+%.d:%.cpp
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+%.d:%.CPP
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+%.d:%.c++
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+%.d:%.cp
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+%.d:%.cxx
+    @echo -n $(dir $&lt;) &gt; $@
+    @$(DEPEND.d) $&lt; &gt;&gt; $@
+
+# Rules for generating object files (.o).
+#----------------------------------------
+objs:$(OBJS)
+
+%.o:%.c
+    $(COMPILE.c) $&lt; -o $@
+
+%.o:%.C
+    $(COMPILE.cxx) $&lt; -o $@
+
+%.o:%.cc
+    $(COMPILE.cxx) $&lt; -o $@
+
+%.o:%.cpp
+    $(COMPILE.cxx) $&lt; -o $@
+
+%.o:%.CPP
+    $(COMPILE.cxx) $&lt; -o $@
+
+%.o:%.c++
+    $(COMPILE.cxx) $&lt; -o $@
+
+%.o:%.cp
+    $(COMPILE.cxx) $&lt; -o $@
+
+%.o:%.cxx
+    $(COMPILE.cxx) $&lt; -o $@
+
+# Rules for generating the tags.
+#-------------------------------------
+tags: $(HEADERS) $(SOURCES)
+    $(ETAGS) $(ETAGSFLAGS) $(HEADERS) $(SOURCES)
+
+ctags: $(HEADERS) $(SOURCES)
+    $(CTAGS) $(CTAGSFLAGS) $(HEADERS) $(SOURCES)
+
+# Rules for generating the executable.
+#-------------------------------------
+$(PROGRAM):$(OBJS)
+ifeq ($(SRC_CXX),)              # C program
+    $(LINK.c)   $(OBJS) $(MY_LIBS) -o $@
+    @echo Type ./$@ to execute the program.
+else                            # C++ program
+    $(LINK.cxx) $(OBJS) $(MY_LIBS) -o $@
+    @echo Type ./$@ to execute the program.
+endif
+
+ifndef NODEP
+ifneq ($(DEPS),)
+  sinclude $(DEPS)
+endif
+endif
+
+clean:
+    $(RM) $(OBJS) $(PROGRAM) $(PROGRAM).exe
+
+distclean: clean
+    $(RM) $(DEPS) TAGS
+
+# Show help.
+help:
+    @echo &#39;Generic Makefile for C/C++ Programs (gcmakefile) version 0.5&#39;
+    @echo &#39;Copyright (C) 2007, 2008 whyglinux &lt;whyglinux@hotmail.com&gt;&#39;
+    @echo
+    @echo &#39;Usage: make [TARGET]&#39;
+    @echo &#39;TARGETS:&#39;
+    @echo &#39;  all       (=make) compile and link.&#39;
+    @echo &#39;  NODEP=yes make without generating dependencies.&#39;
+    @echo &#39;  objs      compile only (no linking).&#39;
+    @echo &#39;  tags      create tags for Emacs editor.&#39;
+    @echo &#39;  ctags     create ctags for VI editor.&#39;
+    @echo &#39;  clean     clean objects and the executable file.&#39;
+    @echo &#39;  distclean clean objects, the executable and dependencies.&#39;
+    @echo &#39;  show      show variables (for debug use only).&#39;
+    @echo &#39;  help      print this message.&#39;
+    @echo
+    @echo &#39;Report bugs to &lt;whyglinux AT gmail DOT com&gt;.&#39;
+
+# Show variables (for debug use only.)
+show:
+    @echo &#39;PROGRAM     :&#39; $(PROGRAM)
+    @echo &#39;SRCDIRS     :&#39; $(SRCDIRS)
+    @echo &#39;HEADERS     :&#39; $(HEADERS)
+    @echo &#39;SOURCES     :&#39; $(SOURCES)
+    @echo &#39;SRC_CXX     :&#39; $(SRC_CXX)
+    @echo &#39;OBJS        :&#39; $(OBJS)
+    @echo &#39;DEPS        :&#39; $(DEPS)
+    @echo &#39;DEPEND      :&#39; $(DEPEND)
+    @echo &#39;COMPILE.c   :&#39; $(COMPILE.c)
+    @echo &#39;COMPILE.cxx :&#39; $(COMPILE.cxx)
+    @echo &#39;link.c      :&#39; $(LINK.c)
+    @echo &#39;link.cxx    :&#39; $(LINK.cxx)
+
+## End of the Makefile ##  Suggestions are welcome  ## All rights reserved ##
+##############################################################
+</code></pre>
+<p>&nbsp;&nbsp;&nbsp; 感谢whyglinux大大！然后上Sublime的配置C C++ Multiple Files.sublime-build：</p>
+<pre><code class="hljs">&#123;
+    &quot;shell_cmd&quot;: &quot;make&quot;,
+    &quot;file_regex&quot;: &quot;^(..[^:\n]*):([0-9]+):?([0-9]+)?:? (.*)$&quot;,
+    &quot;working_dir&quot;: &quot;$&#123;folder:$&#123;project_path:$&#123;file_path&#125;&#125;&#125;&quot;,
+    &quot;selector&quot;: &quot;source.c, source.cpp&quot;,
+    &quot;syntax&quot;: &quot;Packages/Makefile/Make.build-language&quot;,
+    &quot;keyfiles&quot;: [&quot;Makefile&quot;, &quot;makefile&quot;],
+
+    &quot;variants&quot;:
+    [
+        &#123;
+            &quot;name&quot;: &quot;Clean&quot;,
+            &quot;shell_cmd&quot;: &quot;make clean&quot;
+        &#125;,
+        &#123;
+            &quot;name&quot;: &quot;Run&quot;,
+            &quot;shell_cmd&quot;: &quot;$&#123;file_path&#125;/$&#123;file_base_name&#125;&quot;
+        &#125;
+    ]
+&#125;
+</code></pre>
+<p>&nbsp;&nbsp;&nbsp; 你们大可以配成执行时自动弹出终端，这样还能交互。我为了解决Sublime里中文输入法的问题用了gtk2，但是gnome-terminal用的是gtk3，不兼容了。写写控制台程序也不用那么多交互，懒得折腾了，你们随意。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Sublime-Text/" class="category-chain-item">Sublime Text</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C</a>
+      
+        <a href="/tags/sublime/" class="print-no-link">#sublime</a>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/makefile/" class="print-no-link">#makefile</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置</div>
+      <div>https://blog.bipedalbit.net/2015/08/16/Linux下Sublime的C-C-多文件程序Makefile-清理-执行配置/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Bipedal Bit</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2015年8月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2015/08/18/%E3%80%90%E4%BA%94%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-3-%E2%80%94%E2%80%94%E6%89%A9%E5%B1%95%E7%BA%A2%E9%BB%91%E6%A0%91/" title="【五】nginx的数据结构(3)——扩展红黑树">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【五】nginx的数据结构(3)——扩展红黑树</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2015/08/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/" title="【四】nginx的数据结构(2)——自己动手重写红黑树">
+                        <span class="hidden-mobile">【四】nginx的数据结构(2)——自己动手重写红黑树</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://registry.npmmirror.com/@waline/client/2.15.8/files/dist/waline.css')
+      Fluid.utils.createScript('https://registry.npmmirror.com/@waline/client/2.15.8/files/dist/waline.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://waline.bipedalbit.net","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+          <div style="text-align: center;">
+  当前页面浏览量: <span class="waline-pageview-count"></span>
+</div>
+<script type="module">
+  import { pageviewCount } from 'https://unpkg.com/@waline/client@v3/dist/pageview.js';
+
+  pageviewCount({
+    serverURL: 'https://waline.bipedalbit.net/',
+    path: window.location.pathname,
+    // 可选配置项
+    // selector: 'waline-pageview-count',
+    // update: true,
+  });
+
+  // 等待数据加载完成，检查 span 内容是否为空
+  setTimeout(() => {
+    const span = document.querySelector('.waline-pageview-count');
+    if (!span.textContent.trim()) {
+      span.textContent = '1';
+    }
+  }, 1000); // 1秒后执行，确保数据加载完成
+</script>
+
+        </div>
+      </div>
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

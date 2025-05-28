@@ -1,0 +1,342 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+    <channel>
+        <title>Hacking to the gate! • Posts by &#34;printf&#34; tag</title>
+        <link>https://blog.bipedalbit.net</link>
+        <description>Bipedal Bit&#39;s blog</description>
+        <language>zh-CN</language>
+        <pubDate>Thu, 08 Oct 2015 19:56:46 +0800</pubDate>
+        <lastBuildDate>Thu, 08 Oct 2015 19:56:46 +0800</lastBuildDate>
+        <category>Qt</category>
+        <category>signal-slot</category>
+        <category>Q_OBJECT</category>
+        <category>nginx</category>
+        <category>select/poll</category>
+        <category>epoll</category>
+        <category>ngx_int_t</category>
+        <category>rbtree</category>
+        <category>C</category>
+        <category>static</category>
+        <category>内存分布</category>
+        <category>sublime</category>
+        <category>C++</category>
+        <category>makefile</category>
+        <category>node.js</category>
+        <category>github</category>
+        <category>socket.io</category>
+        <category>Web请求处理机制</category>
+        <category>同步/异步</category>
+        <category>阻塞/非阻塞</category>
+        <category>事件驱动模型</category>
+        <category>BP神经网络</category>
+        <category>机器学习</category>
+        <category>python</category>
+        <category>pybrain</category>
+        <category>c++11</category>
+        <category>多线程</category>
+        <category>ubuntu</category>
+        <category>debian</category>
+        <category>apt-file</category>
+        <category>cin</category>
+        <category>cout</category>
+        <category>scanf</category>
+        <category>printf</category>
+        <category>进制转换</category>
+        <category>人工神经网络</category>
+        <category>人机博弈</category>
+        <category>Maxmin</category>
+        <category>AlphaBeta</category>
+        <category>PVS</category>
+        <category>MTD(f)</category>
+        <category>位域</category>
+        <category>bitset</category>
+        <category>vector&amp;lt;bool&amp;gt;</category>
+        <category>网络爬虫</category>
+        <category>类脑</category>
+        <category>codeigniter</category>
+        <category>php</category>
+        <category>IIS7</category>
+        <category>apache</category>
+        <category>模拟登录</category>
+        <category>proxy</category>
+        <category>domain</category>
+        <category>DNS</category>
+        <category>hexo</category>
+        <category>vps</category>
+        <category>dropbox</category>
+        <category>ffmpeg</category>
+        <category>板绘</category>
+        <category>sai</category>
+        <category>琪露诺</category>
+        <category>LLM</category>
+        <category>ollama</category>
+        <category>open-webui</category>
+        <category>oneapi</category>
+        <category>mcpserver</category>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/10/08/C-cin%E3%80%81cout%E7%9A%84%E4%BC%98%E5%8C%96%E5%8F%8A%E6%B5%8B%E8%AF%84/</guid>
+            <title>C++ cin、cout的优化及测评</title>
+            <link>https://blog.bipedalbit.net/2015/10/08/C-cin%E3%80%81cout%E7%9A%84%E4%BC%98%E5%8C%96%E5%8F%8A%E6%B5%8B%E8%AF%84/</link>
+            <category>C++</category>
+            <category>cin</category>
+            <category>cout</category>
+            <category>scanf</category>
+            <category>printf</category>
+            <pubDate>Thu, 08 Oct 2015 19:56:46 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降低了执行效率。那么可能挽回这种效率损失吗？答案是可以。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; C++中提供了解除指针同步的方法：&lt;code&gt;ios::sync_with_stdio(false)&lt;/code&gt;。如字面意思，这个方法用来设置输入输出流是否与C的stdio同步。那么解除同步之后能有多大效果呢？毕竟C++确实因为封装程度比C高多多少少损失了一些执行效率。我动手进行了一系列测评，下面是源码。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这里我统一对输入输出做了重定向，不论是输入数据来源还是输入数据目标都是“data”文件。所有的输入&amp;#x2F;输出测试都是读或写10^7次字符串与整型数的组合数据，每种输入&amp;#x2F;输出测试都进行10次并取平均耗时作为评估值。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先是C的输入输出。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; scanf.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;cstdio&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	freopen(&amp;quot;data&amp;quot;, &amp;quot;r&amp;quot;, stdin);
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		char s[20];
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			scanf(&amp;quot;%s&amp;quot;, s);
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	printf(&amp;quot;average cost: %lfs\n&amp;quot;, t_sum/testCnt);
+	fclose(stdin);
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; printf.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;cstdio&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	freopen(&amp;quot;data&amp;quot;, &amp;quot;w&amp;quot;, stdout);
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			printf(&amp;quot;string%d\n&amp;quot;, i);
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	printf(&amp;quot;average cost: %lfs\n&amp;quot;, t_sum/testCnt);
+	fclose(stdout);
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 然后是不解锁同步的cin、cout方法。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; cin.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;cstdio&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ifstream fin(&amp;quot;data&amp;quot;);
+	streambuf *_cin =  cin.rdbuf(fin.rdbuf());
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		string s;
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			cin &amp;gt;&amp;gt; s;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	cin.rdbuf(_cin);
+	fin.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; cout.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ofstream fout(&amp;quot;data&amp;quot;);
+	streambuf *_cout =  cout.rdbuf(fout.rdbuf());
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			cout &amp;lt;&amp;lt; &amp;quot;string&amp;quot; &amp;lt;&amp;lt; i &amp;lt;&amp;lt; &amp;#39;\n&amp;#39;;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	cout.rdbuf(_cout);
+	fout.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 接下来是解锁同步的cin、cout方法。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; optimized_cin.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;cstdio&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ios::sync_with_stdio(false);
+	ifstream fin(&amp;quot;data&amp;quot;);
+	streambuf *_cin =  cin.rdbuf(fin.rdbuf());
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		string s;
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			cin &amp;gt;&amp;gt; s;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	cin.rdbuf(_cin);
+	fin.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; optimized_cout.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ios::sync_with_stdio(false);
+	ofstream fout(&amp;quot;data&amp;quot;);
+	streambuf *_cout =  cout.rdbuf(fout.rdbuf());
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			cout &amp;lt;&amp;lt; &amp;quot;string&amp;quot; &amp;lt;&amp;lt; i &amp;lt;&amp;lt; &amp;#39;\n&amp;#39;;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	cout.rdbuf(_cout);
+	fout.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 同时测试C++直接读写文件的方法。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; fin.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;cstdio&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ifstream fin(&amp;quot;data&amp;quot;);
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		string s;
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			fin &amp;gt;&amp;gt; s;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	fin.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; fout.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ofstream fout(&amp;quot;data&amp;quot;);
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			fout &amp;lt;&amp;lt; &amp;quot;string&amp;quot; &amp;lt;&amp;lt; i &amp;lt;&amp;lt; &amp;#39;\n&amp;#39;;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	fout.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 下面是测试结果：&lt;/p&gt;
+&lt;table&gt;&lt;tr&gt;&lt;th&gt;&lt;/th&gt;&lt;th&gt;scanf与printf&lt;/th&gt;&lt;th&gt;cin与cout&lt;/th&gt;&lt;th&gt;优化的cin与cout&lt;/th&gt;	&lt;th&gt;fin与fout&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;输入&lt;/td&gt;&lt;td&gt;1.125694s&lt;/td&gt;&lt;td&gt;2.46949s&lt;/td&gt;&lt;td&gt;0.950055s&lt;/td&gt;&lt;td&gt;0.834976s&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;输出&lt;/td&gt;&lt;td&gt;1.304706s&lt;/td&gt;&lt;td&gt;1.46059s&lt;/td&gt;&lt;td&gt;1.41783s&lt;/td&gt;&lt;td&gt;1.41298s&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 可以看到，事实上，解开同步之前，cin耗时是scanf的两倍还多，cout则比printf略慢。解开枷锁的cin执行效率与直接读文件接近，甚至比C的scanf还要快。至于输出，解开同步的cout执行效率略有提高，同样接近直接写文件，但是确实还是比C的printf略慢一点。&lt;/p&gt;
+ ]]></description>
+        </item>
+    </channel>
+</rss>

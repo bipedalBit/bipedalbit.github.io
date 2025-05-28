@@ -1,0 +1,1388 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Bipedal Bit">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="&nbsp;&nbsp;&nbsp; 之前说了组里的任务是手写BP神经网络，上一篇文总结了一下BP神经网络的概念，老实说，总结概念前的一个C++实现版本在总结概念之后重新审视时觉得实在是惨不忍睹，于是今晚回炉重写了。这篇文就来挂我的BP神经网络C++实现。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BP神经网络的C++实现">
+<meta property="og:url" content="https://blog.bipedalbit.net/2015/10/11/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84C-%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Hacking to the gate!">
+<meta property="og:description" content="&nbsp;&nbsp;&nbsp; 之前说了组里的任务是手写BP神经网络，上一篇文总结了一下BP神经网络的概念，老实说，总结概念前的一个C++实现版本在总结概念之后重新审视时觉得实在是惨不忍睹，于是今晚回炉重写了。这篇文就来挂我的BP神经网络C++实现。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-10-10T16:28:00.000Z">
+<meta property="article:modified_time" content="2025-05-21T15:42:53.540Z">
+<meta property="article:author" content="Bipedal Bit">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="BP神经网络">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>BP神经网络的C++实现 - Hacking to the gate!</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.bipedalbit.net","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":100,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Hacking to the gate!</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://cdn.minio.bipedalbit.net/bipedalbit-net-images/banner/125633249_p0_resize.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="BP神经网络的C++实现"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2015-10-11 00:28" pubdate>
+          2015年10月11日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          31 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">BP神经网络的C++实现</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>&nbsp;&nbsp;&nbsp; 之前说了组里的任务是手写BP神经网络，上一篇文总结了一下BP神经网络的概念，老实说，总结概念前的一个C++实现版本在总结概念之后重新审视时觉得实在是惨不忍睹，于是今晚回炉重写了。这篇文就来挂我的BP神经网络C++实现。</p>
+<span id="more"></span>
+
+<p>&nbsp;&nbsp;&nbsp; 老师提出的具体问题是平面对点集的二分类。ACM战过这么多场，写板子早成了习惯，就把通用的BP认真封装了一下：<br>&nbsp;&nbsp;&nbsp; 头文件里的Data结构体是输入数据的数据结构，可自定义，这里用的是点分类问题的模型，BP.h：</p>
+<pre><code class="hljs">#ifndef _BP_H_
+#define _BP_H_
+
+#include &lt;vector&gt;
+#include &lt;string&gt;
+using namespace std;
+
+/* 数据样本类 */
+struct Data
+&#123;
+	/* 输入参数，包括： */
+	/* 三维直角坐标系点的坐标(x, y, z) */
+	/* 三维直角坐标系平面a*x + b*y + c*z + d = 0的4个系数 */
+	double x[7];
+	/* 期望输出即监督值 */
+	/* 拟合 */
+	// double d[1];
+	/* 分类 */
+	double d[2];
+	/* 数据构造函数 */
+	Data();
+&#125;;
+
+class BP
+&#123;
+private:
+	/* ========== 常数 ========== */
+	/* 输入层节点数 */
+	int I;
+	/* 隐含层神经元数 */
+	int H;
+	/* 输出层神经元数 */
+	int O;
+	/* 权重学习速率 */
+	double LR;
+	/* 偏置学习速率 */
+	double LR2;
+	/* 学习速率衰减率（每次衰减与当前LR相乘） */
+	double LRDecay;
+	/* 误差函数收敛阈值 */
+	double C;
+	/* ========== 容器 ========== */
+	/* 训练用数据样本集 */
+	vector&lt;Data&gt; trainDS;
+	/* 测使用数据集 */
+	vector&lt;Data&gt; testDS;
+	/* 输入层与隐含层间的全连接权重：w[I(包含一个偏置值)][H] */
+	double **w;
+	/* w修正值 */
+	double *dw;
+	/* 隐含层阈值 */
+	double *th;
+	/* 隐含层输入积累即净激活，也存放之后的激活输出值：u[H] */
+	double *u;
+	/* 隐含层与输出层间的全连接权重：v[H][O] */
+	double **v;
+	/* v修正值 */
+	double *dv;
+	/* 输出层阈值 */
+	double *to;
+	/* 输出层输入积累即净激活，也存放之后的激活输出值：y[O] */
+	double *y;
+	/* 拟合标识 */
+	bool regression;
+	/* ========== 方法 ========== */
+	/* 填充训练用数据样本集 */
+	void fillTrainDS(int sampleCnt);
+	/* 清空训练用数据样本集 */
+	void clearTrainDS();
+	/* 填充测试使用数据集 */
+	void fillTestDS(int sampleCnt);
+	/* 清空测试使用数据集 */
+	void clearTestDS();
+	/* 预测 */
+	void forward(int index, bool test = false);
+	/* 调整 */
+	void backward(int index);
+public:
+	/* ========== 接口 ========== */
+	/*
+	 * 类构造函数，初始化BP神经网络结构和训练参数
+	 * int _I：		输入参数数目。
+	 * int _O：		输出值数目。
+	 * int A：		隐含层调整因子（1~10）。
+	 * double _LR：		权重学习速率（0.01~0.8）。
+	 * double _LR2：	偏置学习速率（0.01~0.8）。
+	 * double _LRDecay：	学习速率衰减率（每次衰减与当前LR相乘）。
+	 * double _C：		误差函数收敛阈值。
+	 * bool regression：	拟合标识。
+	 */
+	BP(int _I, int _O, int A = 1, double _LR = 0.01, double _LR2 = 0.035, double _LRDecay = 1.0, double _C = 0.01, bool regression = false);
+	/* 类析构函数，释放容器分配的堆空间 */
+	~BP();
+	/* 使用指定数目的样本训练指定数目次循环，返回最后的误差函数值 */
+	double train(int sampleCnt = 1000, int trainCnt = 100);
+	/*
+	 * 使用指定数目的样本循环训练。
+	 * 误差函数值进入可接受范围判定收敛并停止训练；
+	 * 到达最大训练次数时停止训练。
+	 * 返回是否收敛。
+	 */
+	bool trainTillConvergent(int sampleCnt = 1000, int maxEpoch = 1000);
+	/* 生成指定数目组数据测试当前神经网络 */
+	void testNetwork(int testCnt = 1000);
+	/* 保存当前神经网络，即两个权重数组 */
+	void saveNetwork(string wPath = &quot;wNetwork&quot;, string vPath = &quot;vNetwork&quot;);
+	/* 载入两个权重数组，还原神经网络 */
+	void loadNetwork(string wPath = &quot;wNetwork&quot;, string vPath = &quot;vNetwork&quot;);
+	/* 使用指定数据预测输出值并返回输出值 */
+	vector&lt;double&gt; runNetwork(vector&lt;double&gt; x);
+&#125;;
+
+#endif
+</code></pre>
+<p>&nbsp;&nbsp;&nbsp; 类实现源码里的Data结构体的构造函数是输入数据的处理和问题模型的建立，可自定义，这里用的是点分类问题的数据处理，BP.cpp：</p>
+<pre><code class="hljs">#include &quot;BP.h&quot;
+#include &lt;iostream&gt;
+#include &lt;cstdlib&gt;
+#include &lt;ctime&gt;
+#include &lt;cmath&gt;
+#include &lt;fstream&gt;
+using namespace std;
+
+/* 数据构造函数 */
+Data::Data()
+&#123;
+	/* 归一参数 */
+	for(int i = 1 ; i &lt; 8 ; i++)
+	&#123;
+		x[i] = rand()/(double)RAND_MAX;
+	&#125;
+	/* 实际参数 */
+	double _x = x[1]*20 - 10;
+	double y = x[2]*20 - 10;
+	double z = x[3]*20 - 10;
+	double a = x[4]*20 - 10;
+	double b = x[5]*20 - 10;
+	double c = x[6]*20 - 10;
+	double _d = x[7]*20 - 10;
+	/* 拟合 */
+	// d[0] = z - (a*_x + b*y + _d)/(-1*c);
+	/* 分类 */
+	d[0] = z &gt; (a*_x + b*y + _d)/(-1*c) ? 1 : 0;
+	d[1] = d[0] ? 0 : 1;
+&#125;
+
+/* 填充训练用数据样本集 */
+void BP::fillTrainDS(int sampleCnt)
+&#123;
+	while(sampleCnt--)
+	&#123;
+		trainDS.push_back(Data());
+	&#125;
+&#125;
+
+/* 清空训练用数据样本集 */
+void BP::clearTrainDS()
+&#123;
+	vector&lt;Data&gt; v;
+	trainDS.swap(v);
+&#125;
+
+/* 填充测试使用数据集 */
+void BP::fillTestDS(int sampleCnt)
+&#123;
+	while(sampleCnt--)
+	&#123;
+		testDS.push_back(Data());
+	&#125;
+&#125;
+
+/* 清空测试使用数据集 */
+void BP::clearTestDS()
+&#123;
+	vector&lt;Data&gt; v;
+	testDS.swap(v);
+&#125;
+
+/* 预测 */
+void BP::forward(int index, bool test)
+&#123;
+	/* 隐含层 */
+	for(int i = 0 ; i &lt; H ; i++)
+	&#123;
+		u[i] = 0;
+		for(int j = 0 ; j &lt; I ; j++)
+		&#123;
+			double x = test ? testDS[index].x[j] : trainDS[index].x[j];
+			/* 积累输入 */
+			u[i] += w[j][i]*x;
+		&#125;
+		u[i] += th[i];
+		/* Sigmoid函数作为激活函数 */
+		u[i] = 1 / (1 + exp(-1*u[i]));
+	&#125;
+	/* 输出层 */
+	for(int i = 0 ; i &lt; O ; i++)
+	&#123;
+		y[i] = 0;
+		for(int j = 0 ; j &lt; H ; j++)
+		&#123;
+			/* 积累输入 */
+			y[i] += v[j][i]*u[j];
+		&#125;
+		y[i] += to[i];
+		/* 分类：Sigmoid函数作为激活函数 */
+		if (!regression)
+		&#123;
+			y[i] = 1 / (1 + exp(-1*y[i]));
+		&#125;
+	&#125;
+&#125;
+
+/* 调整 */
+void BP::backward(int index)
+&#123;
+	/* 计算隐含层与输出层间权重调整值 */
+	for(int i = 0 ; i &lt; O ; i++)
+	&#123;
+		/* 拟合：计算输出层学习误差 */
+		if (regression)
+		&#123;
+			dv[i] = y[i] - trainDS[index].d[i];
+		&#125;
+		/* 分类：计算输出层学习误差 */
+		else
+		&#123;
+			dv[i] = (y[i] - trainDS[index].d[i])*y[i]*(1 - y[i]);
+		&#125;
+	&#125;
+	/* 计算输入层与隐含层间权重调整值 */
+	double t;
+	for(int i = 0 ; i &lt; H ; i++)
+	&#123;
+		t = 0;
+		for(int j = 0 ; j &lt; O ; j++)
+		&#123;
+			t += dv[j]*v[i][j];
+		&#125;
+		dw[i] = t*u[i]*(1 - u[i]);
+	&#125;
+	/* 调整隐含层与输出层间权重 */
+	for(int i = 0 ; i &lt; H ; i++)
+	&#123;
+		for(int j = 0 ; j &lt; O ; j++)
+		&#123;
+			v[i][j] -= LR*dv[j]*u[i];
+		&#125;
+	&#125;
+	/* 调整输出层偏置 */
+	for(int i = 0 ; i &lt; O ; i++)
+	&#123;
+		to[i] -= LR2*dv[i];
+	&#125;
+	/* 调整输入层与隐含层间权重 */
+	for(int i = 0 ; i &lt; I ; i++)
+	&#123;
+		for(int j = 0 ; j &lt; H ; j++)
+		&#123;
+			w[i][j] -= LR*dw[j]*trainDS[index].x[i];
+		&#125;
+	&#125;
+	/* 调整隐含层偏置 */
+	for(int i = 0 ; i &lt; H ; i++)
+	&#123;
+		th[i] -= LR2*dw[i];
+	&#125;
+&#125;
+
+/*
+ * 类构造函数，初始化BP神经网络结构和训练参数
+ * int _I：		输入参数数目，包括偏置值对应的参数-1。
+ * int _O：		输出值数目。
+ * int A：		隐含层调整因子（1~10）。
+ * double _LR：		权重学习速率（0.01~0.8）。
+ * double _LR2：	偏置学习速率（0.01~0.8）。
+ * double _LRDecay：	学习速率衰减率（每次衰减与当前LR相乘）。
+ * double _C：		误差函数收敛阈值。
+ * bool regression：	拟合标识。
+ */
+BP::BP(int _I, int _O, int A, double _LR, double _LR2, double _LRDecay, double _C, bool _regression)
+&#123;
+	/* ========== 初始化常数 ========== */
+	I = _I;
+	H = ceil(sqrt(_I + _O)) + A;
+	O = _O;
+	LR = _LR;
+	LR2 = _LR2;
+	LRDecay = _LRDecay;
+	C = _C;
+	regression = _regression;
+	/* ========== 初始化容器 ========== */
+	srand((unsigned)time(NULL));
+	/* 初始化w */
+	w = new double*[I];
+	for(int i = 0 ; i &lt; I ; i++)
+	&#123;
+		w[i] = new double[H];
+		for(int j = 0 ; j &lt; H ; j++)
+		&#123;
+			w[i][j] = rand()/(double)RAND_MAX;
+		&#125;
+	&#125;
+	/* 初始化dw */
+	dw = new double[H];
+	/* 初始化th */
+	th = new double[H];
+	for(int i = 0 ; i &lt; H ; i++)
+	&#123;
+		th[i] = rand()/(double)RAND_MAX;
+	&#125;
+	/* 初始化u */
+	u = new double[H];
+	/* 初始化v */
+	v = new double*[H];
+	for(int i = 0 ; i &lt; H ; i++)
+	&#123;
+		v[i] = new double[O];
+		for(int j = 0 ; j &lt; O ; j++)
+		&#123;
+			v[i][j] = rand()/(double)RAND_MAX;
+		&#125;
+	&#125;
+	/* 初始化dv */
+	dv = new double[O];
+	/* 初始化to */
+	to = new double[O];
+	for(int i = 0 ; i &lt; O ; i++)
+	&#123;
+		to[i] = rand()/(double)RAND_MAX;
+	&#125;
+	/* 初始化y */
+	y = new double[O];
+&#125;
+
+/* 类析构函数，释放容器分配的堆空间 */
+BP::~BP()
+&#123;
+	/* 释放w */
+	for(int i = 0 ; i &lt; I ; i++)
+	&#123;
+		delete []w[i];
+	&#125;
+	delete []w;
+	/* 释放dw */
+	delete []dw;
+	/* 释放th */
+	delete []th;
+	/* 释放u */
+	delete []u;
+	/* 释放v */
+	for(int i = 0 ; i &lt; H ; i++)
+	&#123;
+		delete []v[i];
+	&#125;
+	delete []v;
+	/* 释放dv */
+	delete []dv;
+	/* 释放to */
+	delete []to;
+	/* 释放y */
+	delete []y;
+&#125;
+
+/* 使用指定数目的样本训练指定数目次循环，返回最后的误差函数值 */
+double BP::train(int sampleCnt, int trainCnt)
+&#123;
+	fillTrainDS(sampleCnt);
+	double e;
+	while(trainCnt--)
+	&#123;
+		e = 0;
+		for(int i = 0 ; i &lt; trainDS.size() ; i++)
+		&#123;
+			/* 预测 */
+			forward(i);
+			/* 误差积累 */
+			for(int j = 0 ; j &lt; O ; j++)
+			&#123;
+				e += pow(y[j] - trainDS[i].d[j], 2.0);
+			&#125;
+			/* 调整 */
+			backward(i);
+		&#125;
+		e /= 2*sampleCnt;
+		/* 学习速率衰减 */
+		if (LR &gt; 0.01)
+		&#123;
+			LR *= LRDecay;
+		&#125;
+	&#125;
+	clearTrainDS();
+	return e;
+&#125;
+
+/*
+ * 使用指定数目的样本循环训练。
+ * 误差函数值进入可接受范围判定收敛并停止训练；
+ * 到达最大训练次数时停止训练。
+ * 返回是否收敛。
+ */
+bool BP::trainTillConvergent(int sampleCnt, int maxEpoch)
+&#123;
+	fillTrainDS(sampleCnt);
+	double e;
+	for(;;)
+	&#123;
+		e = 0;
+		for(int i = 0 ; i &lt; trainDS.size() ; i++, maxEpoch--)
+		&#123;
+			if (!maxEpoch)
+			&#123;
+				clearTrainDS();
+				return false;
+			&#125;
+			/* 预测 */
+			forward(i);
+			/* 误差积累 */
+			for(int j = 0 ; j &lt; O ; j++)
+			&#123;
+				e += pow(y[j] - trainDS[i].d[j], 2.0);
+			&#125;
+			/* 调整 */
+			backward(i);
+		&#125;
+		/* 判定收敛，中止训练 */
+		if (e/(2*sampleCnt) &lt; C)
+		&#123;
+			clearTrainDS();
+			return true;
+		&#125;
+		/* 学习速率衰减 */
+		if (LR &gt; 0.01)
+		&#123;
+			LR *= LRDecay;
+		&#125;
+	&#125;
+	clearTrainDS();
+	return false;
+&#125;
+
+/* 生成指定数目组数据测试当前神经网络 */
+void BP::testNetwork(int testCnt)
+&#123;
+	fillTestDS(testCnt);
+	double e = 0;
+	for(int i = 0 ; i &lt; testCnt ; i++)
+	&#123;
+		forward(i, true);
+		for(int j = 0 ; j &lt; O ; j++)
+		&#123;
+			e += pow(y[j] - testDS[i].d[j], 2.0);
+		&#125;
+	&#125;
+	cout &lt;&lt; testCnt &lt;&lt; &quot;组数据测试预测值相对期望值方差为：&quot; &lt;&lt; e/(2*testCnt) &lt;&lt; endl;
+	clearTestDS();
+&#125;
+
+/* 保存当前神经网络，即两个权重数组 */
+void BP::saveNetwork(string wPath, string vPath)
+&#123;
+	ofstream fout_w(wPath);
+	if(fout_w == NULL)
+	&#123;
+		cout &lt;&lt; &quot;打开文件失败&quot; &lt;&lt; endl;
+		return;
+	&#125;
+	for(int i = 0 ; i &lt; I ; i++)
+	&#123;
+		for(int j = 0 ; j &lt; H ; j++)
+		&#123;
+			fout_w &lt;&lt; w[i][j] &lt;&lt; &#39;\t&#39;;
+		&#125;
+		fout_w &lt;&lt; &#39;\n&#39;;
+	&#125;
+	fout_w.close();
+	ofstream fout_v(vPath);
+	if(fout_v == NULL)
+	&#123;
+		cout &lt;&lt; &quot;打开文件失败&quot; &lt;&lt; endl;
+		return;
+	&#125;
+	for(int i = 0 ; i &lt; H ; i++)
+	&#123;
+		for(int j = 0 ; j &lt; O ; j++)
+		&#123;
+			fout_v &lt;&lt; v[i][j] &lt;&lt; &#39;\t&#39;;
+		&#125;
+		fout_v &lt;&lt; &#39;\n&#39;;
+	&#125;
+	fout_v.close();
+&#125;
+
+/* 载入两个权重数组，还原神经网络 */
+void BP::loadNetwork(string wPath, string vPath)
+&#123;
+	ifstream fin_w(wPath);
+	if(fin_w == NULL)
+	&#123;
+		cout &lt;&lt; &quot;打开文件失败&quot; &lt;&lt; endl;
+		return;
+	&#125;
+	for(int i = 0 ; i &lt; I ; i++)
+	&#123;
+		for(int j = 0 ; j &lt; H ; j++)
+		&#123;
+			fin_w &gt;&gt; w[i][j];
+		&#125;
+	&#125;
+	fin_w.close();
+	ifstream fin_v(vPath);
+	if(fin_v == NULL)
+	&#123;
+		cout &lt;&lt; &quot;打开文件失败&quot; &lt;&lt; endl;
+		return;
+	&#125;
+	for(int i = 0 ; i &lt; H ; i++)
+	&#123;
+		for(int j = 0 ; j &lt; O ; j++)
+		&#123;
+			fin_v &gt;&gt; v[i][j];
+		&#125;
+	&#125;
+	fin_v.close();
+&#125;
+
+/* 使用指定数据预测输出值并返回输出值 */
+vector&lt;double&gt; BP::runNetwork(vector&lt;double&gt; x)
+&#123;
+	/* 隐含层 */
+	for(int i = 0 ; i &lt; H ; i++)
+	&#123;
+		u[i] = 0;
+		for(int j = 0 ; j &lt; x.size() ; j++)
+		&#123;
+			/* 积累输入 */
+			u[i] += w[j][i]*x[j];
+		&#125;
+		u[i] += th[i];
+		/* Sigmoid函数作为激活函数 */
+		u[i] = 1 / (1 + exp(-1*u[i]));
+	&#125;
+	vector&lt;double&gt; o;
+	double y;
+	/* 输出层 */
+	for(int i = 0 ; i &lt; O ; i++)
+	&#123;
+		y = 0;
+		for(int j = 0 ; j &lt; H ; j++)
+		&#123;
+			/* 积累输入 */
+			y += v[j][i]*u[j];
+		&#125;
+		y += to[i];
+		/* 分类：Sigmoid函数作为激活函数 */
+		if (!regression)
+		&#123;
+			y = 1 / (1 + exp(-1*y));
+		&#125;
+		o.push_back(y);
+	&#125;
+	return o;
+&#125;
+</code></pre>
+<p>&nbsp;&nbsp;&nbsp; 类的测试方法里无非是根据实际问题初始化类，做一系列的训练，调整参数，慢慢提高预测精度，test.cpp：</p>
+<pre><code class="hljs">#include &quot;BP.h&quot;
+#include &lt;iostream&gt;
+
+using namespace std;
+
+int main()
+&#123;
+	/*
+	 * 类构造函数，初始化BP神经网络结构和训练参数
+	 * int _I：		输入参数数目，包括偏置值对应的参数-1。
+	 * int _O：		输出值数目。
+	 * int A：		隐含层调整因子（1~10）。
+	 * double _LR：		学习速率（0.01~0.8）。
+	 * double _LR2：	偏置学习速率（0.01~0.8）。
+	 * double _LRDecay：	学习速率衰减率（每次衰减与当前LR相乘）。
+	 * double _C：		误差函数收敛阈值。
+	 * bool regression：	拟合标识。
+	 */
+	BP o(7, 2, 8, 0.2, 0.02, 0.99, 3.2e-2, false);
+
+	// o.loadNetwork();
+
+	/* 使用指定数目的样本训练指定数目次循环，返回最后的误差函数值 */
+	for(int i = 0 ; i &lt; 20 ; i++)
+	&#123;
+		cout &lt;&lt; &quot;误差函数值：&quot; &lt;&lt; o.train(1000, 2e3) &lt;&lt; endl;
+	&#125;
+
+	/*
+	 * 使用指定数目的样本循环训练。
+	 * 误差函数值进入可接受范围判定收敛并停止训练；
+	 * 到达最大训练次数时停止训练。
+	 * 返回是否收敛。
+	 */
+	// bool success = o.trainTillConvergent(1000, 1e5*1000);
+	// cout &lt;&lt; &quot;收敛：&quot; &lt;&lt; (success ? &quot;success&quot; : &quot;fail&quot;) &lt;&lt; endl;
+
+	o.testNetwork(1000);
+
+	o.saveNetwork();
+
+	vector&lt;double&gt; X;
+	double x = 0.1;
+	double y = 0.1;
+	double z = 0.1;
+	double a = 1;
+	double b = 1;
+	double c = 1;
+	double d = -1;
+	X.push_back((x + 10)/20.0);
+	X.push_back((y + 10)/20.0);
+	X.push_back((z + 10)/20.0);
+	X.push_back((a + 10)/20.0);
+	X.push_back((b + 10)/20.0);
+	X.push_back((c + 10)/20.0);
+	X.push_back((d + 10)/20.0);
+	vector&lt;double&gt; Y = o.runNetwork(X);
+	/* 拟合 */
+	// cout &lt;&lt; &quot;期望值：&quot; &lt;&lt; z - (a*x + b*y + d)/(-c) &lt;&lt; endl;
+	// cout &lt;&lt; &quot;输出值：&quot; &lt;&lt; Y[0] &lt;&lt; endl;
+	/* 分类 */
+	cout &lt;&lt; &quot;期望值：&quot; &lt;&lt; (z &gt; (a*x + b*y + d)/(-c) ? &quot;1\t0&quot; : &quot;0\t1&quot;) &lt;&lt; endl;
+	cout &lt;&lt; &quot;输出值：&quot; &lt;&lt; Y[0] &lt;&lt; &#39;\t&#39; &lt;&lt; Y[1] &lt;&lt; endl;
+
+	return 0;
+&#125;
+</code></pre>
+<p>&nbsp;&nbsp;&nbsp; 点分类问题我先尝试了函数拟合方式，训练情况很糟糕，动辄上十万的方差。后来改用分类方式，降低训练要求，方差立马降下来了。下午例会就要做报告了，我没有训练到充分收敛，但是离平面比较远的点判断正确率已经很高了。下面提供平面分类点集问题当前训练进度下，输入层与隐含层间权重数组、隐含层与输出层间权重数组的保存文件。</p>
+<p>&nbsp;&nbsp;&nbsp; 输入层与隐含层间权重数组wNetwork：</p>
+<pre><code class="hljs">0.15513	0.56829	0.461073	0.27552	0.44408	0.144657	0.95798	0.335522	0.325092	0.254423	0.79217
+-1.06417	-0.0241895	3.99915	0.228275	-0.483658	6.68402	-1.61574	0.753689	4.14272	-4.58112	-3.09481
+3.70442	-3.7423	0.0852013	-0.564758	-4.99619	1.29436	-4.19077	-1.75579	-0.568722	-2.57748	1.20149
+-0.311858	2.12485	0.494471	-3.32854	-0.393046	1.12112	-0.585242	-3.45739	-0.687711	-1.37346	-0.860532
+1.29214	0.74987	4.41025	-1.37666	0.268284	6.72309	2.0978	-1.8259	4.20105	-6.15165	5.04569
+-3.76331	-3.22432	-0.450262	1.77063	-5.89358	3.40051	3.64122	1.30879	-0.98291	-0.931413	-1.72719
+9.53636	9.64562	9.82743	13.4779	-12.3668	12.5147	8.37658	6.32437	-10.263	-13.8476	-5.31933
+</code></pre>
+<p>&nbsp;&nbsp;&nbsp; 隐含层与输出层间权重数组vNetwork：</p>
+<pre><code class="hljs">31.4711	-31.5094
+27.536	-27.5713
+-25.7692	25.7999
+-27.4329	27.467
+-17.6709	17.6933
+-18.464	17.5204
+25.8167	-25.8471
+-23.2151	23.2434
+27.3533	-27.387
+26.9126	-26.9519
+-24.7905	24.8209
+</code></pre>
+<p>&nbsp;&nbsp;&nbsp; 这个类我还做过a+b问题的函数拟合，收敛非常顺利，精度很高。<br>&nbsp;&nbsp;&nbsp; <strong>后来，例会上提任务的博士说他明明是要我们寻找分割点集的平面，我把问题泛化成寻找点与平面位置关系规则的问题了，能用泛化能力不太强的BP整的差不多收敛也是不容易。我表示生无可恋……</strong></p>
+<p>&nbsp;&nbsp;&nbsp; <strong>读者注意一下，上一篇BP网络的理论介绍中，隐层与输入层之间的权重调整值的推导有一些问题，少乘了一个wij。推导已经改过来了，但是比较忙没空改代码，有需要的同学请自己参照上一篇博文修改一下代码。OTZ</strong></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" class="category-chain-item">机器学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/" class="print-no-link">#BP神经网络</a>
+      
+        <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" class="print-no-link">#机器学习</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>BP神经网络的C++实现</div>
+      <div>https://blog.bipedalbit.net/2015/10/11/BP神经网络的C-实现/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Bipedal Bit</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2015年10月11日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2015/10/13/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84python%EF%BC%88pybrain%E5%BA%93%EF%BC%89%E5%AE%9E%E7%8E%B0/" title="BP神经网络的python（pybrain库）实现">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">BP神经网络的python（pybrain库）实现</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2015/10/09/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/" title="BP神经网络">
+                        <span class="hidden-mobile">BP神经网络</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://registry.npmmirror.com/@waline/client/2.15.8/files/dist/waline.css')
+      Fluid.utils.createScript('https://registry.npmmirror.com/@waline/client/2.15.8/files/dist/waline.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://waline.bipedalbit.net","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+          <div style="text-align: center;">
+  当前页面浏览量: <span class="waline-pageview-count"></span>
+</div>
+<script type="module">
+  import { pageviewCount } from 'https://unpkg.com/@waline/client@v3/dist/pageview.js';
+
+  pageviewCount({
+    serverURL: 'https://waline.bipedalbit.net/',
+    path: window.location.pathname,
+    // 可选配置项
+    // selector: 'waline-pageview-count',
+    // update: true,
+  });
+
+  // 等待数据加载完成，检查 span 内容是否为空
+  setTimeout(() => {
+    const span = document.querySelector('.waline-pageview-count');
+    if (!span.textContent.trim()) {
+      span.textContent = '1';
+    }
+  }, 1000); // 1秒后执行，确保数据加载完成
+</script>
+
+        </div>
+      </div>
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

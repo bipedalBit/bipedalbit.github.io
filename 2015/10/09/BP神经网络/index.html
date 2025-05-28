@@ -1,0 +1,806 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Bipedal Bit">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="&nbsp;&nbsp;&nbsp; 组里要求新人手写个BP神经网络练练手先，具体要求是用一个平面把空间点集二分类，建模时我发现这个问题比起分类来更接近一个多元函数拟合，当然分类也不是不行，机器学习的要求更低，更容易有更好的结果。这都是后话，这篇文我决定先来总结一下BP神经网络的概念，也算是前几天的学习笔记了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BP神经网络">
+<meta property="og:url" content="https://blog.bipedalbit.net/2015/10/09/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/index.html">
+<meta property="og:site_name" content="Hacking to the gate!">
+<meta property="og:description" content="&nbsp;&nbsp;&nbsp; 组里要求新人手写个BP神经网络练练手先，具体要求是用一个平面把空间点集二分类，建模时我发现这个问题比起分类来更接近一个多元函数拟合，当然分类也不是不行，机器学习的要求更低，更容易有更好的结果。这都是后话，这篇文我决定先来总结一下BP神经网络的概念，也算是前几天的学习笔记了。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E5%85%83%E6%A8%A1%E5%9E%8B.jpg">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E7%A5%9E%E7%BB%8F%E5%85%83%E8%BE%93%E5%85%A5%E7%A7%AF%E7%B4%AF1.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E7%A5%9E%E7%BB%8F%E5%85%83%E8%BE%93%E5%87%BA3.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E7%A5%9E%E7%BB%8F%E5%85%83%E8%BE%93%E5%85%A5%E7%A7%AF%E7%B4%AF2.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E7%BA%BF%E6%80%A7%E5%87%BD%E6%95%B0.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%96%9C%E9%9D%A2%E5%87%BD%E6%95%B0.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E9%98%88%E5%80%BC%E5%87%BD%E6%95%B0.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/Sigmoid-S%E5%BD%A2%E5%87%BD%E6%95%B0.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/S%E5%BD%A2%E5%87%BD%E6%95%B0%E5%AF%BC%E6%95%B0.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E5%8F%8C%E6%9E%81S%E5%BD%A2%E5%87%BD%E6%95%B0.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E5%8F%8C%E6%9E%81S%E5%BD%A2%E5%87%BD%E6%95%B0%E5%AF%BC%E6%95%B0.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/S%E5%BD%A2%E5%87%BD%E6%95%B0%E4%B8%8E%E5%8F%8C%E6%9E%81S%E5%BD%A2%E5%87%BD%E6%95%B0%E5%9B%BE%E5%83%8F.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E5%89%8D%E9%A6%88%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C.jpg">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E5%8F%8D%E9%A6%88%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C.jpg">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E8%87%AA%E7%BB%84%E7%BB%87%E7%BD%91%E7%BB%9C.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/Hebb%E5%AD%A6%E4%B9%A0%E5%BE%8B.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/Delta%E5%AD%A6%E4%B9%A0%E8%A7%84%E5%88%99.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/BP%E9%9A%90%E5%90%AB%E5%B1%82%E7%BB%8F%E9%AA%8C%E5%85%AC%E5%BC%8F.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/BP%E5%87%80%E6%BF%80%E6%B4%BB.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/BP%E7%A5%9E%E7%BB%8F%E5%85%83%E8%BE%93%E5%87%BA.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/BP%E8%BE%93%E5%87%BA%E5%B1%82%E6%9D%83%E5%80%BC%E4%BF%AE%E6%AD%A3.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC1.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC2.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/S%E5%BD%A2%E5%87%BD%E6%95%B0%E5%AF%BC%E6%95%B0.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC3.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC4.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC5.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC6.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC7.png">
+<meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC8.png">
+<meta property="article:published_time" content="2015-10-09T04:45:11.000Z">
+<meta property="article:modified_time" content="2025-05-21T15:42:53.546Z">
+<meta property="article:author" content="Bipedal Bit">
+<meta property="article:tag" content="BP神经网络">
+<meta property="article:tag" content="机器学习">
+<meta property="article:tag" content="人工神经网络">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E5%85%83%E6%A8%A1%E5%9E%8B.jpg">
+  
+  
+  
+  <title>BP神经网络 - Hacking to the gate!</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.bipedalbit.net","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":100,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Hacking to the gate!</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://cdn.minio.bipedalbit.net/bipedalbit-net-images/banner/125633249_p0_resize.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="BP神经网络"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2015-10-09 12:45" pubdate>
+          2015年10月9日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          33 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">BP神经网络</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>&nbsp;&nbsp;&nbsp; 组里要求新人手写个BP神经网络练练手先，具体要求是用一个平面把空间点集二分类，建模时我发现这个问题比起分类来更接近一个多元函数拟合，当然分类也不是不行，机器学习的要求更低，更容易有更好的结果。这都是后话，这篇文我决定先来总结一下BP神经网络的概念，也算是前几天的学习笔记了。</p>
+<span id="more"></span>
+<h1 id="1-机器学习"><a href="#1-机器学习" class="headerlink" title="1. 机器学习"></a>1. 机器学习</h1><p>&nbsp;&nbsp;&nbsp; 百度百科说机器学习(Machine Learning, ML)是一门多领域交叉学科，涉及概率论、统计学、逼近论、凸分析、算法复杂度理论等多门学科。简而言之，机器学习专门研究计算机怎样<strong>模拟或实现人类的学习行为</strong>，以获取新的知识或技能，重新组织已有的知识结构使之不断改善自身的性能。机器学习是人工智能的核心，是使计算机具有智能的<strong>根本途径</strong>，其应用遍及人工智能的各个领域，它主要使用<strong>归纳、综合而不是演绎</strong>。<br>&nbsp;&nbsp;&nbsp; 机器学习的方向很多，其历史和兴衰说来话长，这里引入机器学习的概念只是为了做个铺垫，就不展开了。</p>
+<h1 id="2-人工神经网络"><a href="#2-人工神经网络" class="headerlink" title="2. 人工神经网络"></a>2. 人工神经网络</h1><p>&nbsp;&nbsp;&nbsp; 人工神经网络（Artificial Neural Network，ANN ）是人工智能的一支，是机器学习的一个方向，试图通过数学模型和适当的数据结构还原智能的温床——神经系统。我们知道人类大脑信息的传递、对外界刺激产生反应都是由一种特化的细胞——神经元来负责，人脑就是由上百亿个神经元构成。这些神经元之间并不孤立而且联系很密切，每个神经元平均与几千个神经元相连接，因此构成了一个神经网络。<br>&nbsp;&nbsp;&nbsp; 刺激在神经网络中的传播是遵循一定的规则的，一个神经元并非每次接到其他神经传递过来的刺激都产生反应。它首先会将与其相邻的神经元传来的刺激进行积累，到一定的时候产生自己的刺激将其传递给一些与它相邻的神经元。遵循同样规则工作着的百亿个的神经元完成了人脑对外界的反应。而人脑对外界刺激的学习过程则是通过这些神经元之间联系的建立及其强度的调整来完成的。<br>&nbsp;&nbsp;&nbsp; 当然，事实上，上述生物模型是对真正神经网络工作机制的一种简化，这种简化的生物模型可以推广至机器学习中，并以数学模型为理论基础，用不同的编程方式来实现。这种对神经网络的模拟，称为人工神经网络。</p>
+<h2 id="2-1-人工神经元（Artificial-Neuron，AN）模型"><a href="#2-1-人工神经元（Artificial-Neuron，AN）模型" class="headerlink" title="2.1. 人工神经元（Artificial Neuron，AN）模型"></a>2.1. 人工神经元（Artificial Neuron，AN）模型</h2><p>&nbsp;&nbsp;&nbsp; AN是ANN的基本元素之一，其原理如下图。<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E5%85%83%E6%A8%A1%E5%9E%8B.jpg" srcset="/img/loading.gif" lazyload alt="图1 人工神经元模型" title="人工神经元模型"><br>&nbsp;&nbsp;&nbsp; 图中x1~xn是从其他神经元传来的输入信号，wij表示表示从神经元j到神经元i的连接权值，θ表示一个偏置( bias )。则神经元i的输出与输入的关系表示为：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E7%A5%9E%E7%BB%8F%E5%85%83%E8%BE%93%E5%85%A5%E7%A7%AF%E7%B4%AF1.png" srcset="/img/loading.gif" lazyload title="净激活"><br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E7%A5%9E%E7%BB%8F%E5%85%83%E8%BE%93%E5%87%BA3.png" srcset="/img/loading.gif" lazyload title="激活输出"><br>&nbsp;&nbsp;&nbsp; 图中 yi表示神经元i的输出，函数f称为激活函数 ( Activation Function )，net称为净激活(net activation)。<br>&nbsp;&nbsp;&nbsp; 如果令一个输入参数x0为-1，对应权重为偏置θ，则可以把偏置项合并进净激活net：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E7%A5%9E%E7%BB%8F%E5%85%83%E8%BE%93%E5%85%A5%E7%A7%AF%E7%B4%AF2.png" srcset="/img/loading.gif" lazyload title="合并偏置的净激活"><br>&nbsp;&nbsp;&nbsp; 若令X为输入向量，W为权重向量，则有：</p>
+<p align="center"><span style="font-size:16px">X = [ x0 , x1 , x2 , ....... , xn ]</span></p>
+![](https://cdn.minio.bipedalbit.net/bipedalbit-net-images/人工神经网络/权重向量.png "权重向量")
+&nbsp;&nbsp;&nbsp; 将神经元的输出表示为向量相乘的形式则有：
+![](https://cdn.minio.bipedalbit.net/bipedalbit-net-images/人工神经网络/神经元输出1.png "净激活")
+![](https://cdn.minio.bipedalbit.net/bipedalbit-net-images/人工神经网络/神经元输出2.png "神经元输出")
+&nbsp;&nbsp;&nbsp; 若神经元的净激活net为正，称该神经元处于激活状态或兴奋状态，若净激活net为负，则称神经元处于抑制状态。
+&nbsp;&nbsp;&nbsp; 图1中的这种“阈值加权和”的神经元模型称为M-P模型 ( McCulloch-Pitts Model )，也称为神经网络的一个处理单元( PE, Processing Element )。
+## 2.2. 常用激活函数
+
+<p>&nbsp;&nbsp;&nbsp; 前面的神经元模型讲解中也提到了激活函数，事实上，激活函数是人工神经网络中的一个重要环节。下面介绍一些常用的激活函数。</p>
+<h3 id="2-2-1-线性函数（Liner-Function）"><a href="#2-2-1-线性函数（Liner-Function）" class="headerlink" title="2.2.1. 线性函数（Liner Function）"></a>2.2.1. 线性函数（Liner Function）</h3><p><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E7%BA%BF%E6%80%A7%E5%87%BD%E6%95%B0.png" srcset="/img/loading.gif" lazyload title="线性函数"></p>
+<h3 id="2-2-2-斜面函数（Ramp-Function）"><a href="#2-2-2-斜面函数（Ramp-Function）" class="headerlink" title="2.2.2. 斜面函数（Ramp Function）"></a>2.2.2. 斜面函数（Ramp Function）</h3><p><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%96%9C%E9%9D%A2%E5%87%BD%E6%95%B0.png" srcset="/img/loading.gif" lazyload title="斜面函数"></p>
+<h3 id="2-2-3-阈值函数（Threshold-Function）"><a href="#2-2-3-阈值函数（Threshold-Function）" class="headerlink" title="2.2.3. 阈值函数（Threshold Function）"></a>2.2.3. 阈值函数（Threshold Function）</h3><p><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E9%98%88%E5%80%BC%E5%87%BD%E6%95%B0.png" srcset="/img/loading.gif" lazyload title="阈值函数"></p>
+<h3 id="2-2-4-S形函数（Sigmoid-Function）"><a href="#2-2-4-S形函数（Sigmoid-Function）" class="headerlink" title="2.2.4. S形函数（Sigmoid Function）"></a>2.2.4. S形函数（Sigmoid Function）</h3><p><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/Sigmoid-S%E5%BD%A2%E5%87%BD%E6%95%B0.png" srcset="/img/loading.gif" lazyload title="S形函数"><br>&nbsp;&nbsp;&nbsp; 导函数：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/S%E5%BD%A2%E5%87%BD%E6%95%B0%E5%AF%BC%E6%95%B0.png" srcset="/img/loading.gif" lazyload title="S形函数导函数"></p>
+<h3 id="2-2-5-双极S形函数"><a href="#2-2-5-双极S形函数" class="headerlink" title="2.2.5. 双极S形函数"></a>2.2.5. 双极S形函数</h3><p><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E5%8F%8C%E6%9E%81S%E5%BD%A2%E5%87%BD%E6%95%B0.png" srcset="/img/loading.gif" lazyload title="双极S形函数"><br>&nbsp;&nbsp;&nbsp; 导函数：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E5%8F%8C%E6%9E%81S%E5%BD%A2%E5%87%BD%E6%95%B0%E5%AF%BC%E6%95%B0.png" srcset="/img/loading.gif" lazyload title="双极S形函数导函数"><br>&nbsp;&nbsp;&nbsp; S形函数与双极S形函数图像：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/S%E5%BD%A2%E5%87%BD%E6%95%B0%E4%B8%8E%E5%8F%8C%E6%9E%81S%E5%BD%A2%E5%87%BD%E6%95%B0%E5%9B%BE%E5%83%8F.png" srcset="/img/loading.gif" lazyload alt="图2 S形函数与双极S形函数图像" title="S形函数与双极S形函数图像"><br>&nbsp;&nbsp;&nbsp; 双极S形函数与S形函数主要区别在于函数的值域，双极S形函数值域是(-1,1)，而S形函数值域是(0,1)。<br>&nbsp;&nbsp;&nbsp; 由于S形函数与双极S形函数都是可导的，因此适合用在BP神经网络中。（BP算法要求激活函数可导）</p>
+<h2 id="2-3-神经网络模型"><a href="#2-3-神经网络模型" class="headerlink" title="2.3. 神经网络模型"></a>2.3. 神经网络模型</h2><p>&nbsp;&nbsp;&nbsp; 根据神经元互联方式的不同，神经网络可以分为3种常见类型。</p>
+<h3 id="2-3-1-前馈神经网络（Feedforward-Neural-Networks）"><a href="#2-3-1-前馈神经网络（Feedforward-Neural-Networks）" class="headerlink" title="2.3.1. 前馈神经网络（Feedforward Neural Networks）"></a>2.3.1. 前馈神经网络（Feedforward Neural Networks）</h3><p>&nbsp;&nbsp;&nbsp; 前馈网络也称前向网络。这种网络只在训练过程会有反馈信号，而在分类过程中数据只能向前传送，直到到达输出层，层间没有向后的反馈信号，因此被称为前馈网络。感知机( perceptron)与BP神经网络属于前馈网络。<br>&nbsp;&nbsp;&nbsp; 下图是一个3层的前馈神经网络，其中第一层是输入单元，第二层称为隐含层，第三层称为输出层（输入单元不是神经元，因此图中有2层神经元）。<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E5%89%8D%E9%A6%88%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C.jpg" srcset="/img/loading.gif" lazyload alt="图3 前馈神经网络" title="前馈神经网络"><br>&nbsp;&nbsp;&nbsp; N层的前馈神经网络每层的输入参数都要按权重积累，得到净激活后由激活函数激活输出。<br>&nbsp;&nbsp;&nbsp; 比如，一个三层的前馈神经网络的输出为<code>F3( F2 ( F1( XW1 ) W2 ) W3 )</code>。当F1、F2、F3都选用线性激活函数，输出将是线性函数。<br>&nbsp;&nbsp;&nbsp; <strong>所以，如果要做高次函数的拟合，应该选用适当的非线性激活函数。</strong></p>
+<h3 id="2-3-2-反馈神经网络（Feedback-Neural-Networks）"><a href="#2-3-2-反馈神经网络（Feedback-Neural-Networks）" class="headerlink" title="2.3.2. 反馈神经网络（Feedback Neural Networks）"></a>2.3.2. 反馈神经网络（Feedback Neural Networks）</h3><p>&nbsp;&nbsp;&nbsp; 反馈型神经网络是一种从输出到输入具有反馈连接的神经网络，其结构比前馈网络要复杂得多。典型的反馈型神经网络有Elman网络和Hopfield网络。<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E5%8F%8D%E9%A6%88%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C.jpg" srcset="/img/loading.gif" lazyload alt="图4 反馈神经网络" title="反馈神经网络"></p>
+<h3 id="2-3-3-竞争学习网络（Competitive-Learning-Network）"><a href="#2-3-3-竞争学习网络（Competitive-Learning-Network）" class="headerlink" title="2.3.3. 竞争学习网络（Competitive Learning Network）"></a>2.3.3. 竞争学习网络（Competitive Learning Network）</h3><p>&nbsp;&nbsp;&nbsp; 竞争学习网络是一种无监督学习网络。它通过自动寻找样本中的内在规律和本质属性，自组织、自适应地改变网络参数与结构。典型的竞争学习网络有SOM。<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E8%87%AA%E7%BB%84%E7%BB%87%E7%BD%91%E7%BB%9C.png" srcset="/img/loading.gif" lazyload alt="图5 竞争学习网络" title="竞争学习网络"></p>
+<h3 id="2-3-4-神经网络的状态"><a href="#2-3-4-神经网络的状态" class="headerlink" title="2.3.4. 神经网络的状态"></a>2.3.4. 神经网络的状态</h3><p>&nbsp;&nbsp;&nbsp; 神经网络的状态分学习（训练）状态和工作状态两种。<br>&nbsp;&nbsp;&nbsp; 学习状态又分为两种方式：监督学习（Supervised Learning）和非监督（Unsupervised Learning）学习。<br>&nbsp;&nbsp;&nbsp; 监督学习算法将一组训练数据集送入网络，根据网络的实际输出与期望输出间的差别来调整连接权。达到预设训练次数或者样本整体误差不超过预设范围（收敛）时学习结束。BP算法就是一种出色的监督学习算法。<br>&nbsp;&nbsp;&nbsp; 非监督学习算法抽取样本集合中蕴含的统计特性，并以神经元之间的联接权的形式存于网络中。Hebb学习律是一种经典的非监督学习算法。</p>
+<h3 id="2-3-5-非监督学习算法：Hebb学习律"><a href="#2-3-5-非监督学习算法：Hebb学习律" class="headerlink" title="2.3.5. 非监督学习算法：Hebb学习律"></a>2.3.5. 非监督学习算法：Hebb学习律</h3><p>&nbsp;&nbsp;&nbsp; Hebb算法核心思想是，当两个神经元同时处于激发状态时两者间的连接权会被加强，否则被减弱。<br>&nbsp;&nbsp;&nbsp; Hebb学习律可以表示为：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/Hebb%E5%AD%A6%E4%B9%A0%E5%BE%8B.png" srcset="/img/loading.gif" lazyload title="Hebb学习律"><br>&nbsp;&nbsp;&nbsp; 其中wij表示神经元j到神经元i的连接权，yi与yj为两个神经元的输出，a是表示学习速率常数。若yi与yj同时被激活，即yi与yj同号，那 么wij将增大；若yi被激活，而yj处于抑制状态，即yi为正yj为负，那么wij将变小。</p>
+<h3 id="2-3-6-监督学习算法：Delta学习规则"><a href="#2-3-6-监督学习算法：Delta学习规则" class="headerlink" title="2.3.6. 监督学习算法：Delta学习规则"></a>2.3.6. 监督学习算法：Delta学习规则</h3><p>&nbsp;&nbsp;&nbsp; Delta学习规则的数学表达：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/Delta%E5%AD%A6%E4%B9%A0%E8%A7%84%E5%88%99.png" srcset="/img/loading.gif" lazyload title="Delta学习规则"><br>&nbsp;&nbsp;&nbsp; 其中wij表示神经元j到神经元i的连接权，di是神经元i的期望输出，yi是神经元i的实际输出，xj表示神经元j状态，若神经元j处于激活态则xj为 1，若处于抑制状态则xj为0或－1（依激活函数而定）。a是表示学习速率常数。假设xi为1，若di比yi大，那么Wij将增大，若di比yi小， 那么wij将变小。<br>&nbsp;&nbsp;&nbsp; Delta规则简单讲来就是：若神经元实际输出比期望输出大，则减小所有输入为正的连接的权重，增大所有输入为负的连接的权重。反之，若神经元实际输出比期望输出小，则增大所有输入为正的连接的权重，减小所有输入为负的连接的权重。这个增大或减小的幅度就根据上面的式子来计算。</p>
+<h1 id="3-BP神经网络"><a href="#3-BP神经网络" class="headerlink" title="3. BP神经网络"></a>3. BP神经网络</h1><h2 id="3-1-认识BP神经网络"><a href="#3-1-认识BP神经网络" class="headerlink" title="3.1. 认识BP神经网络"></a>3.1. 认识BP神经网络</h2><p>&nbsp;&nbsp;&nbsp; BP神经网络更清晰的称呼应该是使用BP算法学习的前馈神经网络。BP神经网络中的BP为Back Propagation（反向传播）的简写，最早它是由Rumelhart、McCelland等科学家于1986年提出来的，Rumelhart还在《Nature》上发表了一篇非常著名的文章《Learning representations by back-propagating errors》。随着时代的迁移，BP神经网络理论不断的得到改进、更新，现在无疑已成为了应用最为广泛的神经网络模型之一。BP网络具有很强的非线性映射能力，一个3层BP神经网络能够实现对任意非线性函数进行逼近（根据Kolrnogorov定理：任意[0,1]上的连续函数能被一个3层的神经网络实现，其中输入单元数为n，隐含层单元数为2n+1）。</p>
+<h2 id="3-2-隐含层的选取"><a href="#3-2-隐含层的选取" class="headerlink" title="3.2. 隐含层的选取"></a>3.2. 隐含层的选取</h2><p>&nbsp;&nbsp;&nbsp; 在BP神经网络中，输入层和输出层的节点个数都是确定的，而隐含层节点个数不确定。实际上，隐含层节点个数的多少对神经网络的性能是有影响的，有一个经验公式可以确定隐含层神经元数目：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/BP%E9%9A%90%E5%90%AB%E5%B1%82%E7%BB%8F%E9%AA%8C%E5%85%AC%E5%BC%8F.png" srcset="/img/loading.gif" lazyload title="BP隐含层经验公式"><br>&nbsp;&nbsp;&nbsp; 其中，h为隐含层神经元数，m为输入结点数，n为输出层神经元数，a为1~10之间的调节常数。</p>
+<h2 id="3-3-正向预测"><a href="#3-3-正向预测" class="headerlink" title="3.3. 正向预测"></a>3.3. 正向预测</h2><p>&nbsp;&nbsp;&nbsp; 就是使输入数据样本通过一个两层前馈网络，输出即：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/BP%E5%87%80%E6%BF%80%E6%B4%BB.png" srcset="/img/loading.gif" lazyload title="BP净激活"><br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/BP%E7%A5%9E%E7%BB%8F%E5%85%83%E8%BE%93%E5%87%BA.png" srcset="/img/loading.gif" lazyload title="BP神经元输出"></p>
+<h2 id="3-4-反向误差传播"><a href="#3-4-反向误差传播" class="headerlink" title="3.4. 反向误差传播"></a>3.4. 反向误差传播</h2><p>&nbsp;&nbsp;&nbsp; BP算法是基于Widrow-Hoff学习规则的，可以看做delta学习规则的一种特殊情况。Widrow-Hoff学习规则是通过沿着相对误差平方和的最速下降方向（梯度方向），连续调整网络的权重和偏置。根据梯度下降法，权重矢量的修正正比于当前位置上E(w,b)的梯度的模，即E(w,b)在当前位置的偏导数。我们知道函数<code>z = f(x,y)</code>中，z对x或y的偏导数即z随x或y变化的程度或快慢，这正切合BP神经网络中每层输入参数权重的意义，也印证了梯度下降法的正确性。对于第j个输出神经元有：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/BP%E8%BE%93%E5%87%BA%E5%B1%82%E6%9D%83%E5%80%BC%E4%BF%AE%E6%AD%A3.png" srcset="/img/loading.gif" lazyload title="输出层权值修正"><br>&nbsp;&nbsp;&nbsp; 其中i是隐含层神经元的序号。<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC1.png" srcset="/img/loading.gif" lazyload title="误差函数对权重的偏导"><br>&nbsp;&nbsp;&nbsp; 其中n是输出层神经元数，m是隐含层神经元数，于是得到：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC2.png" srcset="/img/loading.gif" lazyload title="误差函数对权重偏导2"><br>&nbsp;&nbsp;&nbsp; 已知Sigmoid函数的导函数：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/S%E5%BD%A2%E5%87%BD%E6%95%B0%E5%AF%BC%E6%95%B0.png" srcset="/img/loading.gif" lazyload title="Sigmoid函数导函数"><br>&nbsp;&nbsp;&nbsp; 于是有：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC3.png" srcset="/img/loading.gif" lazyload title="误差函数对权重偏导3"><br>&nbsp;&nbsp;&nbsp; 同理，对输出层偏置bj有：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC4.png" srcset="/img/loading.gif" lazyload title="输出层偏置"><br>&nbsp;&nbsp;&nbsp; 以上就是著名的<strong>delta学习规则</strong>，通过改变神经元之间的连接权值来减少系统实际输出和期望输出的误差，这个规则又叫做<strong>Widrow-Hoff学习规则</strong>或者<strong>纠错学习规则</strong>。<br>&nbsp;&nbsp;&nbsp; 设k为输入层的节点序号，下面继续推导输入层与隐含层的权重修正：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC5.png" srcset="/img/loading.gif" lazyload title="误差函数对权重偏导4"><br>&nbsp;&nbsp;&nbsp; 其中l是输入层节点数，yi也是前面推导隐含层与输出层间权重修正时的xi，于是有：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC6.png" srcset="/img/loading.gif" lazyload title="误差函数对权重偏导5"><br>&nbsp;&nbsp;&nbsp; 同理，对隐含层偏置bi有：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC7.png" srcset="/img/loading.gif" lazyload title="隐含层偏置"><br>&nbsp;&nbsp;&nbsp; 最后，输入层与隐含层间权重和偏置，隐含层与输出层间权重和偏置的修正值如下：<br><img src="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95%E6%8E%A8%E5%AF%BC8.png" srcset="/img/loading.gif" lazyload title="最终修正值"><br>&nbsp;&nbsp;&nbsp; 其中，eita1和eita2分别是权重学习速率和偏置学习速率。</p>
+<h2 id="3-5-注意点"><a href="#3-5-注意点" class="headerlink" title="3.5. 注意点"></a>3.5. 注意点</h2><ul>
+<li>输入数据要先进行归一化处理。例如使用Sigmoid函数作为激活函数时，输入参数如果分布在Sigmoid函数曲线的稳定区域中，即定义域的[-1,1]区间之外的区域，那么激活值将集中在0和1上，权重对输入参数的加权作用将失去意义，输入参数对权重的调整也将失去意义。</li>
+<li>学习速率大的时候收敛速度快精度小，收敛曲线颠簸；学习速率小收敛速度慢精度大，收敛曲线平滑。</li>
+<li>BP神经网络通常用于分类器和函数拟合，如果作为分类器，激活函数一般选用Sigmoid函数；如果做函数拟合，<strong>输出层</strong>的激活函数应该用线性函数即<code>f(x) = x</code>。</li>
+<li>BP神经网络训练过程中可以采用<strong>增量学习</strong>或<strong>批量学习</strong>，即分批临时生成新的训练数据样本并输入当前网络，分阶段逐步学习；或者预生成所有训练数据样本，学习到出结果为止。</li>
+</ul>
+<h2 id="3-6-缺陷"><a href="#3-6-缺陷" class="headerlink" title="3.6. 缺陷"></a>3.6. 缺陷</h2><ul>
+<li>BP神经网络训练时容易陷入局部极小值”假收敛“而得不到全局最优值，如果出现”假收敛“，只能重新随机初始化权重。</li>
+<li>BP神经网络需要的训练次数多，收敛比较慢。</li>
+<li>隐含层神经元数的选取缺乏理论指导。</li>
+<li>训练时学习新样本有遗忘旧样本的趋势，即“BP已死”这一说法的根源——泛化能力弱。</li>
+</ul>
+<h2 id="3-7-改进"><a href="#3-7-改进" class="headerlink" title="3.7. 改进"></a>3.7. 改进</h2><ul>
+<li>加入动量项，即记录上一次权重变化，通过变量因子确定继承上一次权重变化的程度，目的是使权重的调整方向不至于来回颠簸太厉害，表现在误差函数值上则是能令收敛曲线更趋平缓。</li>
+<li>自适应的调整学习因子，即当权重调整到一定程度，不降低学习程度就无法更精细的使神经网络中的关系靠近理想关系。这时需要适量的减小学习因子，一般采取给学习因子添加衰减率的方式。</li>
+<li>通过蚁群算法、遗传算法等算法优化BP神经网络。</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" class="category-chain-item">机器学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/" class="print-no-link">#BP神经网络</a>
+      
+        <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" class="print-no-link">#机器学习</a>
+      
+        <a href="/tags/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/" class="print-no-link">#人工神经网络</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>BP神经网络</div>
+      <div>https://blog.bipedalbit.net/2015/10/09/BP神经网络/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Bipedal Bit</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2015年10月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2015/10/11/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84C-%E5%AE%9E%E7%8E%B0/" title="BP神经网络的C++实现">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">BP神经网络的C++实现</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2015/10/08/C-%E4%BA%8C%E8%BF%9B%E5%88%B6-%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2%E5%99%A8/" title="C++二进制-十进制转换器">
+                        <span class="hidden-mobile">C++二进制-十进制转换器</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://registry.npmmirror.com/@waline/client/2.15.8/files/dist/waline.css')
+      Fluid.utils.createScript('https://registry.npmmirror.com/@waline/client/2.15.8/files/dist/waline.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://waline.bipedalbit.net","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+          <div style="text-align: center;">
+  当前页面浏览量: <span class="waline-pageview-count"></span>
+</div>
+<script type="module">
+  import { pageviewCount } from 'https://unpkg.com/@waline/client@v3/dist/pageview.js';
+
+  pageviewCount({
+    serverURL: 'https://waline.bipedalbit.net/',
+    path: window.location.pathname,
+    // 可选配置项
+    // selector: 'waline-pageview-count',
+    // update: true,
+  });
+
+  // 等待数据加载完成，检查 span 内容是否为空
+  setTimeout(() => {
+    const span = document.querySelector('.waline-pageview-count');
+    if (!span.textContent.trim()) {
+      span.textContent = '1';
+    }
+  }, 1000); // 1秒后执行，确保数据加载完成
+</script>
+
+        </div>
+      </div>
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

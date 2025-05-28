@@ -1,0 +1,1051 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Bipedal Bit">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Bipedal Bit&#39;s blog">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Hacking to the gate!">
+<meta property="og:url" content="https://blog.bipedalbit.net/page/2/index.html">
+<meta property="og:site_name" content="Hacking to the gate!">
+<meta property="og:description" content="Bipedal Bit&#39;s blog">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="Bipedal Bit">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Hacking to the gate!</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.bipedalbit.net","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":100,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Hacking to the gate!</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://cdn.minio.bipedalbit.net/bipedalbit-net-images/banner/125633249_p0_resize.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="为了证明并非止步不前，为了安慰被神牛震慑的心。"></span>
+          
+        </div>
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      <div class="container nopadding-x-md">
+        <div id="board"
+          style="margin-top: 0">
+          
+          <div class="container">
+            <div class="row">
+              <div class="col-12 col-md-10 m-auto">
+                
+
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/" target="_self">
+          中国象棋人机博弈实现练习
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/" target="_self">
+        <div>
+          &nbsp;&nbsp;&nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2015-11-15 21:54" pubdate>
+              2015-11-15
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88/" class="category-chain-item">人机博弈</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Qt/">#Qt</a>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88/">#人机博弈</a>
+            
+              <a href="/tags/AlphaBeta/">#AlphaBeta</a>
+            
+              <a href="/tags/MTD-f/">#MTD(f)</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2015/11/14/%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%88%9D%E6%8E%A2/" target="_self">
+          人机博弈初探
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2015/11/14/%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%88%9D%E6%8E%A2/" target="_self">
+        <div>
+          &nbsp;&nbsp;&nbsp; 组里布置任务，要编个中国象棋人机博弈程序练练手，写这篇文时游戏初版已经完成了。开工前导师给了些相关资料，我自己又稍微做了些调查，这篇文就先来对人机博弈，尤其是棋牌游戏的人机博弈思路做一些概念上的科普铺垫。做好了概念铺垫，下一篇再挑重点简单讲解下我的中国象棋游戏实现情况。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2015-11-14 22:27" pubdate>
+              2015-11-14
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88/" class="category-chain-item">人机博弈</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88/">#人机博弈</a>
+            
+              <a href="/tags/Maxmin/">#Maxmin</a>
+            
+              <a href="/tags/AlphaBeta/">#AlphaBeta</a>
+            
+              <a href="/tags/PVS/">#PVS</a>
+            
+              <a href="/tags/MTD-f/">#MTD(f)</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2015/10/19/%E8%A7%A3%E5%86%B3%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98%E7%9A%84%E5%88%A9%E5%99%A8%E2%80%94%E2%80%94apt-file/" target="_self">
+          解决依赖问题的利器——apt-file
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2015/10/19/%E8%A7%A3%E5%86%B3%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98%E7%9A%84%E5%88%A9%E5%99%A8%E2%80%94%E2%80%94apt-file/" target="_self">
+        <div>
+          &nbsp;&nbsp;&nbsp; 学校的有线网络客户端是DrCom，Windows下停掉热点分享服务和代理后跑的很顺利。可是切到我常用的Ubuntu下时客户端却跑不起来。从终端用命令运行客户端时发现有依赖文件缺失，借着这个契机，我认识了Ubuntu（Debian）下解决依赖问题的利器——apt-file。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2015-10-19 18:33" pubdate>
+              2015-10-19
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/ubuntu/" class="category-chain-item">ubuntu</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/ubuntu/">#ubuntu</a>
+            
+              <a href="/tags/debian/">#debian</a>
+            
+              <a href="/tags/apt-file/">#apt-file</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2015/10/17/C-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%88%9D%E6%8E%A2%E2%80%94%E2%80%94c-11%E7%AF%87/" target="_self">
+          C++多线程初探——c++11篇
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2015/10/17/C-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%88%9D%E6%8E%A2%E2%80%94%E2%80%94c-11%E7%AF%87/" target="_self">
+        <div>
+          &nbsp;&nbsp;&nbsp; 今天被说C++出身的猿不会多线程跟不会C++有什么分别，于是放下刚到手的Go和R的书，痛定思痛准备来给自己补补课。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2015-10-17 14:58" pubdate>
+              2015-10-17
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/c-11/">#c++11</a>
+            
+              <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">#多线程</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2015/10/13/python%E7%9A%84SimpleHTTPServer/" target="_self">
+          python的SimpleHTTPServer
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2015/10/13/python%E7%9A%84SimpleHTTPServer/" target="_self">
+        <div>
+          &nbsp;&nbsp;&nbsp; Linux下想要给局域网的其他终端共享文件大家一般会怎么做？是开个Nginx服务器或者Apache服务器？还是装个开源的FTP软件？其实还有更便捷的原生办法。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2015-10-13 17:46" pubdate>
+              2015-10-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/python/" class="category-chain-item">python</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/python/">#python</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2015/10/13/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84python%EF%BC%88pybrain%E5%BA%93%EF%BC%89%E5%AE%9E%E7%8E%B0/" target="_self">
+          BP神经网络的python（pybrain库）实现
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2015/10/13/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84python%EF%BC%88pybrain%E5%BA%93%EF%BC%89%E5%AE%9E%E7%8E%B0/" target="_self">
+        <div>
+          &nbsp;&nbsp;&nbsp; 上一篇文用C++手写了BP神经网络，事实上，生产环境中已经很少有人再亲自写神经网络了，已经出现了很多成熟的机器学习开源库。我安装了C++的shark库和python的pybrain库，在研究shark库的文档时发现shark库封装度太低了，用起来很麻烦，遂弃。虽然放弃C++的高效库很遗憾，但是后来发现pybrain库真是非常友好非常方便，于是分别写了分类器和函
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2015-10-13 14:54" pubdate>
+              2015-10-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" class="category-chain-item">机器学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/">#BP神经网络</a>
+            
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">#机器学习</a>
+            
+              <a href="/tags/python/">#python</a>
+            
+              <a href="/tags/pybrain/">#pybrain</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2015/10/11/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84C-%E5%AE%9E%E7%8E%B0/" target="_self">
+          BP神经网络的C++实现
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2015/10/11/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84C-%E5%AE%9E%E7%8E%B0/" target="_self">
+        <div>
+          &nbsp;&nbsp;&nbsp; 之前说了组里的任务是手写BP神经网络，上一篇文总结了一下BP神经网络的概念，老实说，总结概念前的一个C++实现版本在总结概念之后重新审视时觉得实在是惨不忍睹，于是今晚回炉重写了。这篇文就来挂我的BP神经网络C++实现。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2015-10-11 00:28" pubdate>
+              2015-10-11
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" class="category-chain-item">机器学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/">#BP神经网络</a>
+            
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">#机器学习</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2015/10/09/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/" target="_self">
+          BP神经网络
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2015/10/09/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/" target="_self">
+        <div>
+          &nbsp;&nbsp;&nbsp; 组里要求新人手写个BP神经网络练练手先，具体要求是用一个平面把空间点集二分类，建模时我发现这个问题比起分类来更接近一个多元函数拟合，当然分类也不是不行，机器学习的要求更低，更容易有更好的结果。这都是后话，这篇文我决定先来总结一下BP神经网络的概念，也算是前几天的学习笔记了。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2015-10-09 12:45" pubdate>
+              2015-10-09
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" class="category-chain-item">机器学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/">#BP神经网络</a>
+            
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">#机器学习</a>
+            
+              <a href="/tags/%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/">#人工神经网络</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2015/10/08/C-%E4%BA%8C%E8%BF%9B%E5%88%B6-%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2%E5%99%A8/" target="_self">
+          C++二进制-十进制转换器
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2015/10/08/C-%E4%BA%8C%E8%BF%9B%E5%88%B6-%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2%E5%99%A8/" target="_self">
+        <div>
+          &nbsp;&nbsp;&nbsp; 布置了二进制-十进制转换器的小作业，本来还要求顺手扩展一下大数的四则运算，我嫌麻烦没做扩展，就只是写来玩玩。也算熟悉一下底层的二进制-十进制转换机制，顺便复习下C++源码规范。注释写了很多，就不多做解释了，只贴代码。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2015-10-08 22:05" pubdate>
+              2015-10-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2/">#进制转换</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2015/10/08/C-cin%E3%80%81cout%E7%9A%84%E4%BC%98%E5%8C%96%E5%8F%8A%E6%B5%8B%E8%AF%84/" target="_self">
+          C++ cin、cout的优化及测评
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2015/10/08/C-cin%E3%80%81cout%E7%9A%84%E4%BC%98%E5%8C%96%E5%8F%8A%E6%B5%8B%E8%AF%84/" target="_self">
+        <div>
+          &nbsp;&nbsp;&nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2015-10-08 19:56" pubdate>
+              2015-10-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/cin/">#cin</a>
+            
+              <a href="/tags/cout/">#cout</a>
+            
+              <a href="/tags/scanf/">#scanf</a>
+            
+              <a href="/tags/printf/">#printf</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <a class="extend prev" rel="prev" href="/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/#board">3</a><a class="page-number" href="/page/4/#board">4</a><a class="extend next" rel="next" href="/page/3/#board"><i class="iconfont icon-arrowright"></i></a>
+    </span>
+  </nav>
+
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+          <div style="text-align: center;">
+  当前页面浏览量: <span class="waline-pageview-count"></span>
+</div>
+<script type="module">
+  import { pageviewCount } from 'https://unpkg.com/@waline/client@v3/dist/pageview.js';
+
+  pageviewCount({
+    serverURL: 'https://waline.bipedalbit.net/',
+    path: window.location.pathname,
+    // 可选配置项
+    // selector: 'waline-pageview-count',
+    // update: true,
+  });
+
+  // 等待数据加载完成，检查 span 内容是否为空
+  setTimeout(() => {
+    const span = document.querySelector('.waline-pageview-count');
+    if (!span.textContent.trim()) {
+      span.textContent = '1';
+    }
+  }, 1000); // 1秒后执行，确保数据加载完成
+</script>
+
+        </div>
+      </div>
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

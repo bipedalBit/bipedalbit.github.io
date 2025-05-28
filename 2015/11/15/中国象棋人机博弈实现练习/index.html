@@ -1,0 +1,1106 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Bipedal Bit">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="&nbsp;&nbsp;&nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集">
+<meta property="og:type" content="article">
+<meta property="og:title" content="中国象棋人机博弈实现练习">
+<meta property="og:url" content="https://blog.bipedalbit.net/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/index.html">
+<meta property="og:site_name" content="Hacking to the gate!">
+<meta property="og:description" content="&nbsp;&nbsp;&nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-11-15T13:54:03.000Z">
+<meta property="article:modified_time" content="2025-05-21T15:42:53.512Z">
+<meta property="article:author" content="Bipedal Bit">
+<meta property="article:tag" content="Qt">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="人机博弈">
+<meta property="article:tag" content="AlphaBeta">
+<meta property="article:tag" content="MTD(f)">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>中国象棋人机博弈实现练习 - Hacking to the gate!</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.bipedalbit.net","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":100,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Hacking to the gate!</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://cdn.minio.bipedalbit.net/bipedalbit-net-images/banner/125633249_p0_resize.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="中国象棋人机博弈实现练习"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2015-11-15 21:54" pubdate>
+          2015年11月15日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          68 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">中国象棋人机博弈实现练习</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>&nbsp;&nbsp;&nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集大成者。但是等把MTD(f)实现完，发现里面一层就是个AlphaBeta，于是AlphaBeta的搜索核心作为副产品也存在于实现成果中了。</p>
+<span id="more"></span>
+<p>&nbsp;&nbsp;&nbsp; 我并不打算在这里贴包括Qt5的GUI实现代码在内的所有大概3500行代码（当然其中至少700行可能是注释），主要讲解一下我的实现思路，偶尔贴一些关键代码。完整项目源码我在GitHub建了仓库，这篇文最后会贴地址，读者也可以自己去我Git找找看，毕竟我一共也没建过几个仓库。下面开始正题。</p>
+<h1 id="1-需求分析"><a href="#1-需求分析" class="headerlink" title="1 需求分析"></a>1 需求分析</h1><ul>
+<li>GUI：为了方便人工测试，灵活直观的展现测试结果<del>也方便随时嘚瑟</del>，中国象棋人机博弈程序的实现应该有GUI（图形用户界面）。</li>
+<li>通用部件：应该根据实际需要设计比较高效的、节省空间的、通用的局面表示部件与走法表示部件。</li>
+<li>走法生成器：为了给并行计算和分布式计算做准备，应该设计通用的走法生成器接口。至少实现一个可靠的串行计算的走法生成器。</li>
+<li>搜索核心：为了方便扩展与迭代开发，应该设计通用的搜索核心接口。若干不同版本的走法核心也应该被实现。</li>
+<li>局面评估核心：考虑到短期内难以获得经过结构化解析的对局数据或棋谱，只实现一个参数可在代码中调整的静态局面评估核心，通用局面评估核心接口不予实现，暂时搁置等待重构。</li>
+</ul>
+<h1 id="2-概要设计"><a href="#2-概要设计" class="headerlink" title="2 概要设计"></a>2 概要设计</h1><h2 id="2-1-GUI"><a href="#2-1-GUI" class="headerlink" title="2.1 GUI"></a>2.1 GUI</h2><p>&nbsp;&nbsp;&nbsp; 图形界面中棋盘、棋子的图形是必要组成部分。<br>&nbsp;&nbsp;&nbsp; 此外考虑到人机博弈回合间电脑变动棋子位置太突兀，玩家有时甚至难以察觉棋子位置的变化，应当添加当前选定棋子的标记（对电脑方的棋子来说则是上一步刚被操作过的棋子的标记）。<br>&nbsp;&nbsp;&nbsp; 应当可以选择玩家先手开局或后手开局。<br>&nbsp;&nbsp;&nbsp; 应当有开局按钮。<br>&nbsp;&nbsp;&nbsp; 最好也有悔棋或状态回退按钮。<br>&nbsp;&nbsp;&nbsp; 应当可以在每轮电脑回合前更改电脑使用的搜索核心种类。<br>&nbsp;&nbsp;&nbsp; 应当可以在每轮电脑回合前更改电脑搜索的深度（模拟对局回合数）。<br>&nbsp;&nbsp;&nbsp; 应该显示每轮电脑搜索中评估的局面数量和搜索用时，方便在测试时对算法效率和优化效果进行评估。</p>
+<h2 id="2-2-通用部件"><a href="#2-2-通用部件" class="headerlink" title="2.2 通用部件"></a>2.2 通用部件</h2><p>&nbsp;&nbsp;&nbsp; 最基本的通用部件应该是<em>棋盘位置的表示部件</em>，这个部件首先应当提供位置坐标的设置与查询方法。该部件还可能需要提供一些获取棋盘特定位置属性的方法，以辅助走法生成和局面评估。该部件的变量成员或容器应当进行适当的状态压缩以节省空间。<br>&nbsp;&nbsp;&nbsp; <em>走法表示部件</em>将提供特定走法的属性查询方法，如移动的棋子序号，走法中是否有棋子被吃，移动棋子的起点坐标和终点坐标。走法表示部件将使用棋盘位置表示部件做一些具体的实现。<br>&nbsp;&nbsp;&nbsp; 恰当的<em>局面状态表示部件</em>也是必要的。这个部件将直接为走法生成器和评估核心提供所有棋子的位置、状态查询方法，所有棋子相对位置的属性查询方法，以及所有棋盘特定位置的属性查询方法，棋子位置变更时的局面更新方法，棋子位置变更时的变更回退方法等。毫无疑问局面表示部件将使用棋盘位置表示部件和走法表示部件来实现所需的方法。</p>
+<h2 id="2-3-走法生成器"><a href="#2-3-走法生成器" class="headerlink" title="2.3 走法生成器"></a>2.3 走法生成器</h2><p>&nbsp;&nbsp;&nbsp; 不管计算形式是串行还是并行的，走法生成器应该按照中国象棋规则提供特定局面下合法的所有走法，并装载在一个走法容器中以备查询。合法的走法除需要符合基本的中国象棋行棋规则之外，还应该根据已走局面剔除循环走法。</p>
+<h2 id="2-4-搜索核心"><a href="#2-4-搜索核心" class="headerlink" title="2.4 搜索核心"></a>2.4 搜索核心</h2><p>&nbsp;&nbsp;&nbsp; 搜索核心应该作为游戏程序的主线索，调用走法生成器和局面评估核心对接下来的人机博弈状态做一系列的预演，然后给出相对最好的走法。搜索过程中还应该收集一些程序运行信息，比如评估结点数，搜索时间。搜索每一个新层次时势必要管理搜索树占用的内存空间，应该给出一个可行的空间管理方案。</p>
+<h2 id="2-5-局面评估核心"><a href="#2-5-局面评估核心" class="headerlink" title="2.5 局面评估核心"></a>2.5 局面评估核心</h2><p>&nbsp;&nbsp;&nbsp; 如前所述，暂且只要求实现一个基于少量中国象棋实际经验和主观猜测的评估函数。这个评估函数可能会需要一个类似于走法生成器但有所不同的“棋子影响力覆盖范围生成器”作为工具函数。</p>
+<h1 id="3-详细设计"><a href="#3-详细设计" class="headerlink" title="3 详细设计"></a>3 详细设计</h1><h2 id="3-1-GUI"><a href="#3-1-GUI" class="headerlink" title="3.1 GUI"></a>3.1 GUI</h2><p>&nbsp;&nbsp;&nbsp; Qt5设计GUI有多方便相信用过的读者都有体会，无非就是拖拖控件写写槽函数加点资源调调样式。<br>&nbsp;&nbsp;&nbsp; 本来我想在轮到电脑的回合时间显示一个正在加载时的常见gif图片，但发现这涉及到Qt5的并行计算方式。经过简单的尝试（利用QtConcurrent类）后发现无法在不同线程中顺畅管理相同的控件状态，这可能是资源同步互斥管理的问题（这里相信一些读者会联想到一个关于多线程的笑话：一个程序员遇到了一个问题，想通过多线程来解决它，现在他有两个问题了），于是干脆放弃显示图片的想法了，你将在我的Qt源码中发现我尝试的痕迹。<br>&nbsp;&nbsp;&nbsp; 另一点稍微值得一提的事是，我在准备好一切，要开始写点击棋子的槽函数的时候发现，QLabel控件居然没有Clicked默认事件，看来我是Web应用写多了有点惯性思维了。于是我只好自定义了一个ClickableLabel类，这个类是对QLabel类的封装，重载了基类QWidget的mouseReleaseEvent方法，在方法里发射了一个clicked消息。最后把所有需要点击互动的QLabel提升成了ClickableLabel，并添加了ClickableLabel的clicked消息的槽函数。<br>&nbsp;&nbsp;&nbsp; clickablelable.h：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> CLICKABLELABEL_H</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CLICKABLELABEL_H</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;QLabel&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;QWidget&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;QPoint&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">ClickableLabel</span> : <span class="hljs-keyword">public</span> QLabel<br>&#123;<br>	Q_OBJECT<br><span class="hljs-keyword">public</span>:<br>	<span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-title">ClickableLabel</span><span class="hljs-params">(QWidget* parent = <span class="hljs-number">0</span>)</span></span>;<br>	~<span class="hljs-built_in">ClickableLabel</span>();<br>signals:<br>	<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">clicked</span><span class="hljs-params">(ClickableLabel* clickableLabel)</span></span>;<br>	<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">clicked</span><span class="hljs-params">(QPoint pos, ClickableLabel* clickableLabel)</span></span>;<br><span class="hljs-keyword">protected</span>:<br>	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">mouseReleaseEvent</span><span class="hljs-params">(QMouseEvent *event)</span></span>;<br>&#125;;<br><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">// CLICKABLELABEL_H</span></span><br></code></pre></td></tr></table></figure>
+<p>&nbsp;&nbsp;&nbsp; clickablelable.cpp：</p>
+<pre><code class="hljs">#include &quot;clickablelabel.h&quot;
+#include &quot;QMouseEvent&quot;
+
+ClickableLabel::ClickableLabel(QWidget* parent)
+	: QLabel(parent)
+&#123;
+&#125;
+
+ClickableLabel::~ClickableLabel()
+&#123;
+&#125;
+
+void ClickableLabel::mouseReleaseEvent(QMouseEvent* event)
+&#123;
+	emit clicked(this);
+	emit clicked(event-&gt;pos(), this);
+&#125;
+</code></pre>
+<p>&nbsp;&nbsp;&nbsp; 还挺简单的，不是吗？</p>
+<h2 id="3-2-通用部件"><a href="#3-2-通用部件" class="headerlink" title="3.2 通用部件"></a>3.2 通用部件</h2><h3 id="3-2-1-棋盘位置表示部件"><a href="#3-2-1-棋盘位置表示部件" class="headerlink" title="3.2.1 棋盘位置表示部件"></a>3.2.1 棋盘位置表示部件</h3><p>&nbsp;&nbsp;&nbsp; 我为棋盘位置表示部件实现了一个Position类，只有一个unsigned char型成员变量，８位，一个字节，高四位表示纵坐标即行序号，第四位表示横坐标即列序号，全１有两个方面的含义：对特定棋子来书，当前位置坐标全１表示该棋子已经被吃；对棋盘上特定位置来说，全１表示棋盘上这个位置没有棋子。<br>&nbsp;&nbsp;&nbsp; 因为这个类中的横纵坐标是状态压缩的，需要分别提供横纵坐标的提取／解析方法x()、y()，还有棋子死活／有无的判定及设置方法dead()、kill()。具体实现都是些简单的位运算，比如取第四位用按位与，取高四位用位移。比较局面状态难免要做一系列的棋盘位置比较，所以还实现了“&#x3D;&#x3D;”和“!&#x3D;”符号。<br>&nbsp;&nbsp;&nbsp; 后面在搜索核心的实现有时候会用到置换表，生成hash key需要获取底层的坐标存储数据，所以这个类还有个突兀的友元声明。</p>
+<h3 id="3-2-2-走法表示部件"><a href="#3-2-2-走法表示部件" class="headerlink" title="3.2.2 走法表示部件"></a>3.2.2 走法表示部件</h3><p>&nbsp;&nbsp;&nbsp; 走法表示使用四个成员变量：移动的棋子序号、被吃的棋子序号、原棋盘位置、新棋盘位置，全部使用unsigned char型变量，共４个字节。实现这个类时我偷了个懒，干脆把成员变量访问限定符都定为public了，于是除了空构造函数和一个初始化所有成员变量的重载，只写了一个比较符号“&#x3D;&#x3D;”。没什么特别的。</p>
+<h3 id="3-2-3-局面状态表示部件"><a href="#3-2-3-局面状态表示部件" class="headerlink" title="3.2.3 局面状态表示部件"></a>3.2.3 局面状态表示部件</h3><p>&nbsp;&nbsp;&nbsp; 这个部件还比较有意思。实际上，写游戏初版时，因为走法生成器，搜索核心或评估核心内部实现过程不顺心，曾经一度重构通用部件，其中也伴随着通用部件新需求的不断提出。作为直接向三大模块提供服务的部件，局面状态表示部件的修改最为频繁。<br>&nbsp;&nbsp;&nbsp; 资料提出的中国象棋棋盘状态存储模型有：</p>
+<ul>
+<li>用32颗棋子的棋盘分布（32*10*9个比特）来保存局面状态；</li>
+<li>用14种棋子的棋盘分布（14*10*9个比特）来保存局面状态；</li>
+<li>用10*9个棋盘位置上32颗棋子的互斥存在标识（10*9*5个比特）来保存局面状态；</li>
+<li>用10*9个棋盘位置上14种棋子的互斥存在标识（10*9*4个比特）来保存局面状态；</li>
+<li>用32颗棋子的坐标值（32*8个比特）来保存局面状态。</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; 可以看出，上述模型占用空间的大小依次递减。如果比较占用空间大小，第五种模型显然最优。但是实现走法生成器和评估核心时，需要对棋子相对位置上的棋子有无、棋子归属进行大量查询。如果每次针对特定棋盘位置的棋子查询都通过遍历32颗棋子来完成，何况每颗棋子都需要对若干个相对位置做棋子查询，尤其是車、炮这种自由度很大的棋子，恐怕随着搜索树的展开，将累计很大的时间开销。<br>&nbsp;&nbsp;&nbsp; 那么如果换用第四种模型呢？特定棋子相对位置的状态可以直接查询到了，同类查询的时间开销降到了第五种模型的1&#x2F;32。那么如果选用第四种模型，除了稍多一些的空间开销，有没有做出别的牺牲呢？当我们想要查询特定棋子的坐标，不再能够直接查到了，我们需要遍历整个棋盘来寻找一颗棋子，还需要标记这颗棋子是否同类棋子（同归属方、同兵种）中我们需要的那一颗。同类查询的时间开销变成了原来的90倍以上。这并不是一个典型的、合算的空间换时间型优化。<br>&nbsp;&nbsp;&nbsp; 我们重新思考一下局面表示部件在搜索过程中的实际使用情况，不难发现，如果把当前局面作为一个引用参数引入搜索核心类，那么整个搜索过程中，不论采用怎样的局面表示模型，不论对当前局面状态做了多少次更新和回退，空间开销的差别其实微乎其微。真正对空间开销起明显作用的是走法表示部件的数据结构。想到这里不禁觉得一阵无力感袭来，局面状态表示部件的状态压缩是不太有意义的。<br>&nbsp;&nbsp;&nbsp; 那么我们现在可以专注于提高局面状态表示部件中各种方法的时间效率而无视空间开销了。于是我用了一个双向索引，即同时在部件中使用第一种模型和第五种模型。这样不管按棋子序号查询坐标还是按特定坐标查询棋盘位置状态，都可以以常数级的时间开销完成查询过程。当然还实现了许多为三大模块提供服务的方法，还需要记录局面评分和主动权归属。<br>&nbsp;&nbsp;&nbsp; State.h：</p>
+<pre><code class="hljs">#ifndef _STATE_H_
+#define _STATE_H_
+
+#include &quot;Position.h&quot;
+#include &quot;Move.h&quot;
+
+/* 棋子序号 */
+/* 红帅 */
+#define R_KING 0
+/* 红仕序号起点（序号个数2） */
+#define R_MANDARIN 1
+/* 红相序号起点（序号个数2） */
+#define R_ELEPHANT 3
+/* 红马序号起点（序号个数2） */
+#define R_KNIGHT 5
+/* 红車序号起点（序号个数2） */
+#define R_ROOK 7
+/* 红炮序号起点（序号个数2） */
+#define R_CANNON 9
+/* 红兵序号起点（序号个数5） */
+#define R_PAWN 11
+/* 红子序号起点 */
+#define R_BEGIN R_KING
+/* 红子序号终点 */
+#define R_END R_PAWN+4
+/* 黑将 */
+#define B_KING 16
+/* 黑士序号起点（序号个数2） */
+#define B_MANDARIN 17
+/* 黑象序号起点（序号个数2） */
+#define B_ELEPHANT 19
+/* 黑马序号起点（序号个数2） */
+#define B_KNIGHT 21
+/* 黑車序号起点（序号个数2） */
+#define B_ROOK 23
+/* 黑炮序号起点（序号个数2） */
+#define B_CANNON 25
+/* 黑卒序号起点（序号个数5） */
+#define B_PAWN 27
+/* 黑子序号起点 */
+#define B_BEGIN B_KING
+/* 黑子序号终点 */
+#define B_END B_PAWN+4
+/* 坐标数组中表示棋子已被吃 */
+#define DEAD 0xff
+/* 棋子数组中表示坐标无棋子占用 */
+#define NONE DEAD
+
+/* 局面状态类：32+90=122字节 */
+/* 这个类负责记录局面状态，包括局面的棋子索引的状态和坐标索引的状态。 */
+/* 坐标索引的状态提供坐标优先的快速状态查询； */
+/* 棋子索引的状态提供棋子优先的快速状态查询。 */
+class State
+&#123;
+public:
+	/* 当前局面下红方是否持有行动权 */
+	bool RTurn;
+	/* 根据中国象棋规则初始化局面状态 */
+	State();
+	/* 根据走法更新棋盘状态 */
+	void move(const Move &amp;m);
+	/* 还原按走法还原更新前的棋盘状态 */
+	void undo(const Move &amp;m);
+	/* 获取特定棋子行号，即棋子y坐标 */
+	unsigned char y(unsigned char chessNo) const;
+	/* 获取特定棋子列号，即棋子x坐标 */
+	unsigned char x(unsigned char chessNo) const;
+	/* 获取特定坐标上的棋子序号或空序号 */
+	unsigned char getNo(unsigned char x, unsigned char y) const;
+	/* 存活判定 */
+	bool isAlive(unsigned char chessNo) const;
+	/* 红子判定 */
+	bool isRed(unsigned char chessNo) const;
+	/* 黑子判定 */
+	bool isBlack(unsigned char chessNo) const;
+	/* 友方判定 */
+	bool isFriend(unsigned char chessNo1, unsigned char chessNo2) const;
+	/* 特定棋子相对位置处是否有子 */
+	bool relExist(unsigned char chessNo, char x, char y) const;
+	/* 特定棋子相对位置处是否有红子 */
+	bool relRedExist(unsigned char chessNo, char x, char y) const;
+	/* 特定棋子相对位置处是否有黑子 */
+	bool relBlackExist(unsigned char chessNo, char x, char y) const;
+	/* 判断当前棋局是否已经结束，即一方的将/帅已经被吃 */
+	bool isDone() const;
+	/* 定义一个相等运算符，unordered_map要用 */
+	bool operator == (const State state) const;
+	/* 允许KeyHash类访问私有成员 */
+	friend class KeyHash;
+private:
+	/* 使用双向索引，加快两个方向的查询速度 */
+	/* 棋子序号索引的坐标数组：32字节 */
+	Position posList[32];
+	/* 棋盘坐标索引的棋子数组：90字节 */
+	/* 二维数组的每个单元为一个8位整型数，用来表示坐标占用情况 */
+	/* 即与坐标数组通用的棋子序号和一个额外的表示空的序号0xff */
+	unsigned char board[10][9];
+&#125;;
+
+#endif
+</code></pre>
+<p>&nbsp;&nbsp;&nbsp; 具体方法实现都很简单，就不在这贴代码了。</p>
+<h2 id="3-3-走法生成器"><a href="#3-3-走法生成器" class="headerlink" title="3.3 走法生成器"></a>3.3 走法生成器</h2><p>&nbsp;&nbsp;&nbsp; 这是我认为中国象棋游戏中实现起来最繁琐的一个模块了，这里无法回避中国象棋零散的行棋规则。<br>&nbsp;&nbsp;&nbsp; 将／帅除了直面对方将／帅时可以飞过去吃掉对方，平时只能在己方的“帅府”九宫格中向没有己方棋子且不超出棋盘的位置做下列４种移动：</p>
+<ul>
+<li><code>(x, y) -&gt; (x-1, y)</code></li>
+<li><code>(x, y) -&gt; (x+1, y)</code></li>
+<li><code>(x, y) -&gt; (x, y-1)</code></li>
+<li><code>(x, y) -&gt; (x, y+1)</code></li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; 士／仕只能在己方“帅府”九宫格中向没有己方棋子且不超出棋盘的位置做下列４种移动：</p>
+<ul>
+<li><code>(x, y) -&gt; (x-1, y-1)</code></li>
+<li><code>(x, y) -&gt; (x+1, y-1)</code></li>
+<li><code>(x, y) -&gt; (x-1, y+1)</code></li>
+<li><code>(x, y) -&gt; (x+1, y+1)</code></li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; 象／相只能在己方阵地的五行内，在不被“遮象眼”的情况下“走田字”，即向没有己方棋子且不超出棋盘的位置做下列４种尝试：</p>
+<ul>
+<li>(x-1, y-1)处无子则<code>(x, y) -&gt; (x-2, y-2)</code></li>
+<li>(x+1, y-1)处无子则<code>(x, y) -&gt; (x+2, y-2)</code></li>
+<li>(x-1, y+1)处无子则<code>(x, y) -&gt; (x-2, y+2)</code></li>
+<li>(x+1, y+1)处无子则<code>(x, y) -&gt; (x+2, y+2)</code></li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; 马只能在不被“別马腿”的情况下“走日字”，即向没有己方棋子且不超出棋盘的位置做下列８种尝试：</p>
+<ul>
+<li>(x-1, y)处无子则<code>(x, y) -&gt; (x-2, y-1), (x, y) -&gt; (x-2, y+1)</code></li>
+<li>(x+1, y)处无子则<code>(x, y) -&gt; (x+2, y-1), (x, y) -&gt; (x+2, y+1)</code></li>
+<li>(x, y-1)处无子则<code>(x, y) -&gt; (x-1, y-2), (x, y) -&gt; (x+1, y-2)</code></li>
+<li>(x, y+1)处无子则<code>(x, y) -&gt; (x-1, y+2), (x, y) -&gt; (x+1, y+2)</code></li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; 車可以在上、下、左、右四个方向上在不超出棋盘又无棋子阻挡“视线”的前提下尝试移动任意距离，当遇到第一颗阻挡“视线”的棋子，如果棋子归属方不同，还可以吃子，取代那颗棋子的位置。<br>&nbsp;&nbsp;&nbsp; 炮有两种移动模式，即非吃子或吃子。非吃子模式下，炮可以在上、下、左、右四个方向上在不超出棋盘又无棋子阻挡“视线”的前提下尝试移动任意距离；吃子模式下，炮首先要在上、下、左、右四个方向上找到一颗阻挡“视线”的棋子，然后跳过这颗棋子，继续向前寻找阻挡“视线”的第二颗棋子，如果找到阻挡视线的第一颗和第二颗棋子，且第二颗棋子归属方不同，可以吃掉第二颗棋子，取代它的位置。<br>&nbsp;&nbsp;&nbsp; 兵／卒有两种行棋情况，在离开己方阵地的五行之前，只能在前方没有己方棋子的情况下向对方阵地移动一格；在离开己方阵地即进入敌方阵地后，向没有己方棋子且不超出棋盘的位置向前一格、向左一格或向右一格移动。<br>&nbsp;&nbsp;&nbsp; 此外，还要引入局面记录参数，剔除造成重复局面的走法。<br>&nbsp;&nbsp;&nbsp; 文字描述都这么麻烦，程序就更麻烦了，串行的走法生成器我写了700+行，虽然我的缩进比较“宽松”，注释比较多，还是很长了。并行版本如果用多线程还得管理线程队列、线程池，创建线程、监视线程、管理共享资源、做同步互斥什么的，恐怕会更长。多进程也一样。</p>
+<h2 id="3-4-搜索核心"><a href="#3-4-搜索核心" class="headerlink" title="3.4 搜索核心"></a>3.4 搜索核心</h2><h3 id="3-4-1-搜索核心通用接口"><a href="#3-4-1-搜索核心通用接口" class="headerlink" title="3.4.1 搜索核心通用接口"></a>3.4.1 搜索核心通用接口</h3><p>&nbsp;&nbsp;&nbsp; 本着引入复杂类型变量时能用引用或指针就不复制变量的原则，搜索核心通用接口定义了许多成员变量。一个局面状态表示部件currentState用来复制当前状态，我复制了整个部件而非引入一个引用，是因为如果使用引用，构造类的时候不太方便，同样要增加开销。我想过使用指针，但是发现遍历State类成员时会一直报错，没能调顺，只得放弃。同样的理由，局面记录也进行了复制，但是我发现只进行浅复制就不会报错，也就没有深究。估值核心我使用了指针，因为估值核心的实例化发生在搜索核心的构造函数中。此外还有当前搜索深度变量、最大搜索深度变量、最佳走法、评估结点数即搜索树的叶结点树和搜索时间。<br>&nbsp;&nbsp;&nbsp; 搜索核心通用接口定义的方法不多，构造函数中只实例化了评估核心，析构函数负责销毁评估核心，此外只有一个搜索函数和一个获得最佳走法的只读方法。</p>
+<h3 id="3-4-2-MTD-f"><a href="#3-4-2-MTD-f" class="headerlink" title="3.4.2 MTD(f)"></a>3.4.2 MTD(f)</h3><p>&nbsp;&nbsp;&nbsp; 搜索核心的一个实现是MTD(f)算法。MTD(f)的最外层是一个迭代深化的过程，具体说就是由浅到深的尝试搜索同时计时，一旦超过设定的搜索时间阈值就停止搜索。当搜索过程复杂（搜索树剪枝少）实际搜索深度可能无法很深，当搜索过程简单，实际搜索深度则只受玩家设定的最大搜索深度的影响。<br>&nbsp;&nbsp;&nbsp; 迭代深化的下一层是MTD(f)的思想核心，在一个无限大的窗口中，在一个有依据的猜测值附近反复进行类似PVS的空窗探测，并不断向真实的最大局面评估值调整猜测值和窗口，直到窗口上下限闭合。</p>
+<pre><code class="hljs">int MTD_f::mtdf(int firstGuess)
+&#123;
+	/* MTD(f)窗口上下限 */
+	int windowTop = WIN;
+	int windowDown = -WIN;
+	/* 空窗探测评估值，调整MTD(f)窗口的依据 */
+	int g = firstGuess;
+	/* alphaBeta算法的窗口上限 */
+	int beta;
+	/* 不断执行空窗探测直到窗口闭合，有hash置换表不怕重复搜索 */
+	while(windowDown &lt; windowTop)
+	&#123;
+		/* 刚调整过窗口下限，更需要通过向上偏移的空窗探测调整窗口上限 */
+		if (g == windowDown)
+		&#123;
+			/* 在[g, g+1]区间上进行空窗探测 */
+			/* alpha = g */
+			beta = g + 1;
+		&#125;
+		/* 刚调整过窗口上限，更需要通过向下偏移的空窗探测调整窗口下限 */
+		else
+		&#123;
+			/* 在[g-1, g]区间上进行空窗探测 */
+			/* alpha = g - 1 */
+			beta = g;
+		&#125;
+		/* 利用Fail-Soft AlphaBeta算法做空窗探测 */
+		/* alpha = beta - 1 */
+		g = TTFAlphaBeta(beta - 1, beta, 0);
+		/* 根据新评估值做窗口调整 */
+		/* 新评估值小于空窗口，可以认为猜高了，实际评估值应该更低 */
+		if (g &lt; beta)
+		&#123;
+			/* 根据新评估值下调MTD(f)窗口上限 */
+			windowTop = g;
+		&#125;
+		/* 新评估值不小于空窗口，可以认为猜低了，实际评估值应该更高 */
+		else
+		&#123;
+			/* 根据新评估值上调MTD(f)窗口下限 */
+			windowDown = g;
+		&#125;
+	&#125;
+	return g;
+&#125;
+</code></pre>
+<p>&nbsp;&nbsp;&nbsp; 再下一层是一个hash置换表优化的Fail-Soft-AlphaBeta算法，事实上，这个AlphaBeta的窗口大小是０，所以在我看来，MTD(f)的最下层更像一个PVS。</p>
+<h3 id="3-4-3-AlphaBeta"><a href="#3-4-3-AlphaBeta" class="headerlink" title="3.4.3 AlphaBeta"></a>3.4.3 AlphaBeta</h3><p>&nbsp;&nbsp;&nbsp; 搜索核心的另一个实现是AlphaBeta算法，实际上我只是把MTD(f)最下层的PVS拿出来，去掉置换表，把初始窗口定为无限大而已。这从算法实现方式的侧面印证了Maxmin系算法师出同门的事实。</p>
+<h2 id="3-5-局面评估核心"><a href="#3-5-局面评估核心" class="headerlink" title="3.5 局面评估核心"></a>3.5 局面评估核心</h2><p>&nbsp;&nbsp;&nbsp; 现在使用的评估方法是统计局面上棋子的自由度、受威胁程度、棋子基本价值、棋盘位置加成、棋子受保护加成，并进行简单累加。使用了很多常数作为评估依据：</p>
+<pre><code class="hljs">#ifndef _EVALUATOR_H_
+#define _EVALUATOR_H_
+
+#include &quot;State.h&quot;
+#include &quot;Move.h&quot;
+#include &lt;vector&gt;
+
+/* 估值器，提供对每一个局面状态的下特定走法的评分 */
+/* 使用先验知识和一些局面评估因素为局面估值 */
+class Evaluator
+&#123;
+public:
+	/* 评估结点计数 */
+	unsigned cnt;
+	/* 估值器构造函数，初始化估值器 */
+	Evaluator();
+	/* 估值函数，对给定的局面状态评分 */
+	int evaluate(State &amp;state);
+private:
+	/* 炮的一些重要坐标的加成 */
+	const int ADD_R_CANNON[10][9] =
+	&#123;
+		&#123;50,	50,	0,	0,	0,	0,	0,	50,	50&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	10,	0,	10,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	10,	0,	0,	0,	0,	0,	10,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;10,	0,	0,	10,	50,	10,	0,	0,	10&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;
+	&#125;;
+	const int ADD_B_CANNON[10][9] =
+	&#123;
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;10,	0,	0,	10,	50,	10,	0,	0,	10&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	10,	0,	0,	0,	0,	0,	10,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	10,	0,	10,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;50,	50,	0,	0,	0,	0,	0,	50,	50&#125;
+	&#125;;
+	/* 马的一些重要坐标的加成 */
+	const int ADD_R_KNIGHT[10][9] =
+	&#123;
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	100,	0,	0,	0,	100,	0,	0&#125;,
+		&#123;0,	0,	0,	100,	0,	100,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	10,	0,	0,	0,	10,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	10,	0,	0,	0,	10,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	-100,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;
+	&#125;;
+	const int ADD_B_KNIGHT[10][9] =
+	&#123;
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	-100,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	10,	0,	0,	0,	10,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	10,	0,	0,	0,	10,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	100,	0,	100,	0,	0,	0&#125;,
+		&#123;0,	0,	100,	0,	0,	0,	100,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;
+	&#125;;
+	/* 兵的一些重要坐标的加成 */
+	const int ADD_R_PAWN[10][9] =
+	&#123;
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;90,	90,	110,	120,	120,	120,	110,	90,	90&#125;,
+		&#123;90,	90,	110,	120,	120,	120,	110,	90,	90&#125;,
+		&#123;70,	90,	110,	120,	120,	120,	110,	90,	70&#125;,
+		&#123;70,	70,	70,	70,	70,	70,	70,	70,	70&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;
+	&#125;;
+	const int ADD_B_PAWN[10][9] =
+	&#123;
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;,
+		&#123;70,	70,	70,	70,	70,	70,	70,	70,	70&#125;,
+		&#123;70,	90,	110,	120,	120,	120,	110,	90,	70&#125;,
+		&#123;90,	90,	110,	120,	120,	120,	110,	90,	90&#125;,
+		&#123;90,	90,	110,	120,	120,	120,	110,	90,	90&#125;,
+		&#123;0,	0,	0,	0,	0,	0,	0,	0,	0&#125;
+	&#125;;
+	/* 先验的定义每种棋子的基本价值 */
+	const int BASE_VAL[32] =
+	&#123;
+		10000, 250, 250, 250, 250, 350, 350, 500, 500, 350, 350, 100, 100, 100, 100, 100,
+		10000, 250, 250, 250, 250, 350, 350, 500, 500, 350, 350, 100, 100, 100, 100, 100
+	&#125;;
+	/* 棋子灵活度单位价值，即每个可走位置对总自由度的贡献 */
+	const int FREE_UNIT[32] =
+	&#123;
+		0, 1, 1, 1, 1, 12, 12, 6, 6, 6, 6, 15, 15, 15, 15, 15,
+		0, 1, 1, 1, 1, 12, 12, 6, 6, 6, 6, 15, 15, 15, 15, 15
+	&#125;;
+	/* 棋子被威胁造成的负分 */
+	bool threatenScore[32];
+	/* 棋子被保护造成的加分 */
+	bool protectScore[32];
+	/* 棋子评分 */
+	int chessScore[32];
+	/* 根据特定的局面状态和当前行动权归属生成所有可能的势力覆盖方式并填充走法容器 */
+	void generate(const State &amp;state);
+	/* 棋子势力覆盖方式容器 */
+	std::vector&lt;Move&gt; coverList;
+&#125;;
+
+#endif
+</code></pre>
+<h1 id="4-手工测试"><a href="#4-手工测试" class="headerlink" title="4 手工测试"></a>4 手工测试</h1><p>&nbsp;&nbsp;&nbsp; 搜索深度为１时，分别使用AlphaBeta算法和MTD(f)算法作为搜索核心，评估结点数和搜索时间并没有明显的不同。两种算法下电脑的走法都很蠢。<br>&nbsp;&nbsp;&nbsp; 搜索深度为２时，使用AlphaBeta算法，绝大多数情况下评估结点数稳定在400<del>700区间内，搜索时间最多达到10^-2秒数量级；使用MTD(f)算法，绝大多数情况下评估结点数稳定在600</del>1000区间内，搜索时间稳定在0.03秒左右。<br>&nbsp;&nbsp;&nbsp; 搜索深度为３时，使用AlphaBeta算法，绝大多数情况下评估结点数稳定在10000附近，搜索时间平均在10^-2秒数量级；使用MTD(f)算法，评估结点数平均在10^3数量级上,偶尔上万，搜索时间平均在10^-2秒数量级，偶尔还会非常小。<br>&nbsp;&nbsp;&nbsp; 搜索深度为４时，使用AlphaBeta算法，评估结点数在10^5数量级上，搜索时间平均在1秒数量级，电脑的走法看起似乎比搜索３层要蠢；使用MTD(f)算法，评估结点数很少再达到10^4数量级以上，搜索时间稳定在1秒数量级，走法也有点蠢。<br>&nbsp;&nbsp;&nbsp; 搜索深度为５时，使用AlphaBeta算法，评估结点数在10^6数量级上，搜索时间平均在８秒，电脑表现比较出色，开始出现游戏崩溃的现象；使用MTD(f)算法，可能是受迭代深化的限制作用影响，评估结点数和搜索时间与搜索深度为４时很接近，但是电脑的走法比４层时更出色，会出现游戏崩溃的现象。<br>&nbsp;&nbsp;&nbsp; 搜索深度为６时，使用AlphaBeta算法，评估结点数达到了10^7数量级，搜索时间也增加到10^2秒数量级，电脑走法却不如５层时优秀，有游戏崩溃现象；使用MTD(f)算法，可能是受迭代深化的限制作用影响，评估结点数和搜索时间与搜索深度为４时很接近，电脑的走法没有比５层明显更优秀，有游戏崩溃的现象。<br>&nbsp;&nbsp;&nbsp; 更深层的搜索时AlphaBeta算法的搜索时间将长到无法忍受，游戏崩溃的现象也将更早出现。<br>&nbsp;&nbsp;&nbsp; 观察表明，使用偶数作为搜索深度时，电脑的走法性能会相对浅一层的奇数层搜索结果有一定的衰减，迭代深化时的层数步进也许设置为２更好。</p>
+<h1 id="5-结论与收获"><a href="#5-结论与收获" class="headerlink" title="5 结论与收获"></a>5 结论与收获</h1><p>&nbsp;&nbsp;&nbsp; 过去谈及棋牌游戏的人机博弈我都只能表示佩服，满怀憧憬的感叹一下，表示做起来可能很麻烦。真的动手做过一个粗糙的练习之后才发现，用的无非还是那些简单算法的扩展或变种，简单说起来也不过是有限搜索树而已。不过种种精细的剪枝与优化还是很磨练人的心性的，当然我还没磨练到位，毕竟初版的优化我都没做彻底就来写博文了。</p>
+<h1 id="6-不足与展望"><a href="#6-不足与展望" class="headerlink" title="6 不足与展望"></a>6 不足与展望</h1><p>&nbsp;&nbsp;&nbsp; 不足：</p>
+<ul>
+<li>当前版本的两个搜索核心都是盲目搜索，即搜索中容易导致剪枝或棋局结束的结点没有优先搜索。</li>
+<li>局面评估核心应该重构，提供一个通用接口，为神经网络优化或其他技术优化的评估核心做准备。</li>
+<li>搜索树的展开过程中仍然存在动态申请内存空间的动作，当搜索深度到达４，偶尔会出现内存申请失败，游戏崩溃的情况，可以尽量静态的一次性的申请内存。</li>
+<li>没有足够优秀的查表优化。</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; 展望：</p>
+<ul>
+<li>通用部件的数据结构还可以进一步细化优化。</li>
+<li>走法生成器和评估核心的工具函数——棋子影响力覆盖范围生成器都有并行化的优化空间。</li>
+<li>局面评估核心还可以有更优秀的，基于机器学习的优化。</li>
+<li>还可以建立适当规模的开局库、残局库。</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp; 最后，挂<a target="_blank" rel="noopener" href="https://github.com/bipedalBit/BipedalBit-Chinese-Chess">Git项目地址</a>。<br>&nbsp;&nbsp;&nbsp; 因为偶尔偷懒，项目代码规范化有些参差不齐，有好的建议欢迎讨论。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88/" class="category-chain-item">人机博弈</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Qt/" class="print-no-link">#Qt</a>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88/" class="print-no-link">#人机博弈</a>
+      
+        <a href="/tags/AlphaBeta/" class="print-no-link">#AlphaBeta</a>
+      
+        <a href="/tags/MTD-f/" class="print-no-link">#MTD(f)</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>中国象棋人机博弈实现练习</div>
+      <div>https://blog.bipedalbit.net/2015/11/15/中国象棋人机博弈实现练习/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Bipedal Bit</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2015年11月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/" title="C++的位优化">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">C++的位优化</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2015/11/14/%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%88%9D%E6%8E%A2/" title="人机博弈初探">
+                        <span class="hidden-mobile">人机博弈初探</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://registry.npmmirror.com/@waline/client/2.15.8/files/dist/waline.css')
+      Fluid.utils.createScript('https://registry.npmmirror.com/@waline/client/2.15.8/files/dist/waline.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://waline.bipedalbit.net","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+          <div style="text-align: center;">
+  当前页面浏览量: <span class="waline-pageview-count"></span>
+</div>
+<script type="module">
+  import { pageviewCount } from 'https://unpkg.com/@waline/client@v3/dist/pageview.js';
+
+  pageviewCount({
+    serverURL: 'https://waline.bipedalbit.net/',
+    path: window.location.pathname,
+    // 可选配置项
+    // selector: 'waline-pageview-count',
+    // update: true,
+  });
+
+  // 等待数据加载完成，检查 span 内容是否为空
+  setTimeout(() => {
+    const span = document.querySelector('.waline-pageview-count');
+    if (!span.textContent.trim()) {
+      span.textContent = '1';
+    }
+  }, 1000); // 1秒后执行，确保数据加载完成
+</script>
+
+        </div>
+      </div>
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

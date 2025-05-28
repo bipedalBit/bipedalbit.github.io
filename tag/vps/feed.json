@@ -1,0 +1,21 @@
+{
+    "version": "https://jsonfeed.org/version/1",
+    "title": "Hacking to the gate! • All posts by \"vps\" tag",
+    "description": "Bipedal Bit's blog",
+    "home_page_url": "https://blog.bipedalbit.net",
+    "items": [
+        {
+            "id": "https://blog.bipedalbit.net/2016/04/25/%E5%88%A9%E7%94%A8Dropbox%E5%AE%9E%E7%8E%B0%E5%AE%9E%E6%97%B6%E5%90%8C%E6%AD%A5%E7%9A%84%E9%9D%99%E6%80%81%E7%AB%99/",
+            "url": "https://blog.bipedalbit.net/2016/04/25/%E5%88%A9%E7%94%A8Dropbox%E5%AE%9E%E7%8E%B0%E5%AE%9E%E6%97%B6%E5%90%8C%E6%AD%A5%E7%9A%84%E9%9D%99%E6%80%81%E7%AB%99/",
+            "title": "利用Dropbox实现实时同步的静态站",
+            "date_published": "2016-04-25T06:05:09.000Z",
+            "content_html": "<p>&nbsp;&nbsp;&nbsp; 上个周末正在练习nginx静态站服务器功能的基本配置，忽然想到一个点子。既然我有现成的VPS可以用，而且只是用来搭ShadowSocks服务器科学上网用，不拿来做建站练习实在有点浪费。之前早就把VPS和手头各个平台上的ShadowSocks+Dropbox环境配好了，那为什么不干脆在VPS的Dropbox文件夹里建站呢？自动同步，多终端随处修改，应该会比Github Pages更方便。试了一下，结果亦可赛艇。</p>\n<span id=\"more\"></span>\n<h3 id=\"VPS\"><a href=\"#VPS\" class=\"headerlink\" title=\"VPS\"></a>VPS</h3><p>&nbsp;&nbsp;&nbsp; VPS的选择主要看需要，论国内访问速度当然还是BAT和新浪之类的国产云主机最好，但是如果你想顺便用来科学上网，那么就得选国外VPS服务商了。一般来说，提起国外的网络服务运营商，总是想起欧美的，尤其是美国的，然而事实上，日本的VPS产业也很发达。大名鼎鼎的<a href=\"https://www.linode.com/\">Linode</a>、<a href=\"https://www.conoha.jp/zh/\">Conoha</a>等服务商，因为机房离国内近，相对美国的VPS有了速度优势。最近可能意识到墙内市场的潜力，有的日本VPS服务明显做的很贴咱的心了，比如我选的<a href=\"https://www.z.com/\">z.com</a>，它就是Conoha重新套了个壳，900日元每月的开销不算便宜也不很贵，但是它能用支付宝结帐！</p>\n<h3 id=\"系统环境\"><a href=\"#系统环境\" class=\"headerlink\" title=\"系统环境\"></a>系统环境</h3><p>&nbsp;&nbsp;&nbsp; 要搭服务器，不论什么功能，稳定性是很重要的，虽然巨硬和IBM也分别有server产品，但是咱用不起，挑个Linux系统比较合适，至于Mac OS，你是要搭服务器，又不是要去星巴克。我Linux入门时选择的是最流行的发行版Ubuntu，于是VPS也挑了Ubuntu 14.04LTS的镜像，使用和练习都比较方便，上手快，国内大家爱用的还有CentOS和RedHat。就别选什么Desktop镜像了，DE占空间又浪费资源，就算有远程桌面，也没有必要用，SSH连接足矣。把公钥放Github，wget到服务器~&#x2F;.ssh目录，改个名叫authorized_keys就行，多个公钥可以都放authorized_keys里面，一个一行就好。</p>\n<h3 id=\"Dropbox\"><a href=\"#Dropbox\" class=\"headerlink\" title=\"Dropbox\"></a>Dropbox</h3><p>&nbsp;&nbsp;&nbsp; Dropbox是个云盘，跟国内遍地都是的云盘有几个不同点，首先是资历老，然后给的免费空间少（XDDDD），2GB，跨平台做得好，几乎所有系统平台都有客户端，最重要的是有一个文件实时同步功能（也许正是这个功能限制了免费空间的大小），最后，是的，国外的好东西一般是要被墙的，Dropbox也不例外。会科学上网的同学们可以各显神通去<a href=\"https://www.dropbox.com/\">官网</a>注册，下客户端试用一下。在VPS上装个Dropbox用来传文件简直方便，VPS网快，墙内下不动的东西也可以VPS下完从Dropbox拖回来。据说国内的金山快盘可以作为Dropbox的替代品，改天做个评测再发博文介绍下。别跟我提百度云，且不论它没有官方Linux客户端且免费空间太大，我对百度有偏见。<br>&nbsp;&nbsp;&nbsp; 这篇文用到的就是Dropbox的自动同步功能，在各个终端的Dropbox文件夹内，内容都与云端进行实时同步。既然是个文件夹，那么里面放一个静态站也没有什么不可以了，2GB绰绰有余。</p>\n<h3 id=\"Nginx\"><a href=\"#Nginx\" class=\"headerlink\" title=\"Nginx\"></a>Nginx</h3><p>&nbsp;&nbsp;&nbsp; <a href=\"http://nginx.org/\">Nginx</a>读作engine X，是由Igor Sysoev（俄罗斯籍）为俄罗斯访问量第二的Rambler.ru站点开发的，第一个公开版本0.1.0发布于2004年10月4日。其将源代码以类BSD许可证的形式发布，因它的稳定性、丰富的功能集、示例配置文件和低系统资源的消耗而闻名。主要功能为静态网站的服务器、多服务端的负载均衡服务器即反向代理服务器。配置简单、高效、轻。既然是做静态站，我首选了Nginx作为服务器，Apache有点笨重，不做动态站就先不装了。</p>\n<h3 id=\"Hexo\"><a href=\"#Hexo\" class=\"headerlink\" title=\"Hexo\"></a>Hexo</h3><p>&nbsp;&nbsp;&nbsp; 做什么样的静态站呢？这次直接把我的Hexo博客拿来做实验。<a href=\"https://bipedalbit.net/2016/4/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/\">上篇文</a>提到过，Hexo是个静态博客站生成器，<code>hexo g</code>命令执行后，Hexo项目目录的public子目录下就是静态站的确切内容了。可以干脆把Hexo项目目录放在Dropbox文件夹中，每次<code>hexo g</code>之后，自动更新静态站内容，同时Dropbox自动把静态站同步到VPS，VPS的Nginx不需要更改配置因为地址映射没有变化。于是我们现在可以在本地修改Hexo博客后自动发布更新到直连外网的VPS，还可以在任意一个向Github分发过SSH公钥的终端向Github Pages发布新的静态站内容。<br>&nbsp;&nbsp;&nbsp; 不知到你们想到了什么，我觉得这个套路可以使VPS上维护一个经常预更新的静态站alpha版，Github Pages上维护一个比较稳定的静态站beta版。</p>\n",
+            "tags": [
+                "nginx",
+                "hexo",
+                "vps",
+                "dropbox"
+            ]
+        }
+    ]
+}

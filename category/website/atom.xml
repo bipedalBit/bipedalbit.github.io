@@ -1,0 +1,177 @@
+<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://blog.bipedalbit.net</id>
+    <title>Hacking to the gate! • Posts by &#34;website&#34; category</title>
+    <link href="https://blog.bipedalbit.net" />
+    <updated>2016-04-25T06:05:09.000Z</updated>
+    <category term="Qt" />
+    <category term="signal-slot" />
+    <category term="Q_OBJECT" />
+    <category term="nginx" />
+    <category term="select/poll" />
+    <category term="epoll" />
+    <category term="ngx_int_t" />
+    <category term="rbtree" />
+    <category term="C" />
+    <category term="static" />
+    <category term="内存分布" />
+    <category term="sublime" />
+    <category term="C++" />
+    <category term="makefile" />
+    <category term="node.js" />
+    <category term="github" />
+    <category term="socket.io" />
+    <category term="Web请求处理机制" />
+    <category term="同步/异步" />
+    <category term="阻塞/非阻塞" />
+    <category term="事件驱动模型" />
+    <category term="BP神经网络" />
+    <category term="机器学习" />
+    <category term="python" />
+    <category term="pybrain" />
+    <category term="c++11" />
+    <category term="多线程" />
+    <category term="ubuntu" />
+    <category term="debian" />
+    <category term="apt-file" />
+    <category term="cin" />
+    <category term="cout" />
+    <category term="scanf" />
+    <category term="printf" />
+    <category term="进制转换" />
+    <category term="人工神经网络" />
+    <category term="人机博弈" />
+    <category term="Maxmin" />
+    <category term="AlphaBeta" />
+    <category term="PVS" />
+    <category term="MTD(f)" />
+    <category term="位域" />
+    <category term="bitset" />
+    <category term="vector&amp;lt;bool&amp;gt;" />
+    <category term="网络爬虫" />
+    <category term="类脑" />
+    <category term="codeigniter" />
+    <category term="php" />
+    <category term="IIS7" />
+    <category term="apache" />
+    <category term="模拟登录" />
+    <category term="proxy" />
+    <category term="domain" />
+    <category term="DNS" />
+    <category term="hexo" />
+    <category term="vps" />
+    <category term="dropbox" />
+    <category term="ffmpeg" />
+    <category term="板绘" />
+    <category term="sai" />
+    <category term="琪露诺" />
+    <category term="LLM" />
+    <category term="ollama" />
+    <category term="open-webui" />
+    <category term="oneapi" />
+    <category term="mcpserver" />
+    <entry>
+        <id>https://blog.bipedalbit.net/2016/04/25/%E5%88%A9%E7%94%A8Dropbox%E5%AE%9E%E7%8E%B0%E5%AE%9E%E6%97%B6%E5%90%8C%E6%AD%A5%E7%9A%84%E9%9D%99%E6%80%81%E7%AB%99/</id>
+        <title>利用Dropbox实现实时同步的静态站</title>
+        <link rel="alternate" href="https://blog.bipedalbit.net/2016/04/25/%E5%88%A9%E7%94%A8Dropbox%E5%AE%9E%E7%8E%B0%E5%AE%9E%E6%97%B6%E5%90%8C%E6%AD%A5%E7%9A%84%E9%9D%99%E6%80%81%E7%AB%99/"/>
+        <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 上个周末正在练习nginx静态站服务器功能的基本配置，忽然想到一个点子。既然我有现成的VPS可以用，而且只是用来搭ShadowSocks服务器科学上网用，不拿来做建站练习实在有点浪费。之前早就把VPS和手头各个平台上的ShadowSocks+Dropbox环境配好了，那为什么不干脆在VPS的Dropbox文件夹里建站呢？自动同步，多终端随处修改，应该会比Github Pages更方便。试了一下，结果亦可赛艇。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;h3 id=&#34;VPS&#34;&gt;&lt;a href=&#34;#VPS&#34; class=&#34;headerlink&#34; title=&#34;VPS&#34;&gt;&lt;/a&gt;VPS&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; VPS的选择主要看需要，论国内访问速度当然还是BAT和新浪之类的国产云主机最好，但是如果你想顺便用来科学上网，那么就得选国外VPS服务商了。一般来说，提起国外的网络服务运营商，总是想起欧美的，尤其是美国的，然而事实上，日本的VPS产业也很发达。大名鼎鼎的&lt;a href=&#34;https://www.linode.com/&#34;&gt;Linode&lt;/a&gt;、&lt;a href=&#34;https://www.conoha.jp/zh/&#34;&gt;Conoha&lt;/a&gt;等服务商，因为机房离国内近，相对美国的VPS有了速度优势。最近可能意识到墙内市场的潜力，有的日本VPS服务明显做的很贴咱的心了，比如我选的&lt;a href=&#34;https://www.z.com/&#34;&gt;z.com&lt;/a&gt;，它就是Conoha重新套了个壳，900日元每月的开销不算便宜也不很贵，但是它能用支付宝结帐！&lt;/p&gt;
+&lt;h3 id=&#34;系统环境&#34;&gt;&lt;a href=&#34;#系统环境&#34; class=&#34;headerlink&#34; title=&#34;系统环境&#34;&gt;&lt;/a&gt;系统环境&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 要搭服务器，不论什么功能，稳定性是很重要的，虽然巨硬和IBM也分别有server产品，但是咱用不起，挑个Linux系统比较合适，至于Mac OS，你是要搭服务器，又不是要去星巴克。我Linux入门时选择的是最流行的发行版Ubuntu，于是VPS也挑了Ubuntu 14.04LTS的镜像，使用和练习都比较方便，上手快，国内大家爱用的还有CentOS和RedHat。就别选什么Desktop镜像了，DE占空间又浪费资源，就算有远程桌面，也没有必要用，SSH连接足矣。把公钥放Github，wget到服务器~&amp;#x2F;.ssh目录，改个名叫authorized_keys就行，多个公钥可以都放authorized_keys里面，一个一行就好。&lt;/p&gt;
+&lt;h3 id=&#34;Dropbox&#34;&gt;&lt;a href=&#34;#Dropbox&#34; class=&#34;headerlink&#34; title=&#34;Dropbox&#34;&gt;&lt;/a&gt;Dropbox&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; Dropbox是个云盘，跟国内遍地都是的云盘有几个不同点，首先是资历老，然后给的免费空间少（XDDDD），2GB，跨平台做得好，几乎所有系统平台都有客户端，最重要的是有一个文件实时同步功能（也许正是这个功能限制了免费空间的大小），最后，是的，国外的好东西一般是要被墙的，Dropbox也不例外。会科学上网的同学们可以各显神通去&lt;a href=&#34;https://www.dropbox.com/&#34;&gt;官网&lt;/a&gt;注册，下客户端试用一下。在VPS上装个Dropbox用来传文件简直方便，VPS网快，墙内下不动的东西也可以VPS下完从Dropbox拖回来。据说国内的金山快盘可以作为Dropbox的替代品，改天做个评测再发博文介绍下。别跟我提百度云，且不论它没有官方Linux客户端且免费空间太大，我对百度有偏见。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这篇文用到的就是Dropbox的自动同步功能，在各个终端的Dropbox文件夹内，内容都与云端进行实时同步。既然是个文件夹，那么里面放一个静态站也没有什么不可以了，2GB绰绰有余。&lt;/p&gt;
+&lt;h3 id=&#34;Nginx&#34;&gt;&lt;a href=&#34;#Nginx&#34; class=&#34;headerlink&#34; title=&#34;Nginx&#34;&gt;&lt;/a&gt;Nginx&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;a href=&#34;http://nginx.org/&#34;&gt;Nginx&lt;/a&gt;读作engine X，是由Igor Sysoev（俄罗斯籍）为俄罗斯访问量第二的Rambler.ru站点开发的，第一个公开版本0.1.0发布于2004年10月4日。其将源代码以类BSD许可证的形式发布，因它的稳定性、丰富的功能集、示例配置文件和低系统资源的消耗而闻名。主要功能为静态网站的服务器、多服务端的负载均衡服务器即反向代理服务器。配置简单、高效、轻。既然是做静态站，我首选了Nginx作为服务器，Apache有点笨重，不做动态站就先不装了。&lt;/p&gt;
+&lt;h3 id=&#34;Hexo&#34;&gt;&lt;a href=&#34;#Hexo&#34; class=&#34;headerlink&#34; title=&#34;Hexo&#34;&gt;&lt;/a&gt;Hexo&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 做什么样的静态站呢？这次直接把我的Hexo博客拿来做实验。&lt;a href=&#34;https://bipedalbit.net/2016/4/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/&#34;&gt;上篇文&lt;/a&gt;提到过，Hexo是个静态博客站生成器，&lt;code&gt;hexo g&lt;/code&gt;命令执行后，Hexo项目目录的public子目录下就是静态站的确切内容了。可以干脆把Hexo项目目录放在Dropbox文件夹中，每次&lt;code&gt;hexo g&lt;/code&gt;之后，自动更新静态站内容，同时Dropbox自动把静态站同步到VPS，VPS的Nginx不需要更改配置因为地址映射没有变化。于是我们现在可以在本地修改Hexo博客后自动发布更新到直连外网的VPS，还可以在任意一个向Github分发过SSH公钥的终端向Github Pages发布新的静态站内容。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不知到你们想到了什么，我觉得这个套路可以使VPS上维护一个经常预更新的静态站alpha版，Github Pages上维护一个比较稳定的静态站beta版。&lt;/p&gt;
+</content>
+        <category term="nginx" />
+        <category term="hexo" />
+        <category term="vps" />
+        <category term="dropbox" />
+        <updated>2016-04-25T06:05:09.000Z</updated>
+    </entry>
+    <entry>
+        <id>https://blog.bipedalbit.net/2016/04/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/</id>
+        <title>hexo博客搭建</title>
+        <link rel="alternate" href="https://blog.bipedalbit.net/2016/04/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/"/>
+        <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 转眼三个多月没更博文了，并没有荒废只是有点忙。攒了很多想写的东西，先填个拖了很久的坑：我这个博客是怎么搭起来的。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 总的来说，我的博客是由Github Pages维护，本地用Hexo管理的一个静态博客。这篇文里我将介绍搭建Github Pages+Hexo博客的过程。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 在讲搭建流程之前需要铺垫一下，介绍几个基本概念，Github Pages、Hexo、域名和DNS服务。&lt;/p&gt;
+&lt;h3 id=&#34;Github-Pages&#34;&gt;&lt;a href=&#34;#Github-Pages&#34; class=&#34;headerlink&#34; title=&#34;Github Pages&#34;&gt;&lt;/a&gt;Github Pages&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 如果想搭建一个自己的博客，首先你需要一个7×24不间断服务的稳定服务器。一般来说，geek们不会自己买一个，我们可以租一个云服务器。有更好的选择吗？有。我们也可以找到一些免费的云空间，比如新浪的SAE（以后没准就不免费了），还有我要讲的Github Pages。Github Pages是Github（如果你不知道Github是什么可以自己百度，这里我不太想解释）提供的一项福利，帮助广大geek们维护一个静态网站空间。静态网站就是页面内容不会随着数据库中数据的变化而动态的发生变化的网站，各大购物网站都是典型的动态网站。通常个人博客主要包含静态内容，就算需要修改更新，手动处理也完全足够，评论系统除外，但评论系统可以用第三方插件。于是这里有了分歧，一部分人选择了自己管理评论系统的数据库，还想偶尔在网站上玩点酷炫的动态网站花活，比如挂个网页游戏或者弹幕播放器，他们需要一个完全控制的云服务器，如SAE、百度云、腾讯云、Linode、Conoha等等；另一部分人希望让博客单纯一点，静态网站是更好的选择，Github向每一个用户帐号免费提供一个静态网站空间。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; Github Page使用起来很简单，它的&lt;a href=&#34;https://pages.github.com/&#34;&gt;网站首页&lt;/a&gt;上有讲解，其实就是在Github新建一个repository，命名为username.github.io，其中username为你的Github用户名。这个repository就是你的静态网站空间了，访问它可以使用刚才的username.github.io，也就是Github Pages的二级域名。如果你是Github的用户，接下来你一定知道怎么更新网站内容了。&lt;/p&gt;
+&lt;h3 id=&#34;Hexo&#34;&gt;&lt;a href=&#34;#Hexo&#34; class=&#34;headerlink&#34; title=&#34;Hexo&#34;&gt;&lt;/a&gt;Hexo&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; Hexo是一个开源的静态博客生成器，用node.js开发，作者是台湾大学生tommy351。这里我要提一句，node.js不是js，是基于谷歌v8引擎（js解析引擎）开发的一种服务端语言，语法与js没有什么两样，可以在http协议外（使用socket.io包）实现区别于AJAX的服务器主动推，鼓吹面向过程、基于消息机制的函数异步处理特性。Hexo封装了不止一种对免费服务器空间的接口，其中也包括Github的。这篇文里我准备介绍的是Github Pages搭配Hexo的搭建方式。&lt;/p&gt;
+&lt;h3 id=&#34;域名与DNS&#34;&gt;&lt;a href=&#34;#域名与DNS&#34; class=&#34;headerlink&#34; title=&#34;域名与DNS&#34;&gt;&lt;/a&gt;域名与DNS&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 要怎么访问一个网站？你当然可以直接访问网站的IP地址，但是这不方便，大家一般都使用域名（Domain）。域名最右边的一节是域名后缀，通常用于标识域名类型，域名最右边的两节xxx.xxx作为一个整体通常表示一个顶级域名。它的左边可以再加若干节，如果加了，那些就都是顶级域名下的子域名了。为了完成特定域名（包括子域名）到特定IP的映射，需要一个DNS（Domain Name System）服务器，它将对特定域名的请求转发到特定的IP地址。&lt;/p&gt;
+&lt;h3 id=&#34;Github-Pages-Hexo环境搭建&#34;&gt;&lt;a href=&#34;#Github-Pages-Hexo环境搭建&#34; class=&#34;headerlink&#34; title=&#34;Github Pages+Hexo环境搭建&#34;&gt;&lt;/a&gt;Github Pages+Hexo环境搭建&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; Hexo有一些依赖环境，但是它没有现成的安装包，开源项目嘛，无可厚非。首先你需要安装node.js环境，大家系统平台多种多样，怎么装就自己去&lt;a href=&#34;http://nodejs.cn/&#34;&gt;node官网&lt;/a&gt;上看吧；git客户端也是要装的，同理也自己去&lt;a href=&#34;https://git-scm.com/downloads&#34;&gt;官网&lt;/a&gt;看。此外我们还需要分发个SSH证书，就是把你计算机的公钥在Github帐号里复制一份，这样通过SSH方式连接Github时就可以验证你的身份，就不用输用户名密码了。而Hexo连接Github的方式就是走的SSH方式，所以这个步骤是必要的。win平台通常用SSH Client管理SSH连接，或者也可以用终端形式的putty或者SSH Secure Shell；Ubuntu下是&lt;code&gt;sudo apt-get install openssh-server&lt;/code&gt;；CentOS下是&lt;code&gt;sudo yum install openssh-server&lt;/code&gt;；Mac OS自带SSH客户端。私钥公钥生成和端口配置什么的我不是很想全都介绍，说个Ubuntu的吧，比较简单。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 没配git帐号的先配一下：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;git config --global user.email &amp;quot;你的邮箱&amp;quot;
+git config --global user.name &amp;quot;你的Github用户名&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 生成SSH密钥对：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;ssh -keygen -t rsa -C&amp;quot;前面配git时填过的邮箱&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 然后一路回车，然后你在&lt;code&gt;~/.ssh&lt;/code&gt;目录下就有了id_rsa和id_rsa.pub两个文件，它们分别是你的私钥和公钥，你需要把私钥登记一下：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;ssh-add id_rsa
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 接下来就是分发公钥了，你可以手动进id_rsa.pub复制公钥内容，也可以用系统工具复制：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;xclip -selection c  ~/.ssh/id_rsa.pub
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 然后登录Github并&lt;a href=&#34;https://github.com/settings/ssh&#34;&gt;Add SSH Key&lt;/a&gt;，给新公钥起个名粘贴进去就好。然后测试一下：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;ssh -T git@github.com
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 提示信息包含“successfully authenticated”就算成功了。如果有问题，可以重新设置，常见问题请参考：&lt;br&gt;&lt;a href=&#34;https://help.github.com/articles/generating-an-ssh-key/&#34;&gt;GitHub Help - Generating SSH Keys&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://help.github.com/articles/error-permission-denied-publickey/&#34;&gt;GitHub Help - Error Permission denied (publickey)&lt;/a&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 接下来是为node安装Hexo包：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;npm install -g hexo
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; Hexo封装了一些博客管理接口：&lt;br&gt;	&lt;br&gt;	hexo init &lt;folder&gt;  # 初始化目录，可以指定目录地址，我更喜欢进入目录后hexo init一下&lt;br&gt;	hexo n “title” # 创建新文章，你会在&amp;#x2F;source&amp;#x2F;_post目录下找到包含title的新md文档，你可以编辑它&lt;br&gt;	hexo s # 在本地查起服务查看效果，默认是访问0.0.0.0:4000&lt;br&gt;	hexo g # 为博客重新生成静态页面&lt;br&gt;	hexo d # 同步到Github Pages空间&lt;/p&gt;
+&lt;h3 id=&#34;写博文&#34;&gt;&lt;a href=&#34;#写博文&#34; class=&#34;headerlink&#34; title=&#34;写博文&#34;&gt;&lt;/a&gt;写博文&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 前面提到过，&lt;code&gt;hexo n&lt;/code&gt;之后我们就获得了一个新md文档，接下来你需要按照Markdown语法编辑这个文档。但Hexo的博文还需要包含一些必要内容以辅助页面关联及效果：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;title: postName #文章页面上的显示名称，可以任意修改，不会出现在URL中
+date: 2016-4-25 11:30:16 #文章生成时间，一般不改，当然也可以任意修改
+categories: #文章分类目录，可以为空，注意:后面有个空格
+tags: #文章标签，可空，多标签请用格式[tag1,tag2,tag3]，注意:后面有个空格
+photos: #fancybox功能将要显示是图片集合
+- http://bruce.u.qiniudn.com/2013/11/27/reading/photos-0.jpg
+- http://bruce.u.qiniudn.com/2013/11/27/reading/photos-1.jpg
+---
+摘要
+&amp;lt;!--more--&amp;gt;
+这里开始使用markdown格式输入你的正文。
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 至于Markdown语法，读者可以自行百度，网上很多。写完保存之后可以先&lt;code&gt;hexo s&lt;/code&gt;一下，去0.0.0.0:4000看效果，如果觉得满意，再&lt;code&gt;hexo g&lt;/code&gt;生成静态页面并&lt;code&gt;hexo d&lt;/code&gt;同步到Github Pages。注意这里生成的整个静态网站页面都在&amp;#x2F;public子目录下，你完全可以起一个服务器把本地80口映射到这里。&lt;/p&gt;
+&lt;h3 id=&#34;主题安装&#34;&gt;&lt;a href=&#34;#主题安装&#34; class=&#34;headerlink&#34; title=&#34;主题安装&#34;&gt;&lt;/a&gt;主题安装&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; Hexo迄今为止已经衍生出了很多主题，主题列表&lt;a href=&#34;https://github.com/hexojs/hexo/wiki/Themes&#34;&gt;Hexo Themes&lt;/a&gt;，我的博客使用的是&lt;a href=&#34;https://github.com/xiangming/landscape-plus&#34;&gt;Landscape plus&lt;/a&gt;，一个专为中国大陆用户做过调整的Hexo主题，别的Hexo主题读者可以自己百度一下。&lt;code&gt;hexo init&lt;/code&gt;一个目录之后，把选定的主题&lt;code&gt;git clone&lt;/code&gt;到Hexo目录的themes子目录下，然后编辑&amp;#x2F;_config.yml：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;theme: themename
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 然后配置一下主题下的_config.yml：&lt;br&gt;	&lt;br&gt;	menu: #配置页头显示哪些菜单&lt;br&gt;	#  Home: &amp;#x2F;&lt;br&gt;	  Archives: &amp;#x2F;archives&lt;br&gt;	  Reading: &amp;#x2F;reading&lt;br&gt;	  About: &amp;#x2F;about&lt;br&gt;	#  Guestbook: &amp;#x2F;about&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;excerpt_link: Read More #摘要链接文字
+archive_yearly: false #按年存档
+
+widgets: #配置页脚显示哪些小挂件
+	- category
+#  - tag
+	- tagcloud
+	- recent_posts
+#  - blogroll
+
+blogrolls: #友情链接
+	- sitename: http://site.address
+	- sitename: http://site.address
+	- sitename: http://site.address
+
+fancybox: true #是否开启fancybox效果，就是文章开头加一个电子相册的感觉
+
+duoshuo_shortname: username #多说账号
+
+google_analytics:
+rss:
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 要更新主题只需要从Github拉取主题内容即可&lt;code&gt;cd themes/modernist&lt;/code&gt;然后&lt;code&gt;git pull&lt;/code&gt;。&lt;/p&gt;
+&lt;h3 id=&#34;评论插件&#34;&gt;&lt;a href=&#34;#评论插件&#34; class=&#34;headerlink&#34; title=&#34;评论插件&#34;&gt;&lt;/a&gt;评论插件&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 有很多免费的第三方评论插件提供商，你可以通过简单的配置使用他们的数据库管理你网站的评论数据，hexo默认集成的是Disqus，但是有GFW存在，所以我选择了国内的&lt;a href=&#34;http://duoshuo.com/&#34;&gt;多说&lt;/a&gt;。直接用你的微博&amp;#x2F;豆瓣&amp;#x2F;人人&amp;#x2F;百度&amp;#x2F;开心网帐号登录多说，做一下基本设置。你也可以在多说后台自定义一下多说评论框的格式，比如评论框的位置，对于css设置，可以&lt;a href=&#34;http://dev.duoshuo.com/docs/4ff1cfd0397309552c000017&#34;&gt;参考这里&lt;/a&gt;。如果你是有的其他第三方评论系统，将通用代码粘贴到&amp;#x2F;themes&amp;#x2F;themename&amp;#x2F;layout&amp;#x2F;_partial&amp;#x2F;comment.ejs里面：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;&amp;lt;% if (config.disqus_shortname &amp;amp;&amp;amp; page.comments)&amp;#123; %&amp;gt;
+&amp;lt;section id=&amp;quot;comment&amp;quot;&amp;gt;
+  #你的通用代码
+&amp;lt;% &amp;#125; %&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;域名配置&#34;&gt;&lt;a href=&#34;#域名配置&#34; class=&#34;headerlink&#34; title=&#34;域名配置&#34;&gt;&lt;/a&gt;域名配置&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 国内域名服务商有万网、腾讯、阿里、美橙等等，国外推荐&lt;a href=&#34;http://www.godaddy.com/&#34;&gt;狗爹（godaddy）&lt;/a&gt;。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 买完域名你需要给域名指定DNS服务器。DNS服务商非常多，一般域名服务商和云主机服务商都提供DNS服务，我选择的是国内的&lt;a href=&#34;http://www.dnspod.cn/&#34;&gt;DNSPod&lt;/a&gt;，免费的，提供监测网站状态功能，还挺好用。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 域名服务商和DNS服务商那边的配置它们各自网站都会提供教程，自己网站空间中给静态网站绑定域名很简单，在网站根目录放一个叫CNAME的文档，里面填上你的域名就行了。&lt;/p&gt;
+&lt;h3 id=&#34;参考文章&#34;&gt;&lt;a href=&#34;#参考文章&#34; class=&#34;headerlink&#34; title=&#34;参考文章&#34;&gt;&lt;/a&gt;参考文章&lt;/h3&gt;&lt;p&gt;&lt;a href=&#34;http://ibruce.info/2013/11/22/hexo-your-blog/&#34;&gt;http://ibruce.info/2013/11/22/hexo-your-blog/&lt;/a&gt;（大大的教程写的真心详细，基本就是这篇领我进门）&lt;/p&gt;
+</content>
+        <category term="github" />
+        <category term="domain" />
+        <category term="DNS" />
+        <category term="hexo" />
+        <updated>2016-04-24T13:02:39.000Z</updated>
+    </entry>
+</feed>

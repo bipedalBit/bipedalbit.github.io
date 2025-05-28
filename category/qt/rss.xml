@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+    <channel>
+        <title>Hacking to the gate! • Posts by &#34;qt&#34; category</title>
+        <link>https://blog.bipedalbit.net</link>
+        <description>Bipedal Bit&#39;s blog</description>
+        <language>zh-CN</language>
+        <pubDate>Tue, 09 Jun 2015 13:19:10 +0800</pubDate>
+        <lastBuildDate>Tue, 09 Jun 2015 13:19:10 +0800</lastBuildDate>
+        <category>Qt</category>
+        <category>signal-slot</category>
+        <category>Q_OBJECT</category>
+        <category>nginx</category>
+        <category>select/poll</category>
+        <category>epoll</category>
+        <category>ngx_int_t</category>
+        <category>rbtree</category>
+        <category>C</category>
+        <category>static</category>
+        <category>内存分布</category>
+        <category>sublime</category>
+        <category>C++</category>
+        <category>makefile</category>
+        <category>node.js</category>
+        <category>github</category>
+        <category>socket.io</category>
+        <category>Web请求处理机制</category>
+        <category>同步/异步</category>
+        <category>阻塞/非阻塞</category>
+        <category>事件驱动模型</category>
+        <category>BP神经网络</category>
+        <category>机器学习</category>
+        <category>python</category>
+        <category>pybrain</category>
+        <category>c++11</category>
+        <category>多线程</category>
+        <category>ubuntu</category>
+        <category>debian</category>
+        <category>apt-file</category>
+        <category>cin</category>
+        <category>cout</category>
+        <category>scanf</category>
+        <category>printf</category>
+        <category>进制转换</category>
+        <category>人工神经网络</category>
+        <category>人机博弈</category>
+        <category>Maxmin</category>
+        <category>AlphaBeta</category>
+        <category>PVS</category>
+        <category>MTD(f)</category>
+        <category>位域</category>
+        <category>bitset</category>
+        <category>vector&amp;lt;bool&amp;gt;</category>
+        <category>网络爬虫</category>
+        <category>类脑</category>
+        <category>codeigniter</category>
+        <category>php</category>
+        <category>IIS7</category>
+        <category>apache</category>
+        <category>模拟登录</category>
+        <category>proxy</category>
+        <category>domain</category>
+        <category>DNS</category>
+        <category>hexo</category>
+        <category>vps</category>
+        <category>dropbox</category>
+        <category>ffmpeg</category>
+        <category>板绘</category>
+        <category>sai</category>
+        <category>琪露诺</category>
+        <category>LLM</category>
+        <category>ollama</category>
+        <category>open-webui</category>
+        <category>oneapi</category>
+        <category>mcpserver</category>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/06/09/Qt%E5%87%BA%E7%8E%B0%E9%94%99%E8%AF%AFundefined-reference-to-vtable-for-XXXXX-XXX/</guid>
+            <title>Qt出现错误undefined reference to &#39;vtable for XXXXX.XXX&#39;</title>
+            <link>https://blog.bipedalbit.net/2015/06/09/Qt%E5%87%BA%E7%8E%B0%E9%94%99%E8%AF%AFundefined-reference-to-vtable-for-XXXXX-XXX/</link>
+            <category>Qt</category>
+            <category>signal-slot</category>
+            <category>Q_OBJECT</category>
+            <pubDate>Tue, 09 Jun 2015 13:19:10 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 如果新建一个类，继承了某个类，在这个类的头文件中式没有 Q_OBJECT宏声明的，如果想使用signal-slot信号，就需要添加Q_OBJECT宏，但是添加了这个宏后，就可能会出现这种错误，“undefined reference to vtable for XXXXX”的编译错误。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这是因为在Makefile里面没有这个类并没有Q_OBJECT信息，所以在执行Makefile时候也就没有moc xxx.h这条命令，最终导致连接失败。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 知道了这个原因后，解决方法就很简单了，重新运行qmake，生成Makefile，然后再编译就OK了。&lt;/p&gt;
+ ]]></description>
+        </item>
+    </channel>
+</rss>

@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://blog.bipedalbit.net</id>
+    <title>Hacking to the gate! • Posts by &#34;proxy&#34; tag</title>
+    <link href="https://blog.bipedalbit.net" />
+    <updated>2016-01-05T17:02:08.000Z</updated>
+    <category term="Qt" />
+    <category term="signal-slot" />
+    <category term="Q_OBJECT" />
+    <category term="nginx" />
+    <category term="select/poll" />
+    <category term="epoll" />
+    <category term="ngx_int_t" />
+    <category term="rbtree" />
+    <category term="C" />
+    <category term="static" />
+    <category term="内存分布" />
+    <category term="sublime" />
+    <category term="C++" />
+    <category term="makefile" />
+    <category term="node.js" />
+    <category term="github" />
+    <category term="socket.io" />
+    <category term="Web请求处理机制" />
+    <category term="同步/异步" />
+    <category term="阻塞/非阻塞" />
+    <category term="事件驱动模型" />
+    <category term="BP神经网络" />
+    <category term="机器学习" />
+    <category term="python" />
+    <category term="pybrain" />
+    <category term="c++11" />
+    <category term="多线程" />
+    <category term="ubuntu" />
+    <category term="debian" />
+    <category term="apt-file" />
+    <category term="cin" />
+    <category term="cout" />
+    <category term="scanf" />
+    <category term="printf" />
+    <category term="进制转换" />
+    <category term="人工神经网络" />
+    <category term="人机博弈" />
+    <category term="Maxmin" />
+    <category term="AlphaBeta" />
+    <category term="PVS" />
+    <category term="MTD(f)" />
+    <category term="位域" />
+    <category term="bitset" />
+    <category term="vector&amp;lt;bool&amp;gt;" />
+    <category term="网络爬虫" />
+    <category term="类脑" />
+    <category term="codeigniter" />
+    <category term="php" />
+    <category term="IIS7" />
+    <category term="apache" />
+    <category term="模拟登录" />
+    <category term="proxy" />
+    <category term="domain" />
+    <category term="DNS" />
+    <category term="hexo" />
+    <category term="vps" />
+    <category term="dropbox" />
+    <category term="ffmpeg" />
+    <category term="板绘" />
+    <category term="sai" />
+    <category term="琪露诺" />
+    <category term="LLM" />
+    <category term="ollama" />
+    <category term="open-webui" />
+    <category term="oneapi" />
+    <category term="mcpserver" />
+    <entry>
+        <id>https://blog.bipedalbit.net/2016/01/06/%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB%E4%B9%8B%E4%BB%A3%E7%90%86%E6%B1%A0/</id>
+        <title>微博爬虫之代理池</title>
+        <link rel="alternate" href="https://blog.bipedalbit.net/2016/01/06/%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB%E4%B9%8B%E4%BB%A3%E7%90%86%E6%B1%A0/"/>
+        <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 前一个版本的微博爬虫每发送一个HTTP请求就需要等待若干秒，模拟人类操作，避免引起服务器的注意，以至于每个请求平均耗时高达3秒。为了防止被服务器封禁，显然应该使用代理，伪装自己HTTP请求的来源。至于如何获取代理，如何使用这些代理，我进行了一些思考与探索，并完善上个版本的微博爬虫工具包，完成了新版的微博爬虫。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我的第一个思路是，找到提供大量免费代理的网站（自己找，本文不点明），爬取代理，然后用多线程的方式成组发送请求。虽然获取代理的过程很顺利，但是我很快发现了这个思路的一些问题。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先，成组多线程并发请求的话，&lt;strong&gt;下一页链接&lt;/strong&gt;没法使用同一个序列，即可能需要先获取页数然后做页码区间划分，再把每个区间分配给不同的代理。可是如果某个代理中途失效了怎么办？就算不考虑这种情况，理论上，每组请求之间还是需要加平均3秒的延迟，实际上，受IO上限的影响，16线程的成组请求，等到全部响应完大概需要10+秒，这样一来组间延迟省掉也无所谓，可是即使在只使用优质代理的情况下每次请求的均摊时间开销也要1.+秒，虽然效率比不使用代理有所提高，但是我仍然不满意。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 随后我放弃了对多线程并发的执念，提出并完善了一个新思路——单线程爬虫＋带时间戳的代理池＋代理竞争。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 先解释单线程爬虫，有了代理池其实已经基本不用担心代理失效的问题，但是为了实现方便，我还是暂且选择了单线程爬虫。下一个版本也许会在整个爬虫外面套一层并发，也许会考虑使用协程（coroutine）技术。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 接下来是带时间戳的代理池和代理竞争。我们知道，每一个代理在发出一个请求后需要等待一个平均3秒的随机时间后才可以再次发送请求。那么，如果我们使用过一个代理之后就暂时给它上锁（实际上是打上一个时间戳），到时间后（当前时间的时间戳与代理时间戳差值超过随机延时）则给它解锁就可以解决单个代理的使用问题。同时，我们在所有代理之间轮询寻找没上锁的代理来使用，而每次请求的响应时间会积累下来，考虑到使用代理的请求响应时间比较长，顶多五六个代理之后旧代理就已经解锁了。而实际上，我的代理池维护的代理数通常不会少于6。即使代理全都上了锁，我也可以等待1秒后重新轮询。于是，只要保证代理池足够大，同时维护代理池中代理的质量，我们就可以实现连续发送请求，事实上，经过实验，代理响应时间受代理质量影响有所浮动，平均请求周期最长达到过6&amp;#x2F;7秒，最短达到过5&amp;#x2F;3秒。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 至于维护代理池的方法，我从爬虫进程fork了一个守护进程用来更新代理池。定时（暂定30秒）爬取代理网站某页面上的100个代理，然后用多线程（暂定16线程）测试每个代理的响应时间，过滤掉响应太慢（暂定超时时间为3秒）的代理，用同样的方法过滤代理池中不在新代理列表中的代理，最后合并代理池和新代理列表，同时为新代理打上很小的时间戳（实际上是0），已有的代理时间戳不变。这样可以在代理损失的过程中不断扩充代理，使代理池的规模稳定甚至递增（经过实验，基本能使代理池大小保持稳定，没有出现代理池暴增的情况，暂时不对代理池大小加以限制）。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 关于新思路的实现，我在重构weibo-crawler后新建了weibo-crawler2项目，按惯例已挂&lt;a href=&#34;https://github.com/bipedalBit/weibo-crawler2&#34;&gt;git&lt;/a&gt;。下面是一些weibo-crawler2的使用截图：&lt;br&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/weibo-crawler2/crawler2%E5%8C%85%E9%85%8D%E7%BD%AE.png&#34; alt=&#34;图１ crawler2包配置&#34; title=&#34;__init__.py&#34;&gt;&lt;br&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/weibo-crawler2/%E7%88%AC%E8%99%ABCLI%E8%BE%93%E5%87%BA.png&#34; alt=&#34;图２ 爬虫CLI输出&#34; title=&#34;爬虫CLI输出&#34;&gt;&lt;br&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/weibo-crawler2/%E7%88%AC%E8%99%AB%E6%97%A5%E5%BF%97.png&#34; alt=&#34;图３ 爬虫日志&#34; title=&#34;爬虫日志&#34;&gt;&lt;br&gt;&lt;strong&gt;悲报，weibo.cn登录需要验证码了。刚开始验证码还比较弱，我正想着过完年要不要用深度学习破了它，然后验证码就变得更变态了…模拟登录模块报废。&lt;/strong&gt;&lt;/p&gt;
+</content>
+        <category term="python" />
+        <category term="网络爬虫" />
+        <category term="proxy" />
+        <updated>2016-01-05T17:02:08.000Z</updated>
+    </entry>
+</feed>

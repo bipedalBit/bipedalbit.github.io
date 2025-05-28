@@ -1,0 +1,982 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+    <channel>
+        <title>Hacking to the gate! • Posts by &#34;c++&#34; category</title>
+        <link>https://blog.bipedalbit.net</link>
+        <description>Bipedal Bit&#39;s blog</description>
+        <language>zh-CN</language>
+        <pubDate>Tue, 01 Dec 2015 10:53:29 +0800</pubDate>
+        <lastBuildDate>Tue, 01 Dec 2015 10:53:29 +0800</lastBuildDate>
+        <category>Qt</category>
+        <category>signal-slot</category>
+        <category>Q_OBJECT</category>
+        <category>nginx</category>
+        <category>select/poll</category>
+        <category>epoll</category>
+        <category>ngx_int_t</category>
+        <category>rbtree</category>
+        <category>C</category>
+        <category>static</category>
+        <category>内存分布</category>
+        <category>sublime</category>
+        <category>C++</category>
+        <category>makefile</category>
+        <category>node.js</category>
+        <category>github</category>
+        <category>socket.io</category>
+        <category>Web请求处理机制</category>
+        <category>同步/异步</category>
+        <category>阻塞/非阻塞</category>
+        <category>事件驱动模型</category>
+        <category>BP神经网络</category>
+        <category>机器学习</category>
+        <category>python</category>
+        <category>pybrain</category>
+        <category>c++11</category>
+        <category>多线程</category>
+        <category>ubuntu</category>
+        <category>debian</category>
+        <category>apt-file</category>
+        <category>cin</category>
+        <category>cout</category>
+        <category>scanf</category>
+        <category>printf</category>
+        <category>进制转换</category>
+        <category>人工神经网络</category>
+        <category>人机博弈</category>
+        <category>Maxmin</category>
+        <category>AlphaBeta</category>
+        <category>PVS</category>
+        <category>MTD(f)</category>
+        <category>位域</category>
+        <category>bitset</category>
+        <category>vector&amp;lt;bool&amp;gt;</category>
+        <category>网络爬虫</category>
+        <category>类脑</category>
+        <category>codeigniter</category>
+        <category>php</category>
+        <category>IIS7</category>
+        <category>apache</category>
+        <category>模拟登录</category>
+        <category>proxy</category>
+        <category>domain</category>
+        <category>DNS</category>
+        <category>hexo</category>
+        <category>vps</category>
+        <category>dropbox</category>
+        <category>ffmpeg</category>
+        <category>板绘</category>
+        <category>sai</category>
+        <category>琪露诺</category>
+        <category>LLM</category>
+        <category>ollama</category>
+        <category>open-webui</category>
+        <category>oneapi</category>
+        <category>mcpserver</category>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</guid>
+            <title>C++的位优化</title>
+            <link>https://blog.bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</link>
+            <category>C++</category>
+            <category>位域</category>
+            <category>bitset</category>
+            <category>vector&amp;lt;bool&amp;gt;</category>
+            <pubDate>Tue, 01 Dec 2015 10:53:29 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前的中国象棋初版重在实现，老实说不论是时空效率还是健壮性都不太拿得出手，于是导师要求继续优化改进。考虑和调查过后，时间效率上可以借助之前设想的并行计算得到小幅优化，此外使用类似bool数组的手段也可以在走法生成器中小幅优化边界判断过程，最重要的时间效率优化手段是把博弈机改造成查表器，即以查表为主博弈为辅改变重心。以上都是时间效率优化，这篇文中暂且不展开，我的中国象棋初版在搜索深度大时（大于等于４层）开始出现程序崩溃的现象，暴露了空间效率问题。作为空间效率优化的铺垫，这次我来做个C++位优化的自科普。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 关于空间效率优化，从前顶多考虑到基本变量类型选择的程度，然而C++提供了一些更精细的特性，供程序员进行位级别的内存微操——位域、bitset、vector&amp;lt;bool&amp;gt;。&lt;/p&gt;
+&lt;h1 id=&#34;1-位域&#34;&gt;&lt;a href=&#34;#1-位域&#34; class=&#34;headerlink&#34; title=&#34;1 位域&#34;&gt;&lt;/a&gt;1 位域&lt;/h1&gt;&lt;h2 id=&#34;1-1-字节对齐&#34;&gt;&lt;a href=&#34;#1-1-字节对齐&#34; class=&#34;headerlink&#34; title=&#34;1.1 字节对齐&#34;&gt;&lt;/a&gt;1.1 字节对齐&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 介绍位域之前，还需要做一点铺垫。业界C&amp;#x2F;C++面试、笔试题中，经常考到结构体的字节对齐问题。比如，可能会问下面两个结构体分别占多大内存：&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;hljs-title class_&#34;&gt;s1&lt;/span&gt;&lt;br&gt;&amp;#123;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; a;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;double&lt;/span&gt; f;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;int&lt;/span&gt; b;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; g;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; c[&lt;span class=&#34;hljs-number&#34;&gt;9&lt;/span&gt;];&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;float&lt;/span&gt; e;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;short&lt;/span&gt; d;&lt;br&gt;&amp;#125;;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;hljs-title class_&#34;&gt;s2&lt;/span&gt;&lt;br&gt;&amp;#123;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; a;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; c[&lt;span class=&#34;hljs-number&#34;&gt;9&lt;/span&gt;];&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;short&lt;/span&gt; d;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;float&lt;/span&gt; e;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;int&lt;/span&gt; b;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;double&lt;/span&gt; f;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; g;&lt;br&gt;&amp;#125;;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;code&gt;sizeof(s1)&lt;/code&gt;和&lt;code&gt;sizeof(s2)&lt;/code&gt;分别为56字节和40字节。先不管为什么装着同样变量的结构体占用的内存大小会不同，如果结构体中变量紧密排列，应该占多大内存？ａ：1字节，ｂ：4字节，ｃ：9字节，ｄ：2字节，ｅ：4字节，ｆ：8字节，ｇ：8字节，共36字节。显然这些变量实际上不是紧密排列的，存在一些对齐、填充字节的规则：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;有效对齐值默认为结构体最宽&lt;em&gt;基本类型&lt;/em&gt;成员的大小，注意结构体的结构体成员必须到内部寻找基本类型成员变量计算有效对齐值；&lt;/li&gt;
+&lt;li&gt;结构体变量的首地址能够被其有效对齐值所整除；&lt;/li&gt;
+&lt;li&gt;结构体每个成员相对于结构体首地址的偏移量都是其本身大小的整数倍，如有需要编译器会在成员之间加上填充字节；&lt;/li&gt;
+&lt;li&gt;结构体的总大小为结构体有效对齐值的整数倍，如有需要编译器会在最末一个成员之后加上填充字节；&lt;/li&gt;
+&lt;li&gt;存在指定对齐值（&lt;code&gt;#pragma pack (value)&lt;/code&gt;中的value）时，&lt;code&gt;有效对齐值 = min&amp;#123;默认对齐值, 指定对齐值&amp;#125;&lt;/code&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 至于为什么要做字节对齐，这与CPU取数方式有关，尤其与CPU与内存间数据总线宽度（现在除了单片机通常为32位）有关。因为数据总线宽度是硬件相关，所以一次取数的位数是固定的，假设总线宽度32位，那么一次取数的数据大小就为4字节，那么CPU读取内存数据就将以内存首地址为基址，以4个字节为偏移量单位。如果结构体中有一个char型和一个int型变量，紧密排列存储在内存中，读char型变量时照样取了结构体的前4个字节，其中高8位的哪个字节是存储着char型变量，会经过一些位运算后被提取出来（比如按位右移24位，这仅仅是猜测），到此为止看不出什么不好的。可是当读int型变量时问题就来了，CPU无法一次读取到整个int变量了，原因前面提到了：&lt;em&gt;CPU读取内存数据就将以内存首地址为基址，以4个字节为偏移量单位&lt;/em&gt;。经过两次取数才能获得被分割在两个字（32位内存单位）中完整的int型变量，这还不算完，还要分别从两个字中提取恰当的位并进行拼接，这很浪费时间。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 按特定规则进行字节对齐后，虽然浪费了一些填充字节的内存空间，情况还是好多了。以s1为例，有效对齐值是double型和long long型的8字节即两个字，这里称其为一个对齐空间，装填a（填充7个字节），装填f，装填b（填充4个字节），装填g，装填c（一个对齐空间内放不下，第二个空间中也放了1个字节，填充7个字节），装填e，装填d，结构体整体填充2字节，填满对齐空间的整数倍。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 同理也可求得s2的内存占用，至于两个结构体的内存占用不一样的原因，是它们的成员变量排列顺序不同，而结构体给成员变量分配内存的顺序与定义变量的顺序相同。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 当指定对齐值小于默认对齐值，可令结构体的成员变量排列更紧密，更省空间，但可能降低取数效率。特别的，当指定对齐值为1，结构体成员变量完全紧密排列。&lt;/p&gt;
+&lt;h2 id=&#34;1-2-位域与其利弊&#34;&gt;&lt;a href=&#34;#1-2-位域与其利弊&#34; class=&#34;headerlink&#34; title=&#34;1.2 位域与其利弊&#34;&gt;&lt;/a&gt;1.2 位域与其利弊&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不管是为数据结构的成员变量设计合适的排列顺序，还是指定合适的字节对齐值，都是在字节的层次上优化程序空间效率。而使用位域，可以在位的层次上优化程序空间效率。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 还是以1.1节中的s1为例，只在字节层面上优化，以不损失时间效率为前提，最佳策略如下：&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;pragma&lt;/span&gt; pack(4)&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;hljs-title class_&#34;&gt;s1&lt;/span&gt;&lt;br&gt;&amp;#123;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;double&lt;/span&gt; f;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; g;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;int&lt;/span&gt; b;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;float&lt;/span&gt; e;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;short&lt;/span&gt; d;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; a;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; c[&lt;span class=&#34;hljs-number&#34;&gt;9&lt;/span&gt;];&lt;br&gt;&amp;#125;;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;pragma&lt;/span&gt; pack()&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 实际上就是保证按32位字（4字节）对齐，变量按大小降序排列。此时的&lt;code&gt;sizeof(s1)&lt;/code&gt;为36字节，空间开销等同变量成员紧密排列，时间效率没有受到影响。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 下面这种写法不知读者见过没有：&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;pragma&lt;/span&gt; pack(4)&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-keyword&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;hljs-title class_&#34;&gt;s1&lt;/span&gt;&lt;br&gt;&amp;#123;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;double&lt;/span&gt; f;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;hljs-type&#34;&gt;long&lt;/span&gt; g: &lt;span class=&#34;hljs-number&#34;&gt;21&lt;/span&gt;;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;int&lt;/span&gt; b: &lt;span class=&#34;hljs-number&#34;&gt;7&lt;/span&gt;;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;float&lt;/span&gt; e;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;short&lt;/span&gt; d;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; a;&lt;br&gt;	&lt;span class=&#34;hljs-type&#34;&gt;char&lt;/span&gt; c[&lt;span class=&#34;hljs-number&#34;&gt;9&lt;/span&gt;];&lt;br&gt;&amp;#125;;&lt;br&gt;&lt;span class=&#34;hljs-meta&#34;&gt;#&lt;span class=&#34;hljs-keyword&#34;&gt;pragma&lt;/span&gt; pack()&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 对这样定义的结构体s1，&lt;code&gt;sizeof(s1)&lt;/code&gt;是28字节。变量b、g后面的‘:’和数字就是位域的描述方式。位域的作用是把一些用不到当前类型变量中所有位的变量做进一步压缩，比如这里的s1结构体中的g变量，原来占用64位，使用位域压缩后g变量只使用原内存空间的高21位，填充3位补满3个字节后，原long long变量的后5个字节就可以自由分配了；b变量，原来占用32位，使用位域压缩后b变量只使用原内存空间的高7位，填充1位填满1个字节后，原int变量的后3个字节的内存空间就可以自由分配了。b、g压缩过后刚好占据4个字节一个32位字，比原来少占８个字节。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 于是，借由位域压缩技术，C++得以进行位层次的空间效率优化了。然而位域的使用有着诸多限制和缺陷：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;位域不可以用于浮点型变量的压缩；&lt;/li&gt;
+&lt;li&gt;位域压缩有符号数时，由于其存储变量的编码方式是源码而非平常变量的补码，变量符号将可能出现不可预料的状态；&lt;/li&gt;
+&lt;li&gt;位域压缩将局部解除变量间原有的的字节对齐规范，即使位域压缩的变量与相邻变量紧密排列，这可能引起取数时间效率的损失。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;2-bitset&#34;&gt;&lt;a href=&#34;#2-bitset&#34; class=&#34;headerlink&#34; title=&#34;2 bitset&#34;&gt;&lt;/a&gt;2 bitset&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这一节我要介绍的是比特集，正如字面意思，它是一种比特的集合的特殊数据结构。位域是C遗留下来的特性，存在很多不完备和妥协的地方,C++中推荐的替换方案之一就是bitset。它的具体使用方法我不想细讲，这里只做个概念介绍，想了解更多可以看&lt;a href=&#34;http://www.cplusplus.com/reference/bitset/bitset/&#34;&gt;标准C++手册&lt;/a&gt;，&lt;del&gt;其实是我困了懒得写&lt;/del&gt;。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 比特集维护一个静态定义其长度的比特串，内存占用以系统字长（通常为&lt;em&gt;机器字长&lt;/em&gt;，即CPU中寄存器的位数，即CPU进行数据计算的单位位宽，而非前面提到的数据总线宽度，但机器字长一定是数据总线宽度的整数倍）为单位长度，当然如果读者使用64位的机器却安装32位的系统则是把机器当做32位机使用，每个CPU寄存器只使用一半的位数。比特集可以通过包含‘０’、‘１’的字符串来构造，也可以通过无符号的整型变量来构造。为什么是无符号数？因为比特的集合本来就是逻辑的、离散的，符号在比特集中没有意义。当然如果想用某个逻辑位来作为符号位也随用户喜欢。相应的，比特集也可以转换成‘０’、‘１’字符串或者整型数。理所当然的，比特集类封装了一系列位运算符号和逻辑位操作方法，注意比特集的位操作符号两边都应该是比特集，位移操作符除外。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 也许有读者想了解bitset的内存占用情况，我进行了下面的一系列测试：&lt;/p&gt;
+&lt;figure class=&#34;highlight cpp&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs cpp&#34;&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;10&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//8&lt;/span&gt;&lt;br&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;20&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//8&lt;/span&gt;&lt;br&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;40&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//8&lt;/span&gt;&lt;br&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;80&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//16&lt;/span&gt;&lt;br&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;160&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//24&lt;/span&gt;&lt;br&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;320&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//40&lt;/span&gt;&lt;br&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;640&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//80&lt;/span&gt;&lt;br&gt;cout &amp;lt;&amp;lt; &lt;span class=&#34;hljs-built_in&#34;&gt;sizeof&lt;/span&gt;(bitset&amp;lt;&lt;span class=&#34;hljs-number&#34;&gt;1280&lt;/span&gt;&amp;gt;) &amp;lt;&amp;lt; endl;	&lt;span class=&#34;hljs-comment&#34;&gt;//160&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 测试结果我写在注释里了，可以看到，bitset的存储单位是8个字节，而我的这台笔记本电脑正是64位机器字长的，测试环境是64位的Ubuntu 14.04版本操作系统。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 同样的，比特bitset也有它的不足之处，比如它不能再与普通整型数直接进行位运算，且它一经构造，不可以改变长度。至于时间效率，可以充分相信它不比普通整型的同类操作慢。&lt;/p&gt;
+&lt;h1 id=&#34;3-vector&#34;&gt;&lt;a href=&#34;#3-vector&#34; class=&#34;headerlink&#34; title=&#34;3 vector&amp;lt;bool&amp;gt;&#34;&gt;&lt;/a&gt;3 vector&amp;lt;bool&amp;gt;&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 当我第一次在手册中看见vector&amp;lt;bool&amp;gt;时我并没有留意，虽然也对bool型的vector容器为什么有一套独立的API感到了一丝困惑。后来在查找bitset相关资料时发现有人写了vector&amp;lt;bool&amp;gt;与bitset的比较文章，这才知道，vector&amp;lt;bool&amp;gt;是C++提供的bitset之外的另一种位层次数据结构微操方案，同等长度的两者的内存占用几乎一样。vector&amp;lt;bool&amp;gt;的具体用法读者依旧可以查看&lt;a href=&#34;http://www.cplusplus.com/reference/vector/vector-bool/&#34;&gt;手册&lt;/a&gt;，&lt;del&gt;是的我又偷懒了XDDD&lt;/del&gt;。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 既然vector&amp;lt;bool&amp;gt;实现在vector库文件中，想必读者也能猜到它与bitset最大的不同，没错它是可变长的。相应的，作为牺牲，考虑数组与vector的区别，也不难猜到，vector&amp;lt;bool&amp;gt;比bitset慢。首先它的位操作也比bitset少得多，其次vector&amp;lt;bool&amp;gt;中的位不再能够用下标随机存取，而需要使用迭代器来访问。其实比起bitset的变长版本，我觉得说vector&amp;lt;bool&amp;gt;是bool型vector的空间优化版本更合适一些。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 以上就完成了简单的位层面程序空间效率优化的相关概念引入，下面会继续跟进我的中国象棋的改进版本。&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/10/17/C-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%88%9D%E6%8E%A2%E2%80%94%E2%80%94c-11%E7%AF%87/</guid>
+            <title>C++多线程初探——c++11篇</title>
+            <link>https://blog.bipedalbit.net/2015/10/17/C-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%88%9D%E6%8E%A2%E2%80%94%E2%80%94c-11%E7%AF%87/</link>
+            <category>C++</category>
+            <category>c++11</category>
+            <category>多线程</category>
+            <pubDate>Sat, 17 Oct 2015 14:58:22 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 今天被说C++出身的猿不会多线程跟不会C++有什么分别，于是放下刚到手的Go和R的书，痛定思痛准备来给自己补补课。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; C++新标准c++11出现之前（虽然“新”标准已经发布好几年了），大家用C++写多线程通常有两种方式：Unix&amp;#x2F;Linux下通常使用POSIX标准的pthread.h库，pthread并不是语言本身提供的内置库，gcc编译带pthread的程序时需要加上&lt;code&gt;-lpthread&lt;/code&gt;标识参数；Windows下，win系列系统提供了一些线程API，但是由于gcc&amp;#x2F;g++等编译器的跨平台性，其实也可以在win下使用pthread。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 然而2011年夏天，c++11标准发布了，新C++有了许多方便的新特性，其中就包括内置的，对多线程的支持。gcc 4.6及以前的版本编译c++11标准的多线程程序时还要加&lt;code&gt;-pthread&lt;/code&gt;标识参数（注意与pthread库的&lt;code&gt;-lpthread&lt;/code&gt;参数的区别）。后来也默认的支持新C++的内置多线程了，实测gcc 4.8.4除了&lt;code&gt;-std=c++11&lt;/code&gt;不加别的参数，能够顺利编译运行c++11的多线程程序。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 铺垫了这么多，下面就先来试试c++11的多线程吧。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; helloWorld.cpp：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;/* c++11线程类的所在，下面的std::thread和std::this_thread都在其中 */
+#include &amp;lt;thread&amp;gt;
+#include &amp;lt;iostream&amp;gt;
+using namespace std;
+
+void thread_task()
+&amp;#123;
+	cout &amp;lt;&amp;lt; &amp;quot;Hello world! My thread ID is &amp;quot; &amp;lt;&amp;lt; this_thread::get_id() &amp;lt;&amp;lt; endl;
+&amp;#125;
+
+int main(int argc, char const *argv[])
+&amp;#123;
+	// 主线程测试
+	/* get_id函数是thread类和this_thread类的成员，获取线程ID */
+	cout &amp;lt;&amp;lt; &amp;quot;I&amp;#39;m the main thread. My thread ID is &amp;quot; &amp;lt;&amp;lt; this_thread::get_id() &amp;lt;&amp;lt; endl;
+	// 子线程测试
+	/* 构造子线程时指派线程任务函数指针 */
+	thread t1(thread_task);
+	thread t2(thread_task);
+	thread t3(thread_task);
+	/* 主线程创建子线程 */
+	t1.join();
+	t2.join();
+	t3.join();
+
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 最简单的多线程测试看起来运行的很顺利。下面我们稍微详细一点研究下std::thread的&lt;a href=&#34;http://www.cplusplus.com/reference/thread/thread/&#34;&gt;官方文档&lt;/a&gt;。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;thread::id：thread下面有个子类型thread::id，表示线程ID。是thread::get_id和this_thread::get_id的返回值。thread::id的构造函数返回一个non-joinable（不代表任何一个线程，即不与任何一个未终止的线程对应的ID相等）的线程ID。一个活跃的线程的ID会在线程终止后变成non-joinable线程ID。&lt;/li&gt;
+&lt;li&gt;thread类的构造有4种形式：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;thread::thread()：默认构造函数，即不带参数的构造函数。构造一个非活跃（不可执行）的线程对象。&lt;/li&gt;
+&lt;li&gt;thread::thread (Fn&amp;amp;&amp;amp; fn, Args&amp;amp;&amp;amp;… args)：初始化构造函数，即带足够多参数，足以初始化一个线程的构造函数。初始化构造函数的参数列表包括一个函数指针和这个函数的参数列表。利用迟邦定技术，构造过程与对函数副本的请求同步完成。&lt;/li&gt;
+&lt;li&gt;复制构造函数，即从一个线程对象复制而得到一个新的线程对象。实际上，线程对象不允许被复制。&lt;/li&gt;
+&lt;li&gt;thread::thread (thread&amp;amp;&amp;amp; x)：移动构造函数，即重新给指定线程分配一个对象（句柄），并释放原来的线程对象（句柄）。注意这并不影响原线程的执行，因为只是释放了对象（句柄），而没有分离原进程、释放资源。参数只有原线程对象。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;thread::~thread()：如果一个活跃线程被释放，首先会调用terminal()方法停止线程的执行。&lt;/li&gt;
+&lt;li&gt;thread::operator&amp;#x3D;(thread&amp;amp;&amp;amp; rhs)：作用相当于移动构造函数，原线程句柄被释放，返回一个更换句柄的线程对象。&lt;/li&gt;
+&lt;li&gt;thread::get_id()：如果方法的目标线程对象是活跃的，生成一个唯一的ID并返回；如果调用方法的线程对象非活跃，先调用线程的默认构造函数生成一个non-joinable线程对象，然后生成一个唯一的ID并返回。&lt;/li&gt;
+&lt;li&gt;thread::joinable()：joinable方法的唯一参数为一个线程ID，它的bool型返回值代表这个线程ID是否对应一个活跃的线程。this_thread下并没有这个方法，因为当前线程如果不为活跃线程，它将不能完成任何线程任务，即不能调用任何方法。&lt;/li&gt;
+&lt;li&gt;thread::join()：这个方法将阻塞调用方法的线程（主线程），直到目标线程中的操作全部完成。这个方法返回之后，目标线程对象的状态就变为非活跃并可以被安全的释放了。换句话说，这个方法定义了一组线程同步关系。&lt;/li&gt;
+&lt;li&gt;thread::detach()：应该有读者注意到了，detach是join的反义词，该方法的作用是从调用线程（主线程）中分离目标线程，让目标线程可以独立并行执行。调用detach方法后两个线程（调用线程和目标线程）都不会被阻塞或者被同步，而是会并行执行直到各自完成所有操作，谁完成执行谁就释放自己的资源，互不影响。（不是我啰嗦，文档原文就是这么说的）这个方法返回之后，目标线程对象的状态就变为非活跃并可以被安全的释放了。换句话说，这个方法定义了一组线程异步关系。&lt;/li&gt;
+&lt;li&gt;thread::swap(thread&amp;amp; x)：文档原文说是交换两个线程对象的&lt;strong&gt;状态&lt;/strong&gt;，我表示不明白状态是指什么。实验表明应该是交换了线程与对象（句柄）的映射关系。thread类还重载了一个面向过程风格的swap方法版本：&lt;code&gt;void swap (thread&amp;amp; x, thread&amp;amp; y)&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;thread::hardware_concurrency()：这是个静态成员函数，返回一个无符号整型，返回一个大概的（不一定准确，因为系统可以支持或限制每个进程创建的线程数）基于硬件的最大并行线程数。如果这个试图返回的值没有被系统很好的定义，返回0。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; thread头文件中还有一个与thread并列的&lt;a href=&#34;http://www.cplusplus.com/reference/thread/this_thread/&#34;&gt;this_thread类&lt;/a&gt;，this_thread类非常简单，除了get_id方法只有另外三个方法：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;this_thread::yield()：顾名思义，使当前线程退让，从执行状态变为就绪状态，使同优先级的线程有机会被重新调度进入执行状态。如果当前进程没什么毛病那么使它退让并没有太大意义，甚至可能不会造成事实上的线程执行顺序变化。yield方法应该在当前线程忙等别的线程而又没有被阻塞时执行。&lt;/li&gt;
+&lt;li&gt;this_thread::sleep_until(const chrono::time_point&amp;lt;Clock,Duration&amp;gt;&amp;amp; abs_time)：阻塞当前线程直到特定时间点，使当前线程至少等待到特定时间点后继续执行，参数是一种特定格式的时间点数据。&lt;/li&gt;
+&lt;li&gt;this_thread::sleep_for(const chrono::duration&amp;lt;Rep,Period&amp;gt;&amp;amp; rel_time)：阻塞当前线程一段时间，使当前线程至少等待特定时长后继续执行，参数是一种特定格式的时间段数据。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 其实c++11标准下，除了thread，还有其他四个用来支持多线程的辅助头文件：&lt;a href=&#34;http://www.cplusplus.com/reference/atomic/&#34;&gt;atomic&lt;/a&gt;、&lt;a href=&#34;http://www.cplusplus.com/reference/mutex/&#34;&gt;mutex&lt;/a&gt;、&lt;a href=&#34;http://www.cplusplus.com/reference/condition_variable/&#34;&gt;condition_variable&lt;/a&gt;、&lt;a href=&#34;http://www.cplusplus.com/reference/future/&#34;&gt;future&lt;/a&gt;。前三个很好理解，分别提供封装好的原子数据类型、互斥锁设备和条件值，future头文件里提供的是一些对分享的数据资源进行竞争的必须设备（我很迷茫头文件为什么不干脆叫share而是叫future这个让人摸不着头脑的名字）。如果读者熟悉操作系统或者进程调度，一定不会对前面这些东西感到陌生。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我们不难管中窥豹猜测多线程的实质，操作系统实现了完善的进程调度，而同样的事情我们要自己对线程再做一遍。线程的调度（包括同步异步、资源调配等等）也就是多线程编程具体要做的事。（还一片茫然的读者请去看任意一本操作系统课本前两三章的样子补补课）&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这篇文主要是科普，入门，建立概念，复杂的多线程实现练习之后再慢慢做，当然也会发文的。下一篇文我准备再科普一下POSIX标准的多线程编程，即pthread库的多线程编程。是的，我不打算研究win下的多线程API了，直言不讳的说，我对Windows有偏见。&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/10/08/C-%E4%BA%8C%E8%BF%9B%E5%88%B6-%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2%E5%99%A8/</guid>
+            <title>C++二进制-十进制转换器</title>
+            <link>https://blog.bipedalbit.net/2015/10/08/C-%E4%BA%8C%E8%BF%9B%E5%88%B6-%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2%E5%99%A8/</link>
+            <category>C++</category>
+            <category>进制转换</category>
+            <pubDate>Thu, 08 Oct 2015 22:05:52 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 布置了二进制-十进制转换器的小作业，本来还要求顺手扩展一下大数的四则运算，我嫌麻烦没做扩展，就只是写来玩玩。也算熟悉一下底层的二进制-十进制转换机制，顺便复习下C++源码规范。注释写了很多，就不多做解释了，只贴代码。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; converter.h:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;/*
+ * Copyright (C) Bipedal Bit
+ * Verson 1.0.0.1
+ */
+
+#ifndef _CONVERTER_H_
+#define _CONVERTER_H_
+
+#include &amp;lt;string&amp;gt;
+
+/*
+ * This is a class to offer operations converting radix of number in string.
+ */
+class Converter
+&amp;#123;
+private:
+	/* to store the binary form of picked up number string */
+	std::string binVal;
+	/* to store the decimal form of picked up number string */
+	std::string decVal;
+	/* to sign the number by marking wether it is negtive */
+	bool negtive;
+	/* to mark wether the number has a dot */
+	bool hasDot;
+	/* to store the index of dot in binary number string */
+	int binDotIndex;
+	/* to store the index of dot in decimal number string */
+	int decDotIndex;
+	/* max reserved digits sum when float converted from decimal to binary */
+	int binFloatPrecision;
+	/*
+	 * Convert the binary number to decimal form then fill this-&amp;gt;decVal.
+	 */
+	void bin2Dec();
+	/*
+	 * Convert the decimal number to binary form then fill this-&amp;gt;binVal.
+	 */
+	void dec2Bin();
+public:
+	/*
+	 * Constructor of the class to pick up number in string and fill both this-&amp;gt;binVal and this-&amp;gt;decVal.
+	 */
+	Converter(std::string str, int radix, int binFloatPrecision = 20);
+	/*
+	 * Get the the number string with specified radix.
+	 */
+	std::string getNum(int radix);
+&amp;#125;;
+
+#endif
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; converter.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;/*
+ * Copyright (C) Bipedal Bit
+ * Verson 1.0.0.1
+ */
+
+ #include &amp;quot;converter.h&amp;quot;
+ #include &amp;lt;iostream&amp;gt;
+ #include &amp;lt;stdexcept&amp;gt;
+
+/*
+ * name: Converter
+ * args:
+ *	string str: the original string containing target number
+ *	int radix: the radix of the number to pick up form str
+ *	int binFloatPrecision: max reserved digits sum when float converted from decimal to binary
+ *		whose default value is 20
+ * Constructor of the class to pick up number in string and fill both this-&amp;gt;binVal and this-&amp;gt;decVal.
+ */
+ Converter::Converter(std::string str, int radix, int binFloatPrecision)
+&amp;#123;
+	/* check radix */
+	if (radix != 2 &amp;amp;&amp;amp; radix != 10)
+	&amp;#123;
+		std::cerr &amp;lt;&amp;lt; &amp;quot;Invalid argument: Do not support radixes beyond binary and decimal yet.\n&amp;quot;;
+		return;
+	&amp;#125;
+	/* check binFloatPrecision */
+	if (binFloatPrecision &amp;lt; 1)
+	&amp;#123;
+		std::cerr &amp;lt;&amp;lt; &amp;quot;Invalid argument: binFloatPrecision should be greater than 0.\n&amp;quot;;
+		return;
+	&amp;#125;
+	/* fill this-&amp;gt;binFloatPrecision */
+	this-&amp;gt;binFloatPrecision = binFloatPrecision;
+	/* assistant variables for traversing the original string */
+	int len = str.size();
+	int i = 0;
+	/* mark wether there&amp;#39;s a dot in the number */
+	bool hasDot = false;
+	/* store number string temporarily */
+	std::string tmp = &amp;quot;&amp;quot;;
+	if (len &amp;gt; 0)
+	&amp;#123;
+		/* handle binary radix */
+		if (radix == 2)
+		&amp;#123;
+			/* remove useless characters */
+			while(str[i] != &amp;#39;-&amp;#39; &amp;amp;&amp;amp; str[i] != &amp;#39;0&amp;#39; &amp;amp;&amp;amp; str[i] != &amp;#39;1&amp;#39;)
+			&amp;#123;
+				i++;
+			&amp;#125;
+			/* pick up &amp;#39;-&amp;#39; */
+			if(str[i] == &amp;#39;-&amp;#39;)
+			&amp;#123;
+				this-&amp;gt;negtive = true;
+				i++;
+			&amp;#125;
+			else
+			&amp;#123;
+				this-&amp;gt;negtive = false;
+			&amp;#125;
+			/* remove spare &amp;#39;0&amp;#39;s */
+			while(str[i] == &amp;#39;0&amp;#39;)
+			&amp;#123;
+				i++;
+			&amp;#125;
+			/* get numbers */
+			for(; i &amp;lt; len ; i++)
+			&amp;#123;
+				/* get first dot only */
+				if (!hasDot &amp;amp;&amp;amp; str[i] == &amp;#39;.&amp;#39;)
+				&amp;#123;
+					hasDot = true;
+					tmp += &amp;#39;.&amp;#39;;
+					continue;
+				&amp;#125;
+				/* get &amp;#39;0&amp;#39;s and &amp;#39;1&amp;#39;s only */
+				if (str[i] != &amp;#39;0&amp;#39; &amp;amp;&amp;amp; str[i] != &amp;#39;1&amp;#39;)
+				&amp;#123;
+					break;
+				&amp;#125;
+				tmp += str[i];
+			&amp;#125;
+		&amp;#125;
+		/* handle decimal radix */
+		else
+		&amp;#123;
+			/* remove useless characters */
+			while(str[i] != &amp;#39;-&amp;#39; &amp;amp;&amp;amp; !(str[i] &amp;gt;= &amp;#39;0&amp;#39; &amp;amp;&amp;amp; str[i] &amp;lt;= &amp;#39;9&amp;#39;))
+			&amp;#123;
+				i++;
+			&amp;#125;
+			/* pick up &amp;#39;-&amp;#39; */
+			if(str[i] == &amp;#39;-&amp;#39;)
+			&amp;#123;
+				this-&amp;gt;negtive = true;
+				i++;
+			&amp;#125;
+			else
+			&amp;#123;
+				this-&amp;gt;negtive = false;
+			&amp;#125;
+			/* remove spare &amp;#39;0&amp;#39;s */
+			while(str[i] == &amp;#39;0&amp;#39;)
+			&amp;#123;
+				i++;
+			&amp;#125;
+			/* get numbers */
+			for(; i &amp;lt; len ; i++)
+			&amp;#123;
+				/* get first dot only */
+				if (!hasDot &amp;amp;&amp;amp; str[i] == &amp;#39;.&amp;#39;)
+				&amp;#123;
+					hasDot = true;
+					tmp += &amp;#39;.&amp;#39;;
+					continue;
+				&amp;#125;
+				/* get all arabic numerals */
+				if(!(str[i] &amp;gt;= &amp;#39;0&amp;#39; &amp;amp;&amp;amp; str[i] &amp;lt;= &amp;#39;9&amp;#39;))
+				&amp;#123;
+					break;
+				&amp;#125;
+				tmp += str[i];
+			&amp;#125;
+		&amp;#125;
+	&amp;#125;
+	/* if no number picked up set 0 */
+	if(tmp == &amp;quot;&amp;quot;)
+	&amp;#123;
+		tmp = &amp;quot;0&amp;quot;;
+	&amp;#125;
+	/* add &amp;#39;0&amp;#39; if necessary */
+	if (tmp[0] == &amp;#39;.&amp;#39;)
+	&amp;#123;
+		tmp = &amp;#39;0&amp;#39; + tmp;
+	&amp;#125;
+	/* mark wether the number has a dot */
+	this-&amp;gt;hasDot = hasDot;
+	/* fill corresponding number form */
+	if (radix == 2)
+	&amp;#123;
+		this-&amp;gt;binVal = tmp;
+		if (hasDot)
+		&amp;#123;
+			/* store dot&amp;#39;s index in the number string of binary form */
+			this-&amp;gt;binDotIndex = tmp.find(&amp;#39;.&amp;#39;);
+		&amp;#125;
+		bin2Dec();
+	&amp;#125;
+	else
+	&amp;#123;
+		this-&amp;gt;decVal = tmp;
+		if (hasDot)
+		&amp;#123;
+			/* store dot&amp;#39;s index in the number string of decimal form */
+			this-&amp;gt;decDotIndex = tmp.find(&amp;#39;.&amp;#39;);
+		&amp;#125;
+		dec2Bin();
+	&amp;#125;
+	/* have a test */
+/*
+	std::cout &amp;lt;&amp;lt; &amp;quot;radix: 2&amp;quot; &amp;lt;&amp;lt; std::endl;
+	if(this-&amp;gt;negtive)
+	&amp;#123;
+		std::cout &amp;lt;&amp;lt; &amp;#39;-&amp;#39;;
+	&amp;#125;
+	std::cout &amp;lt;&amp;lt; this-&amp;gt;binVal &amp;lt;&amp;lt; std::endl;
+	std::cout &amp;lt;&amp;lt; &amp;quot;radix: 10&amp;quot; &amp;lt;&amp;lt; std::endl;
+	if(this-&amp;gt;negtive)
+	&amp;#123;
+		std::cout &amp;lt;&amp;lt; &amp;#39;-&amp;#39;;
+	&amp;#125;
+	std::cout &amp;lt;&amp;lt; this-&amp;gt;decVal &amp;lt;&amp;lt; std::endl;
+*/
+&amp;#125;
+
+/*
+ * name: getNum
+ * arguments:
+ *	int radix: spedify a radix to find which form number is to got
+ * return: the number string with specified form
+ * access: public
+ * Get the the number string with specified radix.
+ */
+ std::string Converter::getNum(int radix)
+ &amp;#123;
+ 	/* check radix */
+	if (radix != 2 &amp;amp;&amp;amp; radix != 10)
+	&amp;#123;
+		std::cerr &amp;lt;&amp;lt; &amp;quot;Invalid argument: Do not support radixes beyond binary and decimal yet.\n&amp;quot;;
+		return NULL;
+	&amp;#125;
+ 	std::string tmp = &amp;quot;&amp;quot;;
+ 	/* add the &amp;#39;-&amp;#39; character if necessary */
+ 	if (this-&amp;gt;negtive)
+ 	&amp;#123;
+ 		tmp += &amp;#39;-&amp;#39;;
+ 	&amp;#125;
+ 	/* add the binary form number */
+ 	if (radix == 2)
+ 	&amp;#123;
+ 		tmp += this-&amp;gt;binVal;
+ 	&amp;#125;
+ 	/* add the decimal form number */
+ 	else
+ 	&amp;#123;
+ 		tmp += this-&amp;gt;decVal;
+ 	&amp;#125;
+ 	return tmp;
+ &amp;#125;
+
+/*
+ * name: bin2Dec
+ * access: private
+ * Convert the binary number to decimal form then fill this-&amp;gt;decVal.
+ */
+ void Converter::bin2Dec()
+ &amp;#123;
+ 	/* store number string temporarily */
+ 	std::string tmp = &amp;quot;&amp;quot;;
+ 	/* ============== int part ============== */
+ 	/* to get the int range of the binary number string */
+ 	int intLen;
+ 	if (this-&amp;gt;hasDot)
+ 	&amp;#123;
+ 		intLen = this-&amp;gt;binDotIndex;
+ 	&amp;#125;
+ 	else
+ 	&amp;#123;
+ 		intLen = this-&amp;gt;binVal.size();
+ 	&amp;#125;
+ 	/* may need carry while traversing digits */
+ 	char carry = 0;
+ 	/* to store tmp&amp;#39;s length */
+ 	int decLen;
+ 	/* convert radix digit by digit while traversing the int part of the binary number string */
+ 	for(int i = 0 ; i &amp;lt; intLen ; i++)
+ 	&amp;#123;
+ 		/* add new binary digit into carry */
+ 		carry += this-&amp;gt;binVal[i]-&amp;#39;0&amp;#39;;
+ 		/* update tmp&amp;#39;s length */
+ 		decLen = tmp.size();
+ 		/* traverse tmp to multiply each digit by 2 and add carries */
+ 		for(int j = decLen-1 ; j &amp;gt;= 0 ; j--)
+ 		&amp;#123;
+ 			tmp[j] = tmp[j]*2+carry;
+ 			if (tmp[j] &amp;gt; 9)
+ 			&amp;#123;
+ 				/* update carry */
+ 				carry = tmp[j]/10;
+ 				/* limit digit within 10 */
+ 				tmp[j] %= 10;
+ 			&amp;#125;
+ 			else
+ 			&amp;#123;
+				carry = 0;
+ 			&amp;#125;
+ 		&amp;#125;
+ 		/* expand digits if necessary */
+ 		while(carry)
+ 		&amp;#123;
+ 			tmp = char(carry%10)+tmp;
+ 			carry /= 10;
+ 		&amp;#125;
+ 	&amp;#125;
+ 	/* ============= part end ============== */
+ 	/* add &amp;#39;0&amp;#39; if need */
+ 	if (tmp == &amp;quot;&amp;quot;)
+ 	&amp;#123;
+ 		tmp += (char)0;
+ 	&amp;#125;
+ 	/* ============= float part ============== */
+ 	/* if there is a float part */
+ 	if (this-&amp;gt;hasDot)
+ 	&amp;#123;
+ 		/* add the dot to the number string */
+ 		tmp += &amp;#39;.&amp;#39;;
+ 		/* get the length except the float part */
+ 		int decIntLen = tmp.size();
+ 		/* get the length of the whole binary number string */
+ 		int binLen = this-&amp;gt;binVal.size();
+ 		/* convert radix digit by digit while traversing the float part of the binary number string */
+ 		for(int i = binLen-1 ; i &amp;gt; intLen ; i--)
+ 		&amp;#123;
+ 			/* carry to first float digit if occur a &amp;#39;1&amp;#39; */
+ 			carry = (this-&amp;gt;binVal[i] == &amp;#39;1&amp;#39; ? 5 : 0);
+ 			/* update tmp&amp;#39;s length */
+ 			decLen = tmp.size();
+ 			/* traverse tmp to divide each digit by 2 and add carries */
+ 			for(int j = decIntLen ; j &amp;lt; decLen ; j++)
+ 			&amp;#123;
+ 				if (tmp[j] &amp;amp; 1)
+ 				&amp;#123;
+ 					tmp[j] = tmp[j]/2 + carry;
+ 					carry = 5;
+ 				&amp;#125;
+ 				else
+ 				&amp;#123;
+ 					tmp[j] = tmp[j]/2 + carry;
+ 					carry = 0;
+ 				&amp;#125;
+ 			&amp;#125;
+ 			/* expand digit if necessary */
+ 			if (carry)
+ 			&amp;#123;
+ 				tmp += carry;
+ 			&amp;#125;
+ 		&amp;#125;
+ 	&amp;#125;
+ 	/* ============== part end =============== */
+ 	/* adjust string and fill this-&amp;gt;decVal and this-&amp;gt;decDotIndex */
+ 	for(int i = 0 ; i &amp;lt; tmp.size() ; i++)
+ 	&amp;#123;
+ 		if (tmp[i] == &amp;#39;.&amp;#39;)
+ 		&amp;#123;
+ 			continue;
+ 		&amp;#125;
+ 		tmp[i] += &amp;#39;0&amp;#39;;
+ 	&amp;#125;
+ 	this-&amp;gt;decVal = tmp;
+ 	this-&amp;gt;decDotIndex = tmp.find(&amp;#39;.&amp;#39;);
+ &amp;#125;
+
+/*
+ * name: dec2Bin
+ * access: private
+ * Convert the decimal number to binary form then fill this-&amp;gt;binVal.
+ */
+ void Converter::dec2Bin()
+ &amp;#123;
+ 	/* store number string temporarily */
+ 	std::string tmp = &amp;quot;&amp;quot;;
+ 	/* ============== int part ============== */
+ 	/* to get the int range of the decimal number string */
+ 	int intLen;
+ 	if (this-&amp;gt;hasDot)
+ 	&amp;#123;
+ 		intLen = this-&amp;gt;decDotIndex;
+ 	&amp;#125;
+ 	else
+ 	&amp;#123;
+ 		intLen = this-&amp;gt;decVal.size();
+ 	&amp;#125;
+ 	/* may need carry while traversing digits */
+ 	char carry = 0;
+ 	/* to store tmp&amp;#39;s length */
+ 	int binLen;
+ 	/* convert radix digit by digit while traversing the int part of the decimal number string */
+ 	for(int i = 0 ; i &amp;lt; intLen ; i++)
+ 	&amp;#123;
+ 		/* add new decimal digit into carry */
+ 		carry += this-&amp;gt;decVal[i]-&amp;#39;0&amp;#39;;
+ 		/* update tmp&amp;#39;s length */
+ 		binLen = tmp.size();
+ 		/* traverse tmp to multiply each digit by 10 and add carries */
+ 		for(int j = binLen-1 ; j &amp;gt;= 0 ; j--)
+ 		&amp;#123;
+ 			/*
+ 			 * Type of tmp[] is char[] and MAX_CHAR = 127 &amp;gt; 99.
+ 			 * So the assignment statement below will work safely.
+ 			 */
+ 			tmp[j] = tmp[j]*10+carry;
+ 			if (tmp[j] &amp;gt; 1)
+ 			&amp;#123;
+ 				/* update carry */
+ 				carry = tmp[j]/2;
+ 				/* limit digit within 2 */
+ 				tmp[j] &amp;amp;= 1;
+ 			&amp;#125;
+ 			else
+ 			&amp;#123;
+				carry = 0;
+ 			&amp;#125;
+ 		&amp;#125;
+ 		/* expand digits if necessary */
+ 		while(carry)
+ 		&amp;#123;
+ 			tmp = char(carry%2)+tmp;
+ 			carry /= 2;
+ 		&amp;#125;
+ 	&amp;#125;
+ 	/* ============= part end ============== */
+ 	/* add &amp;#39;0&amp;#39; if need */
+ 	if (tmp == &amp;quot;&amp;quot;)
+ 	&amp;#123;
+ 		tmp += (char)0;
+ 	&amp;#125;
+ 	/* ============= float part ============== */
+ 	/* if there is a float part */
+	if (this-&amp;gt;hasDot)
+ 	&amp;#123;
+ 		/* add the dot to the number string */
+ 		tmp += &amp;#39;.&amp;#39;;
+ 		/* may need carry while traversing digits */
+ 		carry = 0;
+ 		/* get the length of the whole decimal number string */
+ 		int decLen = this-&amp;gt;decVal.size();
+ 		/* get the length of the float part of the decimal number string */
+ 		int floatLen = decLen-intLen-1;
+ 		/* get a copy of the float part of the decimal number string */
+ 		std::string tmp2 = this-&amp;gt;decVal.substr(intLen+1, floatLen);
+ 		/* adjust tmp2 to prepare for algorithm below */
+ 		for(int i = 0 ; i &amp;lt; floatLen ; i++)
+ 		&amp;#123;
+ 			tmp2[i] -= &amp;#39;0&amp;#39;;
+ 		&amp;#125;
+ 		/*
+ 		 * asume:   B = b1*2^-1 + b2*2^-2 + b3*2^-3 + ...
+ 		 *            2*B = b1 + b2*2^-1 + b3*2^-2 + ... 	// take b1 as first digit
+ 		 * 2*(2*B-b1) = b2 + b3*2^-1 + ... 		// take b2 as second digit
+ 		 * 		...
+ 		 * so the binary float will got digit by digit in order
+ 		 */
+ 		for(int i = 0 ; i &amp;lt; this-&amp;gt;binFloatPrecision ; i++)
+ 		&amp;#123;
+ 			/* traverse tmp2 to multiply each digit by 2 and add carries */
+ 			for(int j = floatLen-1 ; j &amp;gt;= 0 ; j--)
+ 			&amp;#123;
+ 				tmp2[j] = tmp2[j]*2+carry;
+ 				if (tmp2[j] &amp;gt; 9)
+ 				&amp;#123;
+ 					/* update carry */
+ 					carry = tmp2[j]/10;
+ 					/* limit digit within 10 */
+ 					tmp2[j] %= 10;
+ 				&amp;#125;
+ 				else
+ 				&amp;#123;
+ 					carry = 0;
+ 				&amp;#125;
+ 			&amp;#125;
+ 			/* get the last carry as new digit of binary float */
+ 			tmp += carry;
+ 			/* reset carry */
+ 			carry = 0;
+ 		&amp;#125;
+ 	&amp;#125;
+ 	/* ============== part end =============== */
+ 	/* adjust string and fill this-&amp;gt;binVal and this-&amp;gt;binDotIndex */
+ 	for(int i = 0 ; i &amp;lt; tmp.size() ; i++)
+ 	&amp;#123;
+ 		if (tmp[i] == &amp;#39;.&amp;#39;)
+ 		&amp;#123;
+ 			continue;
+ 		&amp;#125;
+ 		tmp[i] += &amp;#39;0&amp;#39;;
+ 	&amp;#125;
+ 	this-&amp;gt;binVal = tmp;
+ 	this-&amp;gt;binDotIndex = tmp.find(&amp;#39;.&amp;#39;);
+ &amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; test.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;quot;converter.h&amp;quot;
+#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;climits&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	//Converter c(&amp;quot;0.625&amp;quot;, 10);
+	Converter c(&amp;quot;ujsgdfksagrua0.10100000000000000000&amp;quot;, 2);
+	cout &amp;lt;&amp;lt; c.getNum(10) &amp;lt;&amp;lt; endl;
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 都过500行了，会不会写得有点啰嗦？&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.bipedalbit.net/2015/10/08/C-cin%E3%80%81cout%E7%9A%84%E4%BC%98%E5%8C%96%E5%8F%8A%E6%B5%8B%E8%AF%84/</guid>
+            <title>C++ cin、cout的优化及测评</title>
+            <link>https://blog.bipedalbit.net/2015/10/08/C-cin%E3%80%81cout%E7%9A%84%E4%BC%98%E5%8C%96%E5%8F%8A%E6%B5%8B%E8%AF%84/</link>
+            <category>C++</category>
+            <category>cin</category>
+            <category>cout</category>
+            <category>scanf</category>
+            <category>printf</category>
+            <pubDate>Thu, 08 Oct 2015 19:56:46 +0800</pubDate>
+            <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降低了执行效率。那么可能挽回这种效率损失吗？答案是可以。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; C++中提供了解除指针同步的方法：&lt;code&gt;ios::sync_with_stdio(false)&lt;/code&gt;。如字面意思，这个方法用来设置输入输出流是否与C的stdio同步。那么解除同步之后能有多大效果呢？毕竟C++确实因为封装程度比C高多多少少损失了一些执行效率。我动手进行了一系列测评，下面是源码。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这里我统一对输入输出做了重定向，不论是输入数据来源还是输入数据目标都是“data”文件。所有的输入&amp;#x2F;输出测试都是读或写10^7次字符串与整型数的组合数据，每种输入&amp;#x2F;输出测试都进行10次并取平均耗时作为评估值。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先是C的输入输出。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; scanf.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;cstdio&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	freopen(&amp;quot;data&amp;quot;, &amp;quot;r&amp;quot;, stdin);
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		char s[20];
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			scanf(&amp;quot;%s&amp;quot;, s);
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	printf(&amp;quot;average cost: %lfs\n&amp;quot;, t_sum/testCnt);
+	fclose(stdin);
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; printf.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;cstdio&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	freopen(&amp;quot;data&amp;quot;, &amp;quot;w&amp;quot;, stdout);
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			printf(&amp;quot;string%d\n&amp;quot;, i);
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	printf(&amp;quot;average cost: %lfs\n&amp;quot;, t_sum/testCnt);
+	fclose(stdout);
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 然后是不解锁同步的cin、cout方法。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; cin.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;cstdio&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ifstream fin(&amp;quot;data&amp;quot;);
+	streambuf *_cin =  cin.rdbuf(fin.rdbuf());
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		string s;
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			cin &amp;gt;&amp;gt; s;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	cin.rdbuf(_cin);
+	fin.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; cout.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ofstream fout(&amp;quot;data&amp;quot;);
+	streambuf *_cout =  cout.rdbuf(fout.rdbuf());
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			cout &amp;lt;&amp;lt; &amp;quot;string&amp;quot; &amp;lt;&amp;lt; i &amp;lt;&amp;lt; &amp;#39;\n&amp;#39;;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	cout.rdbuf(_cout);
+	fout.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 接下来是解锁同步的cin、cout方法。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; optimized_cin.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;cstdio&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ios::sync_with_stdio(false);
+	ifstream fin(&amp;quot;data&amp;quot;);
+	streambuf *_cin =  cin.rdbuf(fin.rdbuf());
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		string s;
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			cin &amp;gt;&amp;gt; s;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	cin.rdbuf(_cin);
+	fin.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; optimized_cout.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ios::sync_with_stdio(false);
+	ofstream fout(&amp;quot;data&amp;quot;);
+	streambuf *_cout =  cout.rdbuf(fout.rdbuf());
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			cout &amp;lt;&amp;lt; &amp;quot;string&amp;quot; &amp;lt;&amp;lt; i &amp;lt;&amp;lt; &amp;#39;\n&amp;#39;;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	cout.rdbuf(_cout);
+	fout.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 同时测试C++直接读写文件的方法。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; fin.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;cstdio&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ifstream fin(&amp;quot;data&amp;quot;);
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		string s;
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			fin &amp;gt;&amp;gt; s;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	fin.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; fout.cpp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;hljs&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;ctime&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+
+using namespace std;
+
+int main()
+&amp;#123;
+	int testCnt = 10;
+	int caseCnt = 10000000;
+	double t_sum = 0;
+	ofstream fout(&amp;quot;data&amp;quot;);
+	for(int j = 0 ; j &amp;lt; testCnt ; j++)
+	&amp;#123;
+		long t_start = clock();
+		for(int i = 0 ; i &amp;lt; caseCnt ; i++)
+		&amp;#123;
+			fout &amp;lt;&amp;lt; &amp;quot;string&amp;quot; &amp;lt;&amp;lt; i &amp;lt;&amp;lt; &amp;#39;\n&amp;#39;;
+		&amp;#125;
+		long t_end = clock();
+		t_sum += (double)(t_end - t_start) / CLOCKS_PER_SEC;
+	&amp;#125;
+	cout &amp;lt;&amp;lt; &amp;quot;average cost: &amp;quot; &amp;lt;&amp;lt; t_sum/testCnt &amp;lt;&amp;lt; &amp;quot;s\n&amp;quot;;
+	fout.close();
+	return 0;
+&amp;#125;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 下面是测试结果：&lt;/p&gt;
+&lt;table&gt;&lt;tr&gt;&lt;th&gt;&lt;/th&gt;&lt;th&gt;scanf与printf&lt;/th&gt;&lt;th&gt;cin与cout&lt;/th&gt;&lt;th&gt;优化的cin与cout&lt;/th&gt;	&lt;th&gt;fin与fout&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;输入&lt;/td&gt;&lt;td&gt;1.125694s&lt;/td&gt;&lt;td&gt;2.46949s&lt;/td&gt;&lt;td&gt;0.950055s&lt;/td&gt;&lt;td&gt;0.834976s&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;输出&lt;/td&gt;&lt;td&gt;1.304706s&lt;/td&gt;&lt;td&gt;1.46059s&lt;/td&gt;&lt;td&gt;1.41783s&lt;/td&gt;&lt;td&gt;1.41298s&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 可以看到，事实上，解开同步之前，cin耗时是scanf的两倍还多，cout则比printf略慢。解开枷锁的cin执行效率与直接读文件接近，甚至比C的scanf还要快。至于输出，解开同步的cout执行效率略有提高，同样接近直接写文件，但是确实还是比C的printf略慢一点。&lt;/p&gt;
+ ]]></description>
+        </item>
+    </channel>
+</rss>
