@@ -73,6 +73,10 @@
         <category>open-webui</category>
         <category>oneapi</category>
         <category>mcpserver</category>
+        <category>NAS</category>
+        <category>minio</category>
+        <category>CDN</category>
+        <category>waline</category>
         <item>
             <guid isPermalink="true">https://blog.bipedalbit.net/2016/04/25/%E5%88%A9%E7%94%A8Dropbox%E5%AE%9E%E7%8E%B0%E5%AE%9E%E6%97%B6%E5%90%8C%E6%AD%A5%E7%9A%84%E9%9D%99%E6%80%81%E7%AB%99/</guid>
             <title>利用Dropbox实现实时同步的静态站</title>

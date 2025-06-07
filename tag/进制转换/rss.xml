@@ -73,6 +73,10 @@
         <category>open-webui</category>
         <category>oneapi</category>
         <category>mcpserver</category>
+        <category>NAS</category>
+        <category>minio</category>
+        <category>CDN</category>
+        <category>waline</category>
         <item>
             <guid isPermalink="true">https://blog.bipedalbit.net/2015/10/08/C-%E4%BA%8C%E8%BF%9B%E5%88%B6-%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2%E5%99%A8/</guid>
             <title>C++二进制-十进制转换器</title>

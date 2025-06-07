@@ -70,6 +70,10 @@
     <category term="open-webui" />
     <category term="oneapi" />
     <category term="mcpserver" />
+    <category term="NAS" />
+    <category term="minio" />
+    <category term="CDN" />
+    <category term="waline" />
     <entry>
         <id>https://blog.bipedalbit.net/2015/12/05/%E7%94%B1%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%92%8C%E7%B1%BB%E8%84%91%E7%8E%B0%E7%8A%B6%E5%B1%95%E5%BC%80/</id>
         <title>由人工神经网络和类脑现状展开</title>

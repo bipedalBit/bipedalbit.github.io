@@ -3,7 +3,7 @@
     <id>https://blog.bipedalbit.net</id>
     <title>Hacking to the gate!</title>
     <link href="https://blog.bipedalbit.net" />
-    <updated>2025-05-28T14:19:35.000Z</updated>
+    <updated>2025-06-07T15:12:47.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
     <category term="Q_OBJECT" />
@@ -70,6 +70,142 @@
     <category term="open-webui" />
     <category term="oneapi" />
     <category term="mcpserver" />
+    <category term="NAS" />
+    <category term="minio" />
+    <category term="CDN" />
+    <category term="waline" />
+    <entry>
+        <id>https://blog.bipedalbit.net/2025/06/07/%E5%86%8D%E8%B0%88hexo%E9%9D%99%E6%80%81%E7%AB%99%E6%90%AD%E5%BB%BA/</id>
+        <title>再谈hexo静态站搭建</title>
+        <link rel="alternate" href="https://blog.bipedalbit.net/2025/06/07/%E5%86%8D%E8%B0%88hexo%E9%9D%99%E6%80%81%E7%AB%99%E6%90%AD%E5%BB%BA/"/>
+        <content type="html">&lt;h1 id=&#34;回顾&#34;&gt;&lt;a href=&#34;#回顾&#34; class=&#34;headerlink&#34; title=&#34;回顾&#34;&gt;&lt;/a&gt;回顾&lt;/h1&gt;&lt;p&gt;不是头一次谈hexo静态站搭建了，2016年就写了相关的博客，非常耐心事无巨细地介绍过&lt;a href=&#34;https://bipedalbit.net/2016/04/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/&#34;&gt;当时的搭建方案&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;紧接着开了自己的VPS，于是又写文介绍了&lt;a href=&#34;https://bipedalbit.net/2016/04/25/%E5%88%A9%E7%94%A8Dropbox%E5%AE%9E%E7%8E%B0%E5%AE%9E%E6%97%B6%E5%90%8C%E6%AD%A5%E7%9A%84%E9%9D%99%E6%80%81%E7%AB%99/&#34;&gt;迭代方案&lt;/a&gt;，在VPS上做了镜像站部署，用dropbox做静态资源同步。现在由于国内不搭梯子访问github已经不稳定，VPS上的静态站反而成了主站，github pages上那个站成替身了哈哈。&lt;/p&gt;
+&lt;h1 id=&#34;概述&#34;&gt;&lt;a href=&#34;#概述&#34; class=&#34;headerlink&#34; title=&#34;概述&#34;&gt;&lt;/a&gt;概述&lt;/h1&gt;&lt;p&gt;新的静态站其实主要更新了3个点：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;主题：landscape-plus &amp;#x3D;&amp;gt; fluid&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;图床：七牛 &amp;#x3D;&amp;gt; 自建minio+cdn&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;评论插件：多说 &amp;#x3D;&amp;gt; 自建waline&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;hexo&#34;&gt;&lt;a href=&#34;#hexo&#34; class=&#34;headerlink&#34; title=&#34;hexo&#34;&gt;&lt;/a&gt;hexo&lt;/h1&gt;&lt;p&gt;很幸运，在旧笔记本上居然翻到了完整未损坏的当年的hexo项目目录，不过其实要装修个人站的话，只需要把站里的markdown文章救回来就好，反正外面的静态站框架还是会用hexo。&lt;/p&gt;
+&lt;p&gt;说起来，hexo这个静态站框架也是很经久不衰，虽然插件和主题消亡了不少个，但框架本身还在持续迭代，社区也还在活跃，一直出新的插件和主题，简直跟sublime text有一拼，我也是真爱掺和这种自由度高的DIY项目，怕是早晚要入PCB板、3D打印的坑。&lt;/p&gt;
+&lt;p&gt;看了眼&lt;a href=&#34;https://hexo.io/docs/commands&#34;&gt;hexo的新官方文档&lt;/a&gt;，命令行用法没什么变化，项目结构也没变化，但比起9年前（Σ(⊙▽⊙”这就是成年人的世界吗？好吓人的时间尺度），除了github pages，适配了一些新的免费静态站托管平台：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;gitlab pages：依赖可用的gitlab，gitlab知道吧？github开源对标方案。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.heroku.com/&#34;&gt;Heroku&lt;/a&gt;：一个可以免费托管全栈应用的PaaS平台，有每月白嫖小时数，应用有些休眠问题要解决。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.netlify.com/about/&#34;&gt;Netlify&lt;/a&gt;：SaaS托管平台。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://vercel.com/&#34;&gt;Vercel&lt;/a&gt;：前端应用托管平台，有白嫖流量，但好像是固定额度，不是每月送额度。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://rss3.io/&#34;&gt;RSS3&lt;/a&gt;：就是基于web3那一套做的RSS托管，简单理解就是IPFS上放静态资源，区块链代币支付存储和基建维护费。IPFS这个存储方案嘛我调研过，彻底去中心，可靠、近似真·持久化，IO性能还OK，但是存储成本其实比各大云厂的对象存储还贵一些，考虑到赛博活菩萨甚至有可以白嫖的对象存储，IPFS吧就有点鸡肋，现在更多是用来破审核，偷摸分享些灰色地带的资源。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;一些纯资源同步工具：Rsync、FTPSync、SFTP。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;还提了一嘴，其他类似的静态资源托管方案可以自己同步hexo项目的public目录内容即可，比如我的VPS+dropbox方案。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;hexo的项目结构带大家熟悉一下：&lt;/p&gt;
+&lt;figure class=&#34;highlight nix&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs nix&#34;&gt;.&lt;br&gt;├── _config.fluid.yml&lt;br&gt;├── _config.landscape.yml&lt;br&gt;├── _config.yml&lt;br&gt;├── db.json&lt;br&gt;├── node_modules&lt;span class=&#34;hljs-symbol&#34;&gt;/&lt;/span&gt;&lt;br&gt;├── package.json&lt;br&gt;├── package-lock.json&lt;br&gt;├── public&lt;span class=&#34;hljs-symbol&#34;&gt;/&lt;/span&gt;&lt;br&gt;├── scaffolds&lt;span class=&#34;hljs-symbol&#34;&gt;/&lt;/span&gt;&lt;br&gt;│   ├── draft.md&lt;br&gt;│   ├── page.md&lt;br&gt;│   └── post.md&lt;br&gt;├── source&lt;span class=&#34;hljs-symbol&#34;&gt;/&lt;/span&gt;&lt;br&gt;│   ├── about&lt;span class=&#34;hljs-symbol&#34;&gt;/&lt;/span&gt;&lt;br&gt;│   │   └── index.md&lt;br&gt;│   ├── CNAME&lt;br&gt;│   ├── _drafts&lt;span class=&#34;hljs-symbol&#34;&gt;/&lt;/span&gt;&lt;br&gt;│   ├── img&lt;span class=&#34;hljs-symbol&#34;&gt;/&lt;/span&gt;&lt;br&gt;│   └── _posts&lt;span class=&#34;hljs-symbol&#34;&gt;/&lt;/span&gt;&lt;br&gt;└── themes&lt;span class=&#34;hljs-operator&#34;&gt;/&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;_config.yml&lt;/code&gt;：这是整个hexo项目的配置文件&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;_config.landscape.yml&lt;/code&gt;：这是landsacpe主题的hexo项目配置文件，landscape是hexo项目的默认主体，主题配置文件一般相对于项目配置文件会多出一些配置项，这就是主题的发挥空间。主题配置文件中的配置优先级高于项目配置，所以跟主题无关的项目配置可以配在&lt;code&gt;_config.yml&lt;/code&gt;里，主题特有的配置配在主题配置文件里，方便随时换主题。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;_config.fluid.yml&lt;/code&gt;：这是我现在用的&lt;a href=&#34;https://hexo.fluid-dev.com/docs/start/#%E4%B8%BB%E9%A2%98%E7%AE%80%E4%BB%8B&#34;&gt;fluid主题&lt;/a&gt;的配置文件。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;几个json文件和&lt;code&gt;node_modules/&lt;/code&gt;目录理解成项目运行时环境就好，包括了hexo框架本身、插件和主题的实现。迁移hexo项目时，可以删掉&lt;code&gt;node_modules/&lt;/code&gt;目录，靠json文件能重建项目运行时资源。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;themes/&lt;/code&gt;目录是用来放&lt;code&gt;git clone&lt;/code&gt;下来的主题的，不是很冷门的主题的话，直接用命令安装到项目的运行时资源里就行。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;public/&lt;/code&gt;目录用来放hexo框架生成的网站静态资源，可以直接把这个目录当网站根目录，拿去部署网站。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;scaffolds/&lt;/code&gt;目录，字面意思是脚手架，其实是用来放几种markdown文件的模板，用生成markdown文件时会根据这些模板做一些内容初始化，我是还没有做什么修改。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;source/&lt;/code&gt;目录是项目的内容目录，其中的markdown文件会生成对应静态资源后搬到&lt;code&gt;public/&lt;/code&gt;目录中，其他目录会原样搬到&lt;code&gt;public/&lt;/code&gt;目录中。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;source/about/index.md&lt;/code&gt;用来创建关于页。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;source/_drafts&lt;/code&gt;目录用来放文章草稿，不会生成静态资源。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;source/_posts&lt;/code&gt;目录用来放文章正文，会生成静态资源。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;hexo框架和fluid我就不细讲了，效果可以看我的静态站，用法可以看官方文档学习。&lt;/p&gt;
+&lt;h1 id=&#34;图床&#34;&gt;&lt;a href=&#34;#图床&#34; class=&#34;headerlink&#34; title=&#34;图床&#34;&gt;&lt;/a&gt;图床&lt;/h1&gt;&lt;p&gt;静态站的头图、文章插图都会用到一些比较大的图片资源，这些资源如果跟其他静态资源放在一起，会有几个缺点：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;图片可能越攒越多，对静态站的托管平台造成磁盘空间压力。静态站内的静态资源我是用dropbox同步，所以先于磁盘空间承压的瓶颈点是dropbox容量，这个对我影响比较大。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;向静态站托管平台同步图片文件渠道通常比较受限，不能随心所欲，不那么方便日常攒图随时更新。这点上用dropbox倒是还算方便。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;图片在静态站内部，客户端拉取资源需要走站域名，如果你有多个站，不方便跨站共享图，可能会有跨域问题。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;图片的IO会占据静态站在托管平台的大部分IO带宽，如果你的IO带宽很有限或者流量受限，就比较危险了。有人说可以上CDN，是能缓解不少，但资源更新比较频繁的话，CDN回源也会频繁，还是会吃IO。我VPS带宽、流量可观，所以这点倒是无所谓。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;长远考虑，我需要使用独立的、配有CDN的图床。&lt;/p&gt;
+&lt;p&gt;上一版静态站，我的图床是七牛图床，当时七牛提供子域名给每个用户空间，现在七牛要求用户自行绑定备案域名。备案可太麻烦了，我选择换方案。&lt;/p&gt;
+&lt;p&gt;有人安利过cloudfare的R2存储，虽然可以白嫖，但cloudfare国内被白嫖太多，CDN国内节点经常会负载过高变卡甚至断连。正巧我有了NAS这个便宜宽敞的存储空间，我选择自建对象存储，内网穿透出去作为图床，自配CDN。&lt;/p&gt;
+&lt;h2 id=&#34;minio&#34;&gt;&lt;a href=&#34;#minio&#34; class=&#34;headerlink&#34; title=&#34;minio&#34;&gt;&lt;/a&gt;minio&lt;/h2&gt;&lt;p&gt;&lt;a href=&#34;https://min.io/docs/minio/container/index.html&#34;&gt;minio&lt;/a&gt;是Amazon S3对象存储的开源对标项目。minio可以用docker容器部署，我的群晖NAS支持docker容器，我在搭open-webui时有现成的&lt;a href=&#34;https://bipedalbit.net/2025/05/28/%E6%90%AD%E5%BB%BA%E7%A7%81%E6%9C%89LLM%E5%8A%A9%E6%89%8B%E5%B9%B3%E5%8F%B0/#5-2-3-frpc&#34;&gt;frp内网穿透方案&lt;/a&gt;在公网暴露minio的API，这不就妥了。&lt;/p&gt;
+&lt;p&gt;minio还是用docker-compose部署：&lt;/p&gt;
+&lt;figure class=&#34;highlight yaml&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs yaml&#34;&gt;&lt;span class=&#34;hljs-attr&#34;&gt;minio:&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;image:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;ghcr.io/minio/minio:RELEASE.2025-04-22T22-12-26Z&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;container_name:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;minio&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;volumes:&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-bullet&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;./data:/data&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-bullet&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;./config:/root/.minio&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ports:&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-bullet&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;9000&lt;/span&gt;&lt;span class=&#34;hljs-string&#34;&gt;:9000&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-bullet&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;9001&lt;/span&gt;&lt;span class=&#34;hljs-string&#34;&gt;:9001&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;environment:&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-bullet&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;MINIO_ROOT_USER=bipedalbit&amp;#x27;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-bullet&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;MINIO_ROOT_PASSWORD=****&amp;#x27;&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;restart:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;unless-stopped&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;command:&lt;/span&gt; [&lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;server /data --console-address :9001&amp;quot;&lt;/span&gt;]&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&lt;strong&gt;注意2025.5.24发布的minio更新版本中，把minio的web控制台功能从社区版代码里移除了：&lt;a href=&#34;https://github.com/minio/minio/releases/tag/RELEASE.2025-05-24T17-08-30Z&#34;&gt;RELEASE.2025-05-24T17-08-30Z&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;挪到商业版里了，挣钱嘛，不寒碜。所以我这里没有用latest镜像，而是用了还有web控制台的最后一个版本。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;--console-address&lt;/code&gt;如果不指定，会在每次启动容器时随机变化。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;web控制台端口我不暴露到公网，安全保障。控制台界面跟普通S3对象存储的界面大同小异，能建桶，能配用户策略、桶策略，能配跨域白名单，能在界面操作桶文件。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/minio/minio_2025-06-07_20-38-12.png&#34; alt=&#34;minio登录页&#34;&gt;&lt;br&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/minio/minio_2025-06-07_20-38-43.png&#34; alt=&#34;minio桶列表&#34;&gt;&lt;br&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/minio/minio_2025-06-07_20-39-14.png&#34; alt=&#34;minio桶详情&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;CDN&#34;&gt;&lt;a href=&#34;#CDN&#34; class=&#34;headerlink&#34; title=&#34;CDN&#34;&gt;&lt;/a&gt;CDN&lt;/h2&gt;&lt;p&gt;有了对象存储，接下来就是选一个全球都有节点，不至于卡的、白嫖额度多的CDN。公布答案吧，我选了&lt;a href=&#34;https://console.lightcdn.com/cdnResources&#34;&gt;LightCDN&lt;/a&gt;，这家CDN的卖点是尽量让冷门区域也有节点覆盖，所以全球加速效果都不会太差，但也不会太快，对我来说足够了。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/lightcdn/lightcdn_2025-06-07_21-33-43.png&#34; alt=&#34;lightcdn请求统计&#34;&gt;&lt;br&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/lightcdn/lightcdn_2025-06-07_21-34-38.png&#34; alt=&#34;lightcdn费用统计&#34;&gt;&lt;/p&gt;
+&lt;h1 id=&#34;Waline&#34;&gt;&lt;a href=&#34;#Waline&#34; class=&#34;headerlink&#34; title=&#34;Waline&#34;&gt;&lt;/a&gt;Waline&lt;/h1&gt;&lt;p&gt;多说评论插件挂了有一阵子了，一直没顾上换新方案。时间尺度一拉长，就发现依赖第三方服务的插件还是欠缺稳定性，不如自建。&lt;/p&gt;
+&lt;p&gt;关于&lt;a href=&#34;https://waline.js.org/&#34;&gt;waline&lt;/a&gt;，我简要介绍一下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;hexo的fluid主题对waline有适配支持，不需要手动做代码嵌入&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://waline.js.org/guide/features/&#34;&gt;功能挺全&lt;/a&gt;：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;能做基于Markdown的富文本评论编辑，支持微博表情&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;支持评论后台审核&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;支持匿名评论和用户注册&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;支持多语言界面&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;支持页面浏览量和评论数统计&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;支持邮件、微信、QQ、Telegram、Discord、飞书等各种webhook通知&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://waline.js.org/guide/database.html&#34;&gt;数据库部分&lt;/a&gt;：可以有多种选择，SaaS可以用LeanCloud，DB就多了，MongoDB、MYSQL、TiDB、SQLite、PostgreSQL、腾讯的CloudBase，甚至能把github仓库当DB用。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://waline.js.org/guide/deploy/&#34;&gt;服务端部分&lt;/a&gt;：可以在各种全栈应用托管平台部署，也可以自己在云主机上做独立部署。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;我选择SQLite+独立部署服务端：&lt;/p&gt;
+&lt;figure class=&#34;highlight yaml&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;26&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;27&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;28&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;29&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;30&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs yaml&#34;&gt;&lt;span class=&#34;hljs-attr&#34;&gt;version:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;3.8&amp;#x27;&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-attr&#34;&gt;services:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;waline:&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;image:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;lizheming/waline:latest&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;container_name:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;waline&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;restart:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;unless-stopped&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ports:&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-bullet&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;127.0&lt;/span&gt;&lt;span class=&#34;hljs-number&#34;&gt;.0&lt;/span&gt;&lt;span class=&#34;hljs-number&#34;&gt;.1&lt;/span&gt;&lt;span class=&#34;hljs-string&#34;&gt;:8086:8360&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;volumes:&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-bullet&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;$&amp;#123;PWD&amp;#125;/data:/app/data&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;environment:&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-attr&#34;&gt;TZ:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;Asia/Shanghai&amp;#x27;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-attr&#34;&gt;SQLITE_PATH:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;/app/data&amp;#x27;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-attr&#34;&gt;JWT_TOKEN:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;$&amp;#123;JWT_TOKEN&amp;#125;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-attr&#34;&gt;SITE_NAME:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;BipedalBit&amp;#x27;s blog&amp;quot;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-attr&#34;&gt;SITE_URL:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;https://bipedalbit.net&amp;#x27;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-attr&#34;&gt;SECURE_DOMAINS:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;bipedalbit.net,****,****&amp;#x27;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-attr&#34;&gt;SERVER_URL:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;https://****&amp;#x27;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-attr&#34;&gt;AUTHOR_EMAIL:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;****&amp;#x27;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-comment&#34;&gt;#LEAN_ID: $&amp;#123;LEAN_ID&amp;#125;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-comment&#34;&gt;#LEAN_KEY: $&amp;#123;LEAN_KEY&amp;#125;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-comment&#34;&gt;#LEAN_MASTER_KEY: $&amp;#123;LEAN_MASTER_KEY&amp;#125;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-attr&#34;&gt;SMTP_SERVICE:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;QQ&amp;#x27;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-attr&#34;&gt;SMTP_USER:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;$&amp;#123;SMTP_USER&amp;#125;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-attr&#34;&gt;SMTP_PASS:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;$&amp;#123;SMTP_PASS&amp;#125;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-attr&#34;&gt;SENDER_NAME:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;bot&amp;#x27;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-attr&#34;&gt;SENDER_EMAIL:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;****&amp;#x27;&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-attr&#34;&gt;IPQPS:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;5&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-attr&#34;&gt;COMMENT_AUDIT:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;#x27;false&amp;#x27;&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;老规矩，不直接暴露端口到公网，nginx做汇聚入口和反向代理。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;除了官方文档里提到的功能，还能配跨域白名单、QPS限制。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;sqlite部署方式有点尴尬，需要从github仓库自己下载初始化好的&lt;a href=&#34;https://github.com/walinejs/waline/blob/main/assets/waline.sqlite&#34;&gt;waline.sqlite文件&lt;/a&gt;挂载进容器。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/waline/waline_2025-06-07_22-53-58.png&#34; alt=&#34;waline评论管理&#34;&gt;&lt;br&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/waline/waline_2025-06-07_22-55-19.png&#34; alt=&#34;waline用户管理&#34;&gt;&lt;br&gt;&lt;img src=&#34;https://cdn.minio.bipedalbit.net/bipedalbit-net-images/waline/waline_2025-06-07_22-54-42.png&#34; alt=&#34;waline用户编辑&#34;&gt;&lt;/p&gt;
+</content>
+        <category term="hexo" />
+        <category term="NAS" />
+        <category term="minio" />
+        <category term="CDN" />
+        <category term="waline" />
+        <updated>2025-06-07T15:12:47.000Z</updated>
+    </entry>
     <entry>
         <id>https://blog.bipedalbit.net/2025/05/28/%E6%90%AD%E5%BB%BA%E7%A7%81%E6%9C%89LLM%E5%8A%A9%E6%89%8B%E5%B9%B3%E5%8F%B0/</id>
         <title>搭建私有LLM助手平台</title>

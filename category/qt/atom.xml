@@ -70,6 +70,10 @@
     <category term="open-webui" />
     <category term="oneapi" />
     <category term="mcpserver" />
+    <category term="NAS" />
+    <category term="minio" />
+    <category term="CDN" />
+    <category term="waline" />
     <entry>
         <id>https://blog.bipedalbit.net/2015/06/09/Qt%E5%87%BA%E7%8E%B0%E9%94%99%E8%AF%AFundefined-reference-to-vtable-for-XXXXX-XXX/</id>
         <title>Qt出现错误undefined reference to &#39;vtable for XXXXX.XXX&#39;</title>

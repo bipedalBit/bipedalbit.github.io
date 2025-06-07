@@ -70,6 +70,10 @@
     <category term="open-webui" />
     <category term="oneapi" />
     <category term="mcpserver" />
+    <category term="NAS" />
+    <category term="minio" />
+    <category term="CDN" />
+    <category term="waline" />
     <entry>
         <id>https://blog.bipedalbit.net/2015/05/03/win-Linux%E4%B8%8B%E5%8E%BB%E6%8E%89codeigniter%E6%A1%86%E6%9E%B6%E7%BD%91%E7%AB%99URL%E4%B8%AD%E7%9A%84index-php/</id>
         <title>win/Linux下去掉codeigniter框架网站URL中的index.php</title>

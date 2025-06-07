@@ -73,6 +73,10 @@
         <category>open-webui</category>
         <category>oneapi</category>
         <category>mcpserver</category>
+        <category>NAS</category>
+        <category>minio</category>
+        <category>CDN</category>
+        <category>waline</category>
         <item>
             <guid isPermalink="true">https://blog.bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</guid>
             <title>C++的位优化</title>

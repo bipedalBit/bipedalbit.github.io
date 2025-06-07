@@ -70,6 +70,10 @@
     <category term="open-webui" />
     <category term="oneapi" />
     <category term="mcpserver" />
+    <category term="NAS" />
+    <category term="minio" />
+    <category term="CDN" />
+    <category term="waline" />
     <entry>
         <id>https://blog.bipedalbit.net/2015/10/13/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84python%EF%BC%88pybrain%E5%BA%93%EF%BC%89%E5%AE%9E%E7%8E%B0/</id>
         <title>BP神经网络的python（pybrain库）实现</title>

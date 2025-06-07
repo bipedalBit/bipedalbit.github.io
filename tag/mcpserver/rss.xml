@@ -73,6 +73,10 @@
         <category>open-webui</category>
         <category>oneapi</category>
         <category>mcpserver</category>
+        <category>NAS</category>
+        <category>minio</category>
+        <category>CDN</category>
+        <category>waline</category>
         <item>
             <guid isPermalink="true">https://blog.bipedalbit.net/2025/05/28/%E6%90%AD%E5%BB%BA%E7%A7%81%E6%9C%89LLM%E5%8A%A9%E6%89%8B%E5%B9%B3%E5%8F%B0/</guid>
             <title>搭建私有LLM助手平台</title>

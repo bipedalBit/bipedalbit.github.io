@@ -70,6 +70,10 @@
     <category term="open-webui" />
     <category term="oneapi" />
     <category term="mcpserver" />
+    <category term="NAS" />
+    <category term="minio" />
+    <category term="CDN" />
+    <category term="waline" />
     <entry>
         <id>https://blog.bipedalbit.net/2016/06/23/sai%E6%9D%BF%E7%BB%98%E5%88%9D%E4%BD%93%E9%AA%8C/</id>
         <title>sai板绘初体验</title>

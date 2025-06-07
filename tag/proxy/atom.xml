@@ -70,6 +70,10 @@
     <category term="open-webui" />
     <category term="oneapi" />
     <category term="mcpserver" />
+    <category term="NAS" />
+    <category term="minio" />
+    <category term="CDN" />
+    <category term="waline" />
     <entry>
         <id>https://blog.bipedalbit.net/2016/01/06/%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB%E4%B9%8B%E4%BB%A3%E7%90%86%E6%B1%A0/</id>
         <title>微博爬虫之代理池</title>
