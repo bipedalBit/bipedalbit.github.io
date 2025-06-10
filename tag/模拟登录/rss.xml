@@ -77,6 +77,8 @@
         <category>minio</category>
         <category>CDN</category>
         <category>waline</category>
+        <category>mcpo</category>
+        <category>svn</category>
         <item>
             <guid isPermalink="true">https://blog.bipedalbit.net/2016/01/02/weibo-cn%E6%A8%A1%E6%8B%9F%E7%99%BB%E5%BD%95%E5%99%A8%E7%9A%84python%E9%87%8D%E6%9E%84/</guid>
             <title>weibo.cn模拟登录器的python重构</title>

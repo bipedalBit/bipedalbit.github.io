@@ -77,6 +77,8 @@
         <category>minio</category>
         <category>CDN</category>
         <category>waline</category>
+        <category>mcpo</category>
+        <category>svn</category>
         <item>
             <guid isPermalink="true">https://blog.bipedalbit.net/2025/06/07/%E5%86%8D%E8%B0%88hexo%E9%9D%99%E6%80%81%E7%AB%99%E6%90%AD%E5%BB%BA/</guid>
             <title>再谈hexo静态站搭建</title>

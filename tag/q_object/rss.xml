@@ -77,6 +77,8 @@
         <category>minio</category>
         <category>CDN</category>
         <category>waline</category>
+        <category>mcpo</category>
+        <category>svn</category>
         <item>
             <guid isPermalink="true">https://blog.bipedalbit.net/2015/06/09/Qt%E5%87%BA%E7%8E%B0%E9%94%99%E8%AF%AFundefined-reference-to-vtable-for-XXXXX-XXX/</guid>
             <title>Qt出现错误undefined reference to &#39;vtable for XXXXX.XXX&#39;</title>

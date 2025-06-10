@@ -77,6 +77,8 @@
         <category>minio</category>
         <category>CDN</category>
         <category>waline</category>
+        <category>mcpo</category>
+        <category>svn</category>
         <item>
             <guid isPermalink="true">https://blog.bipedalbit.net/2015/10/17/C-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%88%9D%E6%8E%A2%E2%80%94%E2%80%94c-11%E7%AF%87/</guid>
             <title>C++多线程初探——c++11篇</title>
