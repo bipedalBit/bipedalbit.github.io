@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;dropbox&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2016-04-25T06:05:09.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2016/04/25/%E5%88%A9%E7%94%A8Dropbox%E5%AE%9E%E7%8E%B0%E5%AE%9E%E6%97%B6%E5%90%8C%E6%AD%A5%E7%9A%84%E9%9D%99%E6%80%81%E7%AB%99/</id>
+        <id>https://bipedalbit.net/2016/04/25/%E5%88%A9%E7%94%A8Dropbox%E5%AE%9E%E7%8E%B0%E5%AE%9E%E6%97%B6%E5%90%8C%E6%AD%A5%E7%9A%84%E9%9D%99%E6%80%81%E7%AB%99/</id>
         <title>利用Dropbox实现实时同步的静态站</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2016/04/25/%E5%88%A9%E7%94%A8Dropbox%E5%AE%9E%E7%8E%B0%E5%AE%9E%E6%97%B6%E5%90%8C%E6%AD%A5%E7%9A%84%E9%9D%99%E6%80%81%E7%AB%99/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2016/04/25/%E5%88%A9%E7%94%A8Dropbox%E5%AE%9E%E7%8E%B0%E5%AE%9E%E6%97%B6%E5%90%8C%E6%AD%A5%E7%9A%84%E9%9D%99%E6%80%81%E7%AB%99/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 上个周末正在练习nginx静态站服务器功能的基本配置，忽然想到一个点子。既然我有现成的VPS可以用，而且只是用来搭ShadowSocks服务器科学上网用，不拿来做建站练习实在有点浪费。之前早就把VPS和手头各个平台上的ShadowSocks+Dropbox环境配好了，那为什么不干脆在VPS的Dropbox文件夹里建站呢？自动同步，多终端随处修改，应该会比Github Pages更方便。试了一下，结果亦可赛艇。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;h3 id=&#34;VPS&#34;&gt;&lt;a href=&#34;#VPS&#34; class=&#34;headerlink&#34; title=&#34;VPS&#34;&gt;&lt;/a&gt;VPS&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; VPS的选择主要看需要，论国内访问速度当然还是BAT和新浪之类的国产云主机最好，但是如果你想顺便用来科学上网，那么就得选国外VPS服务商了。一般来说，提起国外的网络服务运营商，总是想起欧美的，尤其是美国的，然而事实上，日本的VPS产业也很发达。大名鼎鼎的&lt;a href=&#34;https://www.linode.com/&#34;&gt;Linode&lt;/a&gt;、&lt;a href=&#34;https://www.conoha.jp/zh/&#34;&gt;Conoha&lt;/a&gt;等服务商，因为机房离国内近，相对美国的VPS有了速度优势。最近可能意识到墙内市场的潜力，有的日本VPS服务明显做的很贴咱的心了，比如我选的&lt;a href=&#34;https://www.z.com/&#34;&gt;z.com&lt;/a&gt;，它就是Conoha重新套了个壳，900日元每月的开销不算便宜也不很贵，但是它能用支付宝结帐！&lt;/p&gt;

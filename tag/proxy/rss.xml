@@ -2,7 +2,7 @@
 <rss version="2.0">
     <channel>
         <title>Hacking to the gate! • Posts by &#34;proxy&#34; tag</title>
-        <link>https://blog.bipedalbit.net</link>
+        <link>https://bipedalbit.net</link>
         <description>Bipedal Bit&#39;s blog</description>
         <language>zh-CN</language>
         <pubDate>Wed, 06 Jan 2016 01:02:08 +0800</pubDate>
@@ -79,10 +79,12 @@
         <category>waline</category>
         <category>mcpo</category>
         <category>svn</category>
+        <category>DNS劫持</category>
+        <category>DNS污染</category>
         <item>
-            <guid isPermalink="true">https://blog.bipedalbit.net/2016/01/06/%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB%E4%B9%8B%E4%BB%A3%E7%90%86%E6%B1%A0/</guid>
+            <guid isPermalink="true">https://bipedalbit.net/2016/01/06/%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB%E4%B9%8B%E4%BB%A3%E7%90%86%E6%B1%A0/</guid>
             <title>微博爬虫之代理池</title>
-            <link>https://blog.bipedalbit.net/2016/01/06/%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB%E4%B9%8B%E4%BB%A3%E7%90%86%E6%B1%A0/</link>
+            <link>https://bipedalbit.net/2016/01/06/%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB%E4%B9%8B%E4%BB%A3%E7%90%86%E6%B1%A0/</link>
             <category>python</category>
             <category>网络爬虫</category>
             <category>proxy</category>

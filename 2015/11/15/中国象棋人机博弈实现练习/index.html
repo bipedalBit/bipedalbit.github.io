@@ -24,7 +24,7 @@
     <meta name="description" content="&nbsp;&nbsp;&nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集">
 <meta property="og:type" content="article">
 <meta property="og:title" content="中国象棋人机博弈实现练习">
-<meta property="og:url" content="https://blog.bipedalbit.net/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/index.html">
+<meta property="og:url" content="https://bipedalbit.net/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
 <meta property="og:description" content="&nbsp;&nbsp;&nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集">
 <meta property="og:locale" content="zh_CN">
@@ -78,7 +78,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.bipedalbit.net","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":100,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"bipedalbit.net","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":100,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -721,7 +721,7 @@ private:
   <div class="license-box my-3">
     <div class="license-title">
       <div>中国象棋人机博弈实现练习</div>
-      <div>https://blog.bipedalbit.net/2015/11/15/中国象棋人机博弈实现练习/</div>
+      <div>https://bipedalbit.net/2015/11/15/中国象棋人机博弈实现练习/</div>
     </div>
     <div class="license-meta">
       

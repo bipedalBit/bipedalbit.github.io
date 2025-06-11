@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;maxmin&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2015-11-14T14:27:47.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2015/11/14/%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%88%9D%E6%8E%A2/</id>
+        <id>https://bipedalbit.net/2015/11/14/%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%88%9D%E6%8E%A2/</id>
         <title>人机博弈初探</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/11/14/%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%88%9D%E6%8E%A2/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/11/14/%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%88%9D%E6%8E%A2/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 组里布置任务，要编个中国象棋人机博弈程序练练手，写这篇文时游戏初版已经完成了。开工前导师给了些相关资料，我自己又稍微做了些调查，这篇文就先来对人机博弈，尤其是棋牌游戏的人机博弈思路做一些概念上的科普铺垫。做好了概念铺垫，下一篇再挑重点简单讲解下我的中国象棋游戏实现情况。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 其实人工智能课的大作业也是要写个概念总结，我干脆把那篇改改贴上来。&lt;/p&gt;

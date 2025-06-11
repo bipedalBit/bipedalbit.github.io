@@ -1,0 +1,208 @@
+<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://bipedalbit.net</id>
+    <title>Hacking to the gate! • Posts by &#34;dns劫持&#34; tag</title>
+    <link href="https://bipedalbit.net" />
+    <updated>2025-06-11T12:22:04.000Z</updated>
+    <category term="Qt" />
+    <category term="signal-slot" />
+    <category term="Q_OBJECT" />
+    <category term="nginx" />
+    <category term="select/poll" />
+    <category term="epoll" />
+    <category term="ngx_int_t" />
+    <category term="rbtree" />
+    <category term="C" />
+    <category term="static" />
+    <category term="内存分布" />
+    <category term="sublime" />
+    <category term="C++" />
+    <category term="makefile" />
+    <category term="node.js" />
+    <category term="github" />
+    <category term="socket.io" />
+    <category term="Web请求处理机制" />
+    <category term="同步/异步" />
+    <category term="阻塞/非阻塞" />
+    <category term="事件驱动模型" />
+    <category term="BP神经网络" />
+    <category term="机器学习" />
+    <category term="python" />
+    <category term="pybrain" />
+    <category term="c++11" />
+    <category term="多线程" />
+    <category term="ubuntu" />
+    <category term="debian" />
+    <category term="apt-file" />
+    <category term="cin" />
+    <category term="cout" />
+    <category term="scanf" />
+    <category term="printf" />
+    <category term="进制转换" />
+    <category term="人工神经网络" />
+    <category term="人机博弈" />
+    <category term="Maxmin" />
+    <category term="AlphaBeta" />
+    <category term="PVS" />
+    <category term="MTD(f)" />
+    <category term="位域" />
+    <category term="bitset" />
+    <category term="vector&amp;lt;bool&amp;gt;" />
+    <category term="网络爬虫" />
+    <category term="类脑" />
+    <category term="codeigniter" />
+    <category term="php" />
+    <category term="IIS7" />
+    <category term="apache" />
+    <category term="模拟登录" />
+    <category term="proxy" />
+    <category term="domain" />
+    <category term="DNS" />
+    <category term="hexo" />
+    <category term="vps" />
+    <category term="dropbox" />
+    <category term="ffmpeg" />
+    <category term="板绘" />
+    <category term="sai" />
+    <category term="琪露诺" />
+    <category term="LLM" />
+    <category term="ollama" />
+    <category term="open-webui" />
+    <category term="oneapi" />
+    <category term="mcpserver" />
+    <category term="NAS" />
+    <category term="minio" />
+    <category term="CDN" />
+    <category term="waline" />
+    <category term="mcpo" />
+    <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
+    <entry>
+        <id>https://bipedalbit.net/2025/06/11/%E8%AE%B0%E4%B8%80%E6%AC%A1DNS%E6%B1%A1%E6%9F%93%E5%BA%94%E5%AF%B9/</id>
+        <title>记一次DNS污染应对</title>
+        <link rel="alternate" href="https://bipedalbit.net/2025/06/11/%E8%AE%B0%E4%B8%80%E6%AC%A1DNS%E6%B1%A1%E6%9F%93%E5%BA%94%E5%AF%B9/"/>
+        <content type="html">&lt;p&gt;静态站的waline评论插件服务的二级域名被ISP DNS做了污染封禁导致评论插件和访问计数不可用。记录一下我排查和解决问题的过程与思考。&lt;/p&gt;
+&lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+&lt;h1 id=&#34;现象&#34;&gt;&lt;a href=&#34;#现象&#34; class=&#34;headerlink&#34; title=&#34;现象&#34;&gt;&lt;/a&gt;现象&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;特定条件下，从客户端访问我的静态站时，客户端请求我的自建waline服务失败，看响应头发现remote ip是(::1)，ipv6回环地址。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;ping对应域名证实DNS结果确实为(::1)。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;为了明确问题，我用不同网络环境做了测试：&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;网络&lt;/th&gt;
+&lt;th&gt;代理&lt;/th&gt;
+&lt;th&gt;DNS&lt;/th&gt;
+&lt;th&gt;结果&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;&lt;tr&gt;
+&lt;td&gt;中国移动蜂巢5G&lt;/td&gt;
+&lt;td&gt;关闭&lt;/td&gt;
+&lt;td&gt;自动&lt;/td&gt;
+&lt;td&gt;fail&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;中国移动蜂巢5G&lt;/td&gt;
+&lt;td&gt;全局&lt;/td&gt;
+&lt;td&gt;等同于8.8.8.8&lt;/td&gt;
+&lt;td&gt;success&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;中国移动蜂巢5G&lt;/td&gt;
+&lt;td&gt;关闭&lt;/td&gt;
+&lt;td&gt;114.114.114.114&lt;/td&gt;
+&lt;td&gt;success&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;中国移动光纤宽带&lt;/td&gt;
+&lt;td&gt;关闭&lt;/td&gt;
+&lt;td&gt;自动&lt;/td&gt;
+&lt;td&gt;fail&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;中国移动光纤宽带&lt;/td&gt;
+&lt;td&gt;全局&lt;/td&gt;
+&lt;td&gt;等同于8.8.8.8&lt;/td&gt;
+&lt;td&gt;success&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;中国移动光纤宽带&lt;/td&gt;
+&lt;td&gt;关闭&lt;/td&gt;
+&lt;td&gt;114.114.114.114&lt;/td&gt;
+&lt;td&gt;success&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;p&gt;我手头只有移动的5G网络和宽带网络，还不好排除ISP本身状态的影响，但绕过中国移动网络的ISP DNS，就能成功。&lt;/p&gt;
+&lt;p&gt;初步判断是DNS的问题。上&lt;a href=&#34;https://dnschecker.org/&#34;&gt;DNSChecker&lt;/a&gt;验证一下非ISP DNS，用当前的中国移动ISP+各种全球非ISP DNS做测试，结果是域名解析全部正确。那么看起来真的很可能是ISP DNS主动做了污染。&lt;/p&gt;
+&lt;p&gt;搜搜有前科吗？有的，国内ISP偶现用回环地址做DNS污染来针对性封禁域名的情况。&lt;/p&gt;
+&lt;p&gt;捞个本地的移动ISP DNS试试，&lt;code&gt;dig @211.137.64.163 &amp;lt;domain&amp;gt;&lt;/code&gt;：&lt;/p&gt;
+&lt;figure class=&#34;highlight nix&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs nix&#34;&gt;; &lt;span class=&#34;hljs-operator&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;gt;&lt;/span&gt; DiG &lt;span class=&#34;hljs-number&#34;&gt;9.18&lt;/span&gt;.&lt;span class=&#34;hljs-number&#34;&gt;3&lt;/span&gt;0-&lt;span class=&#34;hljs-number&#34;&gt;0&lt;/span&gt;ubuntu0.&lt;span class=&#34;hljs-number&#34;&gt;24.04&lt;/span&gt;.&lt;span class=&#34;hljs-number&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;-&lt;/span&gt;Ubuntu &lt;span class=&#34;hljs-operator&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;gt;&lt;/span&gt; @&lt;span class=&#34;hljs-number&#34;&gt;211.137&lt;/span&gt;.&lt;span class=&#34;hljs-number&#34;&gt;64.163&lt;/span&gt; &lt;span class=&#34;hljs-symbol&#34;&gt;&amp;lt;domain&amp;gt;&lt;/span&gt;&lt;br&gt;; (&lt;span class=&#34;hljs-number&#34;&gt;1&lt;/span&gt; server found)&lt;br&gt;;; global &lt;span class=&#34;hljs-params&#34;&gt;options:&lt;/span&gt; &lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;cmd&lt;br&gt;;; Got &lt;span class=&#34;hljs-params&#34;&gt;answer:&lt;/span&gt;&lt;br&gt;;; &lt;span class=&#34;hljs-operator&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;gt;&lt;/span&gt;HEADER&lt;span class=&#34;hljs-operator&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;hljs-params&#34;&gt;opcode:&lt;/span&gt; QUERY, &lt;span class=&#34;hljs-params&#34;&gt;status:&lt;/span&gt; NOERROR, &lt;span class=&#34;hljs-params&#34;&gt;id:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;48130&lt;/span&gt;&lt;br&gt;;; &lt;span class=&#34;hljs-params&#34;&gt;flags:&lt;/span&gt; qr rd ra; &lt;span class=&#34;hljs-params&#34;&gt;QUERY:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;1&lt;/span&gt;, &lt;span class=&#34;hljs-params&#34;&gt;ANSWER:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;1&lt;/span&gt;, &lt;span class=&#34;hljs-params&#34;&gt;AUTHORITY:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;0&lt;/span&gt;, &lt;span class=&#34;hljs-params&#34;&gt;ADDITIONAL:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;0&lt;/span&gt;&lt;br&gt;&lt;br&gt;;; QUESTION &lt;span class=&#34;hljs-params&#34;&gt;SECTION:&lt;/span&gt;&lt;br&gt;;&lt;span class=&#34;hljs-symbol&#34;&gt;&amp;lt;domain&amp;gt;&lt;/span&gt;.		IN	A&lt;br&gt;&lt;br&gt;;; ANSWER &lt;span class=&#34;hljs-params&#34;&gt;SECTION:&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-symbol&#34;&gt;&amp;lt;domain&amp;gt;&lt;/span&gt;.	&lt;span class=&#34;hljs-number&#34;&gt;3600&lt;/span&gt;	IN	A	&lt;span class=&#34;hljs-number&#34;&gt;127.0&lt;/span&gt;.&lt;span class=&#34;hljs-number&#34;&gt;0.1&lt;/span&gt;&lt;br&gt;&lt;br&gt;;; Query &lt;span class=&#34;hljs-params&#34;&gt;time:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;5&lt;/span&gt; msec&lt;br&gt;;; &lt;span class=&#34;hljs-params&#34;&gt;SERVER:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;211.137&lt;/span&gt;.&lt;span class=&#34;hljs-number&#34;&gt;64.163&lt;/span&gt;&lt;span class=&#34;hljs-comment&#34;&gt;#53(211.137.64.163) (UDP)&lt;/span&gt;&lt;br&gt;;; &lt;span class=&#34;hljs-params&#34;&gt;WHEN:&lt;/span&gt; Wed Jun &lt;span class=&#34;hljs-number&#34;&gt;11&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;20&lt;/span&gt;:&lt;span class=&#34;hljs-number&#34;&gt;16&lt;/span&gt;:&lt;span class=&#34;hljs-number&#34;&gt;16&lt;/span&gt; CST &lt;span class=&#34;hljs-number&#34;&gt;2025&lt;/span&gt;&lt;br&gt;;; MSG SIZE  &lt;span class=&#34;hljs-params&#34;&gt;rcvd:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;55&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;真的给我解成了回环地址。&lt;/p&gt;
+&lt;p&gt;上班时也试了下电信的ISP DNS，&lt;code&gt;dig @202.103.24.68 &amp;lt;domain&amp;gt;&lt;/code&gt;：&lt;/p&gt;
+&lt;figure class=&#34;highlight nix&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs nix&#34;&gt;; &lt;span class=&#34;hljs-operator&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;gt;&lt;/span&gt; DiG &lt;span class=&#34;hljs-number&#34;&gt;9.11&lt;/span&gt;.&lt;span class=&#34;hljs-number&#34;&gt;5&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;-&lt;/span&gt;P4-&lt;span class=&#34;hljs-number&#34;&gt;5.1&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;deb10u11-Debian &lt;span class=&#34;hljs-operator&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;gt;&lt;/span&gt; @&lt;span class=&#34;hljs-number&#34;&gt;202.103&lt;/span&gt;.&lt;span class=&#34;hljs-number&#34;&gt;24.68&lt;/span&gt; &lt;span class=&#34;hljs-symbol&#34;&gt;&amp;lt;domain&amp;gt;&lt;/span&gt;&lt;br&gt;; (&lt;span class=&#34;hljs-number&#34;&gt;1&lt;/span&gt; server found)&lt;br&gt;;; global &lt;span class=&#34;hljs-params&#34;&gt;options:&lt;/span&gt; &lt;span class=&#34;hljs-operator&#34;&gt;+&lt;/span&gt;cmd&lt;br&gt;;; Got &lt;span class=&#34;hljs-params&#34;&gt;answer:&lt;/span&gt;&lt;br&gt;;; &lt;span class=&#34;hljs-operator&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;gt;&lt;/span&gt;HEADER&lt;span class=&#34;hljs-operator&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;hljs-operator&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;hljs-params&#34;&gt;opcode:&lt;/span&gt; QUERY, &lt;span class=&#34;hljs-params&#34;&gt;status:&lt;/span&gt; NOERROR, &lt;span class=&#34;hljs-params&#34;&gt;id:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;17701&lt;/span&gt;&lt;br&gt;;; &lt;span class=&#34;hljs-params&#34;&gt;flags:&lt;/span&gt; qr aa rd; &lt;span class=&#34;hljs-params&#34;&gt;QUERY:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;1&lt;/span&gt;, &lt;span class=&#34;hljs-params&#34;&gt;ANSWER:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;1&lt;/span&gt;, &lt;span class=&#34;hljs-params&#34;&gt;AUTHORITY:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;0&lt;/span&gt;, &lt;span class=&#34;hljs-params&#34;&gt;ADDITIONAL:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;0&lt;/span&gt;&lt;br&gt;;; &lt;span class=&#34;hljs-params&#34;&gt;WARNING:&lt;/span&gt; recursion requested but not available&lt;br&gt;&lt;br&gt;;; QUESTION &lt;span class=&#34;hljs-params&#34;&gt;SECTION:&lt;/span&gt;&lt;br&gt;;&lt;span class=&#34;hljs-symbol&#34;&gt;&amp;lt;domain&amp;gt;&lt;/span&gt;.		IN	A&lt;br&gt;&lt;br&gt;;; ANSWER &lt;span class=&#34;hljs-params&#34;&gt;SECTION:&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-symbol&#34;&gt;&amp;lt;domain&amp;gt;&lt;/span&gt;.	&lt;span class=&#34;hljs-number&#34;&gt;300&lt;/span&gt;	IN	A	&lt;span class=&#34;hljs-number&#34;&gt;127.0&lt;/span&gt;.&lt;span class=&#34;hljs-number&#34;&gt;0.1&lt;/span&gt;&lt;br&gt;&lt;br&gt;;; Query &lt;span class=&#34;hljs-params&#34;&gt;time:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;5&lt;/span&gt; msec&lt;br&gt;;; &lt;span class=&#34;hljs-params&#34;&gt;SERVER:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;202.103&lt;/span&gt;.&lt;span class=&#34;hljs-number&#34;&gt;24.68&lt;/span&gt;&lt;span class=&#34;hljs-comment&#34;&gt;#53(202.103.24.68)&lt;/span&gt;&lt;br&gt;;; &lt;span class=&#34;hljs-params&#34;&gt;WHEN:&lt;/span&gt; 三 &lt;span class=&#34;hljs-number&#34;&gt;6&lt;/span&gt;月 &lt;span class=&#34;hljs-number&#34;&gt;11&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;16&lt;/span&gt;:&lt;span class=&#34;hljs-number&#34;&gt;16&lt;/span&gt;:&lt;span class=&#34;hljs-number&#34;&gt;34&lt;/span&gt; CST &lt;span class=&#34;hljs-number&#34;&gt;2025&lt;/span&gt;&lt;br&gt;;; MSG SIZE  &lt;span class=&#34;hljs-params&#34;&gt;rcvd:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;55&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;看来还不止被一个ISP做了DNS污染，都给我解成回环地址。&lt;/p&gt;
+&lt;h1 id=&#34;DNS劫持与DNS污染&#34;&gt;&lt;a href=&#34;#DNS劫持与DNS污染&#34; class=&#34;headerlink&#34; title=&#34;DNS劫持与DNS污染&#34;&gt;&lt;/a&gt;DNS劫持与DNS污染&lt;/h1&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;strong&gt;对比维度&lt;/strong&gt;&lt;/th&gt;
+&lt;th&gt;&lt;strong&gt;DNS劫持&lt;/strong&gt;&lt;/th&gt;
+&lt;th&gt;&lt;strong&gt;DNS污染&lt;/strong&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;攻击方式&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;篡改DNS解析结果&lt;/td&gt;
+&lt;td&gt;伪造DNS响应数据&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;影响范围&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;个体或小范围&lt;/td&gt;
+&lt;td&gt;大范围或区域&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;目的&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;诱导用户访问恶意网站&lt;/td&gt;
+&lt;td&gt;干扰用户访问特定服务&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;典型场景&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;钓鱼、恶意软件传播&lt;/td&gt;
+&lt;td&gt;网络封锁、广告注入&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;p&gt;DNS劫持通常在客户端完成，DNS污染通常在网关或DNS服务上操作。&lt;/p&gt;
+&lt;h1 id=&#34;分析原因&#34;&gt;&lt;a href=&#34;#分析原因&#34; class=&#34;headerlink&#34; title=&#34;分析原因&#34;&gt;&lt;/a&gt;分析原因&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;捞了下waline服务的日志，发现有不少”&amp;#x2F;robots.txt not found”，还在80、443口都来了一遍。有搜索引擎爬虫或者模拟搜索引擎的爬虫试图抓取我waline服务端的响应内容，那么可能有人在收录或分析我的waline服务。其实应该也分析不出什么，这服务没过鉴权的情况下响应体里甚至不包含文字。&lt;/li&gt;
+&lt;li&gt;其实也可能是二级域名本身的关键词命中了什么政策类的域名筛选规则，大家给二级域名起名也要谨慎点。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;应对&#34;&gt;&lt;a href=&#34;#应对&#34; class=&#34;headerlink&#34; title=&#34;应对&#34;&gt;&lt;/a&gt;应对&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;除了用于展示内容的静态站域名，其他功能性二级域名都用nginx配置加上禁爬声明先：&lt;/p&gt;
+&lt;figure class=&#34;highlight nginx&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;26&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;27&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;28&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;29&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;30&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;31&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;32&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;33&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;34&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;35&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;36&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;37&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;38&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;39&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;40&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;41&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;42&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;43&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;44&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs nginx&#34;&gt;&lt;span class=&#34;hljs-comment&#34;&gt;# HTTP server block&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-section&#34;&gt;server&lt;/span&gt; &amp;#123;&lt;br&gt;    &lt;span class=&#34;hljs-attribute&#34;&gt;listen&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;80&lt;/span&gt;;&lt;br&gt;    &lt;span class=&#34;hljs-attribute&#34;&gt;server_name&lt;/span&gt; example.com;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;# 禁止爬虫访问所有内容&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-section&#34;&gt;location&lt;/span&gt; = /robots.txt &amp;#123;&lt;br&gt;        &lt;span class=&#34;hljs-attribute&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;200&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;User-agent: *\&amp;quot;\nDisallow: /&amp;quot;&lt;/span&gt;;&lt;br&gt;        &lt;span class=&#34;hljs-attribute&#34;&gt;add_header&lt;/span&gt; Content-Type text/plain;&lt;br&gt;        &lt;span class=&#34;hljs-attribute&#34;&gt;add_header&lt;/span&gt; Cache-Control &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;public, max-age=3600&amp;quot;&lt;/span&gt;;&lt;br&gt;        &lt;span class=&#34;hljs-attribute&#34;&gt;if&lt;/span&gt; (&lt;span class=&#34;hljs-variable&#34;&gt;$request_method&lt;/span&gt; !&lt;span class=&#34;hljs-regexp&#34;&gt;~ ^(GET|HEAD)$&lt;/span&gt; ) &amp;#123;&lt;br&gt;            &lt;span class=&#34;hljs-attribute&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;405&lt;/span&gt;;&lt;br&gt;        &amp;#125;&lt;br&gt;    &amp;#125;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;# 其他请求重定向到 HTTPS&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-section&#34;&gt;location&lt;/span&gt; / &amp;#123;&lt;br&gt;        &lt;span class=&#34;hljs-attribute&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;301&lt;/span&gt; https://&lt;span class=&#34;hljs-variable&#34;&gt;$host&lt;/span&gt;&lt;span class=&#34;hljs-variable&#34;&gt;$request_uri&lt;/span&gt;;&lt;br&gt;    &amp;#125;&lt;br&gt;&amp;#125;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-comment&#34;&gt;# HTTPS server block&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-section&#34;&gt;server&lt;/span&gt; &amp;#123;&lt;br&gt;    &lt;span class=&#34;hljs-attribute&#34;&gt;listen&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;443&lt;/span&gt; ssl;&lt;br&gt;    &lt;span class=&#34;hljs-attribute&#34;&gt;server_name&lt;/span&gt; example.com;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attribute&#34;&gt;ssl_certificate&lt;/span&gt; /path/to/cert.pem;&lt;br&gt;    &lt;span class=&#34;hljs-attribute&#34;&gt;ssl_certificate_key&lt;/span&gt; /path/to/privkey.pem;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;# 禁止爬虫访问所有内容&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-section&#34;&gt;location&lt;/span&gt; = /robots.txt &amp;#123;&lt;br&gt;        &lt;span class=&#34;hljs-attribute&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;200&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;User-agent: *\&amp;quot;\nDisallow: /&amp;quot;&lt;/span&gt;;&lt;br&gt;        &lt;span class=&#34;hljs-attribute&#34;&gt;add_header&lt;/span&gt; Content-Type text/plain;&lt;br&gt;        &lt;span class=&#34;hljs-attribute&#34;&gt;add_header&lt;/span&gt; Cache-Control &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;public, max-age=3600&amp;quot;&lt;/span&gt;;&lt;br&gt;        &lt;span class=&#34;hljs-attribute&#34;&gt;if&lt;/span&gt; (&lt;span class=&#34;hljs-variable&#34;&gt;$request_method&lt;/span&gt; !&lt;span class=&#34;hljs-regexp&#34;&gt;~ ^(GET|HEAD)$&lt;/span&gt; ) &amp;#123;&lt;br&gt;            &lt;span class=&#34;hljs-attribute&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;405&lt;/span&gt;;&lt;br&gt;        &amp;#125;&lt;br&gt;    &amp;#125;&lt;br&gt;&lt;br&gt;    &lt;span class=&#34;hljs-comment&#34;&gt;# 其他请求处理（如 root、proxy_pass 等）&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-section&#34;&gt;location&lt;/span&gt; / &amp;#123;&lt;br&gt;        &lt;span class=&#34;hljs-comment&#34;&gt;# 你的其他配置，如 proxy_pass 或 root&lt;/span&gt;&lt;br&gt;    &amp;#125;&lt;br&gt;&amp;#125;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;再给二级域名换成个更烂大街的抽象名称躲封禁规则，配好对应DNS记录和nginx路由。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;用certbot更新下SSL证书：&lt;/p&gt;
+&lt;figure class=&#34;highlight bash&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs bash&#34;&gt;certbot certonly ----cert-name &amp;lt;cert_name&amp;gt; --manual --preferred-challenges http --webroot-path /root/Dropbox/&amp;lt;homepage_dir&amp;gt; -m me@bipedalbit.net -d &amp;lt;domain1&amp;gt; -d &amp;lt;domain2&amp;gt; -d &amp;lt;domain3&amp;gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;我不爱用&lt;code&gt;certbot run&lt;/code&gt;自动改nginx配置文件更新SSL证书，会把我写好的nginx配置格式搞乱。用&lt;code&gt;certbot certonly&lt;/code&gt;命令需要按命令行提示在指定域名下指定位置放个指定内容的文本文件证明你是指定域名内容的控制方，然后回车下一步。麻烦点，但低频操作，不自动化也负担不大。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;改改waline服务的部署配置，把里面的服务二级域名更新下，重启服务。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;OK这下通了，观察一天看看，还是通的，大概是妥了。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+        <category term="DNS" />
+        <category term="DNS劫持" />
+        <category term="DNS污染" />
+        <updated>2025-06-11T12:22:04.000Z</updated>
+    </entry>
+</feed>

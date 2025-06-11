@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;板绘&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2016-06-23T12:58:21.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2016/06/23/sai%E6%9D%BF%E7%BB%98%E5%88%9D%E4%BD%93%E9%AA%8C/</id>
+        <id>https://bipedalbit.net/2016/06/23/sai%E6%9D%BF%E7%BB%98%E5%88%9D%E4%BD%93%E9%AA%8C/</id>
         <title>sai板绘初体验</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2016/06/23/sai%E6%9D%BF%E7%BB%98%E5%88%9D%E4%BD%93%E9%AA%8C/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2016/06/23/sai%E6%9D%BF%E7%BB%98%E5%88%9D%E4%BD%93%E9%AA%8C/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; CS小硕的生活还是挺乏味压抑的，尤其是手头一堆活的时候。于是我买了个数位板，wacom CTL-671，400+软妹币的入门板。拿到板子第一天还没贴膜就拿来画了一堆表情包，新手不知轻重还在板子上留了痕迹。前两天刚画完个⑨，背景大概一时半会都不会有动力画了，于是这篇文先简单记录一下我的板绘初体验。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 要学板绘先要有个板子，wacom的高端板口碑挺好的，想来入门板也不会太差。wacom的驱动只有win和mac的，企图在Ubuntu下画小人，于是开了个虚拟机，很遗憾开虚拟机就算装了驱动板子也会丢压感，于是转战win。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 选完板子装完驱动还需要选择一个画图软件，因为是我是要学画漫画，所以只从这个方面考量各种软件。PS和sai是大多数人的选择，PS更有泛用性，而sai对画漫画来说更加有针对性更方便一些。我的话虽然也装过PS给小程序修图用，还是选择了更轻便的sai。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 选择用sai就需要掌握一些sai的常用快捷操作：&lt;/p&gt;

@@ -2,7 +2,7 @@
 <rss version="2.0">
     <channel>
         <title>Hacking to the gate! • Posts by &#34;位域&#34; tag</title>
-        <link>https://blog.bipedalbit.net</link>
+        <link>https://bipedalbit.net</link>
         <description>Bipedal Bit&#39;s blog</description>
         <language>zh-CN</language>
         <pubDate>Tue, 01 Dec 2015 10:53:29 +0800</pubDate>
@@ -79,10 +79,12 @@
         <category>waline</category>
         <category>mcpo</category>
         <category>svn</category>
+        <category>DNS劫持</category>
+        <category>DNS污染</category>
         <item>
-            <guid isPermalink="true">https://blog.bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</guid>
+            <guid isPermalink="true">https://bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</guid>
             <title>C++的位优化</title>
-            <link>https://blog.bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</link>
+            <link>https://bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</link>
             <category>C++</category>
             <category>位域</category>
             <category>bitset</category>

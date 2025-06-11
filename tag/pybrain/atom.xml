@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;pybrain&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2015-10-13T06:54:25.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2015/10/13/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84python%EF%BC%88pybrain%E5%BA%93%EF%BC%89%E5%AE%9E%E7%8E%B0/</id>
+        <id>https://bipedalbit.net/2015/10/13/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84python%EF%BC%88pybrain%E5%BA%93%EF%BC%89%E5%AE%9E%E7%8E%B0/</id>
         <title>BP神经网络的python（pybrain库）实现</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/10/13/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84python%EF%BC%88pybrain%E5%BA%93%EF%BC%89%E5%AE%9E%E7%8E%B0/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/10/13/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84python%EF%BC%88pybrain%E5%BA%93%EF%BC%89%E5%AE%9E%E7%8E%B0/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 上一篇文用C++手写了BP神经网络，事实上，生产环境中已经很少有人再亲自写神经网络了，已经出现了很多成熟的机器学习开源库。我安装了C++的shark库和python的pybrain库，在研究shark库的文档时发现shark库封装度太低了，用起来很麻烦，遂弃。虽然放弃C++的高效库很遗憾，但是后来发现pybrain库真是非常友好非常方便，于是分别写了分类器和函数拟合的例子及测评。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 看两个库的源码时发现，shark库的机器学习模型比较多，pybrain的少一些，但是提供一些实时图形化的接口（虽然我嫌麻烦没用）。于是pybrain也可以与matlab和R语言争争份额了（虽然显然还是matlab和R比较专业）。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先来看分类器的实现，还是那个寻找点与平面位置关系规则的问题，上代码，NNClassifier.py：&lt;/p&gt;

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;socket.io&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2015-09-12T14:44:25.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2015/09/12/socket-io%E9%82%80%E8%AF%B7%E5%88%B6%E5%B8%A6%E7%99%BB%E5%BD%95%E8%81%8A%E5%A4%A9%E5%AE%A4%E5%AE%9E%E4%BE%8B%E3%80%90DRRR-chat-room%E3%80%91/</id>
+        <id>https://bipedalbit.net/2015/09/12/socket-io%E9%82%80%E8%AF%B7%E5%88%B6%E5%B8%A6%E7%99%BB%E5%BD%95%E8%81%8A%E5%A4%A9%E5%AE%A4%E5%AE%9E%E4%BE%8B%E3%80%90DRRR-chat-room%E3%80%91/</id>
         <title>socket.io邀请制带登录聊天室实例【DRRR-chat-room】</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/09/12/socket-io%E9%82%80%E8%AF%B7%E5%88%B6%E5%B8%A6%E7%99%BB%E5%BD%95%E8%81%8A%E5%A4%A9%E5%AE%A4%E5%AE%9E%E4%BE%8B%E3%80%90DRRR-chat-room%E3%80%91/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/09/12/socket-io%E9%82%80%E8%AF%B7%E5%88%B6%E5%B8%A6%E7%99%BB%E5%BD%95%E8%81%8A%E5%A4%A9%E5%AE%A4%E5%AE%9E%E4%BE%8B%E3%80%90DRRR-chat-room%E3%80%91/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;strong&gt;写个博文其实也没什么特别要说的。研究node.js的过程中扩展了socket.io的聊天室demo，仿制了一个动漫DRRR（无头骑士异闻录）中的聊天室。使用邀请制，即注册需要提供邀请码。头一次在GitHub建项目：&lt;a href=&#34;https://github.com/bipedalBit/DRRR-chat-room&#34;&gt;DRRR-chat-room&lt;/a&gt;。下个项目可能是用socket.io做一个真·实时弹幕站，尽请期待。&lt;/strong&gt;&lt;/p&gt;
 </content>
         <category term="node.js" />

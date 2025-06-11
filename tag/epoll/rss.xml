@@ -2,7 +2,7 @@
 <rss version="2.0">
     <channel>
         <title>Hacking to the gate! • Posts by &#34;epoll&#34; tag</title>
-        <link>https://blog.bipedalbit.net</link>
+        <link>https://bipedalbit.net</link>
         <description>Bipedal Bit&#39;s blog</description>
         <language>zh-CN</language>
         <pubDate>Thu, 23 Jul 2015 11:01:28 +0800</pubDate>
@@ -79,10 +79,12 @@
         <category>waline</category>
         <category>mcpo</category>
         <category>svn</category>
+        <category>DNS劫持</category>
+        <category>DNS污染</category>
         <item>
-            <guid isPermalink="true">https://blog.bipedalbit.net/2015/07/23/%E3%80%90%E4%B8%80%E3%80%91nginx%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E6%A6%82%E8%BF%B0/</guid>
+            <guid isPermalink="true">https://bipedalbit.net/2015/07/23/%E3%80%90%E4%B8%80%E3%80%91nginx%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E6%A6%82%E8%BF%B0/</guid>
             <title>【一】nginx核心架构概述</title>
-            <link>https://blog.bipedalbit.net/2015/07/23/%E3%80%90%E4%B8%80%E3%80%91nginx%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E6%A6%82%E8%BF%B0/</link>
+            <link>https://bipedalbit.net/2015/07/23/%E3%80%90%E4%B8%80%E3%80%91nginx%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E6%A6%82%E8%BF%B0/</link>
             <category>nginx</category>
             <category>select/poll</category>
             <category>epoll</category>

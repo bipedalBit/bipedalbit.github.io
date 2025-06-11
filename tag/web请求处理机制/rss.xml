@@ -2,7 +2,7 @@
 <rss version="2.0">
     <channel>
         <title>Hacking to the gate! • Posts by &#34;web请求处理机制&#34; tag</title>
-        <link>https://blog.bipedalbit.net</link>
+        <link>https://bipedalbit.net</link>
         <description>Bipedal Bit&#39;s blog</description>
         <language>zh-CN</language>
         <pubDate>Wed, 30 Sep 2015 12:50:34 +0800</pubDate>
@@ -79,10 +79,12 @@
         <category>waline</category>
         <category>mcpo</category>
         <category>svn</category>
+        <category>DNS劫持</category>
+        <category>DNS污染</category>
         <item>
-            <guid isPermalink="true">https://blog.bipedalbit.net/2015/09/30/nginx%E4%B9%8B%E5%9B%9E%E5%A4%B4%E8%A1%A5%E8%AF%BE/</guid>
+            <guid isPermalink="true">https://bipedalbit.net/2015/09/30/nginx%E4%B9%8B%E5%9B%9E%E5%A4%B4%E8%A1%A5%E8%AF%BE/</guid>
             <title>nginx之回头补课</title>
-            <link>https://blog.bipedalbit.net/2015/09/30/nginx%E4%B9%8B%E5%9B%9E%E5%A4%B4%E8%A1%A5%E8%AF%BE/</link>
+            <link>https://bipedalbit.net/2015/09/30/nginx%E4%B9%8B%E5%9B%9E%E5%A4%B4%E8%A1%A5%E8%AF%BE/</link>
             <category>nginx</category>
             <category>Web请求处理机制</category>
             <category>同步/异步</category>

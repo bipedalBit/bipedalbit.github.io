@@ -21,12 +21,12 @@
   <meta name="author" content="Bipedal Bit">
   <meta name="keywords" content="">
   
-    <meta name="description" content="回顾不是头一次谈hexo静态站搭建了，2016年就写了相关的博客，非常耐心事无巨细地介绍过当时的搭建方案。 紧接着开了自己的VPS，于是又写文介绍了迭代方案，在VPS上做了镜像站部署，用dropbox做静态资源同步。现在由于国内不搭梯子访问github已经不稳定，VPS上的静态站反而成了主站，github pages上那个站成替身了哈哈。 概述新的静态站其实主要更新了3个点：  主题：landsc">
+    <meta name="description" content="记录一下在2016年hexo静态站基础上完成站点翻新的主要思路和过程。这次翻新主要包含：hexo主题的审美升级，图床从七牛迁移到自建方案，评论插件从多说迁移到自建方案。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="再谈hexo静态站搭建">
-<meta property="og:url" content="https://blog.bipedalbit.net/2025/06/07/%E5%86%8D%E8%B0%88hexo%E9%9D%99%E6%80%81%E7%AB%99%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:url" content="https://bipedalbit.net/2025/06/07/%E5%86%8D%E8%B0%88hexo%E9%9D%99%E6%80%81%E7%AB%99%E6%90%AD%E5%BB%BA/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
-<meta property="og:description" content="回顾不是头一次谈hexo静态站搭建了，2016年就写了相关的博客，非常耐心事无巨细地介绍过当时的搭建方案。 紧接着开了自己的VPS，于是又写文介绍了迭代方案，在VPS上做了镜像站部署，用dropbox做静态资源同步。现在由于国内不搭梯子访问github已经不稳定，VPS上的静态站反而成了主站，github pages上那个站成替身了哈哈。 概述新的静态站其实主要更新了3个点：  主题：landsc">
+<meta property="og:description" content="记录一下在2016年hexo静态站基础上完成站点翻新的主要思路和过程。这次翻新主要包含：hexo主题的审美升级，图床从七牛迁移到自建方案，评论插件从多说迁移到自建方案。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/minio/minio_2025-06-07_20-38-12.png">
 <meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/minio/minio_2025-06-07_20-38-43.png">
@@ -37,7 +37,7 @@
 <meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/waline/waline_2025-06-07_22-55-19.png">
 <meta property="og:image" content="https://cdn.minio.bipedalbit.net/bipedalbit-net-images/waline/waline_2025-06-07_22-54-42.png">
 <meta property="article:published_time" content="2025-06-07T15:12:47.000Z">
-<meta property="article:modified_time" content="2025-06-07T15:24:24.758Z">
+<meta property="article:modified_time" content="2025-06-11T12:53:50.088Z">
 <meta property="article:author" content="Bipedal Bit">
 <meta property="article:tag" content="hexo">
 <meta property="article:tag" content="NAS">
@@ -87,7 +87,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.bipedalbit.net","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":100,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"bipedalbit.net","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":100,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -261,7 +261,7 @@
         
         
         
-          21 分钟
+          22 分钟
         
       </span>
     
@@ -303,8 +303,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h1><p>不是头一次谈hexo静态站搭建了，2016年就写了相关的博客，非常耐心事无巨细地介绍过<a target="_blank" rel="noopener" href="https://bipedalbit.net/2016/04/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/">当时的搭建方案</a>。</p>
-<p>紧接着开了自己的VPS，于是又写文介绍了<a target="_blank" rel="noopener" href="https://bipedalbit.net/2016/04/25/%E5%88%A9%E7%94%A8Dropbox%E5%AE%9E%E7%8E%B0%E5%AE%9E%E6%97%B6%E5%90%8C%E6%AD%A5%E7%9A%84%E9%9D%99%E6%80%81%E7%AB%99/">迭代方案</a>，在VPS上做了镜像站部署，用dropbox做静态资源同步。现在由于国内不搭梯子访问github已经不稳定，VPS上的静态站反而成了主站，github pages上那个站成替身了哈哈。</p>
+                <p>记录一下在2016年hexo静态站基础上完成站点翻新的主要思路和过程。这次翻新主要包含：hexo主题的审美升级，图床从七牛迁移到自建方案，评论插件从多说迁移到自建方案。</p>
+<span id="more"></span>
+<h1 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h1><p>不是头一次谈hexo静态站搭建了，2016年就写了相关的博客，非常耐心事无巨细地介绍过<a href="https://bipedalbit.net/2016/04/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/">当时的搭建方案</a>。</p>
+<p>紧接着开了自己的VPS，于是又写文介绍了<a href="https://bipedalbit.net/2016/04/25/%E5%88%A9%E7%94%A8Dropbox%E5%AE%9E%E7%8E%B0%E5%AE%9E%E6%97%B6%E5%90%8C%E6%AD%A5%E7%9A%84%E9%9D%99%E6%80%81%E7%AB%99/">迭代方案</a>，在VPS上做了镜像站部署，用dropbox做静态资源同步。现在由于国内不搭梯子访问github已经不稳定，VPS上的静态站反而成了主站，github pages上那个站成替身了哈哈。</p>
 <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>新的静态站其实主要更新了3个点：</p>
 <ul>
 <li><p>主题：landscape-plus &#x3D;&gt; fluid</p>
@@ -375,7 +377,7 @@
 <p>长远考虑，我需要使用独立的、配有CDN的图床。</p>
 <p>上一版静态站，我的图床是七牛图床，当时七牛提供子域名给每个用户空间，现在七牛要求用户自行绑定备案域名。备案可太麻烦了，我选择换方案。</p>
 <p>有人安利过cloudfare的R2存储，虽然可以白嫖，但cloudfare国内被白嫖太多，CDN国内节点经常会负载过高变卡甚至断连。正巧我有了NAS这个便宜宽敞的存储空间，我选择自建对象存储，内网穿透出去作为图床，自配CDN。</p>
-<h2 id="minio"><a href="#minio" class="headerlink" title="minio"></a>minio</h2><p><a target="_blank" rel="noopener" href="https://min.io/docs/minio/container/index.html">minio</a>是Amazon S3对象存储的开源对标项目。minio可以用docker容器部署，我的群晖NAS支持docker容器，我在搭open-webui时有现成的<a target="_blank" rel="noopener" href="https://bipedalbit.net/2025/05/28/%E6%90%AD%E5%BB%BA%E7%A7%81%E6%9C%89LLM%E5%8A%A9%E6%89%8B%E5%B9%B3%E5%8F%B0/#5-2-3-frpc">frp内网穿透方案</a>在公网暴露minio的API，这不就妥了。</p>
+<h2 id="minio"><a href="#minio" class="headerlink" title="minio"></a>minio</h2><p><a target="_blank" rel="noopener" href="https://min.io/docs/minio/container/index.html">minio</a>是Amazon S3对象存储的开源对标项目。minio可以用docker容器部署，我的群晖NAS支持docker容器，我在搭open-webui时有现成的<a href="https://bipedalbit.net/2025/05/28/%E6%90%AD%E5%BB%BA%E7%A7%81%E6%9C%89LLM%E5%8A%A9%E6%89%8B%E5%B9%B3%E5%8F%B0/#5-2-3-frpc">frp内网穿透方案</a>在公网暴露minio的API，这不就妥了。</p>
 <p>minio还是用docker-compose部署：</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">minio:</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">ghcr.io/minio/minio:RELEASE.2025-04-22T22-12-26Z</span><br>    <span class="hljs-attr">container_name:</span> <span class="hljs-string">minio</span><br>    <span class="hljs-attr">volumes:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">./data:/data</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">./config:/root/.minio</span><br>    <span class="hljs-attr">ports:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-number">9000</span><span class="hljs-string">:9000</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-number">9001</span><span class="hljs-string">:9001</span><br>    <span class="hljs-attr">environment:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;MINIO_ROOT_USER=bipedalbit&#x27;</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;MINIO_ROOT_PASSWORD=****&#x27;</span><br>    <span class="hljs-attr">restart:</span> <span class="hljs-string">unless-stopped</span><br>    <span class="hljs-attr">command:</span> [<span class="hljs-string">&quot;server /data --console-address :9001&quot;</span>]<br></code></pre></td></tr></table></figure>
 <p><strong>注意2025.5.24发布的minio更新版本中，把minio的web控制台功能从社区版代码里移除了：<a target="_blank" rel="noopener" href="https://github.com/minio/minio/releases/tag/RELEASE.2025-05-24T17-08-30Z">RELEASE.2025-05-24T17-08-30Z</a></strong></p>
@@ -477,7 +479,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>再谈hexo静态站搭建</div>
-      <div>https://blog.bipedalbit.net/2025/06/07/再谈hexo静态站搭建/</div>
+      <div>https://bipedalbit.net/2025/06/07/再谈hexo静态站搭建/</div>
     </div>
     <div class="license-meta">
       

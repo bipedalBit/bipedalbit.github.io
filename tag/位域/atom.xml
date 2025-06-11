@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;位域&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2015-12-01T02:53:29.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</id>
+        <id>https://bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</id>
         <title>C++的位优化</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前的中国象棋初版重在实现，老实说不论是时空效率还是健壮性都不太拿得出手，于是导师要求继续优化改进。考虑和调查过后，时间效率上可以借助之前设想的并行计算得到小幅优化，此外使用类似bool数组的手段也可以在走法生成器中小幅优化边界判断过程，最重要的时间效率优化手段是把博弈机改造成查表器，即以查表为主博弈为辅改变重心。以上都是时间效率优化，这篇文中暂且不展开，我的中国象棋初版在搜索深度大时（大于等于４层）开始出现程序崩溃的现象，暴露了空间效率问题。作为空间效率优化的铺垫，这次我来做个C++位优化的自科普。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 关于空间效率优化，从前顶多考虑到基本变量类型选择的程度，然而C++提供了一些更精细的特性，供程序员进行位级别的内存微操——位域、bitset、vector&amp;lt;bool&amp;gt;。&lt;/p&gt;

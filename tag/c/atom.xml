@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;c&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2015-08-17T18:04:43.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2015/08/18/%E3%80%90%E4%BA%94%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-3-%E2%80%94%E2%80%94%E6%89%A9%E5%B1%95%E7%BA%A2%E9%BB%91%E6%A0%91/</id>
+        <id>https://bipedalbit.net/2015/08/18/%E3%80%90%E4%BA%94%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-3-%E2%80%94%E2%80%94%E6%89%A9%E5%B1%95%E7%BA%A2%E9%BB%91%E6%A0%91/</id>
         <title>【五】nginx的数据结构(3)——扩展红黑树</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/08/18/%E3%80%90%E4%BA%94%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-3-%E2%80%94%E2%80%94%E6%89%A9%E5%B1%95%E7%BA%A2%E9%BB%91%E6%A0%91/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/08/18/%E3%80%90%E4%BA%94%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-3-%E2%80%94%E2%80%94%E6%89%A9%E5%B1%95%E7%BA%A2%E9%BB%91%E6%A0%91/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 基础版的红黑树写完之后总觉得有些辅助功能不补充一下就难以体现红黑树在统计方面的优越性，于是我又写了红黑树扩展版。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 发扬我一贯的支线任务狂魔的作风，一晚上就完成了之前设想的红黑树扩展版本。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; rbtree.h：&lt;/p&gt;
@@ -776,9 +778,9 @@ Count of nodes in the tree is 1047552.
         <updated>2015-08-17T18:04:43.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/</id>
+        <id>https://bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/</id>
         <title>Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不自己动手为Sublime配个C&amp;#x2F;C++的通用Makefile脚本吗？不能自动编译链接多文件的编辑器不是好IDE。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先我们需要了解几个事实：&lt;/p&gt;
@@ -1096,9 +1098,9 @@ show:
         <updated>2015-08-16T14:45:46.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/08/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/</id>
+        <id>https://bipedalbit.net/2015/08/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/</id>
         <title>【四】nginx的数据结构(2)——自己动手重写红黑树</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/08/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/08/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不管看了多少遍有多滚瓜烂熟，数据结构或者算法的代码如果不亲自码一遍，我总是不敢说自己懂了。这次就来自己动手重写红黑树。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 费话不多说，上重写代码，这次姑且用英语写的注释当复习英语了。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; rbtree.h：&lt;/p&gt;
@@ -1753,9 +1755,9 @@ Deleting 1024 nodes among 1048576 spends 0.000783 seconds.
         <updated>2015-08-16T14:06:30.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/08/11/C%E8%AF%AD%E8%A8%80%E7%9A%84static%E5%85%B3%E9%94%AE%E5%AD%97/</id>
+        <id>https://bipedalbit.net/2015/08/11/C%E8%AF%AD%E8%A8%80%E7%9A%84static%E5%85%B3%E9%94%AE%E5%AD%97/</id>
         <title>C语言的static关键字</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/08/11/C%E8%AF%AD%E8%A8%80%E7%9A%84static%E5%85%B3%E9%94%AE%E5%AD%97/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/08/11/C%E8%AF%AD%E8%A8%80%E7%9A%84static%E5%85%B3%E9%94%AE%E5%AD%97/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; static这个关键字可谓熟悉又陌生，要比较系统地理解它，更好地使用它，需要对它有更加深入的了解。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; C程序一直由下列部分组成：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 1）正文段——CPU执行的机器指令部分；一个程序只有一个副本；只读，防止程序由于意外事故而修改自身指令。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 2）初始化数据段（数据段）——在程序中所有赋了初值的全局变量，存放在这里。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 3）非初始化数据段（bss段）——在程序中没有初始化的全局变量；内核将此段初始化为0。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 4）栈——增长方向：自顶向下增长；自动变量以及每次函数调用时所需要保存的信息（返回地址、环境信息）。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 5）堆——动态存储分配的内存。&lt;/p&gt;
@@ -1778,9 +1780,9 @@ Deleting 1024 nodes among 1048576 spends 0.000783 seconds.
         <updated>2015-08-11T12:09:08.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/</id>
+        <id>https://bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/</id>
         <title>【三】nginx的数据结构(1)——ngx_int_t与ngx_rbtree_t</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 就来挑两个特别的数据结构ngx_int_t、ngx_rbtree_t作为研读nginx源码的开始吧。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 面对&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;.&amp;#x2F;src&amp;#x2F;core&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;子目录中&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;71&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;个源文件，有点无从下手。浏览包含主函数的&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx.c&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;文件，发现&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;使用了很多自行封装的数据结构，不弄清楚这是些什么样的数据结构就很难理解主函数中操作的意义。于是我们挑看起来基础的数据结构开始研究。组织&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;所有数据结构的是&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_core.h&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;文件。它首先包含了&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_config.h&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;，我们在&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_config.h&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;中发现了三个类型定义。&lt;/span&gt;&lt;/p&gt;

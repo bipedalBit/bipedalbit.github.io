@@ -2,7 +2,7 @@
 <rss version="2.0">
     <channel>
         <title>Hacking to the gate! • Posts by &#34;网络爬虫&#34; tag</title>
-        <link>https://blog.bipedalbit.net</link>
+        <link>https://bipedalbit.net</link>
         <description>Bipedal Bit&#39;s blog</description>
         <language>zh-CN</language>
         <pubDate>Wed, 06 Jan 2016 01:02:08 +0800</pubDate>
@@ -79,10 +79,12 @@
         <category>waline</category>
         <category>mcpo</category>
         <category>svn</category>
+        <category>DNS劫持</category>
+        <category>DNS污染</category>
         <item>
-            <guid isPermalink="true">https://blog.bipedalbit.net/2016/01/06/%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB%E4%B9%8B%E4%BB%A3%E7%90%86%E6%B1%A0/</guid>
+            <guid isPermalink="true">https://bipedalbit.net/2016/01/06/%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB%E4%B9%8B%E4%BB%A3%E7%90%86%E6%B1%A0/</guid>
             <title>微博爬虫之代理池</title>
-            <link>https://blog.bipedalbit.net/2016/01/06/%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB%E4%B9%8B%E4%BB%A3%E7%90%86%E6%B1%A0/</link>
+            <link>https://bipedalbit.net/2016/01/06/%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB%E4%B9%8B%E4%BB%A3%E7%90%86%E6%B1%A0/</link>
             <category>python</category>
             <category>网络爬虫</category>
             <category>proxy</category>
@@ -93,9 +95,9 @@
  ]]></description>
         </item>
         <item>
-            <guid isPermalink="true">https://blog.bipedalbit.net/2016/01/02/weibo-cn%E6%A8%A1%E6%8B%9F%E7%99%BB%E5%BD%95%E5%99%A8%E7%9A%84python%E9%87%8D%E6%9E%84/</guid>
+            <guid isPermalink="true">https://bipedalbit.net/2016/01/02/weibo-cn%E6%A8%A1%E6%8B%9F%E7%99%BB%E5%BD%95%E5%99%A8%E7%9A%84python%E9%87%8D%E6%9E%84/</guid>
             <title>weibo.cn模拟登录器的python重构</title>
-            <link>https://blog.bipedalbit.net/2016/01/02/weibo-cn%E6%A8%A1%E6%8B%9F%E7%99%BB%E5%BD%95%E5%99%A8%E7%9A%84python%E9%87%8D%E6%9E%84/</link>
+            <link>https://bipedalbit.net/2016/01/02/weibo-cn%E6%A8%A1%E6%8B%9F%E7%99%BB%E5%BD%95%E5%99%A8%E7%9A%84python%E9%87%8D%E6%9E%84/</link>
             <category>python</category>
             <category>网络爬虫</category>
             <category>模拟登录</category>
@@ -124,9 +126,9 @@
  ]]></description>
         </item>
         <item>
-            <guid isPermalink="true">https://blog.bipedalbit.net/2015/12/28/python%E7%BB%83%E6%89%8B%E4%B9%8B%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB/</guid>
+            <guid isPermalink="true">https://bipedalbit.net/2015/12/28/python%E7%BB%83%E6%89%8B%E4%B9%8B%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB/</guid>
             <title>python练手之微博爬虫</title>
-            <link>https://blog.bipedalbit.net/2015/12/28/python%E7%BB%83%E6%89%8B%E4%B9%8B%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB/</link>
+            <link>https://bipedalbit.net/2015/12/28/python%E7%BB%83%E6%89%8B%E4%B9%8B%E5%BE%AE%E5%8D%9A%E7%88%AC%E8%99%AB/</link>
             <category>python</category>
             <category>网络爬虫</category>
             <pubDate>Mon, 28 Dec 2015 21:53:49 +0800</pubDate>

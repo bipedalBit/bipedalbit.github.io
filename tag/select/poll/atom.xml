@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;select/poll&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2015-07-23T03:01:28.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2015/07/23/%E3%80%90%E4%B8%80%E3%80%91nginx%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E6%A6%82%E8%BF%B0/</id>
+        <id>https://bipedalbit.net/2015/07/23/%E3%80%90%E4%B8%80%E3%80%91nginx%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E6%A6%82%E8%BF%B0/</id>
         <title>【一】nginx核心架构概述</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/07/23/%E3%80%90%E4%B8%80%E3%80%91nginx%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E6%A6%82%E8%BF%B0/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/07/23/%E3%80%90%E4%B8%80%E3%80%91nginx%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E6%A6%82%E8%BF%B0/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 毕业前，毕设完成后，我闲极无聊接触了一下socket编程，用C++的Qt框架写了玩具一样的TCP和UDP通信客户端。跟直系学长电话聊天时被建议深挖一下socket，尝试走走后端或者架构师路线。问该怎么深挖，答研究源码，要学习socket相关知识，研究服务器源码是最合适不过的了。至于选择哪个服务器，经过考量调查，发现比起比较沉重庞大的apache，nginx更加小巧，也非常优秀。于是在开始正式吃源码之前，我先开始了一番自我科普工作。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;h3 id=&#34;1、进程模型&#34;&gt;&lt;a href=&#34;#1、进程模型&#34; class=&#34;headerlink&#34; title=&#34;1、进程模型&#34;&gt;&lt;/a&gt;1&lt;span style=&#34;font-family:宋体;&#34;&gt;、进程模型&lt;/span&gt;&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先，默认的，与其他服务器一样，&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;Unix&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;下的&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;也以&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;daemon&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;（守护进程）的形式持续在后台运行。虽然&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;也可以以调试为目的关掉后台模式，使用前台模式，甚至可以通过配置取消&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;master&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;进程（后面会详细解释），使&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;以单进程的形式工作。但是这些与&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;引以为傲的架构关系不大，这里按下不表。尽管&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;也支持多线程方式，我们还是着重来了解下其默认的多进程方式。&lt;/span&gt;&lt;/p&gt;

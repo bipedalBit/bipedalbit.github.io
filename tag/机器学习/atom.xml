@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;机器学习&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2015-12-05T14:07:40.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2015/12/05/%E7%94%B1%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%92%8C%E7%B1%BB%E8%84%91%E7%8E%B0%E7%8A%B6%E5%B1%95%E5%BC%80/</id>
+        <id>https://bipedalbit.net/2015/12/05/%E7%94%B1%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%92%8C%E7%B1%BB%E8%84%91%E7%8E%B0%E7%8A%B6%E5%B1%95%E5%BC%80/</id>
         <title>由人工神经网络和类脑现状展开</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/12/05/%E7%94%B1%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%92%8C%E7%B1%BB%E8%84%91%E7%8E%B0%E7%8A%B6%E5%B1%95%E5%BC%80/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/12/05/%E7%94%B1%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%92%8C%E7%B1%BB%E8%84%91%E7%8E%B0%E7%8A%B6%E5%B1%95%E5%BC%80/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 今天听了个讲座，是一位鹅厂智库，是个博士，讲的关于互联网、人工智能与大脑的一些遐想。简单地说，就是认为互联网与大脑在形式上已经很相似了，可以借鉴脑神经科学来发展互联网，也可以用互联网的发展来反观大脑得到脑科学方面的启发。讲座期间提了一下人工智能，尤其是人工神经网络和类脑对大脑的仿生。讲座上我对ANN和类脑的技术现状有了一些思考，对互联网与脑神经科学的联系也有了一些自己的看法。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;h1 id=&#34;1-人工神经网络现状&#34;&gt;&lt;a href=&#34;#1-人工神经网络现状&#34; class=&#34;headerlink&#34; title=&#34;1 人工神经网络现状&#34;&gt;&lt;/a&gt;1 人工神经网络现状&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前&lt;a href=&#34;http://blog.bipedalbit.net/2015/10/9/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/&#34;&gt;自科普BP神经网络&lt;/a&gt;的时候提到过人工神经网络的仿生模型，看起来好像很有道理很靠谱，但是这个研究方向上出现过瓶颈。从前的单纯“神经网络”如BP，远远无法与人脑甚至小白鼠的大脑相提并论，几十几百个神经元，顶多也就模拟一下应激性或简单的反射行为，别说逻辑思考，就连动物本能的模拟都做不到。原因很简单，ANN的结构太简单了，真正的人的神经网络由上亿量级的神经元组成，其中包括了上百万个互相联系的与ANN同量级的反射组件。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 2006年之后，Deep Learning兴起，老实说我实在不太看得惯学界一些炒概念的行为，DL其实是提出了一些层数更多的ANN的可行解。比如CNN，在普通BP网络的前面加了若干曾卷积层，特化了BP的图像处理功能，做的事情类似于为简单反射添加了视网膜对图像的前期处理过程，可是由于BP的单一的简单的结构，仍然只能称作是复杂一点的反射模拟；又比如DBN，一节一节的增益、传递BP的前馈效应，节与节之间通过置信过程进行了信息的提纯，在我看来虽然真正有了模拟多层反射组件的趋势，结构仍然单一而简单，做的事情类似于手脚到大脑的长程简单反射行为。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我不觉得DL真的突破了ANN的瓶颈。然而到了DL的程度，计算机的优势——硬件效率已经捉襟见肘。因为分布式集群难以达到能模拟上亿神经元或者说上百万反射组件&lt;strong&gt;并行交互&lt;/strong&gt;的规模。这里就涉及了赛博世界的壁垒：宇宙中任何简单的过程都是在各种规则的限制下并行发生，各自独立进行的。而计算机一次却只能模拟一个简单物理过程，仅凭当前的技术再怎么并行化计算，并行量相对于一颗宇宙砂砾——生物的量级仍然嫌少。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 此外，即使假设我们已经拥有支持超大并发量的量子计算机，我们仍然需要组织更复杂的神经网络结构。在各种科幻作品中，AI之所以强大到令人类恐惧，是它们具备了自行学习，自组织自身结构的能力。也许你会说ANN不是已经能自行学习了吗？但是ANN乃至DL的学习结果被AI掌握了吗？不，连AI本身都还不存在，学习结果只能呈现给人类。那么这里我要说，AI更加重要，或许最重要的一项素质其实是结构自组织的能力。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 你可能会问，人类的脑神经似乎也没有怎么调整结构啊，怎么具有如此高的智能程度？我要驳斥两点，首先，现在看到的每一个人类个体的脑神经结构都是不是凭空产生的，亿万年的生物史中人类这条智慧生物演化线上调整自身的脑神经结构的过程从来没有停止过；其次，即使是一个固定人类个体，他的脑神经网络结构也是在进行自调整的，神经细胞的生长、萎缩、换代在人的一生中一直在进行，这不能单纯的映射为ANN中神经元间连接权重的调整，神经元的层次结构也在发生变化。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 谈及自适应的自结构调整我们要打住，我还得引入一下类脑的设想与技术现状。&lt;/p&gt;
@@ -93,9 +95,9 @@
         <updated>2015-12-05T14:07:40.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/10/13/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84python%EF%BC%88pybrain%E5%BA%93%EF%BC%89%E5%AE%9E%E7%8E%B0/</id>
+        <id>https://bipedalbit.net/2015/10/13/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84python%EF%BC%88pybrain%E5%BA%93%EF%BC%89%E5%AE%9E%E7%8E%B0/</id>
         <title>BP神经网络的python（pybrain库）实现</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/10/13/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84python%EF%BC%88pybrain%E5%BA%93%EF%BC%89%E5%AE%9E%E7%8E%B0/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/10/13/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84python%EF%BC%88pybrain%E5%BA%93%EF%BC%89%E5%AE%9E%E7%8E%B0/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 上一篇文用C++手写了BP神经网络，事实上，生产环境中已经很少有人再亲自写神经网络了，已经出现了很多成熟的机器学习开源库。我安装了C++的shark库和python的pybrain库，在研究shark库的文档时发现shark库封装度太低了，用起来很麻烦，遂弃。虽然放弃C++的高效库很遗憾，但是后来发现pybrain库真是非常友好非常方便，于是分别写了分类器和函数拟合的例子及测评。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 看两个库的源码时发现，shark库的机器学习模型比较多，pybrain的少一些，但是提供一些实时图形化的接口（虽然我嫌麻烦没用）。于是pybrain也可以与matlab和R语言争争份额了（虽然显然还是matlab和R比较专业）。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先来看分类器的实现，还是那个寻找点与平面位置关系规则的问题，上代码，NNClassifier.py：&lt;/p&gt;
@@ -411,9 +413,9 @@ for i in xrange(0, 10):#len(XTest)-1):
         <updated>2015-10-13T06:54:25.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/10/11/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84C-%E5%AE%9E%E7%8E%B0/</id>
+        <id>https://bipedalbit.net/2015/10/11/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84C-%E5%AE%9E%E7%8E%B0/</id>
         <title>BP神经网络的C++实现</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/10/11/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84C-%E5%AE%9E%E7%8E%B0/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/10/11/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84C-%E5%AE%9E%E7%8E%B0/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前说了组里的任务是手写BP神经网络，上一篇文总结了一下BP神经网络的概念，老实说，总结概念前的一个C++实现版本在总结概念之后重新审视时觉得实在是惨不忍睹，于是今晚回炉重写了。这篇文就来挂我的BP神经网络C++实现。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 
@@ -1082,9 +1084,9 @@ int main()
         <updated>2015-10-10T16:28:00.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/10/09/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/</id>
+        <id>https://bipedalbit.net/2015/10/09/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/</id>
         <title>BP神经网络</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/10/09/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/10/09/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 组里要求新人手写个BP神经网络练练手先，具体要求是用一个平面把空间点集二分类，建模时我发现这个问题比起分类来更接近一个多元函数拟合，当然分类也不是不行，机器学习的要求更低，更容易有更好的结果。这都是后话，这篇文我决定先来总结一下BP神经网络的概念，也算是前几天的学习笔记了。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;h1 id=&#34;1-机器学习&#34;&gt;&lt;a href=&#34;#1-机器学习&#34; class=&#34;headerlink&#34; title=&#34;1. 机器学习&#34;&gt;&lt;/a&gt;1. 机器学习&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 百度百科说机器学习(Machine Learning, ML)是一门多领域交叉学科，涉及概率论、统计学、逼近论、凸分析、算法复杂度理论等多门学科。简而言之，机器学习专门研究计算机怎样&lt;strong&gt;模拟或实现人类的学习行为&lt;/strong&gt;，以获取新的知识或技能，重新组织已有的知识结构使之不断改善自身的性能。机器学习是人工智能的核心，是使计算机具有智能的&lt;strong&gt;根本途径&lt;/strong&gt;，其应用遍及人工智能的各个领域，它主要使用&lt;strong&gt;归纳、综合而不是演绎&lt;/strong&gt;。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 机器学习的方向很多，其历史和兴衰说来话长，这里引入机器学习的概念只是为了做个铺垫，就不展开了。&lt;/p&gt;

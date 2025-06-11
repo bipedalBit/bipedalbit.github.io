@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;模拟登录&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2016-01-02T04:47:05.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2016/01/02/weibo-cn%E6%A8%A1%E6%8B%9F%E7%99%BB%E5%BD%95%E5%99%A8%E7%9A%84python%E9%87%8D%E6%9E%84/</id>
+        <id>https://bipedalbit.net/2016/01/02/weibo-cn%E6%A8%A1%E6%8B%9F%E7%99%BB%E5%BD%95%E5%99%A8%E7%9A%84python%E9%87%8D%E6%9E%84/</id>
         <title>weibo.cn模拟登录器的python重构</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2016/01/02/weibo-cn%E6%A8%A1%E6%8B%9F%E7%99%BB%E5%BD%95%E5%99%A8%E7%9A%84python%E9%87%8D%E6%9E%84/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2016/01/02/weibo-cn%E6%A8%A1%E6%8B%9F%E7%99%BB%E5%BD%95%E5%99%A8%E7%9A%84python%E9%87%8D%E6%9E%84/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前封装过一个完整的微博爬虫工具包，但是在我查找python多进程爬虫的相关资料时发现，其实使用urllib2写网络爬虫已经是陈年往事，如今大家都用requests包，就像明明有.NET和Qt框架偏偏要用MFC框架，我是自找麻烦了。在使用requests包逐个重构网络爬虫部件的时候，对weibo.cn的模拟登录过程有了一些新的理解，于是来写篇文介绍一下。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我们再来重新分析一遍weibo.cn的登录过程。出发前先来检查一下装备：&lt;/p&gt;

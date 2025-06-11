@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;ngx_int_t&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2015-08-05T23:18:00.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/</id>
+        <id>https://bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/</id>
         <title>【三】nginx的数据结构(1)——ngx_int_t与ngx_rbtree_t</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 就来挑两个特别的数据结构ngx_int_t、ngx_rbtree_t作为研读nginx源码的开始吧。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 面对&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;.&amp;#x2F;src&amp;#x2F;core&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;子目录中&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;71&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;个源文件，有点无从下手。浏览包含主函数的&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx.c&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;文件，发现&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;使用了很多自行封装的数据结构，不弄清楚这是些什么样的数据结构就很难理解主函数中操作的意义。于是我们挑看起来基础的数据结构开始研究。组织&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;所有数据结构的是&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_core.h&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;文件。它首先包含了&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_config.h&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;，我们在&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_config.h&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;中发现了三个类型定义。&lt;/span&gt;&lt;/p&gt;

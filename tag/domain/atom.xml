@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;domain&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2016-04-24T13:02:39.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2016/04/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/</id>
+        <id>https://bipedalbit.net/2016/04/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/</id>
         <title>hexo博客搭建</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2016/04/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2016/04/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 转眼三个多月没更博文了，并没有荒废只是有点忙。攒了很多想写的东西，先填个拖了很久的坑：我这个博客是怎么搭起来的。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 总的来说，我的博客是由Github Pages维护，本地用Hexo管理的一个静态博客。这篇文里我将介绍搭建Github Pages+Hexo博客的过程。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 在讲搭建流程之前需要铺垫一下，介绍几个基本概念，Github Pages、Hexo、域名和DNS服务。&lt;/p&gt;

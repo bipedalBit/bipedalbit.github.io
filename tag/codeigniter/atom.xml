@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;codeigniter&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2015-05-03T04:31:20.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2015/05/03/win-Linux%E4%B8%8B%E5%8E%BB%E6%8E%89codeigniter%E6%A1%86%E6%9E%B6%E7%BD%91%E7%AB%99URL%E4%B8%AD%E7%9A%84index-php/</id>
+        <id>https://bipedalbit.net/2015/05/03/win-Linux%E4%B8%8B%E5%8E%BB%E6%8E%89codeigniter%E6%A1%86%E6%9E%B6%E7%BD%91%E7%AB%99URL%E4%B8%AD%E7%9A%84index-php/</id>
         <title>win/Linux下去掉codeigniter框架网站URL中的index.php</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/05/03/win-Linux%E4%B8%8B%E5%8E%BB%E6%8E%89codeigniter%E6%A1%86%E6%9E%B6%E7%BD%91%E7%AB%99URL%E4%B8%AD%E7%9A%84index-php/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/05/03/win-Linux%E4%B8%8B%E5%8E%BB%E6%8E%89codeigniter%E6%A1%86%E6%9E%B6%E7%BD%91%E7%AB%99URL%E4%B8%AD%E7%9A%84index-php/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 使用PHP的codeigniter框架后在试验阶段遇到的第一个问题就是，无法隐藏地址栏中的index.php，这让我浑身难受。多方调查之后有了一套解决方案。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;h1 id=&#34;Linux&#34;&gt;&lt;a href=&#34;#Linux&#34; class=&#34;headerlink&#34; title=&#34;Linux:&#34;&gt;&lt;/a&gt;Linux:&lt;/h1&gt;&lt;h2 id=&#34;一-Apache&#34;&gt;&lt;a href=&#34;#一-Apache&#34; class=&#34;headerlink&#34; title=&#34;一.Apache&#34;&gt;&lt;/a&gt;一.Apache&lt;/h2&gt;&lt;h3 id=&#34;1-启用rewrite模块&#34;&gt;&lt;a href=&#34;#1-启用rewrite模块&#34; class=&#34;headerlink&#34; title=&#34;1.启用rewrite模块&#34;&gt;&lt;/a&gt;1.启用rewrite模块&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 手动启用是在Apache配置文件里把“LoadModule rewrite_module modules&amp;#x2F;mod_rewrite.so”解注释。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 一些LAMP套件也提供更方便的模块管理。&lt;/p&gt;

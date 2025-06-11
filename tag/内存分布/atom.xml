@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;内存分布&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2015-08-11T12:09:08.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2015/08/11/C%E8%AF%AD%E8%A8%80%E7%9A%84static%E5%85%B3%E9%94%AE%E5%AD%97/</id>
+        <id>https://bipedalbit.net/2015/08/11/C%E8%AF%AD%E8%A8%80%E7%9A%84static%E5%85%B3%E9%94%AE%E5%AD%97/</id>
         <title>C语言的static关键字</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/08/11/C%E8%AF%AD%E8%A8%80%E7%9A%84static%E5%85%B3%E9%94%AE%E5%AD%97/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/08/11/C%E8%AF%AD%E8%A8%80%E7%9A%84static%E5%85%B3%E9%94%AE%E5%AD%97/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; static这个关键字可谓熟悉又陌生，要比较系统地理解它，更好地使用它，需要对它有更加深入的了解。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; C程序一直由下列部分组成：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 1）正文段——CPU执行的机器指令部分；一个程序只有一个副本；只读，防止程序由于意外事故而修改自身指令。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 2）初始化数据段（数据段）——在程序中所有赋了初值的全局变量，存放在这里。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 3）非初始化数据段（bss段）——在程序中没有初始化的全局变量；内核将此段初始化为0。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 4）栈——增长方向：自顶向下增长；自动变量以及每次函数调用时所需要保存的信息（返回地址、环境信息）。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 5）堆——动态存储分配的内存。&lt;/p&gt;

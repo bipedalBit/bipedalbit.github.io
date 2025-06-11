@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;makefile&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2015-08-16T14:45:46.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/</id>
+        <id>https://bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/</id>
         <title>Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不自己动手为Sublime配个C&amp;#x2F;C++的通用Makefile脚本吗？不能自动编译链接多文件的编辑器不是好IDE。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先我们需要了解几个事实：&lt;/p&gt;

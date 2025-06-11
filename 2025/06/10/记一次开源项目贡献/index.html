@@ -21,15 +21,15 @@
   <meta name="author" content="Bipedal Bit">
   <meta name="keywords" content="">
   
-    <meta name="description" content="前言给open-webui配各种mcp工具时，用了mcpo来对各种mcp-server做openapi规范的封装（实际上我只是希望用它的鉴权封装，虽然只是个简单的静态Bearer Token）。添加图表绘制工具mcp-server-chart时，发现有报错，mcpo服务起不来。翻issue无果后，手痒了，提个pr吧。 科普之协作开发现代协作软件开发场景中，会有多个开发人员在同一个项目中分工迭代软件">
+    <meta name="description" content="mcpo项目是open-webui开源团队为标准化接入MCP工具而创建的mcp-server封装服务。记录一下给这个项目提交pr完成开源贡献的过程，也详细讲解这个pr中我的解bug思路。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="记一次开源项目贡献">
-<meta property="og:url" content="https://blog.bipedalbit.net/2025/06/10/%E8%AE%B0%E4%B8%80%E6%AC%A1%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE%E8%B4%A1%E7%8C%AE/index.html">
+<meta property="og:url" content="https://bipedalbit.net/2025/06/10/%E8%AE%B0%E4%B8%80%E6%AC%A1%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE%E8%B4%A1%E7%8C%AE/index.html">
 <meta property="og:site_name" content="Hacking to the gate!">
-<meta property="og:description" content="前言给open-webui配各种mcp工具时，用了mcpo来对各种mcp-server做openapi规范的封装（实际上我只是希望用它的鉴权封装，虽然只是个简单的静态Bearer Token）。添加图表绘制工具mcp-server-chart时，发现有报错，mcpo服务起不来。翻issue无果后，手痒了，提个pr吧。 科普之协作开发现代协作软件开发场景中，会有多个开发人员在同一个项目中分工迭代软件">
+<meta property="og:description" content="mcpo项目是open-webui开源团队为标准化接入MCP工具而创建的mcp-server封装服务。记录一下给这个项目提交pr完成开源贡献的过程，也详细讲解这个pr中我的解bug思路。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-06-10T12:50:30.000Z">
-<meta property="article:modified_time" content="2025-06-10T12:50:30.879Z">
+<meta property="article:modified_time" content="2025-06-11T12:29:25.687Z">
 <meta property="article:author" content="Bipedal Bit">
 <meta property="article:tag" content="github">
 <meta property="article:tag" content="mcpo">
@@ -76,7 +76,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.bipedalbit.net","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":100,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"bipedalbit.net","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":100,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -239,7 +239,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.5k 字
+          3.6k 字
         
       </span>
     
@@ -292,7 +292,9 @@
             
               <div class="markdown-body">
                 
-                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>给open-webui配各种mcp工具时，用了<a target="_blank" rel="noopener" href="https://docs.openwebui.com/openapi-servers/mcp/">mcpo</a>来对各种mcp-server做openapi规范的封装（实际上我只是希望用它的鉴权封装，虽然只是个简单的静态Bearer Token）。添加图表绘制工具<a target="_blank" rel="noopener" href="https://github.com/antvis/mcp-server-chart">mcp-server-chart</a>时，发现有报错，mcpo服务起不来。翻issue无果后，手痒了，提个pr吧。</p>
+                <p>mcpo项目是open-webui开源团队为标准化接入MCP工具而创建的mcp-server封装服务。记录一下给这个项目提交pr完成开源贡献的过程，也详细讲解这个pr中我的解bug思路。</p>
+<span id="more"></span>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>给open-webui配各种mcp工具时，用了<a target="_blank" rel="noopener" href="https://docs.openwebui.com/openapi-servers/mcp/">mcpo</a>来对各种mcp-server做openapi规范的封装（实际上我只是希望用它的鉴权封装，虽然只是个简单的静态Bearer Token）。添加图表绘制工具<a target="_blank" rel="noopener" href="https://github.com/antvis/mcp-server-chart">mcp-server-chart</a>时，发现有报错，mcpo服务起不来。翻issue无果后，手痒了，提个pr吧。</p>
 <h1 id="科普之协作开发"><a href="#科普之协作开发" class="headerlink" title="科普之协作开发"></a>科普之协作开发</h1><p>现代协作软件开发场景中，会有多个开发人员在同一个项目中分工迭代软件物料。虽然通常会按模块（横向分工隔离）或版本（纵向分工隔离）的维度做分工，尽量保证协作开发时大家更新的物料不发生重叠，但实际上很难避免冲突。</p>
 <p>协同场景物料版本管理在我可见范围内的主流方案是svn和git。值得注意的是，一些纯客户端项目，和大部分游戏项目，都倾向使用svn做开发版本管理，这凸显了2个版本管理工具的主要区别：</p>
 <ul>
@@ -474,7 +476,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>记一次开源项目贡献</div>
-      <div>https://blog.bipedalbit.net/2025/06/10/记一次开源项目贡献/</div>
+      <div>https://bipedalbit.net/2025/06/10/记一次开源项目贡献/</div>
     </div>
     <div class="license-meta">
       
@@ -517,6 +519,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2025/06/11/%E8%AE%B0%E4%B8%80%E6%AC%A1DNS%E6%B1%A1%E6%9F%93%E5%BA%94%E5%AF%B9/" title="记一次DNS污染应对">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">记一次DNS污染应对</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">

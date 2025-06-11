@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;nginx&#34; category</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2015-09-30T04:50:34.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2015/09/30/nginx%E4%B9%8B%E5%9B%9E%E5%A4%B4%E8%A1%A5%E8%AF%BE/</id>
+        <id>https://bipedalbit.net/2015/09/30/nginx%E4%B9%8B%E5%9B%9E%E5%A4%B4%E8%A1%A5%E8%AF%BE/</id>
         <title>nginx之回头补课</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/09/30/nginx%E4%B9%8B%E5%9B%9E%E5%A4%B4%E8%A1%A5%E8%AF%BE/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/09/30/nginx%E4%B9%8B%E5%9B%9E%E5%A4%B4%E8%A1%A5%E8%AF%BE/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 最近买了苗泽的那本《Nginx高性能Web服务器详解》，准备系统地学习下Nginx相关的知识。于是在二次科普的过程中发现之前对Nginx的一些理解和认识被刷新细化了。特此发文总结补课。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;h1 id=&#34;一-Web请求处理机制&#34;&gt;&lt;a href=&#34;#一-Web请求处理机制&#34; class=&#34;headerlink&#34; title=&#34;一. Web请求处理机制&#34;&gt;&lt;/a&gt;一. Web请求处理机制&lt;/h1&gt;&lt;h2 id=&#34;1-1-多进程方式&#34;&gt;&lt;a href=&#34;#1-1-多进程方式&#34; class=&#34;headerlink&#34; title=&#34;1.1 多进程方式&#34;&gt;&lt;/a&gt;1.1 多进程方式&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 传统的多进程方式是指：每接到一个客户端请求，就由服务器主进程生成一个子进程来负责与客户端建立连接并进行交互。连接断开子进程即销毁。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 优点：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ①设计实现比较简单，许多细节被OS管理；&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ②由于进程间独立，资源独立分配使用，运行时出错风险小，稳定性好；&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; ③OS的进程资源回收机制比较完备，垃圾不会积累。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 缺点：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 动态生成子进程涉及内存复制等操作，资源、时间开销比较大。发生大并发时对OS资源造成较大压力，将导致OS性能下降。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; Apache最初的设计架构就采用了多进程方式，但是为了适应大并发的要求，对多进程方式进行了改进。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 多进程方式的短板在于动态生成进程时的开销，于是Apache采用了“预生成进程”的工作方式。顾名思义，在还没有接到客户端请求的空闲时间，预先生成若干工作进程。当接到客户端请求，主进程分配子进程与客户端进行交互。连接断开后子进程保留，做开销很小的适当清理后被主进程管理起来等待下一个客户端请求。“预生成进程”在一定程度上缓解了大并发时Web服务器对OS资源造成的压力。&lt;/p&gt;
@@ -110,9 +112,9 @@
         <updated>2015-09-30T04:50:34.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/08/18/%E3%80%90%E4%BA%94%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-3-%E2%80%94%E2%80%94%E6%89%A9%E5%B1%95%E7%BA%A2%E9%BB%91%E6%A0%91/</id>
+        <id>https://bipedalbit.net/2015/08/18/%E3%80%90%E4%BA%94%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-3-%E2%80%94%E2%80%94%E6%89%A9%E5%B1%95%E7%BA%A2%E9%BB%91%E6%A0%91/</id>
         <title>【五】nginx的数据结构(3)——扩展红黑树</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/08/18/%E3%80%90%E4%BA%94%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-3-%E2%80%94%E2%80%94%E6%89%A9%E5%B1%95%E7%BA%A2%E9%BB%91%E6%A0%91/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/08/18/%E3%80%90%E4%BA%94%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-3-%E2%80%94%E2%80%94%E6%89%A9%E5%B1%95%E7%BA%A2%E9%BB%91%E6%A0%91/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 基础版的红黑树写完之后总觉得有些辅助功能不补充一下就难以体现红黑树在统计方面的优越性，于是我又写了红黑树扩展版。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 发扬我一贯的支线任务狂魔的作风，一晚上就完成了之前设想的红黑树扩展版本。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; rbtree.h：&lt;/p&gt;
@@ -809,9 +811,9 @@ Count of nodes in the tree is 1047552.
         <updated>2015-08-17T18:04:43.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/08/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/</id>
+        <id>https://bipedalbit.net/2015/08/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/</id>
         <title>【四】nginx的数据结构(2)——自己动手重写红黑树</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/08/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/08/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不管看了多少遍有多滚瓜烂熟，数据结构或者算法的代码如果不亲自码一遍，我总是不敢说自己懂了。这次就来自己动手重写红黑树。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 费话不多说，上重写代码，这次姑且用英语写的注释当复习英语了。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; rbtree.h：&lt;/p&gt;
@@ -1466,9 +1468,9 @@ Deleting 1024 nodes among 1048576 spends 0.000783 seconds.
         <updated>2015-08-16T14:06:30.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/</id>
+        <id>https://bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/</id>
         <title>【三】nginx的数据结构(1)——ngx_int_t与ngx_rbtree_t</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 就来挑两个特别的数据结构ngx_int_t、ngx_rbtree_t作为研读nginx源码的开始吧。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 面对&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;.&amp;#x2F;src&amp;#x2F;core&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;子目录中&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;71&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;个源文件，有点无从下手。浏览包含主函数的&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx.c&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;文件，发现&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;使用了很多自行封装的数据结构，不弄清楚这是些什么样的数据结构就很难理解主函数中操作的意义。于是我们挑看起来基础的数据结构开始研究。组织&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;所有数据结构的是&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_core.h&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;文件。它首先包含了&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_config.h&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;，我们在&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;ngx_config.h&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;中发现了三个类型定义。&lt;/span&gt;&lt;/p&gt;
@@ -1544,9 +1546,9 @@ Deleting 1024 nodes among 1048576 spends 0.000783 seconds.
         <updated>2015-08-05T23:18:00.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/07/23/%E3%80%90%E4%BA%8C%E3%80%91nginx%E6%BA%90%E7%A0%81%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E6%B5%8F%E8%A7%88/</id>
+        <id>https://bipedalbit.net/2015/07/23/%E3%80%90%E4%BA%8C%E3%80%91nginx%E6%BA%90%E7%A0%81%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E6%B5%8F%E8%A7%88/</id>
         <title>【二】nginx源码文件结构浏览</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/07/23/%E3%80%90%E4%BA%8C%E3%80%91nginx%E6%BA%90%E7%A0%81%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E6%B5%8F%E8%A7%88/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/07/23/%E3%80%90%E4%BA%8C%E3%80%91nginx%E6%BA%90%E7%A0%81%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E6%B5%8F%E8%A7%88/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 要读大项目的源码，最好还是先把项目文件组织结构弄清楚，这样后面找源码会比较方便，对整体项目的架构也能有一个具体一些的概念。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我下载的&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;源码版本不可考，按日期来看是&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;2015&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;年&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;7&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;月的最新版本。解压包获得源码文件夹，进入根目录发现有几个子目录：&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;auto&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;、&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;conf&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;、&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;contrib&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;、&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;docs&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;、&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;misc&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;、&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;src&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;。从字面上猜测，是自动机或脚本（&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;auto&amp;nbsp;script&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;）、配置文件（&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;configuration&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;）、支持文件（&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;contributions&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;）、文档（&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;document&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;）、杂项（&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;miscellaneous&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;）、源码（&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;source&amp;nbsp;code&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;）。&lt;/span&gt;&lt;/p&gt;
@@ -1565,9 +1567,9 @@ Deleting 1024 nodes among 1048576 spends 0.000783 seconds.
         <updated>2015-07-23T07:01:33.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/07/23/%E3%80%90%E4%B8%80%E3%80%91nginx%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E6%A6%82%E8%BF%B0/</id>
+        <id>https://bipedalbit.net/2015/07/23/%E3%80%90%E4%B8%80%E3%80%91nginx%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E6%A6%82%E8%BF%B0/</id>
         <title>【一】nginx核心架构概述</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/07/23/%E3%80%90%E4%B8%80%E3%80%91nginx%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E6%A6%82%E8%BF%B0/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/07/23/%E3%80%90%E4%B8%80%E3%80%91nginx%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E6%A6%82%E8%BF%B0/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 毕业前，毕设完成后，我闲极无聊接触了一下socket编程，用C++的Qt框架写了玩具一样的TCP和UDP通信客户端。跟直系学长电话聊天时被建议深挖一下socket，尝试走走后端或者架构师路线。问该怎么深挖，答研究源码，要学习socket相关知识，研究服务器源码是最合适不过的了。至于选择哪个服务器，经过考量调查，发现比起比较沉重庞大的apache，nginx更加小巧，也非常优秀。于是在开始正式吃源码之前，我先开始了一番自我科普工作。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;h3 id=&#34;1、进程模型&#34;&gt;&lt;a href=&#34;#1、进程模型&#34; class=&#34;headerlink&#34; title=&#34;1、进程模型&#34;&gt;&lt;/a&gt;1&lt;span style=&#34;font-family:宋体;&#34;&gt;、进程模型&lt;/span&gt;&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先，默认的，与其他服务器一样，&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;Unix&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;下的&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;也以&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;daemon&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;（守护进程）的形式持续在后台运行。虽然&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;也可以以调试为目的关掉后台模式，使用前台模式，甚至可以通过配置取消&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;master&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;进程（后面会详细解释），使&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;以单进程的形式工作。但是这些与&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;引以为傲的架构关系不大，这里按下不表。尽管&lt;/span&gt;&lt;span style=&#34;font-family:Times New Roman;&#34;&gt;nginx&lt;/span&gt;&lt;span style=&#34;font-family:宋体;&#34;&gt;也支持多线程方式，我们还是着重来了解下其默认的多进程方式。&lt;/span&gt;&lt;/p&gt;

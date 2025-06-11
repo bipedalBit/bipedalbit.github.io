@@ -2,7 +2,7 @@
 <rss version="2.0">
     <channel>
         <title>Hacking to the gate! • Posts by &#34;c&#34; tag</title>
-        <link>https://blog.bipedalbit.net</link>
+        <link>https://bipedalbit.net</link>
         <description>Bipedal Bit&#39;s blog</description>
         <language>zh-CN</language>
         <pubDate>Tue, 18 Aug 2015 02:04:43 +0800</pubDate>
@@ -79,10 +79,12 @@
         <category>waline</category>
         <category>mcpo</category>
         <category>svn</category>
+        <category>DNS劫持</category>
+        <category>DNS污染</category>
         <item>
-            <guid isPermalink="true">https://blog.bipedalbit.net/2015/08/18/%E3%80%90%E4%BA%94%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-3-%E2%80%94%E2%80%94%E6%89%A9%E5%B1%95%E7%BA%A2%E9%BB%91%E6%A0%91/</guid>
+            <guid isPermalink="true">https://bipedalbit.net/2015/08/18/%E3%80%90%E4%BA%94%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-3-%E2%80%94%E2%80%94%E6%89%A9%E5%B1%95%E7%BA%A2%E9%BB%91%E6%A0%91/</guid>
             <title>【五】nginx的数据结构(3)——扩展红黑树</title>
-            <link>https://blog.bipedalbit.net/2015/08/18/%E3%80%90%E4%BA%94%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-3-%E2%80%94%E2%80%94%E6%89%A9%E5%B1%95%E7%BA%A2%E9%BB%91%E6%A0%91/</link>
+            <link>https://bipedalbit.net/2015/08/18/%E3%80%90%E4%BA%94%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-3-%E2%80%94%E2%80%94%E6%89%A9%E5%B1%95%E7%BA%A2%E9%BB%91%E6%A0%91/</link>
             <category>nginx</category>
             <category>rbtree</category>
             <category>C</category>
@@ -779,9 +781,9 @@ Count of nodes in the tree is 1047552.
  ]]></description>
         </item>
         <item>
-            <guid isPermalink="true">https://blog.bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/</guid>
+            <guid isPermalink="true">https://bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/</guid>
             <title>Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置</title>
-            <link>https://blog.bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/</link>
+            <link>https://bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/</link>
             <category>C</category>
             <category>sublime</category>
             <category>C++</category>
@@ -1099,9 +1101,9 @@ show:
  ]]></description>
         </item>
         <item>
-            <guid isPermalink="true">https://blog.bipedalbit.net/2015/08/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/</guid>
+            <guid isPermalink="true">https://bipedalbit.net/2015/08/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/</guid>
             <title>【四】nginx的数据结构(2)——自己动手重写红黑树</title>
-            <link>https://blog.bipedalbit.net/2015/08/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/</link>
+            <link>https://bipedalbit.net/2015/08/16/%E3%80%90%E5%9B%9B%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-2-%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E9%87%8D%E5%86%99%E7%BA%A2%E9%BB%91%E6%A0%91/</link>
             <category>nginx</category>
             <category>rbtree</category>
             <category>C</category>
@@ -1756,9 +1758,9 @@ Deleting 1024 nodes among 1048576 spends 0.000783 seconds.
  ]]></description>
         </item>
         <item>
-            <guid isPermalink="true">https://blog.bipedalbit.net/2015/08/11/C%E8%AF%AD%E8%A8%80%E7%9A%84static%E5%85%B3%E9%94%AE%E5%AD%97/</guid>
+            <guid isPermalink="true">https://bipedalbit.net/2015/08/11/C%E8%AF%AD%E8%A8%80%E7%9A%84static%E5%85%B3%E9%94%AE%E5%AD%97/</guid>
             <title>C语言的static关键字</title>
-            <link>https://blog.bipedalbit.net/2015/08/11/C%E8%AF%AD%E8%A8%80%E7%9A%84static%E5%85%B3%E9%94%AE%E5%AD%97/</link>
+            <link>https://bipedalbit.net/2015/08/11/C%E8%AF%AD%E8%A8%80%E7%9A%84static%E5%85%B3%E9%94%AE%E5%AD%97/</link>
             <category>C</category>
             <category>static</category>
             <category>内存分布</category>
@@ -1781,9 +1783,9 @@ Deleting 1024 nodes among 1048576 spends 0.000783 seconds.
  ]]></description>
         </item>
         <item>
-            <guid isPermalink="true">https://blog.bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/</guid>
+            <guid isPermalink="true">https://bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/</guid>
             <title>【三】nginx的数据结构(1)——ngx_int_t与ngx_rbtree_t</title>
-            <link>https://blog.bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/</link>
+            <link>https://bipedalbit.net/2015/08/06/%E3%80%90%E4%B8%89%E3%80%91nginx%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1-%E2%80%94%E2%80%94ngx-int-t%E4%B8%8Engx-rbtree-t/</link>
             <category>nginx</category>
             <category>ngx_int_t</category>
             <category>rbtree</category>

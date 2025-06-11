@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;qt&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2015-11-15T13:54:03.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/</id>
+        <id>https://bipedalbit.net/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/</id>
         <title>中国象棋人机博弈实现练习</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集大成者。但是等把MTD(f)实现完，发现里面一层就是个AlphaBeta，于是AlphaBeta的搜索核心作为副产品也存在于实现成果中了。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我并不打算在这里贴包括Qt5的GUI实现代码在内的所有大概3500行代码（当然其中至少700行可能是注释），主要讲解一下我的实现思路，偶尔贴一些关键代码。完整项目源码我在GitHub建了仓库，这篇文最后会贴地址，读者也可以自己去我Git找找看，毕竟我一共也没建过几个仓库。下面开始正题。&lt;/p&gt;
@@ -462,9 +464,9 @@ private:
         <updated>2015-11-15T13:54:03.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/06/09/Qt%E5%87%BA%E7%8E%B0%E9%94%99%E8%AF%AFundefined-reference-to-vtable-for-XXXXX-XXX/</id>
+        <id>https://bipedalbit.net/2015/06/09/Qt%E5%87%BA%E7%8E%B0%E9%94%99%E8%AF%AFundefined-reference-to-vtable-for-XXXXX-XXX/</id>
         <title>Qt出现错误undefined reference to &#39;vtable for XXXXX.XXX&#39;</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/06/09/Qt%E5%87%BA%E7%8E%B0%E9%94%99%E8%AF%AFundefined-reference-to-vtable-for-XXXXX-XXX/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/06/09/Qt%E5%87%BA%E7%8E%B0%E9%94%99%E8%AF%AFundefined-reference-to-vtable-for-XXXXX-XXX/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 如果新建一个类，继承了某个类，在这个类的头文件中式没有 Q_OBJECT宏声明的，如果想使用signal-slot信号，就需要添加Q_OBJECT宏，但是添加了这个宏后，就可能会出现这种错误，“undefined reference to vtable for XXXXX”的编译错误。&lt;/p&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 这是因为在Makefile里面没有这个类并没有Q_OBJECT信息，所以在执行Makefile时候也就没有moc xxx.h这条命令，最终导致连接失败。&lt;/p&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 知道了这个原因后，解决方法就很简单了，重新运行qmake，生成Makefile，然后再编译就OK了。&lt;/p&gt;

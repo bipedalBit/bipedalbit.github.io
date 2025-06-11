@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.bipedalbit.net</id>
+    <id>https://bipedalbit.net</id>
     <title>Hacking to the gate! • Posts by &#34;c++&#34; tag</title>
-    <link href="https://blog.bipedalbit.net" />
+    <link href="https://bipedalbit.net" />
     <updated>2015-12-01T02:53:29.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
@@ -76,10 +76,12 @@
     <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <entry>
-        <id>https://blog.bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</id>
+        <id>https://bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</id>
         <title>C++的位优化</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前的中国象棋初版重在实现，老实说不论是时空效率还是健壮性都不太拿得出手，于是导师要求继续优化改进。考虑和调查过后，时间效率上可以借助之前设想的并行计算得到小幅优化，此外使用类似bool数组的手段也可以在走法生成器中小幅优化边界判断过程，最重要的时间效率优化手段是把博弈机改造成查表器，即以查表为主博弈为辅改变重心。以上都是时间效率优化，这篇文中暂且不展开，我的中国象棋初版在搜索深度大时（大于等于４层）开始出现程序崩溃的现象，暴露了空间效率问题。作为空间效率优化的铺垫，这次我来做个C++位优化的自科普。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 关于空间效率优化，从前顶多考虑到基本变量类型选择的程度，然而C++提供了一些更精细的特性，供程序员进行位级别的内存微操——位域、bitset、vector&amp;lt;bool&amp;gt;。&lt;/p&gt;
@@ -117,9 +119,9 @@
         <updated>2015-12-01T02:53:29.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/</id>
+        <id>https://bipedalbit.net/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/</id>
         <title>中国象棋人机博弈实现练习</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 上一篇简略做了棋牌游戏人机博弈的概念铺垫，这一篇文就来贴一下我的初版实现。精力受限，没有像许多前辈那样把Maxmin系的搜索算法（Maxmin、AlphaBeta、Fail-Soft-AlphaBeta、Aspiration、PVS、MTD(f)）全部实现一遍。刚开始我甚至只打算实现一个MTD(f)的搜索核心，因为毕竟最晚出现的算法通常一定程度上是以往算法的集大成者。但是等把MTD(f)实现完，发现里面一层就是个AlphaBeta，于是AlphaBeta的搜索核心作为副产品也存在于实现成果中了。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我并不打算在这里贴包括Qt5的GUI实现代码在内的所有大概3500行代码（当然其中至少700行可能是注释），主要讲解一下我的实现思路，偶尔贴一些关键代码。完整项目源码我在GitHub建了仓库，这篇文最后会贴地址，读者也可以自己去我Git找找看，毕竟我一共也没建过几个仓库。下面开始正题。&lt;/p&gt;
@@ -502,9 +504,9 @@ private:
         <updated>2015-11-15T13:54:03.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/10/17/C-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%88%9D%E6%8E%A2%E2%80%94%E2%80%94c-11%E7%AF%87/</id>
+        <id>https://bipedalbit.net/2015/10/17/C-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%88%9D%E6%8E%A2%E2%80%94%E2%80%94c-11%E7%AF%87/</id>
         <title>C++多线程初探——c++11篇</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/10/17/C-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%88%9D%E6%8E%A2%E2%80%94%E2%80%94c-11%E7%AF%87/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/10/17/C-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%88%9D%E6%8E%A2%E2%80%94%E2%80%94c-11%E7%AF%87/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 今天被说C++出身的猿不会多线程跟不会C++有什么分别，于是放下刚到手的Go和R的书，痛定思痛准备来给自己补补课。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; C++新标准c++11出现之前（虽然“新”标准已经发布好几年了），大家用C++写多线程通常有两种方式：Unix&amp;#x2F;Linux下通常使用POSIX标准的pthread.h库，pthread并不是语言本身提供的内置库，gcc编译带pthread的程序时需要加上&lt;code&gt;-lpthread&lt;/code&gt;标识参数；Windows下，win系列系统提供了一些线程API，但是由于gcc&amp;#x2F;g++等编译器的跨平台性，其实也可以在win下使用pthread。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 然而2011年夏天，c++11标准发布了，新C++有了许多方便的新特性，其中就包括内置的，对多线程的支持。gcc 4.6及以前的版本编译c++11标准的多线程程序时还要加&lt;code&gt;-pthread&lt;/code&gt;标识参数（注意与pthread库的&lt;code&gt;-lpthread&lt;/code&gt;参数的区别）。后来也默认的支持新C++的内置多线程了，实测gcc 4.8.4除了&lt;code&gt;-std=c++11&lt;/code&gt;不加别的参数，能够顺利编译运行c++11的多线程程序。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 铺垫了这么多，下面就先来试试c++11的多线程吧。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; helloWorld.cpp：&lt;/p&gt;
@@ -571,9 +573,9 @@ int main(int argc, char const *argv[])
         <updated>2015-10-17T06:58:22.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/10/11/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84C-%E5%AE%9E%E7%8E%B0/</id>
+        <id>https://bipedalbit.net/2015/10/11/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84C-%E5%AE%9E%E7%8E%B0/</id>
         <title>BP神经网络的C++实现</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/10/11/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84C-%E5%AE%9E%E7%8E%B0/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/10/11/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84C-%E5%AE%9E%E7%8E%B0/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 之前说了组里的任务是手写BP神经网络，上一篇文总结了一下BP神经网络的概念，老实说，总结概念前的一个C++实现版本在总结概念之后重新审视时觉得实在是惨不忍睹，于是今晚回炉重写了。这篇文就来挂我的BP神经网络C++实现。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 
@@ -1242,9 +1244,9 @@ int main()
         <updated>2015-10-10T16:28:00.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/10/08/C-%E4%BA%8C%E8%BF%9B%E5%88%B6-%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2%E5%99%A8/</id>
+        <id>https://bipedalbit.net/2015/10/08/C-%E4%BA%8C%E8%BF%9B%E5%88%B6-%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2%E5%99%A8/</id>
         <title>C++二进制-十进制转换器</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/10/08/C-%E4%BA%8C%E8%BF%9B%E5%88%B6-%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2%E5%99%A8/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/10/08/C-%E4%BA%8C%E8%BF%9B%E5%88%B6-%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2%E5%99%A8/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 布置了二进制-十进制转换器的小作业，本来还要求顺手扩展一下大数的四则运算，我嫌麻烦没做扩展，就只是写来玩玩。也算熟悉一下底层的二进制-十进制转换机制，顺便复习下C++源码规范。注释写了很多，就不多做解释了，只贴代码。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; converter.h:&lt;/p&gt;
@@ -1773,9 +1775,9 @@ int main()
         <updated>2015-10-08T14:05:52.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/10/08/C-cin%E3%80%81cout%E7%9A%84%E4%BC%98%E5%8C%96%E5%8F%8A%E6%B5%8B%E8%AF%84/</id>
+        <id>https://bipedalbit.net/2015/10/08/C-cin%E3%80%81cout%E7%9A%84%E4%BC%98%E5%8C%96%E5%8F%8A%E6%B5%8B%E8%AF%84/</id>
         <title>C++ cin、cout的优化及测评</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/10/08/C-cin%E3%80%81cout%E7%9A%84%E4%BC%98%E5%8C%96%E5%8F%8A%E6%B5%8B%E8%AF%84/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/10/08/C-cin%E3%80%81cout%E7%9A%84%E4%BC%98%E5%8C%96%E5%8F%8A%E6%B5%8B%E8%AF%84/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 参加过ACM比赛和部分自己做过测评的人想必不难发现，C++的cin和cout虽然比起C的scanf和printf来方便很多，但是速度似乎会打很大折扣。于是不求甚解的人们一拍脑门，认定因为C更“底层”，封装程度更低，所以势必比C++的输入输出执行效率更高。然而如若C++有知，恐怕要苦笑了。因为C++正是为了兼容C的输入输出才要在cin、cout中进行指针同步，降低了执行效率。那么可能挽回这种效率损失吗？答案是可以。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; C++中提供了解除指针同步的方法：&lt;code&gt;ios::sync_with_stdio(false)&lt;/code&gt;。如字面意思，这个方法用来设置输入输出流是否与C的stdio同步。那么解除同步之后能有多大效果呢？毕竟C++确实因为封装程度比C高多多少少损失了一些执行效率。我动手进行了一系列测评，下面是源码。&lt;/p&gt;
@@ -2038,9 +2040,9 @@ int main()
         <updated>2015-10-08T11:56:46.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/</id>
+        <id>https://bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/</id>
         <title>Linux下Sublime的C/C++多文件程序Makefile+清理+执行配置</title>
-        <link rel="alternate" href="https://blog.bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/"/>
+        <link rel="alternate" href="https://bipedalbit.net/2015/08/16/Linux%E4%B8%8BSublime%E7%9A%84C-C-%E5%A4%9A%E6%96%87%E4%BB%B6%E7%A8%8B%E5%BA%8FMakefile-%E6%B8%85%E7%90%86-%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE/"/>
         <content type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不自己动手为Sublime配个C&amp;#x2F;C++的通用Makefile脚本吗？不能自动编译链接多文件的编辑器不是好IDE。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 首先我们需要了解几个事实：&lt;/p&gt;
