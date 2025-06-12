@@ -724,5 +724,14 @@
   <noscript>
     <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
   </noscript>
-</body>
+<!-- hexo injector body_end start --><script data-pjax src="https://registry.npmmirror.com/oh-my-live2d/latest/files"></script><script>const oml2d = OML2D.loadOml2d({libraryUrls:{"complete":"https://registry.npmmirror.com/oh-my-live2d/latest/files/lib/complete.js","cubism2":"https://registry.npmmirror.com/oh-my-live2d/latest/files/lib/cubism2.js","cubism5":"https://registry.npmmirror.com/oh-my-live2d/latest/files/lib/cubism5.js"},mobileDisplay:true,models:[{"path":"https://cdn.minio.bipedalbit.net/bipedalbit-net-images/live2d-model/HK416-2-destroy/model.json","mobilePosition":[0,-45],"mobileScale":0.06,"mobileStageStyle":{"width":200,"height":240},"motionPreloadStrategy":"IDLE","position":[0,-60],"scale":0.08,"stageStyle":{"width":250,"height":300}}],parentElement:document.body,primaryColor:"var(--btn-bg)",sayHello:false,tips:{style: {"width":200,"height":80,"left":"calc(50% - 10px)","top":"-100px"},mobileStyle: {"width":180,"height":60,"left":"calc(50% - 5px)","top":"-100px"},idleTips:{interval:30000,message:function(){
+  return axios.get('https://v1.hitokoto.cn?c=i')
+    .then(function (response) {
+      return response.data.hitokoto ;
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
+}
+,wordTheDay:true}}});</script><!-- hexo injector body_end end --></body>
 </html>
