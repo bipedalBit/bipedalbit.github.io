@@ -81,6 +81,13 @@
         <category>svn</category>
         <category>DNS劫持</category>
         <category>DNS污染</category>
+        <category>域名</category>
+        <category>VPS</category>
+        <category>邮件服务器</category>
+        <category>评论插件</category>
+        <category>对象存储</category>
+        <category>comfyui</category>
+        <category>openrouter</category>
         <item>
             <guid isPermalink="true">https://bipedalbit.net/2016/04/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/</guid>
             <title>hexo博客搭建</title>

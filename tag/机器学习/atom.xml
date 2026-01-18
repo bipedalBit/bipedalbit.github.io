@@ -78,6 +78,13 @@
     <category term="svn" />
     <category term="DNS劫持" />
     <category term="DNS污染" />
+    <category term="域名" />
+    <category term="VPS" />
+    <category term="邮件服务器" />
+    <category term="评论插件" />
+    <category term="对象存储" />
+    <category term="comfyui" />
+    <category term="openrouter" />
     <entry>
         <id>https://bipedalbit.net/2015/12/05/%E7%94%B1%E4%BA%BA%E5%B7%A5%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%92%8C%E7%B1%BB%E8%84%91%E7%8E%B0%E7%8A%B6%E5%B1%95%E5%BC%80/</id>
         <title>由人工神经网络和类脑现状展开</title>
