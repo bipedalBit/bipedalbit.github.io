@@ -114,7 +114,7 @@
 &lt;li&gt;&lt;strong&gt;.XX.KG&lt;/strong&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 实测可用，要是哪天我的主域名懒得续费或者受到什么限制，说不定就切到我的免费备用域名上了。目前暂时只用免费域名配合赛博活菩萨Cloudfare搭建海外免费CDN。&lt;/p&gt;
-&lt;h1 id=&#34;2-VPS（不推荐免费，留着只为提示闭坑）&#34;&gt;&lt;a href=&#34;#2-VPS（不推荐免费，留着只为提示闭坑）&#34; class=&#34;headerlink&#34; title=&#34;2 VPS（不推荐免费，留着只为提示闭坑）&#34;&gt;&lt;/a&gt;2 VPS（不推荐免费，留着只为提示闭坑）&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 永久免费VPS实例据我所知只有&lt;a href=&#34;https://www.oracle.com/cn/cloud/free/&#34;&gt;Oracle Cloud&lt;/a&gt;一家提供，&lt;strong&gt;但是別试，別试！&lt;/strong&gt;。注册卡人，出了名的折磨人。注册成功了也还有资源卡人，开出免费实例的很少。&lt;/p&gt;
+&lt;h1 id=&#34;2-VPS（不推荐免费，留着只为提示避坑）&#34;&gt;&lt;a href=&#34;#2-VPS（不推荐免费，留着只为提示避坑）&#34; class=&#34;headerlink&#34; title=&#34;2 VPS（不推荐免费，留着只为提示避坑）&#34;&gt;&lt;/a&gt;2 VPS（不推荐免费，留着只为提示避坑）&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 永久免费VPS实例据我所知只有&lt;a href=&#34;https://www.oracle.com/cn/cloud/free/&#34;&gt;Oracle Cloud&lt;/a&gt;一家提供，&lt;b style=&#34;color: red;&#34;&gt;但是別试，別试！&lt;/b&gt;。注册卡人，出了名的折磨人。注册成功了也还有资源卡人，开出免费实例的很少。&lt;/p&gt;
 &lt;h1 id=&#34;3-DNS&#34;&gt;&lt;a href=&#34;#3-DNS&#34; class=&#34;headerlink&#34; title=&#34;3 DNS&#34;&gt;&lt;/a&gt;3 DNS&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 有了域名，也有了VPS（或者SaaS），还需要一个DNS把两者联系起来，免费DNS不少，国内我用&lt;a href=&#34;https://www.dnspod.cn/&#34;&gt;DNSPod&lt;/a&gt;（已被腾讯云收购，算国内大厂维护了），国外我用赛博活菩萨&lt;a href=&#34;https://www.cloudflare-cn.com/application-services/products/dns/&#34;&gt;Cloudfare&lt;/a&gt;。为什么不统一用Cloudfare？DNSPod能加分区解析策略，例如国内外分流的CDN策略（别急，到CDN了细说）。&lt;/p&gt;
 &lt;h1 id=&#34;4-邮件服务器&#34;&gt;&lt;a href=&#34;#4-邮件服务器&#34; class=&#34;headerlink&#34; title=&#34;4 邮件服务器&#34;&gt;&lt;/a&gt;4 邮件服务器&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 怎么为自己的域名配置邮件服务器？以前QQ邮箱能免费开自定义域名邮箱，现在变会员功能了。当然可以在VPS上自建邮件服务器，但有更方便的白嫖方案——&lt;a href=&#34;https://resend.com/domains&#34;&gt;Resend&lt;/a&gt;。免费档位套餐限制3000邮件&amp;#x2F;月，100邮件&amp;#x2F;日，超过这个量还不盈利，难道在做公益？&lt;/p&gt;
 &lt;h1 id=&#34;5-评论插件&#34;&gt;&lt;a href=&#34;#5-评论插件&#34; class=&#34;headerlink&#34; title=&#34;5 评论插件&#34;&gt;&lt;/a&gt;5 评论插件&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 早些年有个多说插件，黄了，现在有一些收费方案和与特定账号体系高度绑定的半吊子开源方案，我选择在VPS上独立部署&lt;a href=&#34;https://waline.js.org/guide/deploy/&#34;&gt;Waline&lt;/a&gt;，很轻，对VPS负担很小的。&lt;/p&gt;
@@ -154,6 +154,16 @@
 &lt;li&gt;工作流来源：github（例如&lt;a href=&#34;https://github.com/comfyanonymous/ComfyUI_examples&#34;&gt;ComfyUI_examples&lt;/a&gt;）、&lt;a href=&#34;https://openart.ai/workflows/home&#34;&gt;openart&lt;/a&gt;、&lt;a href=&#34;https://comfyworkflows.com/&#34;&gt;comfyuiworkflows&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&#34;8-3-openrouter&#34;&gt;&lt;a href=&#34;#8-3-openrouter&#34; class=&#34;headerlink&#34; title=&#34;8.3 openrouter&#34;&gt;&lt;/a&gt;8.3 openrouter&lt;/h2&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 应该是全球最流行的大模型token池吧，各大厂定期会放一些新模型的免费token出来，这时&lt;a href=&#34;https://openrouter.ai/&#34;&gt;openrouter&lt;/a&gt;上通常就能找到对应的免费模型。申请个apikey就能调用openrouter接口，很方便，我vibe coding的主力模型通常都是通过&lt;a href=&#34;https://openrouter.ai/&#34;&gt;openrouter&lt;/a&gt;调用，&lt;a href=&#34;https://bailian.console.aliyun.com/cn-beijing/?tab=model#/model-market/all&#34;&gt;阿里的百炼&lt;/a&gt;作为补充，&lt;a href=&#34;https://github.com/ollama/ollama&#34;&gt;ollama&lt;/a&gt;部署模型兜底。&lt;/p&gt;
+&lt;h1 id=&#34;9-笔记&#34;&gt;&lt;a href=&#34;#9-笔记&#34; class=&#34;headerlink&#34; title=&#34;9 笔记&#34;&gt;&lt;/a&gt;9 笔记&lt;/h1&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 市面上个人笔记王者是&lt;a href=&#34;https://obsidian.md/&#34;&gt;obsidian&lt;/a&gt;，协作笔记王者是&lt;a href=&#34;https://www.notion.so/&#34;&gt;notion&lt;/a&gt;。开源方案中&lt;a href=&#34;https://affine.pro/zhHans&#34;&gt;AFFiNE&lt;/a&gt;对标&lt;a href=&#34;https://www.notion.so/&#34;&gt;notion&lt;/a&gt;，就算不是王者也是第一梯队了，个人感觉能同时解决个人笔记和小团队协作文档的需求。核心feature贴一下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;rust实现后端&lt;/li&gt;
+&lt;li&gt;存储可端可云&lt;/li&gt;
+&lt;li&gt;各端客户端都有&lt;/li&gt;
+&lt;li&gt;支持Markdown编辑、导出&lt;/li&gt;
+&lt;li&gt;支持画布&lt;/li&gt;
+&lt;li&gt;支持接AI做续写、总结、问答等等&lt;/li&gt;
+&lt;li&gt;支持协作&lt;/li&gt;
+&lt;/ul&gt;
  ]]></description>
         </item>
         <item>

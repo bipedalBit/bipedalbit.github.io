@@ -29,7 +29,7 @@
 <meta property="og:description" content="个人建站、应用初创、商业化demo验证，都依赖一些赛博基建设施，盘点记录一下我积攒的免费赛博基建好物。注意我记录的免费方案不是临时白嫖那种，是能长期稳定使用的。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-01-18T11:51:52.000Z">
-<meta property="article:modified_time" content="2026-01-18T11:59:20.270Z">
+<meta property="article:modified_time" content="2026-01-21T14:48:14.711Z">
 <meta property="article:author" content="Bipedal Bit">
 <meta property="article:tag" content="DNS">
 <meta property="article:tag" content="CDN">
@@ -245,7 +245,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.3k 字
+          1.5k 字
         
       </span>
     
@@ -256,7 +256,7 @@
         
         
         
-          12 分钟
+          13 分钟
         
       </span>
     
@@ -310,7 +310,7 @@
 <li><strong>.XX.KG</strong></li>
 </ul>
 <p>&nbsp;&nbsp;&nbsp; 实测可用，要是哪天我的主域名懒得续费或者受到什么限制，说不定就切到我的免费备用域名上了。目前暂时只用免费域名配合赛博活菩萨Cloudfare搭建海外免费CDN。</p>
-<h1 id="2-VPS（不推荐免费，留着只为提示闭坑）"><a href="#2-VPS（不推荐免费，留着只为提示闭坑）" class="headerlink" title="2 VPS（不推荐免费，留着只为提示闭坑）"></a>2 VPS（不推荐免费，留着只为提示闭坑）</h1><p>&nbsp;&nbsp;&nbsp; 永久免费VPS实例据我所知只有<a target="_blank" rel="noopener" href="https://www.oracle.com/cn/cloud/free/">Oracle Cloud</a>一家提供，<strong>但是別试，別试！</strong>。注册卡人，出了名的折磨人。注册成功了也还有资源卡人，开出免费实例的很少。</p>
+<h1 id="2-VPS（不推荐免费，留着只为提示避坑）"><a href="#2-VPS（不推荐免费，留着只为提示避坑）" class="headerlink" title="2 VPS（不推荐免费，留着只为提示避坑）"></a>2 VPS（不推荐免费，留着只为提示避坑）</h1><p>&nbsp;&nbsp;&nbsp; 永久免费VPS实例据我所知只有<a target="_blank" rel="noopener" href="https://www.oracle.com/cn/cloud/free/">Oracle Cloud</a>一家提供，<b style="color: red;">但是別试，別试！</b>。注册卡人，出了名的折磨人。注册成功了也还有资源卡人，开出免费实例的很少。</p>
 <h1 id="3-DNS"><a href="#3-DNS" class="headerlink" title="3 DNS"></a>3 DNS</h1><p>&nbsp;&nbsp;&nbsp; 有了域名，也有了VPS（或者SaaS），还需要一个DNS把两者联系起来，免费DNS不少，国内我用<a target="_blank" rel="noopener" href="https://www.dnspod.cn/">DNSPod</a>（已被腾讯云收购，算国内大厂维护了），国外我用赛博活菩萨<a target="_blank" rel="noopener" href="https://www.cloudflare-cn.com/application-services/products/dns/">Cloudfare</a>。为什么不统一用Cloudfare？DNSPod能加分区解析策略，例如国内外分流的CDN策略（别急，到CDN了细说）。</p>
 <h1 id="4-邮件服务器"><a href="#4-邮件服务器" class="headerlink" title="4 邮件服务器"></a>4 邮件服务器</h1><p>&nbsp;&nbsp;&nbsp; 怎么为自己的域名配置邮件服务器？以前QQ邮箱能免费开自定义域名邮箱，现在变会员功能了。当然可以在VPS上自建邮件服务器，但有更方便的白嫖方案——<a target="_blank" rel="noopener" href="https://resend.com/domains">Resend</a>。免费档位套餐限制3000邮件&#x2F;月，100邮件&#x2F;日，超过这个量还不盈利，难道在做公益？</p>
 <h1 id="5-评论插件"><a href="#5-评论插件" class="headerlink" title="5 评论插件"></a>5 评论插件</h1><p>&nbsp;&nbsp;&nbsp; 早些年有个多说插件，黄了，现在有一些收费方案和与特定账号体系高度绑定的半吊子开源方案，我选择在VPS上独立部署<a target="_blank" rel="noopener" href="https://waline.js.org/guide/deploy/">Waline</a>，很轻，对VPS负担很小的。</p>
@@ -350,6 +350,16 @@
 <li>工作流来源：github（例如<a target="_blank" rel="noopener" href="https://github.com/comfyanonymous/ComfyUI_examples">ComfyUI_examples</a>）、<a target="_blank" rel="noopener" href="https://openart.ai/workflows/home">openart</a>、<a target="_blank" rel="noopener" href="https://comfyworkflows.com/">comfyuiworkflows</a></li>
 </ul>
 <h2 id="8-3-openrouter"><a href="#8-3-openrouter" class="headerlink" title="8.3 openrouter"></a>8.3 openrouter</h2><p>&nbsp;&nbsp;&nbsp; 应该是全球最流行的大模型token池吧，各大厂定期会放一些新模型的免费token出来，这时<a target="_blank" rel="noopener" href="https://openrouter.ai/">openrouter</a>上通常就能找到对应的免费模型。申请个apikey就能调用openrouter接口，很方便，我vibe coding的主力模型通常都是通过<a target="_blank" rel="noopener" href="https://openrouter.ai/">openrouter</a>调用，<a target="_blank" rel="noopener" href="https://bailian.console.aliyun.com/cn-beijing/?tab=model#/model-market/all">阿里的百炼</a>作为补充，<a target="_blank" rel="noopener" href="https://github.com/ollama/ollama">ollama</a>部署模型兜底。</p>
+<h1 id="9-笔记"><a href="#9-笔记" class="headerlink" title="9 笔记"></a>9 笔记</h1><p>&nbsp;&nbsp;&nbsp; 市面上个人笔记王者是<a target="_blank" rel="noopener" href="https://obsidian.md/">obsidian</a>，协作笔记王者是<a target="_blank" rel="noopener" href="https://www.notion.so/">notion</a>。开源方案中<a target="_blank" rel="noopener" href="https://affine.pro/zhHans">AFFiNE</a>对标<a target="_blank" rel="noopener" href="https://www.notion.so/">notion</a>，就算不是王者也是第一梯队了，个人感觉能同时解决个人笔记和小团队协作文档的需求。核心feature贴一下：</p>
+<ul>
+<li>rust实现后端</li>
+<li>存储可端可云</li>
+<li>各端客户端都有</li>
+<li>支持Markdown编辑、导出</li>
+<li>支持画布</li>
+<li>支持接AI做续写、总结、问答等等</li>
+<li>支持协作</li>
+</ul>
 
                 
               </div>
