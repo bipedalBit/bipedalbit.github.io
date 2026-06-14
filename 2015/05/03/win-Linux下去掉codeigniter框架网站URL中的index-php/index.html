@@ -29,7 +29,7 @@
 <meta property="og:description" content="&nbsp;&nbsp;&nbsp; 使用PHP的codeigniter框架后在试验阶段遇到的第一个问题就是，无法隐藏地址栏中的index.php，这让我浑身难受。多方调查之后有了一套解决方案。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2015-05-03T04:31:20.000Z">
-<meta property="article:modified_time" content="2025-05-21T15:42:53.541Z">
+<meta property="article:modified_time" content="2025-05-25T08:28:16.524Z">
 <meta property="article:author" content="Bipedal Bit">
 <meta property="article:tag" content="nginx">
 <meta property="article:tag" content="codeigniter">
@@ -552,6 +552,28 @@ RewriteRule ^(.*)$ index.php/$1 [L]
 
   
 
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/11.12.1/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      if ('mermaid' in window) {
+        mermaid.run({
+          querySelector: '.mermaid'
+        });
+      }
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.run({
+            querySelector: '.mermaid'
+          });
+        }
+      });
+    });
+  });
+</script>
 
 
 

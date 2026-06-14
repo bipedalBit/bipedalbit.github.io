@@ -466,6 +466,12 @@
                   <article class="post-prev col-6">
                     
                     
+                      <a href="/2026/06/14/%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%9E%8B%E9%80%89%E5%9E%8B%E4%B8%8E%E9%83%A8%E7%BD%B2%E6%96%B9%E6%A1%88/" title="16GB显存下的本地模型选型与部署方案">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">16GB显存下的本地模型选型与部署方案</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
                   </article>
                   <article class="post-next col-6">
                     
@@ -561,6 +567,28 @@
 
   
 
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/11.12.1/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      if ('mermaid' in window) {
+        mermaid.run({
+          querySelector: '.mermaid'
+        });
+      }
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.run({
+            querySelector: '.mermaid'
+          });
+        }
+      });
+    });
+  });
+</script>
 
 
 

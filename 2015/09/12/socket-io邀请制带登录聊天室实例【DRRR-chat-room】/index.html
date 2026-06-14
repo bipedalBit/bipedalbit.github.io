@@ -29,7 +29,7 @@
 <meta property="og:description" content="&nbsp;&nbsp;&nbsp; 写个博文其实也没什么特别要说的。研究node.js的过程中扩展了socket.io的聊天室demo，仿制了一个动漫DRRR（无头骑士异闻录）中的聊天室。使用邀请制，即注册需要提供邀请码。头一次在GitHub建项目：DRRR-chat-room。下个项目可能是用socket.io做一个真·实时弹幕站，尽请期待。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2015-09-12T14:44:25.000Z">
-<meta property="article:modified_time" content="2025-05-21T15:42:53.520Z">
+<meta property="article:modified_time" content="2025-05-25T08:28:16.505Z">
 <meta property="article:author" content="Bipedal Bit">
 <meta property="article:tag" content="node.js">
 <meta property="article:tag" content="github">
@@ -488,6 +488,28 @@
 
   
 
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/11.12.1/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      if ('mermaid' in window) {
+        mermaid.run({
+          querySelector: '.mermaid'
+        });
+      }
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.run({
+            querySelector: '.mermaid'
+          });
+        }
+      });
+    });
+  });
+</script>
 
 
 

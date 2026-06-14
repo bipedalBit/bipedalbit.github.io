@@ -623,6 +623,28 @@
 
 
 
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/11.12.1/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      if ('mermaid' in window) {
+        mermaid.run({
+          querySelector: '.mermaid'
+        });
+      }
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.run({
+            querySelector: '.mermaid'
+          });
+        }
+      });
+    });
+  });
+</script>
+
+
 
 
 

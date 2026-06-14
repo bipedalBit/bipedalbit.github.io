@@ -29,7 +29,7 @@
 <meta property="og:description" content="&nbsp;&nbsp;&nbsp; 之前的中国象棋初版重在实现，老实说不论是时空效率还是健壮性都不太拿得出手，于是导师要求继续优化改进。考虑和调查过后，时间效率上可以借助之前设想的并行计算得到小幅优化，此外使用类似bool数组的手段也可以在走法生成器中小幅优化边界判断过程，最重要的时间效率优化手段是把博弈机改造成查表器，即以查表为主博弈为辅改变重心。以上都是时间效率优化，这篇文中暂且不展开，我的">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2015-12-01T02:53:29.000Z">
-<meta property="article:modified_time" content="2025-05-21T15:42:53.541Z">
+<meta property="article:modified_time" content="2025-05-25T08:28:16.344Z">
 <meta property="article:author" content="Bipedal Bit">
 <meta property="article:tag" content="C++">
 <meta property="article:tag" content="位域">
@@ -519,6 +519,28 @@
 
   
 
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/11.12.1/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      if ('mermaid' in window) {
+        mermaid.run({
+          querySelector: '.mermaid'
+        });
+      }
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.run({
+            querySelector: '.mermaid'
+          });
+        }
+      });
+    });
+  });
+</script>
 
 
 

@@ -13,11 +13,11 @@
         <category>nginx</category>
         <category>select/poll</category>
         <category>epoll</category>
-        <category>ngx_int_t</category>
-        <category>rbtree</category>
         <category>C</category>
         <category>static</category>
         <category>内存分布</category>
+        <category>ngx_int_t</category>
+        <category>rbtree</category>
         <category>sublime</category>
         <category>C++</category>
         <category>makefile</category>
@@ -73,14 +73,14 @@
         <category>open-webui</category>
         <category>oneapi</category>
         <category>mcpserver</category>
-        <category>NAS</category>
-        <category>minio</category>
-        <category>CDN</category>
-        <category>waline</category>
         <category>mcpo</category>
         <category>svn</category>
         <category>DNS劫持</category>
         <category>DNS污染</category>
+        <category>NAS</category>
+        <category>minio</category>
+        <category>CDN</category>
+        <category>waline</category>
         <category>域名</category>
         <category>VPS</category>
         <category>邮件服务器</category>
@@ -88,6 +88,9 @@
         <category>对象存储</category>
         <category>comfyui</category>
         <category>openrouter</category>
+        <category>本地模型</category>
+        <category>llama.cpp</category>
+        <category>llama-swap</category>
         <item>
             <guid isPermalink="true">https://bipedalbit.net/2015/11/15/%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E4%BA%BA%E6%9C%BA%E5%8D%9A%E5%BC%88%E5%AE%9E%E7%8E%B0%E7%BB%83%E4%B9%A0/</guid>
             <title>中国象棋人机博弈实现练习</title>

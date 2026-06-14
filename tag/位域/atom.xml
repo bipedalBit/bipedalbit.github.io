@@ -10,11 +10,11 @@
     <category term="nginx" />
     <category term="select/poll" />
     <category term="epoll" />
-    <category term="ngx_int_t" />
-    <category term="rbtree" />
     <category term="C" />
     <category term="static" />
     <category term="内存分布" />
+    <category term="ngx_int_t" />
+    <category term="rbtree" />
     <category term="sublime" />
     <category term="C++" />
     <category term="makefile" />
@@ -70,14 +70,14 @@
     <category term="open-webui" />
     <category term="oneapi" />
     <category term="mcpserver" />
-    <category term="NAS" />
-    <category term="minio" />
-    <category term="CDN" />
-    <category term="waline" />
     <category term="mcpo" />
     <category term="svn" />
     <category term="DNS劫持" />
     <category term="DNS污染" />
+    <category term="NAS" />
+    <category term="minio" />
+    <category term="CDN" />
+    <category term="waline" />
     <category term="域名" />
     <category term="VPS" />
     <category term="邮件服务器" />
@@ -85,6 +85,9 @@
     <category term="对象存储" />
     <category term="comfyui" />
     <category term="openrouter" />
+    <category term="本地模型" />
+    <category term="llama.cpp" />
+    <category term="llama-swap" />
     <entry>
         <id>https://bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</id>
         <title>C++的位优化</title>

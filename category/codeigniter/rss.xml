@@ -13,11 +13,11 @@
         <category>nginx</category>
         <category>select/poll</category>
         <category>epoll</category>
-        <category>ngx_int_t</category>
-        <category>rbtree</category>
         <category>C</category>
         <category>static</category>
         <category>内存分布</category>
+        <category>ngx_int_t</category>
+        <category>rbtree</category>
         <category>sublime</category>
         <category>C++</category>
         <category>makefile</category>
@@ -73,14 +73,14 @@
         <category>open-webui</category>
         <category>oneapi</category>
         <category>mcpserver</category>
-        <category>NAS</category>
-        <category>minio</category>
-        <category>CDN</category>
-        <category>waline</category>
         <category>mcpo</category>
         <category>svn</category>
         <category>DNS劫持</category>
         <category>DNS污染</category>
+        <category>NAS</category>
+        <category>minio</category>
+        <category>CDN</category>
+        <category>waline</category>
         <category>域名</category>
         <category>VPS</category>
         <category>邮件服务器</category>
@@ -88,6 +88,9 @@
         <category>对象存储</category>
         <category>comfyui</category>
         <category>openrouter</category>
+        <category>本地模型</category>
+        <category>llama.cpp</category>
+        <category>llama-swap</category>
         <item>
             <guid isPermalink="true">https://bipedalbit.net/2015/05/03/win-Linux%E4%B8%8B%E5%8E%BB%E6%8E%89codeigniter%E6%A1%86%E6%9E%B6%E7%BD%91%E7%AB%99URL%E4%B8%AD%E7%9A%84index-php/</guid>
             <title>win/Linux下去掉codeigniter框架网站URL中的index.php</title>

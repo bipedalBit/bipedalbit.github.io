@@ -29,7 +29,7 @@
 <meta property="og:description" content="&nbsp;&nbsp;&nbsp; 学校的有线网络客户端是DrCom，Windows下停掉热点分享服务和代理后跑的很顺利。可是切到我常用的Ubuntu下时客户端却跑不起来。从终端用命令运行客户端时发现有依赖文件缺失，借着这个契机，我认识了Ubuntu（Debian）下解决依赖问题的利器——apt-file。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2015-10-19T10:33:33.000Z">
-<meta property="article:modified_time" content="2025-05-21T15:42:53.536Z">
+<meta property="article:modified_time" content="2025-05-25T08:28:16.516Z">
 <meta property="article:author" content="Bipedal Bit">
 <meta property="article:tag" content="ubuntu">
 <meta property="article:tag" content="debian">
@@ -522,6 +522,28 @@ apt-get install libxinerama1:i386
 
   
 
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/11.12.1/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      if ('mermaid' in window) {
+        mermaid.run({
+          querySelector: '.mermaid'
+        });
+      }
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.run({
+            querySelector: '.mermaid'
+          });
+        }
+      });
+    });
+  });
+</script>
 
 
 

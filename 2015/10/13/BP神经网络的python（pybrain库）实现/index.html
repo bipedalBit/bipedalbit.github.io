@@ -29,7 +29,7 @@
 <meta property="og:description" content="&nbsp;&nbsp;&nbsp; 上一篇文用C++手写了BP神经网络，事实上，生产环境中已经很少有人再亲自写神经网络了，已经出现了很多成熟的机器学习开源库。我安装了C++的shark库和python的pybrain库，在研究shark库的文档时发现shark库封装度太低了，用起来很麻烦，遂弃。虽然放弃C++的高效库很遗憾，但是后来发现pybrain库真是非常友好非常方便，于是分别写了分类器和函">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2015-10-13T06:54:25.000Z">
-<meta property="article:modified_time" content="2025-05-21T15:42:53.533Z">
+<meta property="article:modified_time" content="2025-05-25T08:28:16.513Z">
 <meta property="article:author" content="Bipedal Bit">
 <meta property="article:tag" content="BP神经网络">
 <meta property="article:tag" content="机器学习">
@@ -797,6 +797,28 @@ for i in xrange(0, 10):#len(XTest)-1):
 
   
 
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/11.12.1/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      if ('mermaid' in window) {
+        mermaid.run({
+          querySelector: '.mermaid'
+        });
+      }
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.run({
+            querySelector: '.mermaid'
+          });
+        }
+      });
+    });
+  });
+</script>
 
 
 
