@@ -10,14 +10,14 @@
     <category term="nginx" />
     <category term="select/poll" />
     <category term="epoll" />
-    <category term="C" />
-    <category term="static" />
-    <category term="内存分布" />
     <category term="ngx_int_t" />
     <category term="rbtree" />
+    <category term="C" />
     <category term="sublime" />
     <category term="C++" />
     <category term="makefile" />
+    <category term="static" />
+    <category term="内存分布" />
     <category term="node.js" />
     <category term="github" />
     <category term="socket.io" />
@@ -56,22 +56,22 @@
     <category term="apache" />
     <category term="模拟登录" />
     <category term="proxy" />
+    <category term="vps" />
+    <category term="hexo" />
+    <category term="dropbox" />
     <category term="domain" />
     <category term="DNS" />
-    <category term="hexo" />
-    <category term="vps" />
-    <category term="dropbox" />
     <category term="ffmpeg" />
     <category term="板绘" />
     <category term="sai" />
     <category term="琪露诺" />
+    <category term="mcpo" />
+    <category term="svn" />
     <category term="LLM" />
     <category term="ollama" />
     <category term="open-webui" />
     <category term="oneapi" />
     <category term="mcpserver" />
-    <category term="mcpo" />
-    <category term="svn" />
     <category term="DNS劫持" />
     <category term="DNS污染" />
     <category term="NAS" />
@@ -161,9 +161,9 @@
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;span style=&#34;color:#FF0000;&#34;&gt;之前看到nginx源码中函数参数有双重指针一直很费解，今天研究了一下才发现原因。ngx_rbtree_t中，root经常使用双重结点指针，也就是根结点地址的地址。如果树的修改过程中，根结点地址被别的结点地址替换掉，需要重新设置根的地址&lt;em&gt;root。假设ngx_rbtree_t中的根地址参数是&lt;/em&gt;root单层指针，进入函数体时将是一个值传递，出函数体时无论函数体中如何更改根的地址，都是无效的，只有对根结点内容的修改能保留下来。所以要么使用双重指针作为根地址的参数，要么提供树结构体的地址，变相提供双重指针作为参数，当然可以提供树的结构体对象本身作为参数，但是值传递是要复制整个值对象的，显然当结构体比较大时这样做将明显增加开销。nginx选择双重指针而非结构体指针来避免树结构体内的变量遍历寻址，进一步提高效率。&lt;/span&gt;&lt;/p&gt;
 </content>
         <category term="nginx" />
-        <category term="C" />
         <category term="ngx_int_t" />
         <category term="rbtree" />
+        <category term="C" />
         <updated>2015-08-05T23:18:00.000Z</updated>
     </entry>
 </feed>

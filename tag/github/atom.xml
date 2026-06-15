@@ -10,14 +10,14 @@
     <category term="nginx" />
     <category term="select/poll" />
     <category term="epoll" />
-    <category term="C" />
-    <category term="static" />
-    <category term="内存分布" />
     <category term="ngx_int_t" />
     <category term="rbtree" />
+    <category term="C" />
     <category term="sublime" />
     <category term="C++" />
     <category term="makefile" />
+    <category term="static" />
+    <category term="内存分布" />
     <category term="node.js" />
     <category term="github" />
     <category term="socket.io" />
@@ -56,22 +56,22 @@
     <category term="apache" />
     <category term="模拟登录" />
     <category term="proxy" />
+    <category term="vps" />
+    <category term="hexo" />
+    <category term="dropbox" />
     <category term="domain" />
     <category term="DNS" />
-    <category term="hexo" />
-    <category term="vps" />
-    <category term="dropbox" />
     <category term="ffmpeg" />
     <category term="板绘" />
     <category term="sai" />
     <category term="琪露诺" />
+    <category term="mcpo" />
+    <category term="svn" />
     <category term="LLM" />
     <category term="ollama" />
     <category term="open-webui" />
     <category term="oneapi" />
     <category term="mcpserver" />
-    <category term="mcpo" />
-    <category term="svn" />
     <category term="DNS劫持" />
     <category term="DNS污染" />
     <category term="NAS" />
@@ -313,9 +313,9 @@ rss:
 &lt;h3 id=&#34;参考文章&#34;&gt;&lt;a href=&#34;#参考文章&#34; class=&#34;headerlink&#34; title=&#34;参考文章&#34;&gt;&lt;/a&gt;参考文章&lt;/h3&gt;&lt;p&gt;&lt;a href=&#34;http://ibruce.info/2013/11/22/hexo-your-blog/&#34;&gt;http://ibruce.info/2013/11/22/hexo-your-blog/&lt;/a&gt;（大大的教程写的真心详细，基本就是这篇领我进门）&lt;/p&gt;
 </content>
         <category term="github" />
+        <category term="hexo" />
         <category term="domain" />
         <category term="DNS" />
-        <category term="hexo" />
         <updated>2016-04-24T13:02:39.000Z</updated>
     </entry>
     <entry>

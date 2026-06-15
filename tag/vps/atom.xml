@@ -10,14 +10,14 @@
     <category term="nginx" />
     <category term="select/poll" />
     <category term="epoll" />
-    <category term="C" />
-    <category term="static" />
-    <category term="内存分布" />
     <category term="ngx_int_t" />
     <category term="rbtree" />
+    <category term="C" />
     <category term="sublime" />
     <category term="C++" />
     <category term="makefile" />
+    <category term="static" />
+    <category term="内存分布" />
     <category term="node.js" />
     <category term="github" />
     <category term="socket.io" />
@@ -56,22 +56,22 @@
     <category term="apache" />
     <category term="模拟登录" />
     <category term="proxy" />
+    <category term="vps" />
+    <category term="hexo" />
+    <category term="dropbox" />
     <category term="domain" />
     <category term="DNS" />
-    <category term="hexo" />
-    <category term="vps" />
-    <category term="dropbox" />
     <category term="ffmpeg" />
     <category term="板绘" />
     <category term="sai" />
     <category term="琪露诺" />
+    <category term="mcpo" />
+    <category term="svn" />
     <category term="LLM" />
     <category term="ollama" />
     <category term="open-webui" />
     <category term="oneapi" />
     <category term="mcpserver" />
-    <category term="mcpo" />
-    <category term="svn" />
     <category term="DNS劫持" />
     <category term="DNS污染" />
     <category term="NAS" />
@@ -179,8 +179,8 @@
 &lt;h3 id=&#34;Hexo&#34;&gt;&lt;a href=&#34;#Hexo&#34; class=&#34;headerlink&#34; title=&#34;Hexo&#34;&gt;&lt;/a&gt;Hexo&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 做什么样的静态站呢？这次直接把我的Hexo博客拿来做实验。&lt;a href=&#34;https://bipedalbit.net/2016/4/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/&#34;&gt;上篇文&lt;/a&gt;提到过，Hexo是个静态博客站生成器，&lt;code&gt;hexo g&lt;/code&gt;命令执行后，Hexo项目目录的public子目录下就是静态站的确切内容了。可以干脆把Hexo项目目录放在Dropbox文件夹中，每次&lt;code&gt;hexo g&lt;/code&gt;之后，自动更新静态站内容，同时Dropbox自动把静态站同步到VPS，VPS的Nginx不需要更改配置因为地址映射没有变化。于是我们现在可以在本地修改Hexo博客后自动发布更新到直连外网的VPS，还可以在任意一个向Github分发过SSH公钥的终端向Github Pages发布新的静态站内容。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不知到你们想到了什么，我觉得这个套路可以使VPS上维护一个经常预更新的静态站alpha版，Github Pages上维护一个比较稳定的静态站beta版。&lt;/p&gt;
 </content>
         <category term="nginx" />
-        <category term="hexo" />
         <category term="vps" />
+        <category term="hexo" />
         <category term="dropbox" />
         <updated>2016-04-25T06:05:09.000Z</updated>
     </entry>

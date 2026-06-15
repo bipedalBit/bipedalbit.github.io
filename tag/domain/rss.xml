@@ -13,14 +13,14 @@
         <category>nginx</category>
         <category>select/poll</category>
         <category>epoll</category>
-        <category>C</category>
-        <category>static</category>
-        <category>内存分布</category>
         <category>ngx_int_t</category>
         <category>rbtree</category>
+        <category>C</category>
         <category>sublime</category>
         <category>C++</category>
         <category>makefile</category>
+        <category>static</category>
+        <category>内存分布</category>
         <category>node.js</category>
         <category>github</category>
         <category>socket.io</category>
@@ -59,22 +59,22 @@
         <category>apache</category>
         <category>模拟登录</category>
         <category>proxy</category>
+        <category>vps</category>
+        <category>hexo</category>
+        <category>dropbox</category>
         <category>domain</category>
         <category>DNS</category>
-        <category>hexo</category>
-        <category>vps</category>
-        <category>dropbox</category>
         <category>ffmpeg</category>
         <category>板绘</category>
         <category>sai</category>
         <category>琪露诺</category>
+        <category>mcpo</category>
+        <category>svn</category>
         <category>LLM</category>
         <category>ollama</category>
         <category>open-webui</category>
         <category>oneapi</category>
         <category>mcpserver</category>
-        <category>mcpo</category>
-        <category>svn</category>
         <category>DNS劫持</category>
         <category>DNS污染</category>
         <category>NAS</category>
@@ -96,9 +96,9 @@
             <title>hexo博客搭建</title>
             <link>https://bipedalbit.net/2016/04/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/</link>
             <category>github</category>
+            <category>hexo</category>
             <category>domain</category>
             <category>DNS</category>
-            <category>hexo</category>
             <pubDate>Sun, 24 Apr 2016 21:02:39 +0800</pubDate>
             <description><![CDATA[ &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 转眼三个多月没更博文了，并没有荒废只是有点忙。攒了很多想写的东西，先填个拖了很久的坑：我这个博客是怎么搭起来的。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 总的来说，我的博客是由Github Pages维护，本地用Hexo管理的一个静态博客。这篇文里我将介绍搭建Github Pages+Hexo博客的过程。&lt;/p&gt;
 &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;

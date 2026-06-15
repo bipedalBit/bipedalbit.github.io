@@ -10,14 +10,14 @@
     <category term="nginx" />
     <category term="select/poll" />
     <category term="epoll" />
-    <category term="C" />
-    <category term="static" />
-    <category term="内存分布" />
     <category term="ngx_int_t" />
     <category term="rbtree" />
+    <category term="C" />
     <category term="sublime" />
     <category term="C++" />
     <category term="makefile" />
+    <category term="static" />
+    <category term="内存分布" />
     <category term="node.js" />
     <category term="github" />
     <category term="socket.io" />
@@ -56,22 +56,22 @@
     <category term="apache" />
     <category term="模拟登录" />
     <category term="proxy" />
+    <category term="vps" />
+    <category term="hexo" />
+    <category term="dropbox" />
     <category term="domain" />
     <category term="DNS" />
-    <category term="hexo" />
-    <category term="vps" />
-    <category term="dropbox" />
     <category term="ffmpeg" />
     <category term="板绘" />
     <category term="sai" />
     <category term="琪露诺" />
+    <category term="mcpo" />
+    <category term="svn" />
     <category term="LLM" />
     <category term="ollama" />
     <category term="open-webui" />
     <category term="oneapi" />
     <category term="mcpserver" />
-    <category term="mcpo" />
-    <category term="svn" />
     <category term="DNS劫持" />
     <category term="DNS污染" />
     <category term="NAS" />
@@ -783,8 +783,8 @@ Count of nodes in the tree is 1047552.
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 比较一下可以发现：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 1.插入结点略慢了一点，因为插入时多维护了一个node_cnt项。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 2.按key查找结点速度没有变化。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 3.哈希查找速度没有变化。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 4.删除结点花的时间几乎是原来的两倍，因为每次删除后都要一路向上更新node_cnt，几乎相当于包含了一次按key查询。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 5.按序号查询比按key查询略慢，因为每次进入右子树需要多做一次加法。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 6.遍历花的时间与求树高相同，因为它们的实质都是遍历树，时间效率O(n)数量级，具体点为2n次结点访问，分别为结点入栈和出栈时。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 别问我max、min、mid在哪，能按序号查询了这些还是问题吗？&lt;/p&gt;
 </content>
         <category term="nginx" />
-        <category term="C" />
         <category term="rbtree" />
+        <category term="C" />
         <updated>2015-08-17T18:04:43.000Z</updated>
     </entry>
     <entry>
@@ -1760,8 +1760,8 @@ Deleting 1024 nodes among 1048576 spends 0.000783 seconds.
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 删除比查找还快，耗时只有哈希查找的两倍多点，上百万的插入也耗时不足半秒，嗯我还挺满意的。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 写统计和遍历方法去了。&lt;/p&gt;
 </content>
         <category term="nginx" />
-        <category term="C" />
         <category term="rbtree" />
+        <category term="C" />
         <updated>2015-08-16T14:06:30.000Z</updated>
     </entry>
     <entry>
@@ -1862,9 +1862,9 @@ Deleting 1024 nodes among 1048576 spends 0.000783 seconds.
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;span style=&#34;color:#FF0000;&#34;&gt;之前看到nginx源码中函数参数有双重指针一直很费解，今天研究了一下才发现原因。ngx_rbtree_t中，root经常使用双重结点指针，也就是根结点地址的地址。如果树的修改过程中，根结点地址被别的结点地址替换掉，需要重新设置根的地址&lt;em&gt;root。假设ngx_rbtree_t中的根地址参数是&lt;/em&gt;root单层指针，进入函数体时将是一个值传递，出函数体时无论函数体中如何更改根的地址，都是无效的，只有对根结点内容的修改能保留下来。所以要么使用双重指针作为根地址的参数，要么提供树结构体的地址，变相提供双重指针作为参数，当然可以提供树的结构体对象本身作为参数，但是值传递是要复制整个值对象的，显然当结构体比较大时这样做将明显增加开销。nginx选择双重指针而非结构体指针来避免树结构体内的变量遍历寻址，进一步提高效率。&lt;/span&gt;&lt;/p&gt;
 </content>
         <category term="nginx" />
-        <category term="C" />
         <category term="ngx_int_t" />
         <category term="rbtree" />
+        <category term="C" />
         <updated>2015-08-05T23:18:00.000Z</updated>
     </entry>
 </feed>

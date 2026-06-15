@@ -10,14 +10,14 @@
     <category term="nginx" />
     <category term="select/poll" />
     <category term="epoll" />
-    <category term="C" />
-    <category term="static" />
-    <category term="内存分布" />
     <category term="ngx_int_t" />
     <category term="rbtree" />
+    <category term="C" />
     <category term="sublime" />
     <category term="C++" />
     <category term="makefile" />
+    <category term="static" />
+    <category term="内存分布" />
     <category term="node.js" />
     <category term="github" />
     <category term="socket.io" />
@@ -56,22 +56,22 @@
     <category term="apache" />
     <category term="模拟登录" />
     <category term="proxy" />
+    <category term="vps" />
+    <category term="hexo" />
+    <category term="dropbox" />
     <category term="domain" />
     <category term="DNS" />
-    <category term="hexo" />
-    <category term="vps" />
-    <category term="dropbox" />
     <category term="ffmpeg" />
     <category term="板绘" />
     <category term="sai" />
     <category term="琪露诺" />
+    <category term="mcpo" />
+    <category term="svn" />
     <category term="LLM" />
     <category term="ollama" />
     <category term="open-webui" />
     <category term="oneapi" />
     <category term="mcpserver" />
-    <category term="mcpo" />
-    <category term="svn" />
     <category term="DNS劫持" />
     <category term="DNS污染" />
     <category term="NAS" />
@@ -164,7 +164,45 @@
 &lt;/tr&gt;
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;p&gt;Q5_K_L 量化在质量和显存之间取得良好平衡。16GB 显存下，配合 &lt;code&gt;--n-cpu-moe 25&lt;/code&gt; 将 MoE 的中间层卸载到 CPU，显存占用刚好够用。&lt;/p&gt;
-&lt;h2 id=&#34;部署方案&#34;&gt;&lt;a href=&#34;#部署方案&#34; class=&#34;headerlink&#34; title=&#34;部署方案&#34;&gt;&lt;/a&gt;部署方案&lt;/h2&gt;&lt;p&gt;llama-swap 部署在 Docker 容器中，核心配置：&lt;/p&gt;
+&lt;h2 id=&#34;部署方案&#34;&gt;&lt;a href=&#34;#部署方案&#34; class=&#34;headerlink&#34; title=&#34;部署方案&#34;&gt;&lt;/a&gt;部署方案&lt;/h2&gt;&lt;p&gt;llama-swap 部署在 Docker 容器中，核心架构如下：&lt;/p&gt;
+
+&lt;pre&gt;
+&lt;code class=&#34;mermaid&#34; &gt;
+graph LR
+  subgraph 客户端
+    HA[Hermes Agent]
+    API[OpenAI API]
+  end
+
+  subgraph llama-swap
+    SW[llama-swap :9292]
+    L1[llama-server]
+    L2[llama-server]
+  end
+
+  subgraph 模型存储
+    SSD[/SSD: GGUF/Chat Template/]
+  end
+
+  HA --&gt; SW
+  API --&gt; SW
+  SW --&gt; L1
+  SW --&gt; L2
+  L1 --&gt; SSD
+  L2 --&gt; SSD
+
+  style SW fill:#f9f,stroke:#333,stroke-width:2px
+  style SSD fill:#bbf,stroke:#333,stroke-width:2px
+&lt;/code&gt;
+&lt;/pre&gt;
+
+&lt;p&gt;llama-swap 作为代理层，负责：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;模型热切换&lt;/strong&gt;：客户端通过统一接口请求不同模型&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;自动卸载&lt;/strong&gt;：无请求 5 分钟自动卸载模型，释放显存&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;生命周期管理&lt;/strong&gt;：替代 ollama 的自动 offload，但更精细可控&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;核心配置：&lt;/p&gt;
 &lt;figure class=&#34;highlight yaml&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;22&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs yaml&#34;&gt;&lt;span class=&#34;hljs-attr&#34;&gt;macros:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;host:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;0.0.0.0&amp;quot;&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;n_gpu_layers_max:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;999&amp;quot;&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;ctx_size_128k:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;131072&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-attr&#34;&gt;models:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;&amp;quot;qwopus3.6:35b-a3b-q5-128k&amp;quot;:&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;|&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      llama-server&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --port $&amp;#123;PORT&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --model /ssd-models/.../Qwopus3.6-35B-A3B-v1-Q5_K_L.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --mmproj /ssd-models/.../qwopus3.6-35b-a3b-mmproj.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-gpu-layers $&amp;#123;n_gpu_layers_max&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-cpu-moe 25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --ctx-size $&amp;#123;ctx_size_128k&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      -ctk q4_0&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      -ctv q4_0&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --flash-attn on&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --jinja&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --chat-template-file /ssd-models/.../chat_template.jinja&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --host $&amp;#123;host&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;300&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 
 &lt;p&gt;关键参数说明：&lt;/p&gt;
@@ -1119,8 +1157,8 @@
 &lt;h3 id=&#34;Hexo&#34;&gt;&lt;a href=&#34;#Hexo&#34; class=&#34;headerlink&#34; title=&#34;Hexo&#34;&gt;&lt;/a&gt;Hexo&lt;/h3&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 做什么样的静态站呢？这次直接把我的Hexo博客拿来做实验。&lt;a href=&#34;https://bipedalbit.net/2016/4/24/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/&#34;&gt;上篇文&lt;/a&gt;提到过，Hexo是个静态博客站生成器，&lt;code&gt;hexo g&lt;/code&gt;命令执行后，Hexo项目目录的public子目录下就是静态站的确切内容了。可以干脆把Hexo项目目录放在Dropbox文件夹中，每次&lt;code&gt;hexo g&lt;/code&gt;之后，自动更新静态站内容，同时Dropbox自动把静态站同步到VPS，VPS的Nginx不需要更改配置因为地址映射没有变化。于是我们现在可以在本地修改Hexo博客后自动发布更新到直连外网的VPS，还可以在任意一个向Github分发过SSH公钥的终端向Github Pages发布新的静态站内容。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 不知到你们想到了什么，我觉得这个套路可以使VPS上维护一个经常预更新的静态站alpha版，Github Pages上维护一个比较稳定的静态站beta版。&lt;/p&gt;
 </content>
         <category term="nginx" />
-        <category term="hexo" />
         <category term="vps" />
+        <category term="hexo" />
         <category term="dropbox" />
         <updated>2016-04-25T06:05:09.000Z</updated>
     </entry>
@@ -1205,9 +1243,9 @@ rss:
 &lt;h3 id=&#34;参考文章&#34;&gt;&lt;a href=&#34;#参考文章&#34; class=&#34;headerlink&#34; title=&#34;参考文章&#34;&gt;&lt;/a&gt;参考文章&lt;/h3&gt;&lt;p&gt;&lt;a href=&#34;http://ibruce.info/2013/11/22/hexo-your-blog/&#34;&gt;http://ibruce.info/2013/11/22/hexo-your-blog/&lt;/a&gt;（大大的教程写的真心详细，基本就是这篇领我进门）&lt;/p&gt;
 </content>
         <category term="github" />
+        <category term="hexo" />
         <category term="domain" />
         <category term="DNS" />
-        <category term="hexo" />
         <updated>2016-04-24T13:02:39.000Z</updated>
     </entry>
     <entry>
@@ -4522,8 +4560,8 @@ Count of nodes in the tree is 1047552.
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 比较一下可以发现：&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 1.插入结点略慢了一点，因为插入时多维护了一个node_cnt项。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 2.按key查找结点速度没有变化。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 3.哈希查找速度没有变化。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 4.删除结点花的时间几乎是原来的两倍，因为每次删除后都要一路向上更新node_cnt，几乎相当于包含了一次按key查询。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 5.按序号查询比按key查询略慢，因为每次进入右子树需要多做一次加法。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 6.遍历花的时间与求树高相同，因为它们的实质都是遍历树，时间效率O(n)数量级，具体点为2n次结点访问，分别为结点入栈和出栈时。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 别问我max、min、mid在哪，能按序号查询了这些还是问题吗？&lt;/p&gt;
 </content>
         <category term="nginx" />
-        <category term="C" />
         <category term="rbtree" />
+        <category term="C" />
         <updated>2015-08-17T18:04:43.000Z</updated>
     </entry>
     <entry>
@@ -5499,8 +5537,8 @@ Deleting 1024 nodes among 1048576 spends 0.000783 seconds.
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 删除比查找还快，耗时只有哈希查找的两倍多点，上百万的插入也耗时不足半秒，嗯我还挺满意的。&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; 写统计和遍历方法去了。&lt;/p&gt;
 </content>
         <category term="nginx" />
-        <category term="C" />
         <category term="rbtree" />
+        <category term="C" />
         <updated>2015-08-16T14:06:30.000Z</updated>
     </entry>
     <entry>
@@ -5601,9 +5639,9 @@ Deleting 1024 nodes among 1048576 spends 0.000783 seconds.
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;span style=&#34;color:#FF0000;&#34;&gt;之前看到nginx源码中函数参数有双重指针一直很费解，今天研究了一下才发现原因。ngx_rbtree_t中，root经常使用双重结点指针，也就是根结点地址的地址。如果树的修改过程中，根结点地址被别的结点地址替换掉，需要重新设置根的地址&lt;em&gt;root。假设ngx_rbtree_t中的根地址参数是&lt;/em&gt;root单层指针，进入函数体时将是一个值传递，出函数体时无论函数体中如何更改根的地址，都是无效的，只有对根结点内容的修改能保留下来。所以要么使用双重指针作为根地址的参数，要么提供树结构体的地址，变相提供双重指针作为参数，当然可以提供树的结构体对象本身作为参数，但是值传递是要复制整个值对象的，显然当结构体比较大时这样做将明显增加开销。nginx选择双重指针而非结构体指针来避免树结构体内的变量遍历寻址，进一步提高效率。&lt;/span&gt;&lt;/p&gt;
 </content>
         <category term="nginx" />
-        <category term="C" />
         <category term="ngx_int_t" />
         <category term="rbtree" />
+        <category term="C" />
         <updated>2015-08-05T23:18:00.000Z</updated>
     </entry>
     <entry>
