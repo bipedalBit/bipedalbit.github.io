@@ -121,6 +121,7 @@ https://bipedalbit.net/tags/openrouter/
 https://bipedalbit.net/tags/%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%9E%8B/
 https://bipedalbit.net/tags/llama-cpp/
 https://bipedalbit.net/tags/llama-swap/
+https://bipedalbit.net/tags/Qwopus3-6/
 https://bipedalbit.net/categories/Qt/
 https://bipedalbit.net/categories/nginx/
 https://bipedalbit.net/categories/Sublime-Text/

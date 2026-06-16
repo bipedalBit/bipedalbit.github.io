@@ -91,6 +91,7 @@
         <category>本地模型</category>
         <category>llama.cpp</category>
         <category>llama-swap</category>
+        <category>Qwopus3.6</category>
         <item>
             <guid isPermalink="true">https://bipedalbit.net/2015/06/09/Qt%E5%87%BA%E7%8E%B0%E9%94%99%E8%AF%AFundefined-reference-to-vtable-for-XXXXX-XXX/</guid>
             <title>Qt出现错误undefined reference to &#39;vtable for XXXXX.XXX&#39;</title>

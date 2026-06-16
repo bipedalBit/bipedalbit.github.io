@@ -91,13 +91,16 @@
         <category>本地模型</category>
         <category>llama.cpp</category>
         <category>llama-swap</category>
+        <category>Qwopus3.6</category>
         <item>
             <guid isPermalink="true">https://bipedalbit.net/2026/06/14/%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%9E%8B%E9%80%89%E5%9E%8B%E4%B8%8E%E9%83%A8%E7%BD%B2%E6%96%B9%E6%A1%88/</guid>
             <title>16GB显存下的本地模型选型与部署方案</title>
             <link>https://bipedalbit.net/2026/06/14/%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%9E%8B%E9%80%89%E5%9E%8B%E4%B8%8E%E9%83%A8%E7%BD%B2%E6%96%B9%E6%A1%88/</link>
+            <category>LLM</category>
             <category>本地模型</category>
             <category>llama.cpp</category>
             <category>llama-swap</category>
+            <category>Qwopus3.6</category>
             <pubDate>Sun, 14 Jun 2026 22:43:00 +0800</pubDate>
             <description><![CDATA[ &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
 
@@ -170,7 +173,7 @@
 &lt;td align=&#34;left&#34;&gt;44 tok&amp;#x2F;s&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;&lt;/table&gt;
-&lt;p&gt;Q5_K_L 量化在质量和显存之间取得良好平衡。16GB 显存下，配合 &lt;code&gt;--n-cpu-moe 25&lt;/code&gt; 将 MoE 的中间层卸载到 CPU，显存占用刚好够用。&lt;/p&gt;
+&lt;p&gt;Q5_K_M 量化在质量和显存之间取得良好平衡。16GB 显存下，配合 &lt;code&gt;--n-cpu-moe 25&lt;/code&gt; 将 MoE 的中间层卸载到 CPU，显存占用刚好够用。&lt;/p&gt;
 &lt;h2 id=&#34;部署方案&#34;&gt;&lt;a href=&#34;#部署方案&#34; class=&#34;headerlink&#34; title=&#34;部署方案&#34;&gt;&lt;/a&gt;部署方案&lt;/h2&gt;&lt;p&gt;llama-swap 部署在 Docker 容器中，核心架构如下：&lt;/p&gt;
 
 &lt;pre&gt;
@@ -235,7 +238,7 @@ graph LR
 &lt;p&gt;另外，&lt;a href=&#34;https://huggingface.co/HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive&#34;&gt;HauhauCS&amp;#x2F;Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive&lt;/a&gt; 模型中的 &lt;strong&gt;K_P 量化&lt;/strong&gt;很有意思。K_P（”Perfect” quant）是 HauhauCS 的自定义量化方法，通过模型特定的重要性矩阵分析，在关键位置保留更高精度——“有效将质量提升 1-2 个量化等级，而文件大小仅比基础量化大 5-15%”。可惜只有这个 Uncensored 版本有 K_P 量化，要是有 Qwopus3.6 的就好了。Q4_K_P 版本实际效果我正在验证。&lt;/p&gt;
 &lt;h2 id=&#34;总结&#34;&gt;&lt;a href=&#34;#总结&#34; class=&#34;headerlink&#34; title=&#34;总结&#34;&gt;&lt;/a&gt;总结&lt;/h2&gt;&lt;p&gt;16GB 显存下，35B-A3B MoE 模型的性能天花板很高，但需要：&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;合适的量化格式&lt;/strong&gt;：Q5_K_L + KV Cache 量化&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;合适的量化格式&lt;/strong&gt;：Q5_K_M + KV Cache 量化&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;MoE 专属参数&lt;/strong&gt;：&lt;code&gt;--n-cpu-moe&lt;/code&gt; 是关键&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;自动模型生命周期管理&lt;/strong&gt;：llama-swap 填补了 ollama 和 llama.cpp 之间的空白&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;耐心调试&lt;/strong&gt;：参数组合需要大量实验&lt;/li&gt;

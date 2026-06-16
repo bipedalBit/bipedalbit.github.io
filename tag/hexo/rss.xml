@@ -91,6 +91,7 @@
         <category>本地模型</category>
         <category>llama.cpp</category>
         <category>llama-swap</category>
+        <category>Qwopus3.6</category>
         <item>
             <guid isPermalink="true">https://bipedalbit.net/2025/06/07/%E5%86%8D%E8%B0%88hexo%E9%9D%99%E6%80%81%E7%AB%99%E6%90%AD%E5%BB%BA/</guid>
             <title>再谈hexo静态站搭建</title>

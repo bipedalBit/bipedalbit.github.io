@@ -88,6 +88,7 @@
     <category term="本地模型" />
     <category term="llama.cpp" />
     <category term="llama-swap" />
+    <category term="Qwopus3.6" />
     <entry>
         <id>https://bipedalbit.net/2025/06/11/%E8%AE%B0%E4%B8%80%E6%AC%A1DNS%E6%B1%A1%E6%9F%93%E5%BA%94%E5%AF%B9/</id>
         <title>记一次DNS污染应对</title>

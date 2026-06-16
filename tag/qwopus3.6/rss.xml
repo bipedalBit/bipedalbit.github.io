@@ -1,0 +1,250 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+    <channel>
+        <title>Hacking to the gate! • Posts by &#34;qwopus3.6&#34; tag</title>
+        <link>https://bipedalbit.net</link>
+        <description>Bipedal Bit&#39;s blog</description>
+        <language>zh-CN</language>
+        <pubDate>Sun, 14 Jun 2026 22:43:00 +0800</pubDate>
+        <lastBuildDate>Sun, 14 Jun 2026 22:43:00 +0800</lastBuildDate>
+        <category>Qt</category>
+        <category>signal-slot</category>
+        <category>Q_OBJECT</category>
+        <category>nginx</category>
+        <category>select/poll</category>
+        <category>epoll</category>
+        <category>ngx_int_t</category>
+        <category>rbtree</category>
+        <category>C</category>
+        <category>sublime</category>
+        <category>C++</category>
+        <category>makefile</category>
+        <category>static</category>
+        <category>内存分布</category>
+        <category>node.js</category>
+        <category>github</category>
+        <category>socket.io</category>
+        <category>Web请求处理机制</category>
+        <category>同步/异步</category>
+        <category>阻塞/非阻塞</category>
+        <category>事件驱动模型</category>
+        <category>BP神经网络</category>
+        <category>机器学习</category>
+        <category>python</category>
+        <category>pybrain</category>
+        <category>c++11</category>
+        <category>多线程</category>
+        <category>ubuntu</category>
+        <category>debian</category>
+        <category>apt-file</category>
+        <category>cin</category>
+        <category>cout</category>
+        <category>scanf</category>
+        <category>printf</category>
+        <category>进制转换</category>
+        <category>人工神经网络</category>
+        <category>人机博弈</category>
+        <category>Maxmin</category>
+        <category>AlphaBeta</category>
+        <category>PVS</category>
+        <category>MTD(f)</category>
+        <category>位域</category>
+        <category>bitset</category>
+        <category>vector&amp;lt;bool&amp;gt;</category>
+        <category>网络爬虫</category>
+        <category>类脑</category>
+        <category>codeigniter</category>
+        <category>php</category>
+        <category>IIS7</category>
+        <category>apache</category>
+        <category>模拟登录</category>
+        <category>proxy</category>
+        <category>vps</category>
+        <category>hexo</category>
+        <category>dropbox</category>
+        <category>domain</category>
+        <category>DNS</category>
+        <category>ffmpeg</category>
+        <category>板绘</category>
+        <category>sai</category>
+        <category>琪露诺</category>
+        <category>mcpo</category>
+        <category>svn</category>
+        <category>LLM</category>
+        <category>ollama</category>
+        <category>open-webui</category>
+        <category>oneapi</category>
+        <category>mcpserver</category>
+        <category>DNS劫持</category>
+        <category>DNS污染</category>
+        <category>NAS</category>
+        <category>minio</category>
+        <category>CDN</category>
+        <category>waline</category>
+        <category>域名</category>
+        <category>VPS</category>
+        <category>邮件服务器</category>
+        <category>评论插件</category>
+        <category>对象存储</category>
+        <category>comfyui</category>
+        <category>openrouter</category>
+        <category>本地模型</category>
+        <category>llama.cpp</category>
+        <category>llama-swap</category>
+        <category>Qwopus3.6</category>
+        <item>
+            <guid isPermalink="true">https://bipedalbit.net/2026/06/14/%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%9E%8B%E9%80%89%E5%9E%8B%E4%B8%8E%E9%83%A8%E7%BD%B2%E6%96%B9%E6%A1%88/</guid>
+            <title>16GB显存下的本地模型选型与部署方案</title>
+            <link>https://bipedalbit.net/2026/06/14/%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%9E%8B%E9%80%89%E5%9E%8B%E4%B8%8E%E9%83%A8%E7%BD%B2%E6%96%B9%E6%A1%88/</link>
+            <category>LLM</category>
+            <category>本地模型</category>
+            <category>llama.cpp</category>
+            <category>llama-swap</category>
+            <category>Qwopus3.6</category>
+            <pubDate>Sun, 14 Jun 2026 22:43:00 +0800</pubDate>
+            <description><![CDATA[ &lt;span id=&#34;more&#34;&gt;&lt;/span&gt;
+
+&lt;p&gt;2026年4月，OpenRouter 上我长期依赖的主力模型 &lt;code&gt;stepfun/step3.5-flash:free&lt;/code&gt; 宣布下架，这成了我寻找本地最佳主力模型的契机。当时本地模型部署方案还只有 ollama，而 16GB 显存的 RTX 4070 Ti Super 在 ollama 下最多只能跑 &lt;code&gt;qwen3.5-9b&lt;/code&gt;——这显然不够。&lt;/p&gt;
+&lt;p&gt;于是我开始了一段曲折的选型之路。&lt;/p&gt;
+&lt;h2 id=&#34;尝试量化极限：27B-模型的显存困局&#34;&gt;&lt;a href=&#34;#尝试量化极限：27B-模型的显存困局&#34; class=&#34;headerlink&#34; title=&#34;尝试量化极限：27B 模型的显存困局&#34;&gt;&lt;/a&gt;尝试量化极限：27B 模型的显存困局&lt;/h2&gt;&lt;p&gt;Qwen3.5 系列刚开源时，我尝试强行部署 &lt;code&gt;qwen3.5-27b&lt;/code&gt; 和 &lt;code&gt;qwen3.5-35b-a3b&lt;/code&gt; 的极度量化版本。&lt;/p&gt;
+&lt;p&gt;27B 模型即使量化到 &lt;strong&gt;Q2&lt;/strong&gt;，推理速度也慢得无法接受。更诡异的是，把上下文压缩到 32K 这么小，也做不到纯 GPU 加载——推测是静态图显存占用已经太大。&lt;/p&gt;
+&lt;p&gt;而 &lt;strong&gt;35B-A3B&lt;/strong&gt; 这个 MoE 模型，情况完全不同。使用 &lt;strong&gt;Q2_K_M&lt;/strong&gt; 量化，配合 ollama 全局 &lt;code&gt;q4_K_Q&lt;/code&gt; 量化，显存占用刚好能跑推理，文本生成速度达到了惊人的 &lt;strong&gt;117 Token&amp;#x2F;s&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;但代价是：这种程度的量化让模型降智严重，很难放心使用。&lt;/p&gt;
+&lt;p&gt;正当我研究 Qwen3.5 的多种蒸馏版本时（以 Qwen3.5 为学生模型，蒸馏 Opus 4.6&amp;#x2F;4.7、GLM5.1、DeepSeek V4 等前沿模型），OpenRouter 上 &lt;code&gt;qwen/qwen3.6-plus:free&lt;/code&gt; 短暂上架了几天，让我第一次体验到 Qwen3.6 的优秀模型质量。很快 Qwen3.6 也开源了，但只放出了 35B-A3B 和 27B 权重。我照例尝试了 Q2_K_M 量化——速度依旧飞快，质量依然堪忧。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Ollama 的极限已到。&lt;/strong&gt; 它的智能 offload 没能选出让 35B-A3B 这种 MoE 模型性能最佳的配置，量化更是只能一降到底。&lt;/p&gt;
+&lt;h2 id=&#34;llama-cpp-的突破口&#34;&gt;&lt;a href=&#34;#llama-cpp-的突破口&#34; class=&#34;headerlink&#34; title=&#34;llama.cpp 的突破口&#34;&gt;&lt;/a&gt;llama.cpp 的突破口&lt;/h2&gt;&lt;p&gt;我在 Qwopus3.6 的 HuggingFace 评论里翻到了有趣的”买家秀”——有人用 llama.cpp 配合 &lt;code&gt;--n-cpu-moe 25&lt;/code&gt;，在 4060 显卡上跑 Q6 量化版本，居然跑出了 &lt;strong&gt;30+ Token&amp;#x2F;s&lt;/strong&gt; 的生成速度。&lt;/p&gt;
+&lt;p&gt;这让我非常眼馋。但问题在于：我放不下 ollama 的自动模型换入换出能力。&lt;/p&gt;
+&lt;p&gt;经过调研，我找到了 &lt;a href=&#34;https://github.com/mostlygeek/llama-swap&#34;&gt;llama-swap&lt;/a&gt;——一个轻量级的模型热切换代理，完美满足了我的需求：既能用 llama.cpp 的精细参数控制，又保留了自动模型生命周期管理。llama-swap 是一个零依赖的 Go 代理，⭐ 4.5k，支持任意 OpenAI&amp;#x2F;Anthropic 兼容的推理后端（llama.cpp、vllm、tabbyAPI 等），具备自动模型卸载（ttl）、并发模型矩阵、内置 Web UI 等特性。&lt;/p&gt;
+&lt;p&gt;终于，能用 &lt;code&gt;--n-cpu-moe&lt;/code&gt; 参数后，我试出了当前主模型的配置：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;参数&lt;/th&gt;
+&lt;th&gt;值&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;&lt;tr&gt;
+&lt;td&gt;模型&lt;/td&gt;
+&lt;td&gt;Qwopus3.6-35B-A3B&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;量化格式&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;Q5_K_M&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;n-cpu-moe&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;25&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;KV Cache 量化&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;q4_K_Q&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;上下文窗口&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;128K&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;p&gt;生成速度：&lt;strong&gt;62 Token&amp;#x2F;s&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;主模型终于达到了基本可作为主力模型使用、强于部分厂商模型的智力水平。&lt;/p&gt;
+&lt;h2 id=&#34;为什么选择-Qwopus3-6？&#34;&gt;&lt;a href=&#34;#为什么选择-Qwopus3-6？&#34; class=&#34;headerlink&#34; title=&#34;为什么选择 Qwopus3.6？&#34;&gt;&lt;/a&gt;为什么选择 Qwopus3.6？&lt;/h2&gt;&lt;p&gt;Qwen3.6 的 35B-A3B 权重本身质量优秀，但 Q2 量化下幻觉严重。&lt;a href=&#34;https://huggingface.co/Jackrong/Qwopus3.6-35B-A3B-v1-GGUF&#34;&gt;Qwopus3.6-35B-A3B&lt;/a&gt; 是蒸馏版本中口碑最好的——&lt;strong&gt;Jackrong&lt;/strong&gt; 是 HuggingFace 上极为活跃的模型产出者，也是 Qwopus 系列的作者，通过蒸馏大幅改善了量化带来的降智问题。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Qwopus3.6 的官方定位是”推理增强的 MoE 模型”&lt;/strong&gt;：总参数量 35B，激活参数 3B&amp;#x2F;token，256 个专家，原生支持 262K 上下文窗口。在 Tekholms.aptm 的独立评测中，它以 &lt;strong&gt;88.6 的总分&lt;/strong&gt;（质量 94.2、可靠性 91.7%）远超基座模型。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align=&#34;left&#34;&gt;模型&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;总分&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;质量&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;可靠性&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;速度&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;&lt;tr&gt;
+&lt;td align=&#34;left&#34;&gt;&lt;strong&gt;🏆 Qwopus3.6-35B-A3B-v1&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;&lt;strong&gt;88.6&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;&lt;strong&gt;94.2&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;&lt;strong&gt;91.7%&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;44 tok&amp;#x2F;s&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;left&#34;&gt;Qwen3.6-35B-A3B-Claude-4.6-Opus&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;82.7&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;86.0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;86.1%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;44 tok&amp;#x2F;s&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;p&gt;Q5_K_M 量化在质量和显存之间取得良好平衡。16GB 显存下，配合 &lt;code&gt;--n-cpu-moe 25&lt;/code&gt; 将 MoE 的中间层卸载到 CPU，显存占用刚好够用。&lt;/p&gt;
+&lt;h2 id=&#34;部署方案&#34;&gt;&lt;a href=&#34;#部署方案&#34; class=&#34;headerlink&#34; title=&#34;部署方案&#34;&gt;&lt;/a&gt;部署方案&lt;/h2&gt;&lt;p&gt;llama-swap 部署在 Docker 容器中，核心架构如下：&lt;/p&gt;
+
+&lt;pre&gt;
+&lt;code class=&#34;mermaid&#34; &gt;
+graph LR
+  subgraph 客户端
+    HA[Hermes Agent]
+    API[OpenAI API]
+  end
+
+  subgraph llama-swap
+    SW[llama-swap :9292]
+    L1[llama-server]
+    L2[llama-server]
+  end
+
+  subgraph 模型存储
+    SSD[/SSD: GGUF/Chat Template/]
+  end
+
+  HA --&gt; SW
+  API --&gt; SW
+  SW --&gt; L1
+  SW --&gt; L2
+  L1 --&gt; SSD
+  L2 --&gt; SSD
+
+  style SW fill:#f9f,stroke:#333,stroke-width:2px
+  style SSD fill:#bbf,stroke:#333,stroke-width:2px
+&lt;/code&gt;
+&lt;/pre&gt;
+
+&lt;p&gt;llama-swap 作为代理层，负责：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;模型热切换&lt;/strong&gt;：客户端通过统一接口请求不同模型&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;自动卸载&lt;/strong&gt;：无请求 5 分钟自动卸载模型，释放显存&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;生命周期管理&lt;/strong&gt;：替代 ollama 的自动 offload，但更精细可控&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;核心配置：&lt;/p&gt;
+&lt;figure class=&#34;highlight yaml&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;22&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs yaml&#34;&gt;&lt;span class=&#34;hljs-attr&#34;&gt;macros:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;host:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;0.0.0.0&amp;quot;&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;n_gpu_layers_max:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;999&amp;quot;&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;ctx_size_128k:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;131072&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-attr&#34;&gt;models:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;&amp;quot;qwopus3.6:35b-a3b-q5-128k&amp;quot;:&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;|&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      llama-server&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --port $&amp;#123;PORT&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --model /ssd-models/.../Qwopus3.6-35B-A3B-v1-Q5_K_M.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --mmproj /ssd-models/.../qwopus3.6-35b-a3b-mmproj.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-gpu-layers $&amp;#123;n_gpu_layers_max&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-cpu-moe 25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --ctx-size $&amp;#123;ctx_size_128k&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      -ctk q4_0&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      -ctv q4_0&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --flash-attn on&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --jinja&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --chat-template-file /ssd-models/.../chat_template.jinja&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --host $&amp;#123;host&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;300&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;关键参数说明：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;n_gpu_layers_max: 999&lt;/code&gt;&lt;/strong&gt;：全 GPU 加载（llama-swap 的宏定义）&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;--n-cpu-moe 25&lt;/code&gt;&lt;/strong&gt;：MoE 层卸载到 CPU，这是 MoE 模型显存优化的关键&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;-ctk q4_0 -ctv q4_0&lt;/code&gt;&lt;/strong&gt;：KV Cache 量化为 q4_0，进一步节省显存&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;ttl: 300&lt;/code&gt;&lt;/strong&gt;：5 分钟无请求自动卸载，释放显存&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Hermes Agent 通过 custom provider 连接 llama-swap：&lt;/p&gt;
+&lt;figure class=&#34;highlight yaml&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs yaml&#34;&gt;&lt;span class=&#34;hljs-attr&#34;&gt;model:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;base_url:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;http://localhost:9292/v1&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;default:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;qwopus3.6:35b-a3b-q5-128k&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;provider:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;custom:llama-swap&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;h2 id=&#34;踩过的坑&#34;&gt;&lt;a href=&#34;#踩过的坑&#34; class=&#34;headerlink&#34; title=&#34;踩过的坑&#34;&gt;&lt;/a&gt;踩过的坑&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;坑一：ollama 智能 offload 的幻觉&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;ollama 的自动 offload 对 MoE 模型并不友好。它尝试将更多层加载到 GPU 以加速，但 MoE 模型的中间层（MoE）显存占用巨大，反而导致无法加载或推理极慢。手动指定 &lt;code&gt;--n-cpu-moe 25&lt;/code&gt; 才是正解。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;坑二：KV Cache 量化被忽略&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;KV Cache 占用的显存往往被低估。35B 模型在 128K 上下文下，KV Cache 可能占用数 GB 显存。&lt;strong&gt;K 和 V 都要用 q4 量化&lt;/strong&gt;，加上 &lt;code&gt;-ctk q4_0 -ctv q4_0&lt;/code&gt; 后，显存占用大幅下降。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;坑三：Chat Template 的循环问题&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;起初不论我用哪一版模型，都很容易在 think 和 tool call 时发生循环——模型在 think 和 tool call 的推理过程中分别都会无限循环。直到在 HuggingFace 上发现了 &lt;a href=&#34;https://huggingface.co/froggeric/Qwen-Fixed-Chat-Templates&#34;&gt;froggeric&amp;#x2F;Qwen-Fixed-Chat-Templates&lt;/a&gt;，才彻底解决了问题。这个 template 是专为修复 Qwen 3.5&amp;#x2F;3.6 官方模板的渲染错误、KV Cache 失效、Token 浪费和致命代理卡顿设计的，迭代到了 v19 才终于稳定，同时适用于 qwen3.5 和 3.6。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;坑四：模型权重文件存储位置影响加载速度&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;高频使用的模型权重文件放在 SSD 上能显著提高加载速度——对当前主模型，这个改进把加载耗时从 1 分钟以上压缩到了 20 秒以内。如果模型文件放在 HDD 上，每次模型换入都会经历漫长的加载等待。&lt;/p&gt;
+&lt;h2 id=&#34;展望&#34;&gt;&lt;a href=&#34;#展望&#34; class=&#34;headerlink&#34; title=&#34;展望&#34;&gt;&lt;/a&gt;展望&lt;/h2&gt;&lt;p&gt;llama.cpp 后来支持了 MTP（Mixture of Token Predictions），但这对 MoE 模型作用不大，对稠密模型的效果也不够显著，我没有采用。&lt;/p&gt;
+&lt;p&gt;最近，Gemma4 放出了一些 QAT（量化感知训练）版本——这是 MoE 模型能受益的技术。我等着 Qwen 放出 QAT 版权重，进一步提高 Q5 量化版本的智力水平。&lt;/p&gt;
+&lt;p&gt;另外，&lt;a href=&#34;https://huggingface.co/HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive&#34;&gt;HauhauCS&amp;#x2F;Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive&lt;/a&gt; 模型中的 &lt;strong&gt;K_P 量化&lt;/strong&gt;很有意思。K_P（”Perfect” quant）是 HauhauCS 的自定义量化方法，通过模型特定的重要性矩阵分析，在关键位置保留更高精度——“有效将质量提升 1-2 个量化等级，而文件大小仅比基础量化大 5-15%”。可惜只有这个 Uncensored 版本有 K_P 量化，要是有 Qwopus3.6 的就好了。Q4_K_P 版本实际效果我正在验证。&lt;/p&gt;
+&lt;h2 id=&#34;总结&#34;&gt;&lt;a href=&#34;#总结&#34; class=&#34;headerlink&#34; title=&#34;总结&#34;&gt;&lt;/a&gt;总结&lt;/h2&gt;&lt;p&gt;16GB 显存下，35B-A3B MoE 模型的性能天花板很高，但需要：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;合适的量化格式&lt;/strong&gt;：Q5_K_M + KV Cache 量化&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;MoE 专属参数&lt;/strong&gt;：&lt;code&gt;--n-cpu-moe&lt;/code&gt; 是关键&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;自动模型生命周期管理&lt;/strong&gt;：llama-swap 填补了 ollama 和 llama.cpp 之间的空白&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;耐心调试&lt;/strong&gt;：参数组合需要大量实验&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;现在，主模型终于达到了基本可作为主力模型使用的水平。&lt;/p&gt;
+ ]]></description>
+        </item>
+    </channel>
+</rss>
