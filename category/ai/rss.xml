@@ -230,7 +230,7 @@ graph LR
 &lt;p&gt;&lt;strong&gt;坑二：KV Cache 量化被忽略&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;KV Cache 占用的显存往往被低估。35B 模型在 128K 上下文下，KV Cache 可能占用数 GB 显存。&lt;strong&gt;K 和 V 都要用 q4 量化&lt;/strong&gt;，加上 &lt;code&gt;-ctk q4_0 -ctv q4_0&lt;/code&gt; 后，显存占用大幅下降。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;坑三：Chat Template 的循环问题&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;起初不论我用哪一版模型，都很容易在 think 和 tool call 时发生循环——模型在 think 和 tool call 的推理过程中分别都会无限循环。直到在 HuggingFace 上发现了 &lt;a href=&#34;https://huggingface.co/froggeric/Qwen-Fixed-Chat-Templates&#34;&gt;froggeric&amp;#x2F;Qwen-Fixed-Chat-Templates&lt;/a&gt;，才彻底解决了问题。这个 template 是专为修复 Qwen 3.5&amp;#x2F;3.6 官方模板的渲染错误、KV Cache 失效、Token 浪费和致命代理卡顿设计的，迭代到了 v19 才终于稳定，同时适用于 qwen3.5 和 3.6。&lt;/p&gt;
+&lt;p&gt;起初不论我用哪一版模型，都很容易在 think 和 tool call 时发生循环——模型在 think 和 tool call 的推理过程中分别都会无限循环。直到在 HuggingFace 上发现了 &lt;a href=&#34;https://huggingface.co/froggeric/Qwen-Fixed-Chat-Templates&#34;&gt;froggeric&amp;#x2F;Qwen-Fixed-Chat-Templates&lt;/a&gt;，才彻底解决了问题。这个 template 是专为修复 Qwen 3.5&amp;#x2F;3.6 官方模板的渲染错误、KV Cache 失效、Token 浪费和致命代理卡顿设计的，迭代到了 v20 才终于稳定，同时适用于 qwen3.5 和 3.6。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;坑四：模型权重文件存储位置影响加载速度&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;高频使用的模型权重文件放在 SSD 上能显著提高加载速度——对当前主模型，这个改进把加载耗时从 1 分钟以上压缩到了 20 秒以内。如果模型文件放在 HDD 上，每次模型换入都会经历漫长的加载等待。&lt;/p&gt;
 &lt;h2 id=&#34;展望&#34;&gt;&lt;a href=&#34;#展望&#34; class=&#34;headerlink&#34; title=&#34;展望&#34;&gt;&lt;/a&gt;展望&lt;/h2&gt;&lt;p&gt;llama.cpp 后来支持了 MTP（Mixture of Token Predictions），但这对 MoE 模型作用不大，对稠密模型的效果也不够显著，我没有采用。&lt;/p&gt;
