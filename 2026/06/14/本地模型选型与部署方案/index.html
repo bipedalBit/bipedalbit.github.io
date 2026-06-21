@@ -29,11 +29,16 @@
 <meta property="og:description" content="从 stepfun 停用到 ollama 9B 瓶颈，再到 llama.cpp n-cpu-moe 和 llama-swap 热切换的选型始末">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-14T14:43:00.000Z">
-<meta property="article:modified_time" content="2026-06-17T07:03:31.097Z">
+<meta property="article:modified_time" content="2026-06-21T14:46:39.844Z">
 <meta property="article:author" content="Bipedal Bit">
 <meta property="article:tag" content="LLM">
 <meta property="article:tag" content="本地模型">
 <meta property="article:tag" content="llama.cpp">
+<meta property="article:tag" content="Nex-N2">
+<meta property="article:tag" content="qwopus3.6">
+<meta property="article:tag" content="agentOS">
+<meta property="article:tag" content="Claude Code">
+<meta property="article:tag" content="OpenClaw">
 <meta property="article:tag" content="llama-swap">
 <meta property="article:tag" content="Qwopus3.6">
 <meta name="twitter:card" content="summary_large_image">
@@ -241,7 +246,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.9k 字
+          2.8k 字
         
       </span>
     
@@ -252,7 +257,7 @@
         
         
         
-          16 分钟
+          24 分钟
         
       </span>
     
@@ -338,7 +343,64 @@
 </tbody></table>
 <p>生成速度：<strong>62 Token&#x2F;s</strong>。</p>
 <p>主模型终于达到了基本可作为主力模型使用、强于部分厂商模型的智力水平。</p>
-<h2 id="为什么选择-Qwopus3-6？"><a href="#为什么选择-Qwopus3-6？" class="headerlink" title="为什么选择 Qwopus3.6？"></a>为什么选择 Qwopus3.6？</h2><p>Qwen3.6 的 35B-A3B 权重本身质量优秀，但 Q2 量化下幻觉严重。<a target="_blank" rel="noopener" href="https://huggingface.co/Jackrong/Qwopus3.6-35B-A3B-v1-GGUF">Qwopus3.6-35B-A3B</a> 是蒸馏版本中口碑最好的——<strong>Jackrong</strong> 是 HuggingFace 上极为活跃的模型产出者，也是 Qwopus 系列的作者，通过蒸馏大幅改善了量化带来的降智问题。</p>
+<h2 id="为什么选择-Qwopus3-6？"><a href="#为什么选择-Qwopus3-6？" class="headerlink" title="为什么选择 Qwopus3.6？"></a>为什么选择 Qwopus3.6？</h2><p>Qwopus3.6 的核心价值不是“通用聊天更强”，而是在本地 16GB 显存条件下，把<strong>编程能力、工程理解和代码修复能力</strong>尽量拉满。</p>
+<p>我最初把它作为所有本地 agentOS 场景的主模型，是因为它足够通用、足够强。但体验 Nex-N2 系列后，我把模型角色拆开了：</p>
+<ul>
+<li><strong>nex-n2-mini</strong>：负责通用 agent、agentOS、computer use、长任务执行闭环。它的优势是更强的指令遵循、工具调用、状态跟踪和少犯错。</li>
+<li><strong>qwopus3.6</strong>：负责 Claude Code、OpenClaw coding、Opencode、Codex 这类强 harness 编程工具。它的优势是代码理解、Diff 质量、重构和测试修复。</li>
+</ul>
+<p>这个选择背后的判断是：</p>
+<blockquote>
+<p><strong>nex-n2-mini 负责“听话、执行、闭环”；qwopus3.6 负责“写代码、修工程”。</strong></p>
+</blockquote>
+<h2 id="agentOS-computer-use-为什么切到-nex-n2-mini"><a href="#agentOS-computer-use-为什么切到-nex-n2-mini" class="headerlink" title="agentOS &#x2F; computer use 为什么切到 nex-n2-mini"></a>agentOS &#x2F; computer use 为什么切到 nex-n2-mini</h2><p>Claude Code、Opencode、Codex 这类 AI 编程工具有一个特点：它们通过强 harness 约束模型行为，包括文件修改、git diff、测试反馈、错误恢复和迭代流程。模型不是完全自由地写文本，而是在工程流程里被约束、被验证、被纠错。</p>
+<p>所以在这类工具里，只要模型足够听话，核心矛盾就更偏向<strong>编程能力本身</strong>。因此我会把编程更强的 qwopus3.6 放在这些 coding tool 中。</p>
+<p>但 Hermes-agent、OpenClaw 的通用 agent 路径不一样。它们需要模型持续完成：</p>
+<ul>
+<li>理解用户目标</li>
+<li>拆解任务</li>
+<li>调用本地工具</li>
+<li>观察执行结果</li>
+<li>处理失败</li>
+<li>修正计划</li>
+<li>把闭环推到可验证状态</li>
+</ul>
+<p>这类任务对“指令遵循”和“工具使用稳定性”的要求更高。Nex-N2 系列强调 Agentic Thinking，把 reasoning、tool use、environment execution 连成闭环；Nex-N2-mini 又比 Pro 更适合本地低延迟使用。因此我把本地 agentOS 和 OpenClaw 的主模型切到 nex-n2-mini，是为了让模型更像一个可靠的执行器。</p>
+<h2 id="Claude-Code-OpenClaw-coding-为什么保留-qwopus3-6"><a href="#Claude-Code-OpenClaw-coding-为什么保留-qwopus3-6" class="headerlink" title="Claude Code &#x2F; OpenClaw coding 为什么保留 qwopus3.6"></a>Claude Code &#x2F; OpenClaw coding 为什么保留 qwopus3.6</h2><p>强 harness 能显著降低模型自由度带来的风险，但不能完全替代模型能力。</p>
+<p>像 Claude Code、Codex、Opencode 这类工具虽然约束了模型，但仍然要求模型做到：</p>
+<ul>
+<li>正确理解错误信息</li>
+<li>判断是否需要改文件</li>
+<li>生成最小必要 patch</li>
+<li>避免无关重构</li>
+<li>根据测试失败定位根因</li>
+<li>避免重复错误修改</li>
+</ul>
+<p>这些能力里，编程质量权重很高。因此在这些工具中，我依然选择本地编程最强的 qwopus3.6。</p>
+<p>更准确地说，这不是“nex-n2-mini 不如 qwopus3.6”，而是二者承担的任务不同：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>核心需求</th>
+<th>本地主模型</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Hermes-agent &#x2F; OpenClaw 通用 agent &#x2F; computer use</td>
+<td>指令遵循、工具调用、状态跟踪、执行闭环</td>
+<td>nex-n2-mini</td>
+<td>更重视可靠执行和少犯错</td>
+</tr>
+<tr>
+<td>Claude Code &#x2F; Opencode &#x2F; Codex 风格 coding tool</td>
+<td>代码理解、Diff、重构、测试修复、工程判断</td>
+<td>qwopus3.6</td>
+<td>harness 已约束执行，核心释放编码能力</td>
+</tr>
+</tbody></table>
+<p>这种策略和社区主流方向是一致的：coding tool 优先 coding model，agentOS &#x2F; computer use 优先 agentic &#x2F; tool-following model。成熟做法不是“一个模型打天下”，而是按任务风险域做模型路由。</p>
 <p><strong>Qwopus3.6 的官方定位是”推理增强的 MoE 模型”</strong>：总参数量 35B，激活参数 3B&#x2F;token，256 个专家，原生支持 262K 上下文窗口。在 Tekholms.aptm 的独立评测中，它以 <strong>88.6 的总分</strong>（质量 94.2、可靠性 91.7%）远超基座模型。</p>
 <table>
 <thead>
@@ -405,7 +467,7 @@ graph LR
 <li><strong>生命周期管理</strong>：替代 ollama 的自动 offload，但更精细可控</li>
 </ul>
 <p>核心配置：</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">macros:</span><br>  <span class="hljs-attr">host:</span> <span class="hljs-string">&quot;0.0.0.0&quot;</span><br>  <span class="hljs-attr">n_gpu_layers_max:</span> <span class="hljs-string">&quot;999&quot;</span><br>  <span class="hljs-attr">ctx_size_128k:</span> <span class="hljs-string">&quot;131072&quot;</span><br><br><span class="hljs-attr">models:</span><br>  <span class="hljs-attr">&quot;qwopus3.6:35b-a3b-q5-128k&quot;:</span><br>    <span class="hljs-attr">cmd:</span> <span class="hljs-string">|</span><br><span class="hljs-string">      llama-server</span><br><span class="hljs-string">      --port $&#123;PORT&#125;</span><br><span class="hljs-string">      --model /ssd-models/.../Qwopus3.6-35B-A3B-v1-Q5_K_M.gguf</span><br><span class="hljs-string">      --mmproj /ssd-models/.../qwopus3.6-35b-a3b-mmproj.gguf</span><br><span class="hljs-string">      --n-gpu-layers $&#123;n_gpu_layers_max&#125;</span><br><span class="hljs-string">      --n-cpu-moe 25</span><br><span class="hljs-string">      --ctx-size $&#123;ctx_size_128k&#125;</span><br><span class="hljs-string">      -ctk q4_0</span><br><span class="hljs-string">      -ctv q4_0</span><br><span class="hljs-string">      --flash-attn on</span><br><span class="hljs-string">      --jinja</span><br><span class="hljs-string">      --chat-template-file /ssd-models/.../chat_template.jinja</span><br><span class="hljs-string">      --host $&#123;host&#125;</span><br><span class="hljs-string"></span>    <span class="hljs-attr">ttl:</span> <span class="hljs-number">300</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">macros:</span><br>  <span class="hljs-attr">host:</span> <span class="hljs-string">&quot;0.0.0.0&quot;</span><br>  <span class="hljs-attr">n_gpu_layers_max:</span> <span class="hljs-string">&quot;999&quot;</span><br>  <span class="hljs-attr">ctx_size_128k:</span> <span class="hljs-string">&quot;131072&quot;</span><br><br><span class="hljs-attr">models:</span><br>  <span class="hljs-attr">&quot;qwopus3.6:35b-a3b-q5-128k&quot;:</span><br>    <span class="hljs-attr">cmd:</span> <span class="hljs-string">|</span><br><span class="hljs-string">      llama-server</span><br><span class="hljs-string">      --port $&#123;PORT&#125;</span><br><span class="hljs-string">      --model /ssd-models/.../Qwopus3.6-35B-A3B-v1-Q5_K_M.gguf</span><br><span class="hljs-string">      --mmproj /ssd-models/.../qwopus3.6-35b-a3b-mmproj.gguf</span><br><span class="hljs-string">      --n-gpu-layers $&#123;n_gpu_layers_max&#125;</span><br><span class="hljs-string">      --n-cpu-moe 25</span><br><span class="hljs-string">      --ctx-size $&#123;ctx_size_128k&#125;</span><br><span class="hljs-string">      -ctk q4_0</span><br><span class="hljs-string">      -ctv q4_0</span><br><span class="hljs-string">      --flash-attn on</span><br><span class="hljs-string">      --jinja</span><br><span class="hljs-string">      --chat-template-file /ssd-models/.../chat_template.jinja</span><br><span class="hljs-string">      --host $&#123;host&#125;</span><br><span class="hljs-string"></span>    <span class="hljs-attr">ttl:</span> <span class="hljs-number">300</span><br><br>  <span class="hljs-attr">&quot;nex-n2-mini:35b-a3b-q5-128k&quot;:</span><br>    <span class="hljs-attr">cmd:</span> <span class="hljs-string">|</span><br><span class="hljs-string">      llama-server</span><br><span class="hljs-string">      --port $&#123;PORT&#125;</span><br><span class="hljs-string">      --model /ssd-models/.../nex-agi_Nex-N2-mini-GGUF</span><br><span class="hljs-string">      --n-gpu-layers $&#123;n_gpu_layers_max&#125;</span><br><span class="hljs-string">      --n-cpu-moe 25</span><br><span class="hljs-string">      --ctx-size $&#123;ctx_size_128k&#125;</span><br><span class="hljs-string">      --flash-attn on</span><br><span class="hljs-string">      --jinja</span><br><span class="hljs-string">      --chat-template-file /ssd-models/.../chat_template.jinja</span><br><span class="hljs-string">      --host $&#123;host&#125;</span><br><span class="hljs-string"></span>    <span class="hljs-attr">ttl:</span> <span class="hljs-number">300</span><br></code></pre></td></tr></table></figure>
 
 <p>关键参数说明：</p>
 <ul>
@@ -414,6 +476,13 @@ graph LR
 <li><strong><code>-ctk q4_0 -ctv q4_0</code></strong>：KV Cache 量化为 q4_0，进一步节省显存</li>
 <li><strong><code>ttl: 300</code></strong>：5 分钟无请求自动卸载，释放显存</li>
 </ul>
+<p>部署模型来源：</p>
+<ul>
+<li>qwopus3.6:35B-A3B 权重页：<a target="_blank" rel="noopener" href="https://huggingface.co/Jackrong/Qwopus3.6-35B-A3B-v1-GGUF">https://huggingface.co/Jackrong/Qwopus3.6-35B-A3B-v1-GGUF</a></li>
+<li>nex-n2-mini 官方模型页：<a target="_blank" rel="noopener" href="https://huggingface.co/nex-agi/Nex-N2-mini">https://huggingface.co/nex-agi/Nex-N2-mini</a></li>
+<li>我实际使用的 nex-n2-mini GGUF 镜像：<a target="_blank" rel="noopener" href="https://huggingface.co/bartowski/nex-agi_Nex-N2-mini-GGUF">https://huggingface.co/bartowski/nex-agi_Nex-N2-mini-GGUF</a></li>
+</ul>
+<p>由于 Nex-N2-mini 与 qwopus3.6:35B-A3B 架构相同，部署方案可以直接复用。只需要在 llama-swap 中增加一个模型项，并把 <code>--model</code> 指向实际 GGUF 文件即可；客户端模型名、路由和调用侧默认配置可以按场景独立切换。</p>
 <p>Hermes Agent 通过 custom provider 连接 llama-swap：</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">model:</span><br>  <span class="hljs-attr">base_url:</span> <span class="hljs-string">http://localhost:9292/v1</span><br>  <span class="hljs-attr">default:</span> <span class="hljs-string">qwopus3.6:35b-a3b-q5-128k</span><br>  <span class="hljs-attr">provider:</span> <span class="hljs-string">custom:llama-swap</span><br></code></pre></td></tr></table></figure>
 
@@ -475,6 +544,16 @@ graph LR
       
         <a href="/tags/llama-cpp/" class="print-no-link">#llama.cpp</a>
       
+        <a href="/tags/Nex-N2/" class="print-no-link">#Nex-N2</a>
+      
+        <a href="/tags/qwopus3-6/" class="print-no-link">#qwopus3.6</a>
+      
+        <a href="/tags/agentOS/" class="print-no-link">#agentOS</a>
+      
+        <a href="/tags/Claude-Code/" class="print-no-link">#Claude Code</a>
+      
+        <a href="/tags/OpenClaw/" class="print-no-link">#OpenClaw</a>
+      
         <a href="/tags/llama-swap/" class="print-no-link">#llama-swap</a>
       
         <a href="/tags/Qwopus3-6/" class="print-no-link">#Qwopus3.6</a>
@@ -533,6 +612,12 @@ graph LR
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2026/06/18/%E5%88%A9%E7%94%A8headroom%E5%AE%9E%E7%8E%B0%E6%A8%A1%E5%9E%8Btoken%E7%94%A8%E9%87%8F%E5%8E%8B%E7%BC%A9/" title="利用headroom实现模型token用量压缩">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">利用headroom实现模型token用量压缩</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">

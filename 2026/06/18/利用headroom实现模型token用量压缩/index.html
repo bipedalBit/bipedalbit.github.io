@@ -1,0 +1,939 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Bipedal Bit">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="背景我的中转站（基于 new-api）和 Hermes Agent 已经部署很长一段时间了。最近才开始部署试用 headroom-proxy 做上下文压缩，效果还不错，记录一下。  说明：new-api 是 one-api 的活跃 fork，one-api 项目已停止迭代，new-api 在 one-api 基础上持续维护更新。  headroom-proxy 是一个 Go 语言开发的 LLM 代">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用headroom实现模型token用量压缩">
+<meta property="og:url" content="https://bipedalbit.net/2026/06/18/%E5%88%A9%E7%94%A8headroom%E5%AE%9E%E7%8E%B0%E6%A8%A1%E5%9E%8Btoken%E7%94%A8%E9%87%8F%E5%8E%8B%E7%BC%A9/index.html">
+<meta property="og:site_name" content="Hacking to the gate!">
+<meta property="og:description" content="背景我的中转站（基于 new-api）和 Hermes Agent 已经部署很长一段时间了。最近才开始部署试用 headroom-proxy 做上下文压缩，效果还不错，记录一下。  说明：new-api 是 one-api 的活跃 fork，one-api 项目已停止迭代，new-api 在 one-api 基础上持续维护更新。  headroom-proxy 是一个 Go 语言开发的 LLM 代">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T15:17:58.835Z">
+<meta property="article:author" content="Bipedal Bit">
+<meta property="article:tag" content="llama-swap">
+<meta property="article:tag" content="headroom">
+<meta property="article:tag" content="本地部署">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>利用headroom实现模型token用量压缩 - Hacking to the gate!</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"bipedalbit.net","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":100,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Hacking to the gate!</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://cdn.minio.bipedalbit.net/bipedalbit-net-images/banner/125633249_p0_resize.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="利用headroom实现模型token用量压缩"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-18 00:00" pubdate>
+          2026年6月18日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          19 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">利用headroom实现模型token用量压缩</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>我的中转站（基于 <a target="_blank" rel="noopener" href="https://github.com/QuantumNous/new-api">new-api</a>）和 Hermes Agent 已经部署很长一段时间了。最近才开始部署试用 headroom-proxy 做上下文压缩，效果还不错，记录一下。</p>
+<blockquote>
+<p>说明：<a target="_blank" rel="noopener" href="https://github.com/QuantumNous/new-api">new-api</a> 是 <a target="_blank" rel="noopener" href="https://github.com/songquanpeng/one-api">one-api</a> 的活跃 fork，one-api 项目已停止迭代，new-api 在 one-api 基础上持续维护更新。</p>
+</blockquote>
+<p>headroom-proxy 是一个 Go 语言开发的 LLM 代理服务器，支持在模型调用前自动压缩上下文，减少 token 用量。它提供了多种压缩策略，包括语义压缩（kcompress）、前缀冻结、工具输出压缩等，可以在保持对话质量的同时显著降低 token 消耗。</p>
+<h2 id="部署架构"><a href="#部署架构" class="headerlink" title="部署架构"></a>部署架构</h2><pre><code class=" mermaid">graph TD
+    subgraph &quot;client&quot;
+        A[Hermes Agent]
+        B[OpenClaw]
+        C[OpenCode]
+    end
+
+    subgraph &quot;本地模型链路&quot;
+        D[headroom-llamaswap 8788]
+        E[llama-swap]
+    end
+
+    subgraph &quot;中转站链路&quot;
+        F[headroom 中转站 8787]
+        G[中转站]
+    end
+
+    A --&gt;|请求| D
+    B --&gt;|请求| D
+    C --&gt;|请求| D
+    D --&gt;|代理请求| E
+
+    A --&gt;|请求| F
+    B --&gt;|请求| F
+    C --&gt;|请求| F
+    F --&gt;|代理请求| G
+</code></pre>
+
+
+<h2 id="Headroom-Proxy-部署踩坑记录"><a href="#Headroom-Proxy-部署踩坑记录" class="headerlink" title="Headroom Proxy 部署踩坑记录"></a>Headroom Proxy 部署踩坑记录</h2><h3 id="CLI-Help-信息压缩问题"><a href="#CLI-Help-信息压缩问题" class="headerlink" title="CLI Help 信息压缩问题"></a>CLI Help 信息压缩问题</h3><p>headroom-proxy 默认压缩策略（功能全开）会遇到压缩破坏 CLI help 文本的问题，导致 CLI 工具调用受阻。</p>
+<p><strong>现象</strong>：当模型调用中包含 CLI 工具的 help 信息时，headroom-proxy 的语义压缩会破坏 help 文本的格式和语义，导致 CLI 工具无法正常解析参数说明。</p>
+<p><strong>解决方案</strong>：在 <code>docker-compose.yaml</code> 中配置排除 CLI help 信息的压缩，具体做法是在 <code>compression.excluded_prefixes</code> 中添加 CLI help 相关的文本前缀。</p>
+<h3 id="Kcompress-CPU-指令集要求"><a href="#Kcompress-CPU-指令集要求" class="headerlink" title="Kcompress CPU 指令集要求"></a>Kcompress CPU 指令集要求</h3><p>Kcompress 语义压缩依赖 ONNX 模型，需要 AVX 512 指令集，我的群晖 NAS CPU 指令集不适配，无法在开启 kcompress 的情况下，把 headroom-proxy 部署在群晖 NAS。</p>
+<p><strong>分析</strong>：群晖 NAS 的 CPU（如 J4125、J5040 等）仅支持 AVX2，不支持 AVX512。Kcompress 的 ONNX 模型编译时使用了 AVX512 指令集，在群晖 NAS 上启动时会报 <code>Illegal instruction</code> 错误。</p>
+<p><strong>解决方案</strong>：群晖 NAS 上部署 headroom-proxy 时，关闭 kcompress 功能，仅使用前缀冻结和工具输出压缩策略。</p>
+<h3 id="Kcompress-计算资源要求"><a href="#Kcompress-计算资源要求" class="headerlink" title="Kcompress 计算资源要求"></a>Kcompress 计算资源要求</h3><p>ONNX 推理对 CPU、内存有一定资源占用，也不适合在开启 kcompress 的情况下部署 headroom-proxy 在纯 IO 职责的低资源 VPS 上。</p>
+<p><strong>分析</strong>：Kcompress 的 ONNX 推理需要消耗额外的 CPU 计算资源和内存，在低资源 VPS 上会导致：</p>
+<ul>
+<li>CPU 占用率升高，影响其他业务</li>
+<li>推理延迟增加，模型调用响应变慢</li>
+<li>内存占用增加，可能触发 OOM</li>
+</ul>
+<p><strong>解决方案</strong>：在低资源 VPS 上，关闭 kcompress 功能，仅使用前缀冻结策略。</p>
+<h3 id="AnyLLM-Key-Fallback-无效"><a href="#AnyLLM-Key-Fallback-无效" class="headerlink" title="AnyLLM Key Fallback 无效"></a>AnyLLM Key Fallback 无效</h3><p>我们尝试过配置 API Key，无鉴权调用 headroom-proxy，发现 AnyLLM backend 的鉴权 fallback 机制目前无效。</p>
+<p><strong>现象</strong>：配置 headroom-proxy 的 API Key 后，期望在不带 API Key 的模型调用请求中，headroom-proxy 自动添加 API Key。但实际测试发现，AnyLLM backend 的鉴权 fallback 机制无法正常工作。</p>
+<p><strong>解决方案</strong>：好在带鉴权信息的模型调用请求，API Key 透传是正常的。因此暂时选择弃用 headroom-proxy 的鉴权 fallback 机制，继续在模型调用请求中携带 API Key。</p>
+<h3 id="健康检查误打-Anthropic-API"><a href="#健康检查误打-Anthropic-API" class="headerlink" title="健康检查误打 Anthropic API"></a>健康检查误打 Anthropic API</h3><p><strong>现象</strong>：一次重启后，<code>docker compose ps</code> 显示两个 headroom 容器都是 <code>unhealthy</code>，但访问 <code>http://127.0.0.1:8787/livez</code> 和 <code>http://127.0.0.1:8788/livez</code> 都是正常的。</p>
+<p><strong>原因</strong>：headroom 的 <code>/readyz</code> 会触发 upstream 检查，而 upstream URL 默认来自 <code>api_targets.anthropic</code>。如果环境变量里没有显式设置 <code>ANTHROPIC_TARGET_API_URL</code>，它会去探测 <code>https://api.anthropic.com</code>。也就是说，即使我们实际只用 OpenAI-compatible backend（new-api 或 llama-swap），健康检查也会因为 Anthropic API 不可用而误判。</p>
+<p><strong>解决方案</strong>：不使用 Anthropic API 时，在 headroom 容器里加：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-bullet">-</span> <span class="hljs-string">HEADROOM_SKIP_UPSTREAM_CHECK=1</span><br></code></pre></td></tr></table></figure>
+
+<p>同时把 Docker healthcheck 从 <code>/readyz</code> 改成 <code>/livez</code>，避免健康检查被上游慢响应拖死：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">healthcheck:</span><br>  <span class="hljs-attr">test:</span> [<span class="hljs-string">&quot;CMD&quot;</span>, <span class="hljs-string">&quot;curl&quot;</span>, <span class="hljs-string">&quot;--fail&quot;</span>, <span class="hljs-string">&quot;--silent&quot;</span>, <span class="hljs-string">&quot;http://127.0.0.1:8787/livez&quot;</span>]<br>  <span class="hljs-attr">interval:</span> <span class="hljs-string">30s</span><br>  <span class="hljs-attr">timeout:</span> <span class="hljs-string">10s</span><br>  <span class="hljs-attr">retries:</span> <span class="hljs-number">3</span><br>  <span class="hljs-attr">start_period:</span> <span class="hljs-string">60s</span><br></code></pre></td></tr></table></figure>
+
+<p>这样 <code>/livez</code> 只检查 headroom 进程是否存活，<code>/readyz</code> 在 <code>HEADROOM_SKIP_UPSTREAM_CHECK=1</code> 后也会把 upstream 视为 ready。</p>
+<h3 id="一次模型超时后连接池被打满"><a href="#一次模型超时后连接池被打满" class="headerlink" title="一次模型超时后连接池被打满"></a>一次模型超时后连接池被打满</h3><p><strong>现象</strong>：某次模型请求卡住后，后续请求开始出现 <code>ReadTimeout</code>、<code>PoolTimeout</code>，<code>/v1/chat/completions</code> 返回 502，<code>/readyz</code> 也可能持续 503。</p>
+<p><strong>原因</strong>：headroom 默认 upstream read timeout 较长，慢请求会长时间占用连接；如果同时开启多次重试，失败请求会叠加放大，最后把 httpx 连接池占满，新请求只能等连接释放，表现为 <code>PoolTimeout</code>。</p>
+<p><strong>解决方案</strong>：</p>
+<ol>
+<li><p>减少重试放大：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-bullet">-</span> <span class="hljs-string">HEADROOM_RETRY_MAX_ATTEMPTS=1</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>给连接&#x2F;连接池超时一个更明确的值：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-bullet">-</span> <span class="hljs-string">HEADROOM_CONNECT_TIMEOUT_SECONDS=120</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>跳过 Anthropic upstream 健康检查，避免健康检查本身参与制造假故障：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-bullet">-</span> <span class="hljs-string">HEADROOM_SKIP_UPSTREAM_CHECK=1</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>恢复时优先只重启 headroom 容器，不先动 llama-swap 或模型服务：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> ~/workspace/docker-compose-confs/headroom<br>docker compose up -d<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>如果重启 headroom 后仍然卡住，再单独验证 llama-swap 上游：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">curl --max-time 20 -sS http://192.168.31.125:9292/v1/models<br></code></pre></td></tr></table></figure>
+<p>如果上游 <code>llama-swap</code> 自己也不响应，才考虑处理 llama-swap 服务或模型加载问题。</p>
+</li>
+</ol>
+<p><strong>本次验证结果</strong>：按上述配置修改 compose 并重启后，两个 headroom 容器均变为 <code>healthy</code>；<code>8787 /readyz</code> 和 <code>8788 /readyz</code> 都返回 200；使用 <code>8788</code> 无鉴权实际调用 <code>qwopus3.6:35b-a3b-q5-128k</code> 返回 200，约 20.5 秒完成。</p>
+<h2 id="功能配置优化"><a href="#功能配置优化" class="headerlink" title="功能配置优化"></a>功能配置优化</h2><p>根据社区讨论和实际踩坑经验，我们对 headroom-proxy 的功能配置做了以下优化。</p>
+<h3 id="主要配置调整"><a href="#主要配置调整" class="headerlink" title="主要配置调整"></a>主要配置调整</h3><ol>
+<li><p><strong>压缩策略配置</strong>：根据硬件条件选择压缩策略</p>
+<ul>
+<li>群晖 NAS：关闭 kcompress，使用前缀冻结 + 工具输出压缩</li>
+<li>低资源 VPS：关闭 kcompress，仅使用前缀冻结</li>
+<li>高性能 PC：全功能开启（kcompress + 前缀冻结 + 工具输出压缩）</li>
+</ul>
+</li>
+<li><p><strong>CLI Help 排除</strong>：添加 CLI help 信息的压缩排除规则</p>
+</li>
+<li><p><strong>健康检查修正</strong>：不使用 Anthropic API 时，设置 <code>HEADROOM_SKIP_UPSTREAM_CHECK=1</code>，Docker healthcheck 改用 <code>/livez</code></p>
+</li>
+<li><p><strong>超时&#x2F;重试收敛</strong>：设置 <code>HEADROOM_RETRY_MAX_ATTEMPTS=1</code> 和 <code>HEADROOM_CONNECT_TIMEOUT_SECONDS=120</code>，避免一次慢请求放大成连接池打满</p>
+</li>
+<li><p><strong>鉴权配置</strong>：放弃鉴权 fallback，模型调用请求中携带 API Key</p>
+</li>
+</ol>
+<h3 id="配置示例"><a href="#配置示例" class="headerlink" title="配置示例"></a>配置示例</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># docker-compose.yaml 关键配置节</span><br><span class="hljs-attr">services:</span><br>  <span class="hljs-attr">headroom:</span><br>    <span class="hljs-attr">environment:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">DISABLE_KOMPRESS=1</span>  <span class="hljs-comment"># 群晖/低资源VPS上关闭</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">NO_CCR_INJECT_TOOL=1</span>  <span class="hljs-comment"># 禁止注入工具调用</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">NO_CCR_MARKER=1</span>  <span class="hljs-comment"># 禁止注入压缩标记</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">PROTECT_RECENT=5</span>  <span class="hljs-comment"># 保护最近5轮对话不被压缩</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">COMPRESS_SYSTEM_MESSAGES=false</span>  <span class="hljs-comment"># 系统消息不压缩</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">HEADROOM_SKIP_UPSTREAM_CHECK=1</span>  <span class="hljs-comment"># 不用 Anthropic 时跳过 upstream 健康检查</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">HEADROOM_RETRY_MAX_ATTEMPTS=1</span>  <span class="hljs-comment"># 避免慢请求重试放大</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">HEADROOM_CONNECT_TIMEOUT_SECONDS=120</span>  <span class="hljs-comment"># 连接/连接池超时</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">COMPRESSION_STABLE_AFTER_TURN</span>  <span class="hljs-comment"># 开启结构化压缩</span><br>    <span class="hljs-attr">healthcheck:</span><br>      <span class="hljs-attr">test:</span> [<span class="hljs-string">&quot;CMD&quot;</span>, <span class="hljs-string">&quot;curl&quot;</span>, <span class="hljs-string">&quot;--fail&quot;</span>, <span class="hljs-string">&quot;--silent&quot;</span>, <span class="hljs-string">&quot;http://127.0.0.1:8787/livez&quot;</span>]<br>      <span class="hljs-attr">interval:</span> <span class="hljs-string">30s</span><br>      <span class="hljs-attr">timeout:</span> <span class="hljs-string">10s</span><br>      <span class="hljs-attr">retries:</span> <span class="hljs-number">3</span><br>      <span class="hljs-attr">start_period:</span> <span class="hljs-string">60s</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="实测数据"><a href="#实测数据" class="headerlink" title="实测数据"></a>实测数据</h2><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>8787 端口（中转站 nex-agi&#x2F;nex-n2-pro:free）</th>
+<th>8788 端口（本地 llama-swap qwopus3.6:35b-a3b-q5-128k）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>API 请求数</td>
+<td>48</td>
+<td>495</td>
+</tr>
+<tr>
+<td>总输入 token</td>
+<td>936,468</td>
+<td>21,791,478</td>
+</tr>
+<tr>
+<td>总输出 token</td>
+<td>41,405</td>
+<td>136,511</td>
+</tr>
+<tr>
+<td>请求压缩次数</td>
+<td>16</td>
+<td>353</td>
+</tr>
+<tr>
+<td>压缩节省 token</td>
+<td>622,160</td>
+<td>23,632,292</td>
+</tr>
+<tr>
+<td>综合压缩率</td>
+<td>39.92%</td>
+<td>52.03%</td>
+</tr>
+<tr>
+<td>平均压缩率</td>
+<td>41.1%</td>
+<td>38.2%</td>
+</tr>
+<tr>
+<td>最佳压缩</td>
+<td>44.4%（97,688 → 54,280 tokens）</td>
+<td>88.1%（572,012 → 68,132 tokens）</td>
+</tr>
+<tr>
+<td>前缀冻结次数</td>
+<td>17</td>
+<td>103</td>
+</tr>
+<tr>
+<td>前缀缓存命中率</td>
+<td>0.5%</td>
+<td>98.3%</td>
+</tr>
+<tr>
+<td>请求缓存命中率</td>
+<td>42.9%</td>
+<td>97.1%</td>
+</tr>
+<tr>
+<td>平均延迟</td>
+<td>31,973ms</td>
+<td>15,242ms</td>
+</tr>
+<tr>
+<td>最大延迟</td>
+<td>217,235ms</td>
+<td>282,213ms</td>
+</tr>
+<tr>
+<td>平均 overhead</td>
+<td>290.09ms</td>
+<td>110.93ms</td>
+</tr>
+</tbody></table>
+<p><strong>压缩策略分布：</strong></p>
+<ul>
+<li>8787 端口：<code>smart_crusher</code> 74 次，<code>text</code> 6 次，<code>log</code> 6 次</li>
+<li>8788 端口：<code>smart_crusher</code> 337 次，<code>text</code> 65 次，<code>log</code> 8 次</li>
+</ul>
+<p><strong>最佳压缩示例：</strong></p>
+<ul>
+<li>8787：97,688 → 54,280 tokens，节省 43,408 tokens（44.4%）</li>
+<li>8788：572,012 → 68,132 tokens，节省 503,880 tokens（88.1%）</li>
+</ul>
+<h3 id="数据解读"><a href="#数据解读" class="headerlink" title="数据解读"></a>数据解读</h3><ol>
+<li><p><strong>综合压缩率</strong>：8788 端口（本地 llama-swap）综合压缩率 52.03%，8787 端口（中转站）39.92%。本地 llama-swap 的压缩效果更优，可能因为本地模型上下文更长、压缩机会更多。</p>
+</li>
+<li><p><strong>最佳压缩</strong>：8788 端口最佳压缩达到 88.1%（572,012 → 68,132 tokens），8787 端口最佳压缩 44.4%（97,688 → 54,280 tokens）。长上下文场景下压缩效果显著，8788 端口单次节省近 50.4 万 tokens。</p>
+</li>
+<li><p><strong>缓存命中率</strong>：8787 端点请求缓存命中率 42.9%，前缀缓存命中率 0.5%；8788 端点请求缓存命中率 97.1%，前缀缓存命中率 98.3%。8788 的缓存命中表现更稳定，说明本地 llama-swap 路径更利于复用上下文。</p>
+</li>
+<li><p><strong>压缩策略</strong>：<code>smart_crusher</code> 是主力压缩策略，8788 端口占 337 次，8787 端口占 74 次。8788 端口还有 <code>text</code> 策略 65 次和少量 <code>log</code> 策略，说明本地 llama-swap 的上下文类型更丰富。</p>
+</li>
+<li><p><strong>延迟</strong>：8788 端口平均 overhead 110.93ms，8787 端口 290.09ms。本地 llama-swap 的额外开销更小，符合预期。</p>
+</li>
+<li><p><strong>压缩策略</strong>：<code>smart_crusher</code> 是主力压缩策略，8788 端口占 95 次（76.6%），8787 端口占 18 次（85.7%）。8788 端口还有 <code>text</code> 策略（34 次）和少量 <code>log</code>、<code>kompress</code> 策略，说明本地 llama-swap 的上下文类型更丰富。</p>
+</li>
+<li><p><strong>延迟</strong>：8788 端口平均 overhead 89.96ms，8787 端口 192.15ms。本地 llama-swap 的额外开销更小，符合预期。</p>
+</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>headroom-proxy 是一个实用的本地 token 压缩代理，但在实际部署中需要根据硬件条件选择合适的压缩策略。主要踩坑点包括 CLI help 文本压缩破坏、kcompress 的 CPU 指令集和资源要求、鉴权 fallback 机制无效、健康检查误打 Anthropic API，以及一次模型超时后连接池被打满等。通过合理配置，可以在保证对话质量的同时有效降低 token 消耗。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/llama-swap/" class="print-no-link">#llama-swap</a>
+      
+        <a href="/tags/headroom/" class="print-no-link">#headroom</a>
+      
+        <a href="/tags/%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2/" class="print-no-link">#本地部署</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>利用headroom实现模型token用量压缩</div>
+      <div>https://bipedalbit.net/2026/06/18/利用headroom实现模型token用量压缩/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Bipedal Bit</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月18日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/14/%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%9E%8B%E9%80%89%E5%9E%8B%E4%B8%8E%E9%83%A8%E7%BD%B2%E6%96%B9%E6%A1%88/" title="16GB显存下的本地模型选型与部署方案">
+                        <span class="hidden-mobile">16GB显存下的本地模型选型与部署方案</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://registry.npmmirror.com/@waline/client/2.15.8/files/dist/waline.css')
+      Fluid.utils.createScript('https://registry.npmmirror.com/@waline/client/2.15.8/files/dist/waline.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://comment-plugin.bipedalbit.net","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  <script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      if ('mermaid' in window) {
+        mermaid.run({
+          querySelector: '.mermaid'
+        });
+      }
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.run({
+            querySelector: '.mermaid'
+          });
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+          <div style="text-align: center;">
+  当前页面浏览量: <span class="waline-pageview-count"></span>
+</div>
+<script type="module">
+  import { pageviewCount } from 'https://unpkg.com/@waline/client@v3/dist/pageview.js';
+
+  pageviewCount({
+    serverURL: 'https://comment-plugin.bipedalbit.net/',
+    path: window.location.pathname,
+    // 可选配置项
+    // selector: 'waline-pageview-count',
+    // update: true,
+  });
+
+  // 等待数据加载完成，检查 span 内容是否为空
+  setTimeout(() => {
+    const span = document.querySelector('.waline-pageview-count');
+    if (!span.textContent.trim()) {
+      span.textContent = '1';
+    }
+  }, 1000); // 1秒后执行，确保数据加载完成
+</script>
+
+        </div>
+      </div>
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+<!-- hexo injector body_end start --><script data-pjax src="https://registry.npmmirror.com/oh-my-live2d/latest/files"></script><script>const oml2d = OML2D.loadOml2d({libraryUrls:{"complete":"https://registry.npmmirror.com/oh-my-live2d/latest/files/lib/complete.js","cubism2":"https://registry.npmmirror.com/oh-my-live2d/latest/files/lib/cubism2.js","cubism5":"https://registry.npmmirror.com/oh-my-live2d/latest/files/lib/cubism5.js"},mobileDisplay:true,models:[{"path":"https://cdn.minio.bipedalbit.net/bipedalbit-net-images/live2d-model/HK416-2-destroy/model.json","mobilePosition":[0,-45],"mobileScale":0.06,"mobileStageStyle":{"width":200,"height":240},"motionPreloadStrategy":"IDLE","position":[0,-60],"scale":0.08,"stageStyle":{"width":250,"height":300}}],parentElement:document.body,primaryColor:"var(--btn-bg)",sayHello:false,tips:{style: {"width":200,"height":80,"left":"calc(50% - 10px)","top":"-100px"},mobileStyle: {"width":180,"height":60,"left":"calc(50% - 5px)","top":"-100px"},idleTips:{interval:30000,message:function(){
+  return axios.get('https://v1.hitokoto.cn?c=i')
+    .then(function (response) {
+      return response.data.hitokoto ;
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
+}
+,wordTheDay:true}}});</script><!-- hexo injector body_end end --></body>
+</html>

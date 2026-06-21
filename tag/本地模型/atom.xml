@@ -10,14 +10,14 @@
     <category term="nginx" />
     <category term="select/poll" />
     <category term="epoll" />
+    <category term="C" />
+    <category term="static" />
+    <category term="内存分布" />
     <category term="ngx_int_t" />
     <category term="rbtree" />
-    <category term="C" />
     <category term="sublime" />
     <category term="C++" />
     <category term="makefile" />
-    <category term="static" />
-    <category term="内存分布" />
     <category term="node.js" />
     <category term="github" />
     <category term="socket.io" />
@@ -29,8 +29,6 @@
     <category term="机器学习" />
     <category term="python" />
     <category term="pybrain" />
-    <category term="c++11" />
-    <category term="多线程" />
     <category term="ubuntu" />
     <category term="debian" />
     <category term="apt-file" />
@@ -38,6 +36,8 @@
     <category term="cout" />
     <category term="scanf" />
     <category term="printf" />
+    <category term="c++11" />
+    <category term="多线程" />
     <category term="进制转换" />
     <category term="人工神经网络" />
     <category term="人机博弈" />
@@ -56,24 +56,24 @@
     <category term="apache" />
     <category term="模拟登录" />
     <category term="proxy" />
-    <category term="vps" />
-    <category term="hexo" />
-    <category term="dropbox" />
     <category term="domain" />
     <category term="DNS" />
+    <category term="hexo" />
+    <category term="vps" />
+    <category term="dropbox" />
     <category term="ffmpeg" />
     <category term="板绘" />
     <category term="sai" />
     <category term="琪露诺" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <category term="LLM" />
     <category term="ollama" />
     <category term="open-webui" />
     <category term="oneapi" />
     <category term="mcpserver" />
-    <category term="DNS劫持" />
-    <category term="DNS污染" />
     <category term="NAS" />
     <category term="minio" />
     <category term="CDN" />
@@ -87,8 +87,15 @@
     <category term="openrouter" />
     <category term="本地模型" />
     <category term="llama.cpp" />
+    <category term="Nex-N2" />
+    <category term="qwopus3.6" />
+    <category term="agentOS" />
+    <category term="Claude Code" />
+    <category term="OpenClaw" />
     <category term="llama-swap" />
     <category term="Qwopus3.6" />
+    <category term="headroom" />
+    <category term="本地部署" />
     <entry>
         <id>https://bipedalbit.net/2026/06/14/%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%9E%8B%E9%80%89%E5%9E%8B%E4%B8%8E%E9%83%A8%E7%BD%B2%E6%96%B9%E6%A1%88/</id>
         <title>16GB显存下的本地模型选型与部署方案</title>
@@ -137,7 +144,64 @@
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;p&gt;生成速度：&lt;strong&gt;62 Token&amp;#x2F;s&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;主模型终于达到了基本可作为主力模型使用、强于部分厂商模型的智力水平。&lt;/p&gt;
-&lt;h2 id=&#34;为什么选择-Qwopus3-6？&#34;&gt;&lt;a href=&#34;#为什么选择-Qwopus3-6？&#34; class=&#34;headerlink&#34; title=&#34;为什么选择 Qwopus3.6？&#34;&gt;&lt;/a&gt;为什么选择 Qwopus3.6？&lt;/h2&gt;&lt;p&gt;Qwen3.6 的 35B-A3B 权重本身质量优秀，但 Q2 量化下幻觉严重。&lt;a href=&#34;https://huggingface.co/Jackrong/Qwopus3.6-35B-A3B-v1-GGUF&#34;&gt;Qwopus3.6-35B-A3B&lt;/a&gt; 是蒸馏版本中口碑最好的——&lt;strong&gt;Jackrong&lt;/strong&gt; 是 HuggingFace 上极为活跃的模型产出者，也是 Qwopus 系列的作者，通过蒸馏大幅改善了量化带来的降智问题。&lt;/p&gt;
+&lt;h2 id=&#34;为什么选择-Qwopus3-6？&#34;&gt;&lt;a href=&#34;#为什么选择-Qwopus3-6？&#34; class=&#34;headerlink&#34; title=&#34;为什么选择 Qwopus3.6？&#34;&gt;&lt;/a&gt;为什么选择 Qwopus3.6？&lt;/h2&gt;&lt;p&gt;Qwopus3.6 的核心价值不是“通用聊天更强”，而是在本地 16GB 显存条件下，把&lt;strong&gt;编程能力、工程理解和代码修复能力&lt;/strong&gt;尽量拉满。&lt;/p&gt;
+&lt;p&gt;我最初把它作为所有本地 agentOS 场景的主模型，是因为它足够通用、足够强。但体验 Nex-N2 系列后，我把模型角色拆开了：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;nex-n2-mini&lt;/strong&gt;：负责通用 agent、agentOS、computer use、长任务执行闭环。它的优势是更强的指令遵循、工具调用、状态跟踪和少犯错。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;qwopus3.6&lt;/strong&gt;：负责 Claude Code、OpenClaw coding、Opencode、Codex 这类强 harness 编程工具。它的优势是代码理解、Diff 质量、重构和测试修复。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这个选择背后的判断是：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;nex-n2-mini 负责“听话、执行、闭环”；qwopus3.6 负责“写代码、修工程”。&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;agentOS-computer-use-为什么切到-nex-n2-mini&#34;&gt;&lt;a href=&#34;#agentOS-computer-use-为什么切到-nex-n2-mini&#34; class=&#34;headerlink&#34; title=&#34;agentOS &amp;#x2F; computer use 为什么切到 nex-n2-mini&#34;&gt;&lt;/a&gt;agentOS &amp;#x2F; computer use 为什么切到 nex-n2-mini&lt;/h2&gt;&lt;p&gt;Claude Code、Opencode、Codex 这类 AI 编程工具有一个特点：它们通过强 harness 约束模型行为，包括文件修改、git diff、测试反馈、错误恢复和迭代流程。模型不是完全自由地写文本，而是在工程流程里被约束、被验证、被纠错。&lt;/p&gt;
+&lt;p&gt;所以在这类工具里，只要模型足够听话，核心矛盾就更偏向&lt;strong&gt;编程能力本身&lt;/strong&gt;。因此我会把编程更强的 qwopus3.6 放在这些 coding tool 中。&lt;/p&gt;
+&lt;p&gt;但 Hermes-agent、OpenClaw 的通用 agent 路径不一样。它们需要模型持续完成：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;理解用户目标&lt;/li&gt;
+&lt;li&gt;拆解任务&lt;/li&gt;
+&lt;li&gt;调用本地工具&lt;/li&gt;
+&lt;li&gt;观察执行结果&lt;/li&gt;
+&lt;li&gt;处理失败&lt;/li&gt;
+&lt;li&gt;修正计划&lt;/li&gt;
+&lt;li&gt;把闭环推到可验证状态&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这类任务对“指令遵循”和“工具使用稳定性”的要求更高。Nex-N2 系列强调 Agentic Thinking，把 reasoning、tool use、environment execution 连成闭环；Nex-N2-mini 又比 Pro 更适合本地低延迟使用。因此我把本地 agentOS 和 OpenClaw 的主模型切到 nex-n2-mini，是为了让模型更像一个可靠的执行器。&lt;/p&gt;
+&lt;h2 id=&#34;Claude-Code-OpenClaw-coding-为什么保留-qwopus3-6&#34;&gt;&lt;a href=&#34;#Claude-Code-OpenClaw-coding-为什么保留-qwopus3-6&#34; class=&#34;headerlink&#34; title=&#34;Claude Code &amp;#x2F; OpenClaw coding 为什么保留 qwopus3.6&#34;&gt;&lt;/a&gt;Claude Code &amp;#x2F; OpenClaw coding 为什么保留 qwopus3.6&lt;/h2&gt;&lt;p&gt;强 harness 能显著降低模型自由度带来的风险，但不能完全替代模型能力。&lt;/p&gt;
+&lt;p&gt;像 Claude Code、Codex、Opencode 这类工具虽然约束了模型，但仍然要求模型做到：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;正确理解错误信息&lt;/li&gt;
+&lt;li&gt;判断是否需要改文件&lt;/li&gt;
+&lt;li&gt;生成最小必要 patch&lt;/li&gt;
+&lt;li&gt;避免无关重构&lt;/li&gt;
+&lt;li&gt;根据测试失败定位根因&lt;/li&gt;
+&lt;li&gt;避免重复错误修改&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这些能力里，编程质量权重很高。因此在这些工具中，我依然选择本地编程最强的 qwopus3.6。&lt;/p&gt;
+&lt;p&gt;更准确地说，这不是“nex-n2-mini 不如 qwopus3.6”，而是二者承担的任务不同：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;场景&lt;/th&gt;
+&lt;th&gt;核心需求&lt;/th&gt;
+&lt;th&gt;本地主模型&lt;/th&gt;
+&lt;th&gt;原因&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;&lt;tr&gt;
+&lt;td&gt;Hermes-agent &amp;#x2F; OpenClaw 通用 agent &amp;#x2F; computer use&lt;/td&gt;
+&lt;td&gt;指令遵循、工具调用、状态跟踪、执行闭环&lt;/td&gt;
+&lt;td&gt;nex-n2-mini&lt;/td&gt;
+&lt;td&gt;更重视可靠执行和少犯错&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Claude Code &amp;#x2F; Opencode &amp;#x2F; Codex 风格 coding tool&lt;/td&gt;
+&lt;td&gt;代码理解、Diff、重构、测试修复、工程判断&lt;/td&gt;
+&lt;td&gt;qwopus3.6&lt;/td&gt;
+&lt;td&gt;harness 已约束执行，核心释放编码能力&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;p&gt;这种策略和社区主流方向是一致的：coding tool 优先 coding model，agentOS &amp;#x2F; computer use 优先 agentic &amp;#x2F; tool-following model。成熟做法不是“一个模型打天下”，而是按任务风险域做模型路由。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Qwopus3.6 的官方定位是”推理增强的 MoE 模型”&lt;/strong&gt;：总参数量 35B，激活参数 3B&amp;#x2F;token，256 个专家，原生支持 262K 上下文窗口。在 Tekholms.aptm 的独立评测中，它以 &lt;strong&gt;88.6 的总分&lt;/strong&gt;（质量 94.2、可靠性 91.7%）远超基座模型。&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
@@ -204,7 +268,7 @@ graph LR
 &lt;li&gt;&lt;strong&gt;生命周期管理&lt;/strong&gt;：替代 ollama 的自动 offload，但更精细可控&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;核心配置：&lt;/p&gt;
-&lt;figure class=&#34;highlight yaml&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;22&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs yaml&#34;&gt;&lt;span class=&#34;hljs-attr&#34;&gt;macros:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;host:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;0.0.0.0&amp;quot;&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;n_gpu_layers_max:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;999&amp;quot;&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;ctx_size_128k:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;131072&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-attr&#34;&gt;models:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;&amp;quot;qwopus3.6:35b-a3b-q5-128k&amp;quot;:&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;|&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      llama-server&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --port $&amp;#123;PORT&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --model /ssd-models/.../Qwopus3.6-35B-A3B-v1-Q5_K_M.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --mmproj /ssd-models/.../qwopus3.6-35b-a3b-mmproj.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-gpu-layers $&amp;#123;n_gpu_layers_max&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-cpu-moe 25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --ctx-size $&amp;#123;ctx_size_128k&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      -ctk q4_0&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      -ctv q4_0&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --flash-attn on&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --jinja&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --chat-template-file /ssd-models/.../chat_template.jinja&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --host $&amp;#123;host&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;300&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;figure class=&#34;highlight yaml&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;26&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;27&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;28&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;29&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;30&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;31&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;32&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;33&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;34&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;35&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;36&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs yaml&#34;&gt;&lt;span class=&#34;hljs-attr&#34;&gt;macros:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;host:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;0.0.0.0&amp;quot;&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;n_gpu_layers_max:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;999&amp;quot;&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;ctx_size_128k:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;131072&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-attr&#34;&gt;models:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;&amp;quot;qwopus3.6:35b-a3b-q5-128k&amp;quot;:&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;|&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      llama-server&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --port $&amp;#123;PORT&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --model /ssd-models/.../Qwopus3.6-35B-A3B-v1-Q5_K_M.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --mmproj /ssd-models/.../qwopus3.6-35b-a3b-mmproj.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-gpu-layers $&amp;#123;n_gpu_layers_max&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-cpu-moe 25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --ctx-size $&amp;#123;ctx_size_128k&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      -ctk q4_0&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      -ctv q4_0&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --flash-attn on&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --jinja&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --chat-template-file /ssd-models/.../chat_template.jinja&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --host $&amp;#123;host&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;300&lt;/span&gt;&lt;br&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;&amp;quot;nex-n2-mini:35b-a3b-q5-128k&amp;quot;:&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;|&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      llama-server&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --port $&amp;#123;PORT&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --model /ssd-models/.../nex-agi_Nex-N2-mini-GGUF&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-gpu-layers $&amp;#123;n_gpu_layers_max&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-cpu-moe 25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --ctx-size $&amp;#123;ctx_size_128k&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --flash-attn on&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --jinja&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --chat-template-file /ssd-models/.../chat_template.jinja&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --host $&amp;#123;host&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;300&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 
 &lt;p&gt;关键参数说明：&lt;/p&gt;
 &lt;ul&gt;
@@ -213,6 +277,13 @@ graph LR
 &lt;li&gt;&lt;strong&gt;&lt;code&gt;-ctk q4_0 -ctv q4_0&lt;/code&gt;&lt;/strong&gt;：KV Cache 量化为 q4_0，进一步节省显存&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;&lt;code&gt;ttl: 300&lt;/code&gt;&lt;/strong&gt;：5 分钟无请求自动卸载，释放显存&lt;/li&gt;
 &lt;/ul&gt;
+&lt;p&gt;部署模型来源：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;qwopus3.6:35B-A3B 权重页：&lt;a href=&#34;https://huggingface.co/Jackrong/Qwopus3.6-35B-A3B-v1-GGUF&#34;&gt;https://huggingface.co/Jackrong/Qwopus3.6-35B-A3B-v1-GGUF&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;nex-n2-mini 官方模型页：&lt;a href=&#34;https://huggingface.co/nex-agi/Nex-N2-mini&#34;&gt;https://huggingface.co/nex-agi/Nex-N2-mini&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;我实际使用的 nex-n2-mini GGUF 镜像：&lt;a href=&#34;https://huggingface.co/bartowski/nex-agi_Nex-N2-mini-GGUF&#34;&gt;https://huggingface.co/bartowski/nex-agi_Nex-N2-mini-GGUF&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;由于 Nex-N2-mini 与 qwopus3.6:35B-A3B 架构相同，部署方案可以直接复用。只需要在 llama-swap 中增加一个模型项，并把 &lt;code&gt;--model&lt;/code&gt; 指向实际 GGUF 文件即可；客户端模型名、路由和调用侧默认配置可以按场景独立切换。&lt;/p&gt;
 &lt;p&gt;Hermes Agent 通过 custom provider 连接 llama-swap：&lt;/p&gt;
 &lt;figure class=&#34;highlight yaml&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs yaml&#34;&gt;&lt;span class=&#34;hljs-attr&#34;&gt;model:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;base_url:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;http://localhost:9292/v1&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;default:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;qwopus3.6:35b-a3b-q5-128k&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;provider:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;custom:llama-swap&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 
@@ -239,6 +310,11 @@ graph LR
         <category term="LLM" />
         <category term="本地模型" />
         <category term="llama.cpp" />
+        <category term="Nex-N2" />
+        <category term="qwopus3.6" />
+        <category term="agentOS" />
+        <category term="Claude Code" />
+        <category term="OpenClaw" />
         <category term="llama-swap" />
         <category term="Qwopus3.6" />
         <updated>2026-06-14T14:43:00.000Z</updated>

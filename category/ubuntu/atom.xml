@@ -10,14 +10,14 @@
     <category term="nginx" />
     <category term="select/poll" />
     <category term="epoll" />
+    <category term="C" />
+    <category term="static" />
+    <category term="内存分布" />
     <category term="ngx_int_t" />
     <category term="rbtree" />
-    <category term="C" />
     <category term="sublime" />
     <category term="C++" />
     <category term="makefile" />
-    <category term="static" />
-    <category term="内存分布" />
     <category term="node.js" />
     <category term="github" />
     <category term="socket.io" />
@@ -29,8 +29,6 @@
     <category term="机器学习" />
     <category term="python" />
     <category term="pybrain" />
-    <category term="c++11" />
-    <category term="多线程" />
     <category term="ubuntu" />
     <category term="debian" />
     <category term="apt-file" />
@@ -38,6 +36,8 @@
     <category term="cout" />
     <category term="scanf" />
     <category term="printf" />
+    <category term="c++11" />
+    <category term="多线程" />
     <category term="进制转换" />
     <category term="人工神经网络" />
     <category term="人机博弈" />
@@ -56,24 +56,24 @@
     <category term="apache" />
     <category term="模拟登录" />
     <category term="proxy" />
-    <category term="vps" />
-    <category term="hexo" />
-    <category term="dropbox" />
     <category term="domain" />
     <category term="DNS" />
+    <category term="hexo" />
+    <category term="vps" />
+    <category term="dropbox" />
     <category term="ffmpeg" />
     <category term="板绘" />
     <category term="sai" />
     <category term="琪露诺" />
     <category term="mcpo" />
     <category term="svn" />
+    <category term="DNS劫持" />
+    <category term="DNS污染" />
     <category term="LLM" />
     <category term="ollama" />
     <category term="open-webui" />
     <category term="oneapi" />
     <category term="mcpserver" />
-    <category term="DNS劫持" />
-    <category term="DNS污染" />
     <category term="NAS" />
     <category term="minio" />
     <category term="CDN" />
@@ -87,8 +87,15 @@
     <category term="openrouter" />
     <category term="本地模型" />
     <category term="llama.cpp" />
+    <category term="Nex-N2" />
+    <category term="qwopus3.6" />
+    <category term="agentOS" />
+    <category term="Claude Code" />
+    <category term="OpenClaw" />
     <category term="llama-swap" />
     <category term="Qwopus3.6" />
+    <category term="headroom" />
+    <category term="本地部署" />
     <entry>
         <id>https://bipedalbit.net/2015/10/19/%E8%A7%A3%E5%86%B3%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98%E7%9A%84%E5%88%A9%E5%99%A8%E2%80%94%E2%80%94apt-file/</id>
         <title>解决依赖问题的利器——apt-file</title>
