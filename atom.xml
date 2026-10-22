@@ -3,7 +3,7 @@
     <id>https://bipedalbit.net</id>
     <title>Hacking to the gate!</title>
     <link href="https://bipedalbit.net" />
-    <updated>2026-06-17T16:00:00.000Z</updated>
+    <updated>2026-10-21T16:00:00.000Z</updated>
     <category term="Qt" />
     <category term="signal-slot" />
     <category term="Q_OBJECT" />
@@ -96,6 +96,223 @@
     <category term="Qwopus3.6" />
     <category term="headroom" />
     <category term="本地部署" />
+    <category term="vLLM" />
+    <category term="Strata" />
+    <category term="ComfyUI" />
+    <category term="ASR" />
+    <entry>
+        <id>https://bipedalbit.net/2026/10/22/%E6%8A%8Allama-swap%E7%8E%A9%E6%88%90%E7%83%AD%E5%88%87%E6%A1%86%E6%9E%B6-16GB%E6%98%BE%E5%AD%98%E5%88%86%E6%97%B6%E5%A4%8D%E7%94%A8%E7%9A%84%E5%A4%9Abackend%E5%A4%8D%E5%90%88%E6%96%B9%E6%A1%88/</id>
+        <title>把 llama-swap 玩成热切框架：16GB 显存分时复用的多backend复合方案</title>
+        <link rel="alternate" href="https://bipedalbit.net/2026/10/22/%E6%8A%8Allama-swap%E7%8E%A9%E6%88%90%E7%83%AD%E5%88%87%E6%A1%86%E6%9E%B6-16GB%E6%98%BE%E5%AD%98%E5%88%86%E6%97%B6%E5%A4%8D%E7%94%A8%E7%9A%84%E5%A4%9Abackend%E5%A4%8D%E5%90%88%E6%96%B9%E6%A1%88/"/>
+        <content type="html">&lt;h2 id=&#34;起因：一张-16GB-卡，排队等活的四类负载&#34;&gt;&lt;a href=&#34;#起因：一张-16GB-卡，排队等活的四类负载&#34; class=&#34;headerlink&#34; title=&#34;起因：一张 16GB 卡，排队等活的四类负载&#34;&gt;&lt;/a&gt;起因：一张 16GB 卡，排队等活的四类负载&lt;/h2&gt;&lt;p&gt;一张 16GB 显存的卡，怎么同时养聊天、生图、语音、检索一整支杂牌军？我 PC（RTX 4070 Ti Super，16GB 显存）上此刻排队等 GPU 的，就是四类互不相让的推理负载：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;LLM 主力模型&lt;/strong&gt;：聊天 &amp;#x2F; agent &amp;#x2F; coding，十几个 GGUF 档位随叫随换；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;CV 工作流&lt;/strong&gt;：生图、超分、像素处理，跑在 ComfyUI 上；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;ASR 转写&lt;/strong&gt;：会议录音转写 + 说话人分离，用的是 &lt;a href=&#34;https://huggingface.co/OpenMOSS-Team/MOSS-Transcribe-Diarize&#34;&gt;MOSS-Transcribe-Diarize&lt;/a&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;常驻小模型&lt;/strong&gt;：embedding、reranker、决策模型，CPU 上不打扰 GPU。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;这四类谁都吃显存，16GB 决定了它们不可能同时驻留 GPU。最早我给 ComfyUI 单独写过一套切换器（comfyui-llm-switcher，下文细讲），LLM 侧靠 &lt;a href=&#34;https://github.com/mostlygeek/llama-swap&#34;&gt;llama-swap&lt;/a&gt; 管生命周期，两边各管各的，中间靠脚本缝缝补补。&lt;/p&gt;
+&lt;p&gt;后来有一天我盯着 llama-swap 的 config.yaml 突然反应过来一件事：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;llama-swap 对”模型”的抽象其实只有三样东西：一条启动命令、一个监听端口、一次健康检查。&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;cmd 里写什么它根本不在乎。&lt;code&gt;llama-server&lt;/code&gt; 只是最常见的那个答案，不是唯一的答案。只要你的后端进程能”启动后在指定端口上监听、提供健康端点、死掉能被 SIGTERM 收走”，llama-swap 的全套生命周期管理——按需拉起、ttl 自动卸载、热切换、分组调度、统一日志——就全部免费赠送。&lt;/p&gt;
+&lt;p&gt;于是 llama-swap 在我这套系统里的角色，从”GGUF 热切换代理”升级成了&lt;strong&gt;通用热切框架&lt;/strong&gt;：一个 :9292 端口的 OpenAI 兼容总线，底下插着四种 backend，打通的是 &lt;strong&gt;llama.cpp、vLLM、ComfyUI 三大模型生态&lt;/strong&gt;——GGUF 世界的一份权重、vLLM 世界的一份 safetensors、ComfyUI 世界的一堆自定义节点，从同一个端口进出。下文先交代总体架构，然后逐个讲 vLLM、Strata、ComfyUI 三个新 backend 怎么接进来、踩过哪些坑，最后给实测推理数据和一份浓缩的在役调度配置。&lt;/p&gt;
+&lt;h2 id=&#34;总体架构&#34;&gt;&lt;a href=&#34;#总体架构&#34; class=&#34;headerlink&#34; title=&#34;总体架构&#34;&gt;&lt;/a&gt;总体架构&lt;/h2&gt;&lt;pre&gt;&lt;code class=&#34; mermaid&#34;&gt;graph TB
+    Client[Hermes Agent / new-api / 各种脚本]
+    LS[llama-swap :9292&amp;lt;br/&amp;gt;OpenAI 兼容总线]
+    subgraph GPU[GPU 分时复用 - 同一时刻只有一家在显存里]
+        LLAMA[llama-server&amp;lt;br/&amp;gt;GGUF 主力与档位家族]
+        STRATA[Strata serve&amp;lt;br/&amp;gt;qwen3.8-flash-next 256k]
+        VLLM[vLLM serve&amp;lt;br/&amp;gt;MOSS-Transcribe-Diarize]
+        COMFY[ComfyUI adapter&amp;lt;br/&amp;gt;CV 工作流 backend]
+    end
+    subgraph CPU[cpu-group 常驻]
+        EMB[embedding / reranker]
+        DEC[决策模型 CPU 版]
+    end
+    Client --&amp;gt; LS
+    LS --&amp;gt; LLAMA
+    LS --&amp;gt; STRATA
+    LS --&amp;gt; VLLM
+    LS --&amp;gt; COMFY
+    LS --&amp;gt; EMB
+    LS --&amp;gt; DEC
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;协议层面本来就是 llama-swap 的看家本领。我特意翻了它的源码核实路由：OpenAI 协议全家桶原生都在——chat completions、completions、embeddings、rerank、responses API、audio（transcriptions &amp;#x2F; speech）、images（generations &amp;#x2F; edits）各有专用路由，连 Anthropic 的 &lt;code&gt;/v1/messages&lt;/code&gt; 和决策模型的 &lt;code&gt;/v1/systemone&lt;/code&gt; 都支持，甚至还给生图类 backend 预留了 &lt;code&gt;/v1/loras&lt;/code&gt; 这种端点。总线上能跑的每一类请求——对话、向量、重排、语音、出图——llama-swap 都有对应的转发路径。&lt;/p&gt;
+&lt;p&gt;客户端因此完全不需要知道后端是谁：body 里的 &lt;code&gt;model&lt;/code&gt; 字段写 &lt;code&gt;&amp;quot;mtd:0.9b&amp;quot;&lt;/code&gt; 还是 &lt;code&gt;&amp;quot;qwen3.8-flash-next:gsq-rco-q3-256k&amp;quot;&lt;/code&gt;，llama-swap 负责把对应引擎拉起来、原样转发、用完定时卸载。&lt;/p&gt;
+&lt;p&gt;关键的一个实现细节（后面每个 backend 都会踩到）：&lt;strong&gt;llama-swap 只做 &lt;code&gt;$&amp;#123;PORT&amp;#125;&lt;/code&gt; 的文本替换，不注入环境变量&lt;/strong&gt;。所有”把端口告诉后端”的动作都得自己在 cmd 里想办法。&lt;/p&gt;
+&lt;h2 id=&#34;Backend-1：vLLM-——-一个启动器接入任意-vLLM-模型&#34;&gt;&lt;a href=&#34;#Backend-1：vLLM-——-一个启动器接入任意-vLLM-模型&#34; class=&#34;headerlink&#34; title=&#34;Backend 1：vLLM —— 一个启动器接入任意 vLLM 模型&#34;&gt;&lt;/a&gt;Backend 1：vLLM —— 一个启动器接入任意 vLLM 模型&lt;/h2&gt;&lt;p&gt;ASR 是我最近的需求：把会议录音转成带说话人分离的文字稿。模型选了 OpenMOSS-Team 的 &lt;strong&gt;MOSS-Transcribe-Diarize&lt;/strong&gt;（0.9B），这是 vLLM 的地盘，llama.cpp 跑不了它。&lt;/p&gt;
+&lt;p&gt;我没有为这个模型单独部署一套 vLLM 服务，而是写了个通用启动器 &lt;code&gt;serve-vllm.sh&lt;/code&gt;，把&lt;strong&gt;运行时和模型解耦&lt;/strong&gt;：vLLM 的 venv（&lt;code&gt;_runtime/vllm-env&lt;/code&gt;）建在模型仓库的挂载卷里，跟具体模型无关；模型路径、serve 名、端口都是位置参数。config.yaml 里接一个新 vLLM 模型只需要一段：&lt;/p&gt;
+&lt;figure class=&#34;highlight yaml&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs yaml&#34;&gt;&lt;span class=&#34;hljs-attr&#34;&gt;models:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;&amp;quot;mtd:0.9b&amp;quot;:&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;env&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;VLLM_NO_USAGE_STATS=1&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;VLLM_MAX_MODEL_LEN=32768&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;VLLM_GPU_UTIL=0.85&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;VLLM_USE_FLASHINFER_SAMPLER=0&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;\&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-string&#34;&gt;/ssd-models/_runtime/serve-vllm.sh&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;/ssd-models/OpenMOSS/MOSS-Transcribe-Diarize&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;mtd:0.9b&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;$&amp;#123;PORT&amp;#125;&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;120&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;注意 &lt;code&gt;$&amp;#123;PORT&amp;#125;&lt;/code&gt; 是第三个位置参数传给脚本的——这就是前面说的”llama-swap 不注入环境变量”的坑，vLLM 只认 &lt;code&gt;--port&lt;/code&gt;，所以由启动器代劳。&lt;/p&gt;
+&lt;p&gt;几个刻意的调优：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;--enforce-eager&lt;/code&gt;&lt;/strong&gt;：砍掉 CUDA graph 捕获，vLLM 冷启动时间大幅缩短。热切场景下模型是”用完就走”的旅客，不是常驻户，图编译的收益根本摊不平；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;ttl: 120&lt;/code&gt;&lt;/strong&gt;：语音条目用完 2 分钟自动卸载让位给 LLM。这个 ttl 策略明显比聊天主力（300s）激进——ASR 是批处理型负载，一次跑完就闲，没必要占着显存；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;VLLM_MAX_MODEL_LEN=32768&lt;/code&gt;&lt;/strong&gt;：按需压上下文，转写一条语音用不了多少；长会议转写前可以临时提到 131072。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;整套 vLLM 运行时就装在 llama-swap 自己的容器里跑（venv 放挂载卷），踩了一串有意思的坑，都修在启动器里：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;坑&lt;/th&gt;
+&lt;th&gt;症状&lt;/th&gt;
+&lt;th&gt;修法&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;&lt;tr&gt;
+&lt;td&gt;torchcodec 原生库 wheel 无 RUNPATH&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;vllm serve&lt;/code&gt; 在 multimodal 导入阶段直接崩&lt;/td&gt;
+&lt;td&gt;启动器显式把 torch&amp;#x2F;nvidia 库目录拼进 &lt;code&gt;LD_LIBRARY_PATH&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;triton JIT 需要 C 编译器，容器没有 gcc&lt;/td&gt;
+&lt;td&gt;gumbel 采样 kernel 编译失败&lt;/td&gt;
+&lt;td&gt;venv 里塞一个 zig 的 &lt;code&gt;cc&lt;/code&gt; shim，&lt;code&gt;CC&lt;/code&gt; 指过去&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;精简镜像没有 python3-dev&lt;/td&gt;
+&lt;td&gt;triton 编译找不到 &lt;code&gt;Python.h&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;头文件持久存在挂载卷的 venv include 里，启动时自愈补进 &lt;code&gt;/usr/include&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;JIT 产物随容器重建丢失&lt;/td&gt;
+&lt;td&gt;每次重建都重新编译&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;TRITON_CACHE_DIR&lt;/code&gt; 放挂载卷&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;p&gt;这套启动器写完之后的爽点是：&lt;strong&gt;vLLM 全家桶里任何模型，加一段 yaml 就接入&lt;/strong&gt;，不用新容器、不用新端口、不用新运维面。MOSS-Transcribe-Diarize 只是第一个住客。&lt;/p&gt;
+&lt;h2 id=&#34;Backend-2：Strata-——-一个引擎碾压手动调参&#34;&gt;&lt;a href=&#34;#Backend-2：Strata-——-一个引擎碾压手动调参&#34; class=&#34;headerlink&#34; title=&#34;Backend 2：Strata —— 一个引擎碾压手动调参&#34;&gt;&lt;/a&gt;Backend 2：Strata —— 一个引擎碾压手动调参&lt;/h2&gt;&lt;p&gt;先交代背景：&lt;strong&gt;Qwen3.8-Flash-Next 是 125B 的 MoE&lt;/strong&gt;——模型由 24,576 个专家组成，每个 token 实际只激活 10 个左右。理论上这正是对消费级显卡最友好的架构，但我在 llama.cpp 上实际挤出来的效果并不理想：参数调到手软（&lt;code&gt;--n-cpu-moe&lt;/code&gt;、&lt;code&gt;--override-tensor&lt;/code&gt; 逐层挪张量，再到后来进主干的 GPU 专家 LRU 缓存 &lt;code&gt;--moe-cache-mib&lt;/code&gt;），128k 上下文的天花板也就是 pp 400+ &amp;#x2F; tg 20-30，离”放心当主力”还差着一截。&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/Niko1221/Strata&#34;&gt;Strata&lt;/a&gt;（MIT 协议）走了一条完全不同的路：&lt;strong&gt;不是想办法把模型塞进 GPU，而是把模型铺到整台机器上&lt;/strong&gt;。它 README 里那个”图书馆”比喻非常精准：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;显卡是书桌&lt;/strong&gt;：约 4,000 个最常被用到的专家常驻显存，摊开着随时用；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;内存是书架&lt;/strong&gt;：全部 24,576 个专家都住在 RAM 里，某个 token 要用到不在书桌上的专家，CPU 就地算完，GPU 根本不用停；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;SSD 是档案馆&lt;/strong&gt;：29GB 的 n-gram 查找表放在盘上，每个 token 只读几行，压根不占 RAM。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;再叠加两件套：&lt;strong&gt;MTP 投机采样&lt;/strong&gt;——小模型猜后面几个词、大模型一次验完，同样的答案提前 1.6-1.8 倍到手；以及 Flash-Next 自带的&lt;strong&gt;线性注意力（GDN）&lt;/strong&gt;——decode 对上下文长度近似 O(1)，官方实测从 1K 到 262K 生成速度几乎不衰减，256k 上下文在这个引擎里近乎白送。&lt;/p&gt;
+&lt;p&gt;而它的 &lt;code&gt;serve/server.py&lt;/code&gt; 直接讲 OpenAI 协议——&lt;strong&gt;这不就是 llama-swap 想看的姿势吗？&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;接入只隔了一层薄壳。llama-swap 条目：&lt;/p&gt;
+&lt;figure class=&#34;highlight yaml&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs yaml&#34;&gt;&lt;span class=&#34;hljs-attr&#34;&gt;&amp;quot;qwen3.8-flash-next:gsq-rco-q3-256k&amp;quot;:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;env&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;PORT=$&amp;#123;PORT&amp;#125;&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;LD_LIBRARY_PATH=/Strata-data/cuda13/lib:/usr/local/cuda/lib64&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;\&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-string&#34;&gt;/Strata/run-strata-256k.sh&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;300&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;wrapper 里 &lt;code&gt;exec python serve/server.py --engine strata --config strata-iq3_s-256k.json --port &amp;quot;$&amp;#123;PORT&amp;#125;&amp;quot;&lt;/code&gt;。&lt;code&gt;env PORT=$&amp;#123;PORT&amp;#125;&lt;/code&gt; 前缀是同一招：llama-swap 不注入环境变量，但 Strata 服务恰好读 &lt;code&gt;PORT&lt;/code&gt; 环境变量，那就文本替换 + env 前缀把它接上。&lt;/p&gt;
+&lt;p&gt;引擎本体的安装记两个点：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Strata 没有 Linux 预编译包&lt;/strong&gt;：在 llama-swap 同款 base 镜像的一次性容器里编译——编译环境 &amp;#x3D; 运行环境，产物放进挂载卷就原地成为 llama-swap 的 backend，不用跨环境对依赖；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;CUDA 版本错位&lt;/strong&gt;：引擎按 CUDA 13 编译，llama-swap 镜像里只有 CUDA 12.8。解法是把 cuda13 的运行库目录前置挂载 + &lt;code&gt;LD_LIBRARY_PATH&lt;/code&gt; 顶在前面（见上面 yaml 里的 &lt;code&gt;/Strata-data/cuda13/lib&lt;/code&gt;），不动镜像。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;收益是碾压级的：同一份模型从 llama.cpp 切到 Strata，pp 从 400+ 冲到 1000-2000、tg 从 20-30 拉到 75 上下，上下文也从 128k 加到了 256k。&lt;strong&gt;辛苦手动调参摸出的 llama.cpp 极限，被一个引擎的整机内存设计直接碾过&lt;/strong&gt;——这个加速效果也直接导致我把本地主模型从 Qwen3.8-27B 切到了 qwen3.8-flash-next，当前主力就是这个 256k 的 Strata 条目。&lt;/p&gt;
+&lt;h2 id=&#34;Backend-3：ComfyUI-——-把-CV-工作流伪装成一个”模型”&#34;&gt;&lt;a href=&#34;#Backend-3：ComfyUI-——-把-CV-工作流伪装成一个”模型”&#34; class=&#34;headerlink&#34; title=&#34;Backend 3：ComfyUI —— 把 CV 工作流伪装成一个”模型”&#34;&gt;&lt;/a&gt;Backend 3：ComfyUI —— 把 CV 工作流伪装成一个”模型”&lt;/h2&gt;&lt;p&gt;这条最能说明”热切框架”四个字的含金量。ComfyUI 不是 OpenAI 兼容服务：提交任务是 &lt;code&gt;POST /prompt&lt;/code&gt;（body 是 workflow JSON），取结果要轮询 &lt;code&gt;GET /history/&amp;#123;prompt_id&amp;#125;&lt;/code&gt;。要把它挂上总线，就得做一层定制的中转封装——这个项目叫 &lt;strong&gt;comfyui-llm-switcher&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;思路很直白：把 ComfyUI 注册成总线上的一个”模型”，中间垫一层协议转换。&lt;strong&gt;客户端发的就是标准 OpenAI 请求&lt;/strong&gt;，prompt、图片尺寸、负向提示词这类参数从请求体里解析出来，映射成 ComfyUI workflow 的节点参数——既支持直接覆盖节点 &lt;code&gt;inputs&lt;/code&gt;，也支持 &lt;code&gt;&amp;#123;&amp;#123; width &amp;#125;&amp;#125;&lt;/code&gt; 这种占位符递归替换；workflow 按 &lt;code&gt;POST /prompt&lt;/code&gt; 提交，轮询 &lt;code&gt;GET /history/&amp;#123;prompt_id&amp;#125;&lt;/code&gt; 收结果，出图再组装成 OpenAI 响应还回去。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34; mermaid&#34;&gt;sequenceDiagram
+    participant Client as OpenAI 客户端
+    participant LS as llama-swap
+    participant Adapter as Go adapter
+    participant Sched as 协议转换层
+    participant CFY as ComfyUI
+    Client-&amp;gt;&amp;gt;LS: POST /v1/chat/completions model=comfyui
+    LS-&amp;gt;&amp;gt;Adapter: 拉起上游, 转发请求
+    Adapter-&amp;gt;&amp;gt;Sched: 纯转发 chat 请求
+    Sched-&amp;gt;&amp;gt;Sched: 协议转换 请求体解析出参数, 映射为 workflow 节点参数
+    Sched-&amp;gt;&amp;gt;CFY: 换出 LLM, POST /prompt 提交 workflow
+    Sched-&amp;gt;&amp;gt;CFY: 轮询 history 拿结果
+    Sched-&amp;gt;&amp;gt;LS: 返回结果, nvitop 轮询显存, 换回 LLM
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;两级结构，各司其职：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Go adapter&lt;/strong&gt;：llama-swap 眼里它是”模型进程”，实际是个纯转发代理，收到 SIGTERM 只调一次协议转换层的 &lt;code&gt;/cleanup&lt;/code&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;协议转换层&lt;/strong&gt;（宿主机上的任务调度器）：干脏活的地方——解析 OpenAI 请求、按任务类型选 workflow、做参数映射、把输入图片编码塞进 &lt;code&gt;LoadImage&lt;/code&gt; 节点、解析 &lt;code&gt;SaveImage&lt;/code&gt; 节点的结构化返回。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;真正见功力的是 &lt;strong&gt;GPU 仲裁&lt;/strong&gt;：16GB 装不下 LLM + 生图模型，必须保证”LLM 换出 → 生图 → LLM 换回”这个生命周期在任何异常路径下都闭合。核心是 &lt;code&gt;ensure_llm_restored&lt;/code&gt; 模式：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;用 nvitop 的 Python API 轮询 GPU 显存（不是解析 nvidia-smi 文本），安全判定条件写死：ComfyUI 显存退回 1GB 以下 + 目标 LLM 显存进入绝对优势区（≥7.5GB）才算恢复成功；&lt;/li&gt;
+&lt;li&gt;ComfyUI 没有 &lt;code&gt;/unload&lt;/code&gt; API 时直接 &lt;code&gt;systemctl restart comfyui&lt;/code&gt;（注意是 restart 不是 kill——unit 配了 &lt;code&gt;Restart=always&lt;/code&gt;，kill 反而触发自动重启把显存又吃回去）；&lt;/li&gt;
+&lt;li&gt;正常恢复失败 → 强制重启兜底（docker restart llama-swap）→ 连续 3 次失败 → 飞书 webhook 告警求救。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;原则只有一条：无论中间哪一步炸了，LLM 最终必须可用&lt;/strong&gt;——对话断不起，生图失败重跑一次就行。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;这条链路打通的意义大于它的工程形态：&lt;strong&gt;非 OpenAI 协议的服务照样能挂进 llama-swap 总线，代价只是厚薄不同的适配层&lt;/strong&gt;。协议这层一旦被打通，ComfyUI 背后的整个 CV 自定义节点生态——SDXL、SUPIR 超分、任意社区工作流——就成了热切框架里随取随用的一个”模型”。&lt;/p&gt;
+&lt;h2 id=&#34;实测推理数据&#34;&gt;&lt;a href=&#34;#实测推理数据&#34; class=&#34;headerlink&#34; title=&#34;实测推理数据&#34;&gt;&lt;/a&gt;实测推理数据&lt;/h2&gt;&lt;p&gt;先说清楚定位：&lt;strong&gt;热切框架本身不加速&lt;/strong&gt;，它省的是”显存-时间”——保证任何时刻显存里坐着的是当前任务最该坐的那位。单 token 速度取决于引擎和量化选得好不好。拿我机器上的真实数字说话：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;配置&lt;/th&gt;
+&lt;th&gt;prefill (pp)&lt;/th&gt;
+&lt;th&gt;decode (tg)&lt;/th&gt;
+&lt;th&gt;备注&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;&lt;tr&gt;
+&lt;td&gt;Qwen3.8-Flash-Next GSQ-RCO-IQ3_S 128k（llama.cpp）&lt;/td&gt;
+&lt;td&gt;400+&lt;/td&gt;
+&lt;td&gt;20-30&lt;/td&gt;
+&lt;td&gt;调参调到手软的 MoE 档&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Qwen3.8-27B GSQ-RCO-IQ3_S 128k（llama.cpp）&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;1400&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;20-30&lt;/td&gt;
+&lt;td&gt;稠密 27B，原主力&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;同模型切到 Strata 引擎 IQ3_S 256k&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;1000-2000&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;75 左右&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;整机分层内存 + MTP + 线性注意力，现主力&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;p&gt;ASR 那条线单独记一笔：&lt;strong&gt;MTD 冷启动约 27 秒&lt;/strong&gt;——含 vLLM 模型加载、ffmpeg 转码、转写全流程——在 ttl 120s 的换入换出节奏下完全可接受；模型热着的时候&lt;strong&gt;单次转写约 2 秒&lt;/strong&gt;，语音消息的体感是流畅的。&lt;/p&gt;
+&lt;h2 id=&#34;复合调度：ttl-分层与-cpu-group&#34;&gt;&lt;a href=&#34;#复合调度：ttl-分层与-cpu-group&#34; class=&#34;headerlink&#34; title=&#34;复合调度：ttl 分层与 cpu-group&#34;&gt;&lt;/a&gt;复合调度：ttl 分层与 cpu-group&lt;/h2&gt;&lt;p&gt;多 backend 之后，config.yaml 里真正做”分时复用”的是这两样东西：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;ttl 分层&lt;/strong&gt;——按负载形态给不同的卸载时限：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;负载&lt;/th&gt;
+&lt;th&gt;ttl&lt;/th&gt;
+&lt;th&gt;理由&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;&lt;tr&gt;
+&lt;td&gt;OCR &amp;#x2F; embedding 类小模型&lt;/td&gt;
+&lt;td&gt;60s&lt;/td&gt;
+&lt;td&gt;即用即走，一秒都不多占&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;VLM 小模型、ASR (mtd)&lt;/td&gt;
+&lt;td&gt;120s&lt;/td&gt;
+&lt;td&gt;批处理型，一次跑完就闲&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;主力 LLM（llama.cpp &amp;#x2F; Strata）&lt;/td&gt;
+&lt;td&gt;300s&lt;/td&gt;
+&lt;td&gt;对话有连续性，换入成本高（10-30s）&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;全局 healthCheckTimeout&lt;/td&gt;
+&lt;td&gt;1200s&lt;/td&gt;
+&lt;td&gt;vLLM 冷启动慢，健康窗口必须给够&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;groups 物理隔离&lt;/strong&gt;——embedding、reranker、决策模型这类高频小模型全部 &lt;code&gt;CUDA_VISIBLE_DEVICES=&amp;quot;&amp;quot;&lt;/code&gt; 纯 CPU 化，编进一个 &lt;code&gt;swap: false, persistent: true&lt;/code&gt; 的 cpu-group。它们永远不跟 GPU 负载抢显存，也不会被热切换误伤。GPU 侧的换入换出再激烈，检索和决策链路纹丝不动。&lt;/p&gt;
+&lt;p&gt;最后把在役的 config.yaml 浓缩一份放这里（条目逐字照抄在役配置，只删掉了本文没提到的模型），当个完整形态的示例：&lt;/p&gt;
+&lt;figure class=&#34;highlight yaml&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;26&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;27&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;28&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;29&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;30&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;31&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;32&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;33&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;34&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;35&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;36&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;37&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;38&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;39&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;40&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;41&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;42&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;43&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;44&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;45&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;46&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;47&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;48&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;49&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;50&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;51&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;52&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;53&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;54&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;55&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;56&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;57&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;58&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;59&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;60&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;61&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;62&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;63&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;64&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;65&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;66&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;67&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;68&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;69&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;70&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;71&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;72&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;73&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;74&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;75&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;76&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;77&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;78&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;79&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;80&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;81&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;82&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;83&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;84&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;85&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;86&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;87&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;88&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;89&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;90&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;91&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;92&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;93&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;94&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;95&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;96&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;97&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;98&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;99&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;100&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;101&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;102&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;103&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;104&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;105&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;106&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;107&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;108&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;109&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;110&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;111&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;112&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;113&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;114&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;115&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;116&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;117&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;118&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;119&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;120&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;121&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;122&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;123&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;124&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;125&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;126&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;127&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;128&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;129&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;130&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;131&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;code class=&#34;hljs yaml&#34;&gt;&lt;span class=&#34;hljs-comment&#34;&gt;# 宏：公共参数只写一遍&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-attr&#34;&gt;macros:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;host:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;0.0.0.0&amp;quot;&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;n_gpu_layers_max:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;999&amp;quot;&lt;/span&gt;      &lt;span class=&#34;hljs-comment&#34;&gt;# 全 GPU&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;n_gpu_layers_cpu:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;0&amp;quot;&lt;/span&gt;        &lt;span class=&#34;hljs-comment&#34;&gt;# 纯 CPU&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;ctx_size_16k:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;16384&amp;quot;&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;ctx_size_32k:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;32768&amp;quot;&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;ctx_size_64k:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;65536&amp;quot;&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;ctx_size_128k:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;&amp;quot;131072&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-attr&#34;&gt;healthCheckTimeout:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;1200&lt;/span&gt;       &lt;span class=&#34;hljs-comment&#34;&gt;# vLLM 冷启动慢，健康窗口给足&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-attr&#34;&gt;models:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-comment&#34;&gt;# ===== 主力（ttl 300s：对话有连续性）=====&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;&amp;quot;qwen3.8-flash-next:gsq-rco-q3-256k&amp;quot;:&lt;/span&gt;        &lt;span class=&#34;hljs-comment&#34;&gt;# Strata 引擎，接线见 Backend 2&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;env&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;PORT=$&amp;#123;PORT&amp;#125;&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;LD_LIBRARY_PATH=/Strata-data/cuda13/lib:/usr/local/cuda/lib64&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;/Strata/run-strata-256k.sh&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;300&lt;/span&gt;&lt;br&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;&amp;quot;qwen3.8:27b-gsq-rco-q3-128k&amp;quot;:&lt;/span&gt;               &lt;span class=&#34;hljs-comment&#34;&gt;# llama.cpp 主力，原主力&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;|&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      env GGML_CUDA_DISABLE_GRAPHS=1 llama-server&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --host $&amp;#123;host&amp;#125; --port $&amp;#123;PORT&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --model /models/ISTA-DASLab/Qwen3.8-27B-GSQ-RCO-GGUF/Qwen3.8-27B-GSQ-RCO-IQ3_S.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --mmproj /models/ISTA-DASLab/Qwen3.8-27B-GSQ-RCO-GGUF/mmproj-Qwen3.8-27B-BF16.gguf --no-mmproj-offload&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      -c $&amp;#123;ctx_size_128k&amp;#125; -ctk q4_0 -ctv q4_0 -kvu -kvo -ctkd q4_0 -ctvd q4_0&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      -t 14 -tb 14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-gpu-layers $&amp;#123;n_gpu_layers_max&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --flash-attn on --load-mode none --fit off --parallel 1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --jinja --chat-template-file /ssd-models/froggeric/Qwen-Fixed-Chat-Templates/chat_template.jinja&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --reasoning on --reasoning-preserve --reasoning-effort medium --reasoning-format deepseek&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;300&lt;/span&gt;&lt;br&gt;&lt;br&gt;  &lt;span class=&#34;hljs-comment&#34;&gt;# ===== ASR（ttl 120s：批处理型，用完让位 LLM）=====&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;&amp;quot;mtd:0.9b&amp;quot;:&lt;/span&gt;                                  &lt;span class=&#34;hljs-comment&#34;&gt;# vLLM，接线见 Backend 1&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;env&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;VLLM_NO_USAGE_STATS=1&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;VLLM_MAX_MODEL_LEN=32768&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;VLLM_GPU_UTIL=0.85&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;VLLM_USE_FLASHINFER_SAMPLER=0&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;/ssd-models/_runtime/serve-vllm.sh&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;/ssd-models/OpenMOSS/MOSS-Transcribe-Diarize&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;mtd:0.9b&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;$&amp;#123;PORT&amp;#125;&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;120&lt;/span&gt;&lt;br&gt;&lt;br&gt;  &lt;span class=&#34;hljs-comment&#34;&gt;# ===== 随取随用小模型（ttl 60-120s）=====&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;glm-ocr:&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;|&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      llama-server&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --host $&amp;#123;host&amp;#125; --port $&amp;#123;PORT&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --model /models/ggml-org/GLM-OCR-GGUF/GLM-OCR-Q8_0.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --mmproj /models/ggml-org/GLM-OCR-GGUF/mmproj-GLM-OCR-Q8_0.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-gpu-layers $&amp;#123;n_gpu_layers_max&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --flash-attn on&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;60&lt;/span&gt;&lt;br&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;&amp;quot;qwen3.5:0.8b&amp;quot;:&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;|&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      llama-server&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --port $&amp;#123;PORT&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --model /ssd-models/unsloth/Qwen3.5-0.8B-MTP-GGUF/Qwen3.5-0.8B-UD-Q6_K_XL.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --mmproj /ssd-models/unsloth/Qwen3.5-0.8B-MTP-GGUF/mmproj-BF16.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-gpu-layers $&amp;#123;n_gpu_layers_max&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --ctx-size $&amp;#123;ctx_size_64k&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --flash-attn on&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --jinja --chat-template-file /ssd-models/froggeric/Qwen-Fixed-Chat-Templates/chat_template.jinja&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --chat-template-kwargs &amp;#x27;&amp;#123;&amp;quot;enable_thinking&amp;quot;: false&amp;#125;&amp;#x27;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --reasoning off&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --threads 14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --threads-batch 8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --host $&amp;#123;host&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;120&lt;/span&gt;&lt;br&gt;&lt;br&gt;  &lt;span class=&#34;hljs-comment&#34;&gt;# ===== 纯 CPU 常驻（物理隔离，不占显存）=====&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;&amp;quot;qwen3-embedding:0.6b-cpu&amp;quot;:&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;|&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      env CUDA_VISIBLE_DEVICES=&amp;quot;&amp;quot; llama-server&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --host $&amp;#123;host&amp;#125; --port $&amp;#123;PORT&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --model /ssd-models/Qwen/Qwen3-Embedding-0.6B-GGUF/Qwen3-Embedding-0.6B-Q8_0.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-gpu-layers $&amp;#123;n_gpu_layers_cpu&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --load-mode none&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --threads 14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --pooling last&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --embeddings&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;60&lt;/span&gt;&lt;br&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;&amp;quot;qwen3-reranker:0.6b-cpu&amp;quot;:&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;|&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      env CUDA_VISIBLE_DEVICES=&amp;quot;&amp;quot; llama-server&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --host $&amp;#123;host&amp;#125; --port $&amp;#123;PORT&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --model /ssd-models/Voodisss/Qwen3-Reranker-0.6B-GGUF-llama_cpp/Qwen3-Reranker-0.6B-Q6_K.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-gpu-layers $&amp;#123;n_gpu_layers_cpu&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --load-mode none&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --ctx-size $&amp;#123;ctx_size_32k&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --threads 14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --pooling rank&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --embeddings&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --reranking&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;60&lt;/span&gt;&lt;br&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;&amp;quot;qwen3.5:0.8b-cpu&amp;quot;:&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;|&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      env CUDA_VISIBLE_DEVICES=&amp;quot;&amp;quot; llama-server&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --host $&amp;#123;host&amp;#125; --port $&amp;#123;PORT&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --model /ssd-models/unsloth/Qwen3.5-0.8B-MTP-GGUF/Qwen3.5-0.8B-UD-Q6_K_XL.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --mmproj /ssd-models/unsloth/Qwen3.5-0.8B-MTP-GGUF/mmproj-BF16.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-gpu-layers $&amp;#123;n_gpu_layers_cpu&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --load-mode none&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --ctx-size $&amp;#123;ctx_size_64k&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --jinja --chat-template-file /ssd-models/froggeric/Qwen-Fixed-Chat-Templates/chat_template.jinja&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --chat-template-kwargs &amp;#x27;&amp;#123;&amp;quot;enable_thinking&amp;quot;: false&amp;#125;&amp;#x27;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --reasoning off&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --threads 14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --threads-batch 8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;120&lt;/span&gt;&lt;br&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;&amp;quot;d3-mini:q4-cpu&amp;quot;:&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;cmd:&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;|&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      env CUDA_VISIBLE_DEVICES=&amp;quot;&amp;quot; llama-server&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --host $&amp;#123;host&amp;#125; --port $&amp;#123;PORT&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --model /ssd-models/ggml-org/vllm-d3-mini-GGUF/vllm-d3-mini-Q4_K_M.gguf&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --n-gpu-layers $&amp;#123;n_gpu_layers_cpu&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --load-mode none&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      -c $&amp;#123;ctx_size_16k&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --threads 14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --threads-batch 14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;      --parallel 1 --ctx-checkpoints 0 -b 16384 -ub 16384&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;hljs-string&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;ttl:&lt;/span&gt; &lt;span class=&#34;hljs-number&#34;&gt;300&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class=&#34;hljs-attr&#34;&gt;groups:&lt;/span&gt;&lt;br&gt;  &lt;span class=&#34;hljs-attr&#34;&gt;cpu-group:&lt;/span&gt;            &lt;span class=&#34;hljs-comment&#34;&gt;# 常驻不换入换出，检索与决策链路永不误伤&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;swap:&lt;/span&gt; &lt;span class=&#34;hljs-literal&#34;&gt;false&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;persistent:&lt;/span&gt; &lt;span class=&#34;hljs-literal&#34;&gt;true&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;exclusive:&lt;/span&gt; &lt;span class=&#34;hljs-literal&#34;&gt;false&lt;/span&gt;&lt;br&gt;    &lt;span class=&#34;hljs-attr&#34;&gt;members:&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-bullet&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;qwen3-embedding:0.6b-cpu&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-bullet&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;qwen3-reranker:0.6b-cpu&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-bullet&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;qwen3.5:0.8b-cpu&lt;/span&gt;&lt;br&gt;      &lt;span class=&#34;hljs-bullet&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;hljs-string&#34;&gt;d3-mini:q4-cpu&lt;/span&gt;&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;h2 id=&#34;一点收尾&#34;&gt;&lt;a href=&#34;#一点收尾&#34; class=&#34;headerlink&#34; title=&#34;一点收尾&#34;&gt;&lt;/a&gt;一点收尾&lt;/h2&gt;&lt;p&gt;回头看，llama-swap 官方 README 说的是 “swap models on-demand”，我实际用它做的是 &lt;strong&gt;swap engines&lt;/strong&gt;：llama.cpp、Strata、vLLM 三个推理引擎加一个协议转换出来的 ComfyUI，四种 backend 打通了 &lt;strong&gt;GGUF、vLLM、ComfyUI 三大模型生态&lt;/strong&gt;，共享同一个 OpenAI 兼容入口、同一套生命周期管理、同一块 16GB 显存。&lt;/p&gt;
+&lt;p&gt;这个方案的适用画像很清晰：单机、单卡、负载类型多但每种都不是 7×24、换入成本可以接受（GGUF 量化换入快，vLLM 靠 enforce-eager 压冷启动）。如果你的场景是”一张卡要养聊天、生图、语音、检索一整支杂牌军”，别给每个引擎建一套独立运维面——把它们统统变成 llama-swap 的 upstream，分时复用，一个端口走天下。&lt;/p&gt;
+&lt;p&gt;而且这张总线没有封顶的意思：TTS、视频理解、下一个还没出现的新引擎——只要能”监听指定端口”，位置早就给它留好了。&lt;strong&gt;接入成本总结成一句话：写一个启动脚本，加一段 yaml，完事。&lt;/strong&gt;&lt;/p&gt;
+</content>
+        <category term="llama-swap" />
+        <category term="本地部署" />
+        <category term="vLLM" />
+        <category term="Strata" />
+        <category term="ComfyUI" />
+        <category term="ASR" />
+        <updated>2026-10-21T16:00:00.000Z</updated>
+    </entry>
     <entry>
         <id>https://bipedalbit.net/2026/06/18/%E5%88%A9%E7%94%A8headroom%E5%AE%9E%E7%8E%B0%E6%A8%A1%E5%9E%8Btoken%E7%94%A8%E9%87%8F%E5%8E%8B%E7%BC%A9/</id>
         <title>利用headroom实现模型token用量压缩</title>

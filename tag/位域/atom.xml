@@ -96,6 +96,10 @@
     <category term="Qwopus3.6" />
     <category term="headroom" />
     <category term="本地部署" />
+    <category term="vLLM" />
+    <category term="Strata" />
+    <category term="ComfyUI" />
+    <category term="ASR" />
     <entry>
         <id>https://bipedalbit.net/2015/12/01/C-%E7%9A%84%E4%BD%8D%E4%BC%98%E5%8C%96/</id>
         <title>C++的位优化</title>

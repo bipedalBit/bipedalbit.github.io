@@ -96,6 +96,10 @@
     <category term="Qwopus3.6" />
     <category term="headroom" />
     <category term="本地部署" />
+    <category term="vLLM" />
+    <category term="Strata" />
+    <category term="ComfyUI" />
+    <category term="ASR" />
     <entry>
         <id>https://bipedalbit.net/2015/08/11/C%E8%AF%AD%E8%A8%80%E7%9A%84static%E5%85%B3%E9%94%AE%E5%AD%97/</id>
         <title>C语言的static关键字</title>

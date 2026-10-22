@@ -96,6 +96,10 @@
     <category term="Qwopus3.6" />
     <category term="headroom" />
     <category term="本地部署" />
+    <category term="vLLM" />
+    <category term="Strata" />
+    <category term="ComfyUI" />
+    <category term="ASR" />
     <entry>
         <id>https://bipedalbit.net/2026/06/14/%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%9E%8B%E9%80%89%E5%9E%8B%E4%B8%8E%E9%83%A8%E7%BD%B2%E6%96%B9%E6%A1%88/</id>
         <title>16GB显存下的本地模型选型与部署方案</title>

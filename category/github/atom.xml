@@ -96,6 +96,10 @@
     <category term="Qwopus3.6" />
     <category term="headroom" />
     <category term="本地部署" />
+    <category term="vLLM" />
+    <category term="Strata" />
+    <category term="ComfyUI" />
+    <category term="ASR" />
     <entry>
         <id>https://bipedalbit.net/2025/06/10/%E8%AE%B0%E4%B8%80%E6%AC%A1%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE%E8%B4%A1%E7%8C%AE/</id>
         <title>记一次开源项目贡献</title>
