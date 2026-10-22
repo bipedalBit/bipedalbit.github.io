@@ -28,20 +28,20 @@
 <meta property="og:site_name" content="Hacking to the gate!">
 <meta property="og:description" content="&nbsp;&nbsp;&nbsp; 就来挑两个特别的数据结构ngx_int_t、ngx_rbtree_t作为研读nginx源码的开始吧。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://img.blog.csdn.net/20150806074055339">
-<meta property="og:image" content="http://img.blog.csdn.net/20150806074132691">
-<meta property="og:image" content="http://img.blog.csdn.net/20150806074207378">
-<meta property="og:image" content="http://img.blog.csdn.net/20150806074443292">
-<meta property="og:image" content="http://img.blog.csdn.net/20150806074520668">
+<meta property="og:image" content="https://bipedalbit.net/static/images/csdn/csdn_25d211e73d.png">
+<meta property="og:image" content="https://bipedalbit.net/static/images/csdn/csdn_32114b1483.png">
+<meta property="og:image" content="https://bipedalbit.net/static/images/csdn/csdn_189c45cdbc.png">
+<meta property="og:image" content="https://bipedalbit.net/static/images/csdn/csdn_4ab1bc4a00.png">
+<meta property="og:image" content="https://bipedalbit.net/static/images/csdn/csdn_0de57cb86e.png">
 <meta property="article:published_time" content="2015-08-05T23:18:00.000Z">
-<meta property="article:modified_time" content="2026-06-18T06:13:54.398Z">
+<meta property="article:modified_time" content="2026-10-22T17:40:32.628Z">
 <meta property="article:author" content="Bipedal Bit">
 <meta property="article:tag" content="nginx">
 <meta property="article:tag" content="C">
 <meta property="article:tag" content="ngx_int_t">
 <meta property="article:tag" content="rbtree">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://img.blog.csdn.net/20150806074055339">
+<meta name="twitter:image" content="https://bipedalbit.net/static/images/csdn/csdn_25d211e73d.png">
   
   
   
@@ -62,11 +62,11 @@
 <!-- 主题依赖的图标库，不要自行修改 -->
 <!-- Do not modify the link that theme dependent icons -->
 
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+<link rel="stylesheet" href="/static/iconfont/font_1749284/font_1749284_5i9bdhy70f8.css">
 
 
 
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+<link rel="stylesheet" href="/static/iconfont/font_1736178/font_1736178_k526ubmyhba.css">
 
 
 <link  rel="stylesheet" href="/css/main.css" />
@@ -329,20 +329,20 @@
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span></span><br><span class="hljs-function"><span class="hljs-title">ngx_rbtree_insert_value</span><span class="hljs-params">(<span class="hljs-type">ngx_rbtree_node_t</span> *temp, <span class="hljs-type">ngx_rbtree_node_t</span> *node,</span></span><br><span class="hljs-params"><span class="hljs-function">    <span class="hljs-type">ngx_rbtree_node_t</span> *sentinel)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">ngx_rbtree_node_t</span>  **p;<span class="hljs-comment">//虽然无关紧要，但两层指针令人费解</span><br><br>    <span class="hljs-keyword">for</span> ( ;; ) &#123;<span class="hljs-comment">//无条件循环或者说死循环，等同于while(1)但节省了一个字符</span><br><br>        p = (node-&gt;key &lt; temp-&gt;key) ? &amp;temp-&gt;left : &amp;temp-&gt;right;<br><br>        <span class="hljs-keyword">if</span> (*p == sentinel) &#123;<span class="hljs-comment">//在二叉树中查找新结点合适的叶结点位置</span><br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br><br>        temp = *p;<br>    &#125;<br>    <span class="hljs-comment">//令新结点占据合适的哨兵位置成为新的叶结点，染红，产生新哨兵</span><br>    *p = node;<br>    node-&gt;parent = temp;<br>    node-&gt;left = sentinel;<br>    node-&gt;right = sentinel;<br>    <span class="hljs-built_in">ngx_rbt_red</span>(node);<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>&nbsp;&nbsp;&nbsp; ngx_rbtree_insert_timer_value<span style="font-family:宋体;">函数跟</span><span style="font-family:Times New Roman;">ngx_rbtree_insert_value</span><span style="font-family:宋体;">函数唯一区别就是判断大小时，采用了两个值相减，避免溢出。</span></p>
 <p>&nbsp;&nbsp;&nbsp; 以上是插入结点涉及的函数，老实说我不太喜欢这么长的函数实现，换我自己写肯定分块了。分支操作太多，看代码逻辑已经乱了，我们需要画几个图。首先，如果树为空：</p>
-<p><img src="http://img.blog.csdn.net/20150806074055339" srcset="/img/loading.gif" lazyload alt="" /><br /></p>
+<p><img src="/static/images/csdn/csdn_25d211e73d.png" srcset="/img/loading.gif" lazyload alt="" /><br /></p>
 <p>&nbsp;&nbsp;&nbsp; 如果树中只有一个根结点：</p>
-<img src="http://img.blog.csdn.net/20150806074132691" srcset="/img/loading.gif" lazyload alt="" />
+<img src="/static/images/csdn/csdn_32114b1483.png" srcset="/img/loading.gif" lazyload alt="" />
 
 <p>&nbsp;&nbsp;&nbsp; 如果<span style="font-family:Times New Roman;">C&gt;A</span><span style="font-family:宋体;">：</span></p>
-<img src="http://img.blog.csdn.net/20150806074207378" srcset="/img/loading.gif" lazyload alt="" />
+<img src="/static/images/csdn/csdn_189c45cdbc.png" srcset="/img/loading.gif" lazyload alt="" />
 
 <p>&nbsp;&nbsp;&nbsp; 如果<span style="font-family:Times New Roman;">C&lt;B&lt;A</span><span style="font-family:宋体;">，</span><span style="font-family:Times New Roman;">C</span><span style="font-family:宋体;">染红，</span><span style="font-family:Times New Roman;">B</span><span style="font-family:宋体;">染黑</span><span style="font-family:Times New Roman;">A</span><span style="font-family:宋体;">染红，</span><span style="font-family:Times New Roman;">A</span><span style="font-family:宋体;">右旋。右旋函数如下：</span></p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">static</span> ngx_inline <span class="hljs-type">void</span></span><br><span class="hljs-function"><span class="hljs-title">ngx_rbtree_right_rotate</span><span class="hljs-params">(<span class="hljs-type">ngx_rbtree_node_t</span> **root, <span class="hljs-type">ngx_rbtree_node_t</span> *sentinel,</span></span><br><span class="hljs-params"><span class="hljs-function">    <span class="hljs-type">ngx_rbtree_node_t</span> *node)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">ngx_rbtree_node_t</span>  *temp;<br><br>    temp = node-&gt;left;<br>    node-&gt;left = temp-&gt;right;<span class="hljs-comment">//左子结点指向原左子结点的右结点</span><br><br>    <span class="hljs-keyword">if</span> (temp-&gt;right != sentinel) &#123;<span class="hljs-comment">//如果左子结点的右结点不为哨兵</span><br>        temp-&gt;right-&gt;parent = node;<span class="hljs-comment">//左子结点的右子结点挂在右旋结点上</span><br>    &#125;<br><br>    temp-&gt;parent = node-&gt;parent;<span class="hljs-comment">//左子结点挂在右旋结点的父结点上</span><br><br>    <span class="hljs-keyword">if</span> (node == *root) &#123;<span class="hljs-comment">//如果右旋结点为根节点</span><br>        *root = temp;<span class="hljs-comment">//根节点赋为左子结点</span><br><br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (node == node-&gt;parent-&gt;right) &#123;<span class="hljs-comment">//如果右旋结点为右子结点</span><br>        node-&gt;parent-&gt;right = temp;<span class="hljs-comment">//左子结点挂父结点右边</span><br><br>    &#125; <span class="hljs-keyword">else</span> &#123;<span class="hljs-comment">//否则左子结点挂父结点左边</span><br>        node-&gt;parent-&gt;left = temp;<br>    &#125;<br><br>    temp-&gt;right = node;<span class="hljs-comment">//右旋结点挂左子结点右边</span><br>    node-&gt;parent = temp;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>&nbsp;&nbsp;&nbsp; 显然<span style="font-family:Times New Roman;">B</span><span style="font-family:宋体;">将成为新的根，左</span><span style="font-family:Times New Roman;">C</span><span style="font-family:宋体;">右</span><span style="font-family:Times New Roman;">A</span><span style="font-family:宋体;">：</span></p>
-<img src="http://img.blog.csdn.net/20150806074443292" srcset="/img/loading.gif" lazyload alt="" />
+<img src="/static/images/csdn/csdn_4ab1bc4a00.png" srcset="/img/loading.gif" lazyload alt="" />
 
 <p>&nbsp;&nbsp;&nbsp; 如果<span style="font-family:Times New Roman;">B&lt;C&lt;A</span><span style="font-family:宋体;">，会先做一次左旋再做一次右旋，其实除开染色过程，我觉得这跟</span><span style="font-family:Times New Roman;">AVL</span><span style="font-family:宋体;">树的插入过程没有什么区别：</span></p>
-<img src="http://img.blog.csdn.net/20150806074520668" srcset="/img/loading.gif" lazyload alt="" />
+<img src="/static/images/csdn/csdn_0de57cb86e.png" srcset="/img/loading.gif" lazyload alt="" />
 
 <p>&nbsp;&nbsp;&nbsp; 其他的插入情景要么与以上几个对称，要么发生在树的其他子树中，实际过程完全一样。LL<span style="font-family:宋体;">型右旋，</span><span style="font-family:Times New Roman;">RR</span><span style="font-family:宋体;">型左旋，</span><span style="font-family:Times New Roman;">LR</span><span style="font-family:宋体;">型先右旋后左旋，</span><span style="font-family:Times New Roman;">RL</span><span style="font-family:宋体;">型先左旋后右旋。</span>与<span style="font-family:Times New Roman;">AVL</span><span style="font-family:宋体;">树不同的是，插入结点时红黑树左旋或右旋的判定条件明确为附近一两个结点的颜色，其他过程没有任何区别。</span></p>
 <h2 id="2-4-红黑树的结点删除"><a href="#2-4-红黑树的结点删除" class="headerlink" title="2.4 红黑树的结点删除"></a>2.4 红黑树的结点删除</h2><p>&nbsp;&nbsp;&nbsp; 据说红黑树和<span style="font-family:Times New Roman;">AVL</span><span style="font-family:宋体;">树的区别主要体现在删除节点时，我们就来看一看。</span>我刚说什么来着，删除结点的函数体更长了，足足<span style="font-family:Times New Roman;">165</span><span style="font-family:宋体;">行，我决定分段研究，</span>先看第一部分：</p>

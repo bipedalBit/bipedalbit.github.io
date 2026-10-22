@@ -28,16 +28,16 @@
 <meta property="og:site_name" content="Hacking to the gate!">
 <meta property="og:description" content="&nbsp;&nbsp;&nbsp; 不管看了多少遍有多滚瓜烂熟，数据结构或者算法的代码如果不亲自码一遍，我总是不敢说自己懂了。这次就来自己动手重写红黑树。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://img.blog.csdn.net/20150816200143108">
-<meta property="og:image" content="http://img.blog.csdn.net/20150816200200052">
+<meta property="og:image" content="https://bipedalbit.net/static/images/csdn/csdn_ddb2175b1c.png">
+<meta property="og:image" content="https://bipedalbit.net/static/images/csdn/csdn_b75c01b3fe.png">
 <meta property="article:published_time" content="2015-08-16T14:06:30.000Z">
-<meta property="article:modified_time" content="2026-06-18T06:13:54.399Z">
+<meta property="article:modified_time" content="2026-10-22T17:40:32.627Z">
 <meta property="article:author" content="Bipedal Bit">
 <meta property="article:tag" content="nginx">
 <meta property="article:tag" content="C">
 <meta property="article:tag" content="rbtree">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://img.blog.csdn.net/20150816200143108">
+<meta name="twitter:image" content="https://bipedalbit.net/static/images/csdn/csdn_ddb2175b1c.png">
   
   
   
@@ -58,11 +58,11 @@
 <!-- 主题依赖的图标库，不要自行修改 -->
 <!-- Do not modify the link that theme dependent icons -->
 
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+<link rel="stylesheet" href="/static/iconfont/font_1749284/font_1749284_5i9bdhy70f8.css">
 
 
 
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+<link rel="stylesheet" href="/static/iconfont/font_1736178/font_1736178_k526ubmyhba.css">
 
 
 <link  rel="stylesheet" href="/css/main.css" />
@@ -842,7 +842,7 @@ step count: 3, color: red, value: strawberry
 key: 10
 step count: 4, color: black, value: watermelon
 </code></pre>
-<p>&nbsp;&nbsp;&nbsp; 下面分别是删除6-&gt;mango前的红黑树和删除后的红黑树示意图：<br><img src="http://img.blog.csdn.net/20150816200143108" srcset="/img/loading.gif" lazyload alt="" height="422" width="400" /><br><img src="http://img.blog.csdn.net/20150816200200052" srcset="/img/loading.gif" lazyload alt="" height="331" width="400" /><br>&nbsp;&nbsp;&nbsp; 下面我们来做个大量数据的压力测试，注意把rbtree_find方法里的测试行注释掉，不然后果恐怕会比较吓人：</p>
+<p>&nbsp;&nbsp;&nbsp; 下面分别是删除6-&gt;mango前的红黑树和删除后的红黑树示意图：<br><img src="/static/images/csdn/csdn_ddb2175b1c.png" srcset="/img/loading.gif" lazyload alt="" height="422" width="400" /><br><img src="/static/images/csdn/csdn_b75c01b3fe.png" srcset="/img/loading.gif" lazyload alt="" height="331" width="400" /><br>&nbsp;&nbsp;&nbsp; 下面我们来做个大量数据的压力测试，注意把rbtree_find方法里的测试行注释掉，不然后果恐怕会比较吓人：</p>
 <pre><code class="hljs">#include &lt;stdio.h&gt;
 #include &lt;stdlib.h&gt;
 #include &lt;time.h&gt;
